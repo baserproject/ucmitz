@@ -10,16 +10,19 @@
  */
 
 namespace BaserCore\Test\TestCase\View\Helper;
+
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\View\BcAdminAppView;
-use BaserCore\View\Helper\BcAdminHelper;
+use BaserCore\View\Helper\BcAuthHelper;
+use Cake\Core\Configure;
 
 /**
  * Class BcAuthHelperTest
  * @package BaserCore\Test\TestCase\View\Helper
- * @property BcAuthHelper $BcAuthHelper
+ * @property BcAuthHelper $BcAuth
  */
 class BcAuthHelperTest extends BcTestCase {
+    
     /**
      * Fixtures
      *
@@ -29,9 +32,7 @@ class BcAuthHelperTest extends BcTestCase {
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
-        'plugin.BaserCore.Plugins',
     ];
-
     /**
      * setUp method
      *
@@ -40,7 +41,24 @@ class BcAuthHelperTest extends BcTestCase {
     public function setUp(): void
     {
         parent::setUp();
+        // adminの場合
+        $this->BcAdminAppView = new BcAdminAppView();
+        $this->BcAdminAppView->setRequest($this->getRequest()->withParam('prefix','Admin'));
+        $this->BcAuth = new BcAuthHelper($this->BcAdminAppView);
     }
+
+    /**
+     * Tear Down
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->BcAdminAppView);
+        unset($this->BcAuth);
+        parent::tearDown();
+    }
+
 
     /**
      * Test getCurrentPrefix
@@ -48,104 +66,172 @@ class BcAuthHelperTest extends BcTestCase {
      */
     public function testGetCurrentPrefix()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        // adminの場合
+        $result = $this->BcAuth->getCurrentPrefix();
+        $this->assertEquals('Admin',$result);
+        // その他の場合
+        $this->BcAdminAppView->setRequest($this->getRequest()->withParam('prefix',null));
+        $BcAuth = new BcAuthHelper($this->BcAdminAppView);
+        $result = $BcAuth->getCurrentPrefix();
+        $this->assertEquals('front',$result);
     }
 
     /**
      * Test getCurrentPrefixSetting
      *@return void
      */
-    public function getCurrentPrefixSetting()
+    public function testGetCurrentPrefixSetting()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        // 管理画面の場合
+        $config = Configure::read('BcPrefixAuth.Admin');
+        $this->assertNotEmpty($config);
+        // その他の場合
+        $config = Configure::read('BcPrefixAuth.front');
+        $this->assertEmpty($config);
     }
 
     /**
      * Test getCurrentLoginUrl
+     * HACK:"/baser/admin/users/login"を環境変数から取得したい
      *@return void
      */
-    public function getCurrentLoginUrl()
+    public function testGetCurrentLoginUrl()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $expected = "/baser/admin/users/login";
+        $result = $this->BcAuth->getCurrentLoginUrl();
+        $this->assertEquals($expected,$result);
     }
     /**
+     * FIXME:getCurrentUserPrefixSettings改修後にテストも改修必
      * Test getCurrentUserPrefixSettings
      *@return void
      */
-    public function getCurrentUserPrefixSettings()
+    public function testGetCurrentUserPrefixSettings()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $result = $this->BcAuth->getCurrentUserPrefixSettings();
+        $this->assertEquals(['admin'],$result);
     }
     /**
      * Test isCurrentUserAdminAvailable
      *@return void
      */
-    public function isCurrentUserAdminAvailable()
+    public function testIsCurrentUserAdminAvailable()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $result = $this->BcAuth->isCurrentUserAdminAvailable();
+        $this->assertTrue($result);
     }
     /**
      * Test getCurrentLoginAction
      *@return void
      */
-    public function getCurrentLoginAction()
+    public function testGetCurrentLoginAction()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $this->markTestIncomplete('テスト対象のメソッドが未実装です');
     }
     /**
      * Test getCurrentName
      *@return void
      */
-    public function getCurrentName()
+    public function testGetCurrentName()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        // prefix(admin)の場合
+        $expected = Configure::read('BcPrefixAuth.Admin')['name'];
+        $result = $this->BcAuth->getCurrentName();
+        $this->assertEquals($expected, $result);
     }
     /**
      * Test isAdminLogin
-     *@return void
+     * @return void
      */
-    public function isAdminLogin()
+    public function testIsAdminLogin()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        // ログインしない場合;
+        $result = $this->BcAuth->isAdminLogin();
+        $this->assertFalse($result);
+        // ログインした場合
+        $this->loginAdmin();
+        $result = $this->BcAuth->isAdminLogin();
+        $this->assertTrue($result);
     }
     /**
      * Test getCurrentLogoutUrl
      *@return void
      */
-    public function getCurrentLogoutUrl()
+    public function testGetCurrentLogoutUrl()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $expected = "/baser/admin/users/logout";
+        $result = $this->BcAuth->getCurrentLogoutUrl();
+        $this->assertEquals($expected,$result);
     }
     /**
      * Test getCurrentLoginRedirectUrl
      *@return void
      */
-    public function getCurrentLoginRedirectUrl()
+    public function testGetCurrentLoginRedirectUrl()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $expected = "/baser/admin";
+        $result = $this->BcAuth->getCurrentLogoutUrl();
+        $this->assertEquals($expected,$result);
     }
     /**
      * Test getCurrentLoginUser
      *@return void
      */
-    public function getCurrentLoginUser()
+    public function testGetCurrentLoginUser()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        // ログインしない場合;
+        $result = $this->BcAuth->getCurrentLoginUser();
+        $this->assertNull($result);
+        // ログインした場合
+        $this->Users = $this->getTableLocator()->get('BaserCore.Users');
+        $expected = $this->Users->find()
+                    ->where(['Users.id' => 1])
+                        ->contain(['UserGroups'])
+                        ->first();
+        $this->loginAdmin();
+        $result = $this->BcAuth->getCurrentLoginUser();
+        $this->assertEquals($result,$expected);
     }
     /**
      * Test isSuperUser
      *@return void
      */
-    public function isSuperUser()
+    public function testIsSuperUser()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        // ログインしない場合
+        $result = $this->BcAuth->isSuperUser();
+        $this->assertFalse($result);
+        // システム管理者の場合 
+        $this->loginAdmin(1);
+        $result = $this->BcAuth->isSuperUser();
+        $this->assertTrue($result);
+        // サイト運営者などそれ以外の場合
+        $this->loginAdmin(2);
+        $result = $this->BcAuth->isSuperUser();
+        $this->assertFalse($result);
     }
     /**
      * Test isAgentUser
+     * @dataProvider isAgentUserDataProvider
      *@return void
      */
-    public function isAgentUser()
+    public function testIsAgentUser($id,$expected)
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        if($id) {
+            $user = $this->loginAdmin($id);
+            $request = $this->BcAdminAppView->getRequest();
+            $session = $request->getSession();
+            $session->write('AuthAgent.User',$user);
+        }
+        $result = $this->BcAuth->isAgentUser();
+        $this->assertEquals($result,$expected);
+    }
+    public function isAgentUserDataProvider() {
+        return [
+            // ログインしてない場合
+            [null,false],
+            // システム管理者などAuthAgentが与えられた場合
+            [1,true],
+        ];
     }
 }
