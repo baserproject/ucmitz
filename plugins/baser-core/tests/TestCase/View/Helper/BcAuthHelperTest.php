@@ -92,7 +92,6 @@ class BcAuthHelperTest extends BcTestCase {
 
     /**
      * Test getCurrentLoginUrl
-     * HACK:"/baser/admin/users/login"を環境変数から取得したい
      *@return void
      */
     public function testGetCurrentLoginUrl()
@@ -169,7 +168,7 @@ class BcAuthHelperTest extends BcTestCase {
      */
     public function testGetCurrentLoginRedirectUrl()
     {
-        $expected = "/baser/admin";
+        $expected = "/baser/admin/users/logout";
         $result = $this->BcAuth->getCurrentLogoutUrl();
         $this->assertEquals($expected,$result);
     }
