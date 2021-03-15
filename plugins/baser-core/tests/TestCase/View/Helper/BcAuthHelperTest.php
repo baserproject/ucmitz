@@ -22,7 +22,7 @@ use Cake\Core\Configure;
  * @property BcAuthHelper $BcAuth
  */
 class BcAuthHelperTest extends BcTestCase {
-    
+
     /**
      * Fixtures
      *
@@ -42,9 +42,9 @@ class BcAuthHelperTest extends BcTestCase {
     {
         parent::setUp();
         // adminの場合
-        $this->BcAdminAppView = new BcAdminAppView();
-        $this->BcAdminAppView->setRequest($this->getRequest()->withParam('prefix','Admin'));
-        $this->BcAuth = new BcAuthHelper($this->BcAdminAppView);
+        $BcAdminAppView = new BcAdminAppView();
+        $BcAdminAppView->setRequest($this->getRequest()->withParam('prefix', 'Admin'));
+        $this->BcAuth = new BcAuthHelper($BcAdminAppView);
     }
 
     /**
@@ -68,12 +68,11 @@ class BcAuthHelperTest extends BcTestCase {
     {
         // adminの場合
         $result = $this->BcAuth->getCurrentPrefix();
-        $this->assertEquals('Admin',$result);
+        $this->assertEquals('Admin', $result);
         // その他の場合
-        $this->BcAdminAppView->setRequest($this->getRequest()->withParam('prefix',null));
-        $BcAuth = new BcAuthHelper($this->BcAdminAppView);
-        $result = $BcAuth->getCurrentPrefix();
-        $this->assertEquals('front',$result);
+        $this->BcAuth->getView()->setRequest($this->getRequest()->withParam('prefix', null));
+        $result = $this->BcAuth->getCurrentPrefix();
+        $this->assertEquals('front', $result);
     }
 
     /**
@@ -83,11 +82,14 @@ class BcAuthHelperTest extends BcTestCase {
     public function testGetCurrentPrefixSetting()
     {
         // 管理画面の場合
-        $config = Configure::read('BcPrefixAuth.Admin');
-        $this->assertNotEmpty($config);
+        $result = $this->BcAuth->getCurrentPrefixSetting();
+        $this->assertEquals($result['name'], "管理システム");
         // その他の場合
-        $config = Configure::read('BcPrefixAuth.front');
-        $this->assertEmpty($config);
+        $this->BcAuth->getView()->setRequest($this->getRequest()->withParam('prefix', null));
+        $currentPrefix = $this->BcAuth->getCurrentPrefix();
+        Configure::write('BcPrefixAuth.' . $currentPrefix,[]);
+        $result = $this->BcAuth->getCurrentPrefixSetting();
+        $this->assertEmpty($result);
     }
 
     /**
@@ -96,19 +98,26 @@ class BcAuthHelperTest extends BcTestCase {
      */
     public function testGetCurrentLoginUrl()
     {
+        // Adminの場合
         $expected = "/baser/admin/users/login";
         $result = $this->BcAuth->getCurrentLoginUrl();
-        $this->assertEquals($expected,$result);
+        $this->assertEquals($expected, $result);
+        // ログインページURLを変更した場合
+        $expected = "/test/users/login";
+        Configure::write('BcPrefixAuth.Admin.loginAction', $expected);
+        $result = $this->BcAuth->getCurrentLoginUrl();
+        $this->assertEquals($expected, $result);
+
     }
     /**
-     * FIXME:getCurrentUserPrefixSettings改修後にテストも改修必
+     * @todo getCurrentUserPrefixSettings改修後にテストも改修必
      * Test getCurrentUserPrefixSettings
      *@return void
      */
     public function testGetCurrentUserPrefixSettings()
     {
         $result = $this->BcAuth->getCurrentUserPrefixSettings();
-        $this->assertEquals(['admin'],$result);
+        $this->assertEquals(['admin'], $result);
     }
     /**
      * Test isCurrentUserAdminAvailable
@@ -160,7 +169,7 @@ class BcAuthHelperTest extends BcTestCase {
     {
         $expected = "/baser/admin/users/logout";
         $result = $this->BcAuth->getCurrentLogoutUrl();
-        $this->assertEquals($expected,$result);
+        $this->assertEquals($expected, $result);
     }
     /**
      * Test getCurrentLoginRedirectUrl
@@ -170,7 +179,7 @@ class BcAuthHelperTest extends BcTestCase {
     {
         $expected = "/baser/admin/users/logout";
         $result = $this->BcAuth->getCurrentLogoutUrl();
-        $this->assertEquals($expected,$result);
+        $this->assertEquals($expected, $result);
     }
     /**
      * Test getCurrentLoginUser
@@ -185,52 +194,60 @@ class BcAuthHelperTest extends BcTestCase {
         $this->Users = $this->getTableLocator()->get('BaserCore.Users');
         $expected = $this->Users->find()
                     ->where(['Users.id' => 1])
-                        ->contain(['UserGroups'])
-                        ->first();
+                    ->contain(['UserGroups'])
+                    ->first();
         $this->loginAdmin();
         $result = $this->BcAuth->getCurrentLoginUser();
-        $this->assertEquals($result,$expected);
+        $this->assertEquals($result, $expected);
     }
     /**
      * Test isSuperUser
+     * @dataProvider isSuperUserDataProvider
      *@return void
      */
-    public function testIsSuperUser()
+    public function testIsSuperUser($id, $expected)
     {
-        // ログインしない場合
+        if($id) {
+            $this->loginAdmin($id);
+        }
         $result = $this->BcAuth->isSuperUser();
-        $this->assertFalse($result);
-        // システム管理者の場合 
-        $this->loginAdmin(1);
-        $result = $this->BcAuth->isSuperUser();
-        $this->assertTrue($result);
-        // サイト運営者などそれ以外の場合
-        $this->loginAdmin(2);
-        $result = $this->BcAuth->isSuperUser();
-        $this->assertFalse($result);
+        $this->assertEquals($result, $expected);
     }
+    public function isSuperUserDataProvider()
+    {
+        return [
+            // ログインしない場合
+            [null, false],
+            // システム管理者の場合
+            [1, true],
+            // サイト運営者などそれ以外の場合
+            [2, false],
+        ];
+    }
+
     /**
      * Test isAgentUser
      * @dataProvider isAgentUserDataProvider
      *@return void
      */
-    public function testIsAgentUser($id,$expected)
+    public function testIsAgentUser($id, $expected)
     {
         if($id) {
-            $user = $this->loginAdmin($id);
-            $request = $this->BcAdminAppView->getRequest();
+            $this->loginAdmin(1);
+            $agentUser = $this->loginAdmin($id);
+            $request = $this->getRequest();
             $session = $request->getSession();
-            $session->write('AuthAgent.User',$user);
+            $session->write('AuthAgent.User', $agentUser);
         }
         $result = $this->BcAuth->isAgentUser();
-        $this->assertEquals($result,$expected);
+        $this->assertEquals($result, $expected);
     }
     public function isAgentUserDataProvider() {
         return [
             // ログインしてない場合
-            [null,false],
-            // システム管理者などAuthAgentが与えられた場合
-            [1,true],
+            [null, false],
+            // 代理ログイン対象ID
+            [2, true],
         ];
     }
 }
