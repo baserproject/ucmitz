@@ -62,7 +62,7 @@ class BcAuthHelperTest extends BcTestCase {
 
     /**
      * Test getCurrentPrefix
-     *@return void
+     * @return void
      */
     public function testGetCurrentPrefix()
     {
@@ -77,7 +77,7 @@ class BcAuthHelperTest extends BcTestCase {
 
     /**
      * Test getCurrentPrefixSetting
-     *@return void
+     * @return void
      */
     public function testGetCurrentPrefixSetting()
     {
@@ -94,7 +94,7 @@ class BcAuthHelperTest extends BcTestCase {
 
     /**
      * Test getCurrentLoginUrl
-     *@return void
+     * @return void
      */
     public function testGetCurrentLoginUrl()
     {
@@ -112,7 +112,7 @@ class BcAuthHelperTest extends BcTestCase {
     /**
      * @todo getCurrentUserPrefixSettings改修後にテストも改修必
      * Test getCurrentUserPrefixSettings
-     *@return void
+     * @return void
      */
     public function testGetCurrentUserPrefixSettings()
     {
@@ -121,7 +121,7 @@ class BcAuthHelperTest extends BcTestCase {
     }
     /**
      * Test isCurrentUserAdminAvailable
-     *@return void
+     * @return void
      */
     public function testIsCurrentUserAdminAvailable()
     {
@@ -130,7 +130,7 @@ class BcAuthHelperTest extends BcTestCase {
     }
     /**
      * Test getCurrentLoginAction
-     *@return void
+     * @return void
      */
     public function testGetCurrentLoginAction()
     {
@@ -138,7 +138,7 @@ class BcAuthHelperTest extends BcTestCase {
     }
     /**
      * Test getCurrentName
-     *@return void
+     * @return void
      */
     public function testGetCurrentName()
     {
@@ -163,7 +163,7 @@ class BcAuthHelperTest extends BcTestCase {
     }
     /**
      * Test getCurrentLogoutUrl
-     *@return void
+     * @return void
      */
     public function testGetCurrentLogoutUrl()
     {
@@ -173,17 +173,17 @@ class BcAuthHelperTest extends BcTestCase {
     }
     /**
      * Test getCurrentLoginRedirectUrl
-     *@return void
+     * @return void
      */
     public function testGetCurrentLoginRedirectUrl()
     {
-        $expected = "/baser/admin/users/logout";
-        $result = $this->BcAuth->getCurrentLogoutUrl();
+        $expected = "/baser/admin";
+        $result = $this->BcAuth->getCurrentLoginRedirectUrl();
         $this->assertEquals($expected, $result);
     }
     /**
      * Test getCurrentLoginUser
-     *@return void
+     * @return void
      */
     public function testGetCurrentLoginUser()
     {
@@ -203,7 +203,7 @@ class BcAuthHelperTest extends BcTestCase {
     /**
      * Test isSuperUser
      * @dataProvider isSuperUserDataProvider
-     *@return void
+     * @return void
      */
     public function testIsSuperUser($id, $expected)
     {
@@ -228,7 +228,7 @@ class BcAuthHelperTest extends BcTestCase {
     /**
      * Test isAgentUser
      * @dataProvider isAgentUserDataProvider
-     *@return void
+     * @return void
      */
     public function testIsAgentUser($id, $expected)
     {
