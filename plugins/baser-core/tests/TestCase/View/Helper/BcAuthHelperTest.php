@@ -110,9 +110,9 @@ class BcAuthHelperTest extends BcTestCase {
 
     }
     /**
-     * @todo getCurrentUserPrefixSettings改修後にテストも改修必
      * Test getCurrentUserPrefixSettings
      * @return void
+     * @todo getCurrentUserPrefixSettings() の実装が完了したら別パターンのテストを追加する
      */
     public function testGetCurrentUserPrefixSettings()
     {
@@ -167,7 +167,13 @@ class BcAuthHelperTest extends BcTestCase {
      */
     public function testGetCurrentLogoutUrl()
     {
+        // Adminの場合
         $expected = "/baser/admin/users/logout";
+        $result = $this->BcAuth->getCurrentLogoutUrl();
+        $this->assertEquals($expected, $result);
+        // ログアウトページURLを変更した場合
+        $expected = "/test/users/logout";
+        Configure::write('BcPrefixAuth.Admin.logoutAction', $expected);
         $result = $this->BcAuth->getCurrentLogoutUrl();
         $this->assertEquals($expected, $result);
     }
@@ -177,7 +183,13 @@ class BcAuthHelperTest extends BcTestCase {
      */
     public function testGetCurrentLoginRedirectUrl()
     {
+        // Adminの場合
         $expected = "/baser/admin";
+        $result = $this->BcAuth->getCurrentLoginRedirectUrl();
+        $this->assertEquals($expected, $result);
+        // 認証後リダイレクト先URLを変更した場合
+        $expected = "/test/users/redirect";
+        Configure::write('BcPrefixAuth.Admin.loginRedirect', $expected);
         $result = $this->BcAuth->getCurrentLoginRedirectUrl();
         $this->assertEquals($expected, $result);
     }
@@ -187,18 +199,17 @@ class BcAuthHelperTest extends BcTestCase {
      */
     public function testGetCurrentLoginUser()
     {
-        // ログインしない場合;
-        $result = $this->BcAuth->getCurrentLoginUser();
-        $this->assertNull($result);
-        // ログインした場合
-        $this->Users = $this->getTableLocator()->get('BaserCore.Users');
-        $expected = $this->Users->find()
-                    ->where(['Users.id' => 1])
-                    ->contain(['UserGroups'])
-                    ->first();
-        $this->loginAdmin();
-        $result = $this->BcAuth->getCurrentLoginUser();
-        $this->assertEquals($result, $expected);
+        $ids = [1, 2];
+        foreach ($ids as $id) {
+            $this->Users = $this->getTableLocator()->get('BaserCore.Users');
+            $expected = $this->Users->find()
+                        ->where(['Users.id' => $id])
+                        ->contain(['UserGroups'])
+                        ->first();
+            $this->loginAdmin($id);
+            $result = $this->BcAuth->getCurrentLoginUser();
+            $this->assertEquals($result, $expected);
+        }
     }
     /**
      * Test isSuperUser
@@ -227,27 +238,18 @@ class BcAuthHelperTest extends BcTestCase {
 
     /**
      * Test isAgentUser
-     * @dataProvider isAgentUserDataProvider
      * @return void
      */
-    public function testIsAgentUser($id, $expected)
+    public function testIsAgentUser()
     {
-        if($id) {
-            $this->loginAdmin(1);
-            $agentUser = $this->loginAdmin($id);
-            $request = $this->getRequest();
-            $session = $request->getSession();
-            $session->write('AuthAgent.User', $agentUser);
-        }
+        // AuthAgent.Userが書き込まれてない場合
         $result = $this->BcAuth->isAgentUser();
-        $this->assertEquals($result, $expected);
-    }
-    public function isAgentUserDataProvider() {
-        return [
-            // ログインしてない場合
-            [null, false],
-            // 代理ログイン対象ID
-            [2, true],
-        ];
+        $this->assertFalse($result);
+        // 書き込まれてる場合
+        $request = $this->getRequest();
+        $session = $request->getSession();
+        $session->write('AuthAgent.User', "test");
+        $result = $this->BcAuth->isAgentUser();
+        $this->assertTrue($result);
     }
 }
