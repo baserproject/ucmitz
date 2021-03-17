@@ -178,7 +178,7 @@ class BcAdminHelperTest extends BcTestCase
             $this->assertStringContainsString("data-adminSearchOpened=\"{$mode}\"", $expected);
         }
     }
-    function searchDataProvider()
+    public function searchDataProvider()
     {
         return [
             // templateがない場合
