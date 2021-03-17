@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 5.1.0
 -- https://www.phpmyadmin.net/
 --
 -- ホスト: bc5-db
--- 生成日時: 2021 年 2 月 24 日 10:43
--- サーバのバージョン： 5.7.29
--- PHP のバージョン: 7.4.4
+-- 生成日時: 2021 年 3 月 14 日 09:56
+-- サーバのバージョン： 5.7.33
+-- PHP のバージョン: 7.4.15
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -138,6 +138,28 @@ CREATE TABLE `password_requests` (
 -- --------------------------------------------------------
 
 --
+-- テーブルの構造 `phinxlog`
+--
+
+DROP TABLE IF EXISTS `phinxlog`;
+CREATE TABLE `phinxlog` (
+  `version` bigint(20) NOT NULL,
+  `migration_name` varchar(100) DEFAULT NULL,
+  `start_time` timestamp NULL DEFAULT NULL,
+  `end_time` timestamp NULL DEFAULT NULL,
+  `breakpoint` tinyint(1) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+--
+-- テーブルのデータのダンプ `phinxlog`
+--
+
+INSERT INTO `phinxlog` (`version`, `migration_name`, `start_time`, `end_time`, `breakpoint`) VALUES
+(20210314094339, 'Initial', '2021-03-14 18:43:40', '2021-03-14 18:43:40', 0);
+
+-- --------------------------------------------------------
+
+--
 -- テーブルの構造 `plugins`
 --
 
@@ -257,10 +279,16 @@ ALTER TABLE `password_requests`
   ADD PRIMARY KEY (`id`);
 
 --
+-- テーブルのインデックス `phinxlog`
+--
+ALTER TABLE `phinxlog`
+  ADD PRIMARY KEY (`version`);
+
+--
 -- テーブルのインデックス `plugins`
 --
 ALTER TABLE `plugins`
-  ADD UNIQUE KEY `id` (`id`);
+  ADD PRIMARY KEY (`id`) USING BTREE;
 
 --
 -- テーブルのインデックス `users`
@@ -281,47 +309,53 @@ ALTER TABLE `user_groups`
   ADD PRIMARY KEY (`id`);
 
 --
--- ダンプしたテーブルのAUTO_INCREMENT
+-- ダンプしたテーブルの AUTO_INCREMENT
 --
 
 --
--- テーブルのAUTO_INCREMENT `contents`
+-- テーブルの AUTO_INCREMENT `contents`
 --
 ALTER TABLE `contents`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- テーブルのAUTO_INCREMENT `content_folders`
+-- テーブルの AUTO_INCREMENT `content_folders`
 --
 ALTER TABLE `content_folders`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- テーブルのAUTO_INCREMENT `pages`
+-- テーブルの AUTO_INCREMENT `pages`
 --
 ALTER TABLE `pages`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- テーブルのAUTO_INCREMENT `password_requests`
+-- テーブルの AUTO_INCREMENT `password_requests`
 --
 ALTER TABLE `password_requests`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT;
 
 --
--- テーブルのAUTO_INCREMENT `users`
+-- テーブルの AUTO_INCREMENT `plugins`
+--
+ALTER TABLE `plugins`
+  MODIFY `id` int(8) NOT NULL AUTO_INCREMENT;
+
+--
+-- テーブルの AUTO_INCREMENT `users`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- テーブルのAUTO_INCREMENT `users_user_groups`
+-- テーブルの AUTO_INCREMENT `users_user_groups`
 --
 ALTER TABLE `users_user_groups`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT COMMENT 'ID', AUTO_INCREMENT=2;
 
 --
--- テーブルのAUTO_INCREMENT `user_groups`
+-- テーブルの AUTO_INCREMENT `user_groups`
 --
 ALTER TABLE `user_groups`
   MODIFY `id` int(8) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
