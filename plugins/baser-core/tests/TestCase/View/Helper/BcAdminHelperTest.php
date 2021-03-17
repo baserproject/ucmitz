@@ -185,7 +185,7 @@ class BcAdminHelperTest extends BcTestCase
             ['',null],
             // templateがある場合 && 検索ボックスclose
             ['users_index',''],
-            // templateがある場合 && 検索ボックスclose
+            // templateがある場合 && 検索ボックスopen
             ['users_index','1'],
         ];
     }
