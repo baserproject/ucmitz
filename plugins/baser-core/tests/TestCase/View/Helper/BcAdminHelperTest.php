@@ -14,6 +14,7 @@ namespace BaserCore\Test\TestCase\View\Helper;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\View\BcAdminAppView;
 use BaserCore\View\Helper\BcAdminHelper;
+use Cake\Routing\Router;
 
 /**
  * Class BcAdminHelperTest
@@ -31,9 +32,20 @@ class BcAdminHelperTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $BcAdminAppView = new BcAdminAppView($this->getRequest());
+        $BcAdminAppView = new BcAdminAppView($this->getRequest()->withParam('controller','users'));
         $BcAdminAppView->setTheme('BcAdminThird');
         $this->BcAdmin = new BcAdminHelper($BcAdminAppView);
+    }
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        Router::reload();
+        unset($BcAdminAppView, $this->BcAdmin);
     }
 
     public function testIsAvailableSideBar()
@@ -134,12 +146,48 @@ class BcAdminHelperTest extends BcTestCase
 
     /**
      * Test search
-     *
+     * @dataProvider searchDataProvider
      * @return void
      */
-    public function testSearch()
+    public function testSearch($template,$mode) {
+        if(!$template) {
+            $this->loadRoutes();
+            ob_start();
+            $this->BcAdmin->search();
+            $actual = ob_get_clean();
+            $this->assertEmpty($actual);
+        } else {
+            $SearchOpenedSaveUrl = '/baser/admin/Utilities/ajax_save_search_box';
+            Router::connect($SearchOpenedSaveUrl. '/*', ['controller' => 'Utilities', 'action' => 'ajax_save_search_box']);
+            Router::connect('/baser/admin/users/index/*', ['controller' => 'users', 'action' => 'index']);
+
+            $this->BcAdmin->getView()->set('search', $template);
+            $session = $this->BcAdmin->getView()->getRequest()->getSession();
+            $session->write('BcApp.adminSearchOpened.Admin', $mode);
+            $expected = $this->BcAdmin->getView()->element('Admin/search', [
+                'search' => $template,
+                'adminSearchOpened' => $mode,
+                'adminSearchOpenedSaveUrl' => $SearchOpenedSaveUrl . "/Admin",
+                ]);
+            ob_start();
+            $this->BcAdmin->search();
+            $actual = ob_get_clean();
+            // templateが同じ内容か
+            $this->assertStringContainsString($actual, $expected);
+            // search_boxが閉じてるか('')開いてるか('1')
+            $this->assertStringContainsString("data-adminSearchOpened=\"{$mode}\"", $expected);
+        }
+    }
+    public function searchDataProvider()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        return [
+            // templateがない場合
+            ['',null],
+            // templateがある場合 && 検索ボックスclose
+            ['users_index',''],
+            // templateがある場合 && 検索ボックスopen
+            ['users_index','1'],
+        ];
     }
 
     /**
