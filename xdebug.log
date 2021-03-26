@@ -1,0 +1,20 @@
+[142] Log opened at 2021-03-26 09:51:34
+[142] I: Connecting to configured address/port: host.docker.internal:9000.
+[142] E: Time-out connecting to client (Waited: 200 ms). :-(
+[142] Log closed at 2021-03-26 09:51:34
+
+[142] Log opened at 2021-03-26 09:51:34
+[142] I: Connecting to configured address/port: host.docker.internal:9000.
+[142] E: Time-out connecting to client (Waited: 200 ms). :-(
+[142] Log closed at 2021-03-26 09:51:34
+
+[143] Log opened at 2021-03-26 09:52:03
+[143] I: Connecting to configured address/port: host.docker.internal:9000.
+[143] E: Time-out connecting to client (Waited: 200 ms). :-(
+[143] Log closed at 2021-03-26 09:52:03
+
+[33] Log opened at 2021-03-26 16:16:23
+[33] I: Connecting to configured address/port: host.docker.internal:9000.
+[33] E: Time-out connecting to client (Waited: 200 ms). :-(
+[33] Log closed at 2021-03-26 16:16:23
+

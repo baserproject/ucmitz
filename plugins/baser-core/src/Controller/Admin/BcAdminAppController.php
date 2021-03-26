@@ -15,6 +15,9 @@ use Cake\Event\EventInterface;
 use BaserCore\Controller\AppController;
 use Cake\Utility\Inflector;
 use Exception;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class BcAdminAppController
@@ -24,6 +27,9 @@ class BcAdminAppController extends AppController
 {
     /**
      * Initialize
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
@@ -39,6 +45,7 @@ class BcAdminAppController extends AppController
      *
      * @param array $targetModel ターゲットとなるモデル
      * @param array $options オプション
+     *
      */
     protected function setViewConditions($targetModel = [], $options = []): void
     {
@@ -193,6 +200,9 @@ class BcAdminAppController extends AppController
     /**
      * Set Title
      * @param string $title
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     protected function setTitle($title): void
     {
@@ -202,6 +212,9 @@ class BcAdminAppController extends AppController
     /**
      * Set Search
      * @param string $template
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     protected function setSearch($template): void
     {
@@ -211,6 +224,9 @@ class BcAdminAppController extends AppController
     /**
      * Set Help
      * @param string $template
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     protected function setHelp($template): void
     {

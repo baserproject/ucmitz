@@ -18,6 +18,9 @@ use Cake\Datasource\{EntityInterface, ResultSetInterface as ResultSetInterfaceAl
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use BaserCore\Model\Table\Exception\CopyFailedException;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class UserGroupsTable
@@ -47,6 +50,9 @@ class UserGroupsTable extends Table
      *
      * @param array $config The configuration for the Table.
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -70,6 +76,9 @@ class UserGroupsTable extends Table
      *
      * @param Validator $validator Validator instance.
      * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -126,6 +135,8 @@ class UserGroupsTable extends Table
      * @param bool $recursive 関連したPermissionもcopyするかしないか
      * @return mixed UserGroups Or false
      * @throws CopyFailedException When copy failed.
+     * @checked
+     * @unitTest
      */
     public function copy($id = null, $data = [], $recursive = true)
     {
