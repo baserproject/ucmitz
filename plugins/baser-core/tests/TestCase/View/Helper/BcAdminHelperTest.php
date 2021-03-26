@@ -46,16 +46,6 @@ class BcAdminHelperTest extends BcTestCase
         $BcAdminAppView->setTheme('BcAdminThird');
         $this->BcAdmin = new BcAdminHelper($BcAdminAppView);
     }
-    /**
-     * tearDown method
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        parent::tearDown();
-        unset($this->BcAdmin);
-    }
 
 	/**
 	 * tearDown method
