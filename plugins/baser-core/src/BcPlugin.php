@@ -19,6 +19,9 @@ use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Migrations\Migrations;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class plugin
@@ -43,6 +46,7 @@ class BcPlugin extends BasePlugin
 
     /**
      * @param \Cake\Routing\RouteBuilder $routes
+     * @checked
      */
     public function routes($routes): void
     {
@@ -55,6 +59,13 @@ class BcPlugin extends BasePlugin
                 if ($this->getName() !== 'BaserCore') {
                     $path .= '/' . Inflector::dasherize($this->getName());
                 }
+
+                /**
+                 * AnalyseController で利用
+                 */
+                $routes->setExtensions(['json']);
+                $routes->fallbacks(InflectedRoute::class);
+
                 $routes->prefix(
                     'Admin',
                     ['path' => $path],
@@ -84,6 +95,7 @@ class BcPlugin extends BasePlugin
             'plugin' => $this->getName(),
             'connection' => 'default'
         ], $options);
+        $pluginName = $options['plugin'];
 
         // TODO clearAllCache 未実装
         // clearAllCache();
@@ -92,7 +104,7 @@ class BcPlugin extends BasePlugin
             $this->migrations->migrate($options);
             $this->migrations->seed($options);
             $plugins = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
-            return $plugins->install($this->getName());
+            return $plugins->install($pluginName);
         } catch (BcException $e) {
             $this->migrations->rollback($options);
             return false;
@@ -102,11 +114,22 @@ class BcPlugin extends BasePlugin
 
     /**
      * プラグインをアンインストールする
+     *  - `plugin` : プラグイン名
+     *  - `connection` : コネクション名
+     *  - `target` : ロールバック対象バージョン
      */
-    public function uninstall() : bool
+    public function uninstall($options = []) : bool
     {
-        // TODO 未実装
-        return true;
+        $options = array_merge([
+            'plugin' => $this->getName(),
+            'connection' => 'default',
+            'target' => 0,
+        ], $options);
+        $pluginName = $options['plugin'];
+
+        $plugins = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
+        $this->migrations->rollback($options);
+        return $plugins->uninstall($pluginName);
     }
 
 }

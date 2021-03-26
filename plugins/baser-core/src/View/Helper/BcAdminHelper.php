@@ -14,6 +14,9 @@ namespace BaserCore\View\Helper;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\View\Helper;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class BcAdminHelper
@@ -30,13 +33,47 @@ class BcAdminHelper extends Helper
      */
     public $helpers = ['BcBaser'];
 
-    /**
-     * @return bool
-     */
-    public function isAdminGlobalmenuUsed()
-    {
-        return true;
-    }
+	/**
+	 * 管理システムグローバルメニューの利用可否確認
+	 *
+	 * @return bool
+	 */
+	public function isAdminGlobalmenuUsed()
+	{
+	    return true;
+	    // TODO 要コード確認
+	    /* >>>
+		if (!BC_INSTALLED) {
+			return false;
+		}
+		if (Configure::read('BcRequest.isUpdater')) {
+			return false;
+		}
+		$user = $this->_View->get('user');
+		if (!$user) {
+			return false;
+		}
+		$UserGroup = ClassRegistry::init('UserGroup');
+		return $UserGroup->isAdminGlobalmenuUsed($user['user_group_id']);
+	    <<< */
+	}
+
+	/**
+	 * ログインユーザーがシステム管理者かチェックする
+	 *
+	 * @return boolean
+	 */
+	public function isSystemAdmin()
+	{
+		$user = $this->_View->getVar('user');
+		if (empty($this->request->params['admin']) || !$user) {
+			return false;
+		}
+		if ($user['user_group_id'] == Configure::read('BcApp.adminGroupId')) {
+			return true;
+		}
+		return false;
+	}
 
     /**
      * JSON形式でメニューデータを取得する
@@ -205,6 +242,9 @@ class BcAdminHelper extends Helper
     /**
      * サイドバーが利用可能か確認する
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isAvailableSideBar()
     {
@@ -222,6 +262,9 @@ class BcAdminHelper extends Helper
     /**
      * Set Title
      * @param string $title
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function setTitle($title): void
     {
@@ -231,6 +274,9 @@ class BcAdminHelper extends Helper
     /**
      * Set Help
      * @param string $template
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function setHelp($template): void
     {
@@ -240,6 +286,9 @@ class BcAdminHelper extends Helper
     /**
      * Set Search
      * @param string $template
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function setSearch($template): void
     {
@@ -248,6 +297,9 @@ class BcAdminHelper extends Helper
 
     /**
      * Title
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function title(): void
     {
@@ -256,6 +308,9 @@ class BcAdminHelper extends Helper
 
     /**
      * Help
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function help(): void
     {
@@ -267,6 +322,8 @@ class BcAdminHelper extends Helper
 
     /**
      * Search
+     * @checked
+     * @noTodo
      */
     public function search(): void
     {
@@ -289,6 +346,9 @@ class BcAdminHelper extends Helper
 
     /**
      * Contents Menu
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function contentsMenu(): void
     {

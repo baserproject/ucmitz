@@ -10,6 +10,9 @@
  */
 
 namespace BaserCore\View\Helper;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class BcAdminFormHelper
@@ -36,6 +39,9 @@ class BcAdminFormHelper extends BcFormHelper
      * @param string $name
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function control(string $name, array $options = []): string
     {
