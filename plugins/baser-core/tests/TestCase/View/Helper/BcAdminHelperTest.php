@@ -14,7 +14,6 @@ namespace BaserCore\Test\TestCase\View\Helper;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\View\BcAdminAppView;
 use BaserCore\View\Helper\BcAdminHelper;
-use Cake\Routing\Router;
 
 /**
  * Class BcAdminHelperTest
@@ -44,7 +43,6 @@ class BcAdminHelperTest extends BcTestCase
     public function tearDown(): void
     {
         parent::tearDown();
-        Router::reload();
         unset($this->BcAdmin);
     }
 
@@ -146,40 +144,21 @@ class BcAdminHelperTest extends BcTestCase
 
     /**
      * Test search
-     * @dataProvider searchDataProvider
      * @return void
      */
-    public function testSearch($template,$mode) {
-        if(!$template) {
-            $this->loadRoutes();
-            ob_start();
-            $this->BcAdmin->search();
-            $actual = ob_get_clean();
-            $this->assertEmpty($actual);
-        } else {
-            $SearchOpenedSaveUrl = '/baser/admin/utilities/ajax_save_search_box';
-            Router::connect($SearchOpenedSaveUrl. '/*', ['controller' => 'utilities', 'action' => 'ajax_save_search_box']);
-            Router::connect('/baser/admin/users/index/*', ['controller' => 'users', 'action' => 'index']);
-            $this->BcAdmin->getView()->set('search', $template);
-            $session = $this->BcAdmin->getView()->getRequest()->getSession();
-            $session->write('BcApp.adminSearchOpened.Admin', $mode);
+    public function testSearch() {
 
-            ob_start();
-            $this->BcAdmin->search();
-            $actual = ob_get_clean();
-            $this->assertRegExp('/class="bca-search">(.*)<form/s', $actual);
-        }
-    }
-    public function searchDataProvider()
-    {
-        return [
-            // templateがない場合
-            ['',null],
-            // templateがある場合 && 検索ボックスclose
-            ['users_index',''],
-            // templateがある場合 && 検索ボックスopen
-            ['users_index','1'],
-        ];
+        $this->loadRoutes();
+        ob_start();
+        $this->BcAdmin->search();
+        $actual = ob_get_clean();
+        $this->assertEmpty($actual);
+
+        $this->BcAdmin->getView()->set('search', 'users_index');
+        ob_start();
+        $this->BcAdmin->search();
+        $actual = ob_get_clean();
+        $this->assertRegExp('/class="bca-search">(.*)<form/s', $actual);
     }
 
     /**
