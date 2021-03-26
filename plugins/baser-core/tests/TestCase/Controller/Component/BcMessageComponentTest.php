@@ -1,96 +1,109 @@
 <?php
+// TODO : コード確認要
+return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS User Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
  *
- * @copyright     Copyright (c) baserCMS User Community
- * @link          https://basercms.net baserCMS Project
- * @since         5.0.0
- * @license       http://basercms.net/license/index.html MIT License
+ * @copyright       Copyright (c) baserCMS Users Community
+ * @link            https://basercms.net baserCMS Project
+ * @package         Baser.Test.Case.Controller.Component
+ * @since           baserCMS v 4.1.6
+ * @license         https://basercms.net/license/index.html
  */
 
-namespace BaserCore\Test\TestCase\Controller\Component;
-
-use BaserCore\TestSuite\BcTestCase;
-use Cake\Controller\Controller;
-use Cake\Controller\ComponentRegistry;
-use BaserCore\Controller\Component\BcMessageComponent;
+App::uses('BcContentsComponent', 'Controller/Component');
+App::uses('Controller', 'Controller');
 
 /**
  * Class BcMessageTestController
  *
- * @package BaserCore\Test\TestCase\Controller\Component
+ * @package Baser.Test.Case.Controller.Component
  * @property BcMessageComponent $BcMessage
  */
 class BcMessageTestController extends Controller
 {
-    /**
-     * @var BaserCore\Controller\Component\BcMessageComponent;
-     */
-
-    public function initialize(): void
-    {
-        parent::initialize();
-        $this->loadComponent('Flash');
-    }
+	public $components = ['Flash', 'BcMessage'];
 }
 
 /**
- * BaserCore\Controller\BcMessageComponent Test Case
- * @package BaserCore\Test\TestCase\Controller\Component;
- * @property BcMessageComponent $BcMessage
+ * Class BcMessageComponentTest
+ *
+ * @package Baser.Test.Case.Controller.Component
  */
-class BcMessageComponentTest extends BcTestCase
+class BcMessageComponentTest extends BaserTestCase
 {
 
-    /**
-     * set up
-     */
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->Controller = new BcMessageTestController();
-        $this->ComponentRegistry = new ComponentRegistry($this->Controller);
-        $this->BcMessage = new BcMessageComponent($this->ComponentRegistry);
-    }
+	/**
+	 * Fixtures
+	 *
+	 * @var array
+	 */
+	public $fixtures = [
+		'baser.Default.Dblog',
+	];
 
-    /**
-     * Tear Down
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        unset($_SESSION);
-        parent::tearDown();
-    }
+	/**
+	 * BcMessageComponent
+	 *
+	 * @var BcMessageComponent
+	 */
+	public $BcMessage;
 
-    /**
-     * Test set
-     * @return void
-     */
-    public function testSet()
-    {
-        // notice message
+	/**
+	 * Set Up
+	 */
+	public function setUp()
+	{
+		parent::setUp();
+		$controller = new BcMessageTestController(new CakeRequest(), new CakeResponse());
+		$controller->constructClasses();
+		$controller->startupProcess();
+		$this->BcMessage = $controller->BcMessage;
+	}
+
+	/**
+	 * Tear Down
+	 */
+	public function tearDown()
+	{
+		parent::tearDown();
+		unset($this->BcMessage);
+		$_SESSION['Message'] = null;
+	}
+
+	/**
+	 * set
+	 */
+	public function testSet()
+	{
+		// notice message
 		$this->BcMessage->set('test');
-		$this->assertEquals('test', $_SESSION['Flash']['flash'][0]['message']);
-		$this->assertEquals('notice-message', $_SESSION['Flash']['flash'][0]['params']['class']);
+		$this->assertEquals('test', $_SESSION['Message']['flash'][0]['message']);
+		$this->assertEquals('notice-message', $_SESSION['Message']['flash'][0]['params']['class']);
 
 		// multi message
 		$this->BcMessage->set('test');
-		$this->assertEquals(2, count($_SESSION['Flash']['flash']));
-        $_SESSION['Flash'] = null;
+		$this->assertEquals(2, count($_SESSION['Message']['flash']));
+		$_SESSION['Message'] = null;
+
 		// alert message
-		$a = $this->BcMessage->set('test', true);
-		$this->assertEquals('alert-message', $_SESSION['Flash']['flash'][0]['params']['class']);
-        $_SESSION['Flash'] = null;
-		// TODO:set db log
+		$this->BcMessage->set('test', true);
+		$this->assertEquals('alert-message', $_SESSION['Message']['flash'][0]['params']['class']);
+		$this->BcMessage->set('test', false, true);
+		$_SESSION['Message'] = null;
+
+		// set db log
 		/* @var Dblog $dbLogModel */
+		$dbLogModel = ClassRegistry::init('DbLog');
+		$dbLogModel->field('name', [], 'id DESC');
+		$this->assertEquals('test', $dbLogModel->field('name', [], 'id DESC'));
+		$_SESSION['Message'] = null;
 
 		// not flash message
 		$this->BcMessage->set('test', false, false, false);
-		$this->assertEquals(null, $_SESSION['Flash']);
-    }
+		$this->assertEquals(null, $_SESSION['Message']);
+	}
 
 	/**
 	 * setSuccess
@@ -98,7 +111,7 @@ class BcMessageComponentTest extends BcTestCase
 	public function testSetSuccess()
 	{
 		$this->BcMessage->setSuccess('test');
-		$this->assertEquals('notice-message', $_SESSION['Flash']['flash'][0]['params']['class']);
+		$this->assertEquals('notice-message', $_SESSION['Message']['flash'][0]['params']['class']);
 	}
 
 	/**
@@ -107,7 +120,7 @@ class BcMessageComponentTest extends BcTestCase
 	public function testSetError()
 	{
 		$this->BcMessage->setError('test');
-		$this->assertEquals('alert-message', $_SESSION['Flash']['flash'][0]['params']['class']);
+		$this->assertEquals('alert-message', $_SESSION['Message']['flash'][0]['params']['class']);
 	}
 
 	/**
@@ -116,7 +129,7 @@ class BcMessageComponentTest extends BcTestCase
 	public function testSetWarning()
 	{
 		$this->BcMessage->setWarning('test');
-		$this->assertEquals('warning-message', $_SESSION['Flash']['flash'][0]['params']['class']);
+		$this->assertEquals('warning-message', $_SESSION['Message']['flash'][0]['params']['class']);
 	}
 
 	/**
@@ -125,7 +138,7 @@ class BcMessageComponentTest extends BcTestCase
 	public function testSetInfo()
 	{
 		$this->BcMessage->setInfo('test');
-		$this->assertEquals('info-message', $_SESSION['Flash']['flash'][0]['params']['class']);
+		$this->assertEquals('info-message', $_SESSION['Message']['flash'][0]['params']['class']);
 	}
 
 }
