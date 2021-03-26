@@ -32,7 +32,7 @@ class BcAdminHelperTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $BcAdminAppView = new BcAdminAppView($this->getRequest()->withParam('controller','users'));
+        $BcAdminAppView = new BcAdminAppView($this->getRequest()->withParam('controller', 'users'));
         $BcAdminAppView->setTheme('BcAdminThird');
         $this->BcAdmin = new BcAdminHelper($BcAdminAppView);
     }
@@ -45,7 +45,7 @@ class BcAdminHelperTest extends BcTestCase
     {
         parent::tearDown();
         Router::reload();
-        unset($BcAdminAppView, $this->BcAdmin);
+        unset($this->BcAdmin);
     }
 
     public function testIsAvailableSideBar()
@@ -157,25 +157,17 @@ class BcAdminHelperTest extends BcTestCase
             $actual = ob_get_clean();
             $this->assertEmpty($actual);
         } else {
-            $SearchOpenedSaveUrl = '/baser/admin/Utilities/ajax_save_search_box';
-            Router::connect($SearchOpenedSaveUrl. '/*', ['controller' => 'Utilities', 'action' => 'ajax_save_search_box']);
+            $SearchOpenedSaveUrl = '/baser/admin/utilities/ajax_save_search_box';
+            Router::connect($SearchOpenedSaveUrl. '/*', ['controller' => 'utilities', 'action' => 'ajax_save_search_box']);
             Router::connect('/baser/admin/users/index/*', ['controller' => 'users', 'action' => 'index']);
-
             $this->BcAdmin->getView()->set('search', $template);
             $session = $this->BcAdmin->getView()->getRequest()->getSession();
             $session->write('BcApp.adminSearchOpened.Admin', $mode);
-            $expected = $this->BcAdmin->getView()->element('Admin/search', [
-                'search' => $template,
-                'adminSearchOpened' => $mode,
-                'adminSearchOpenedSaveUrl' => $SearchOpenedSaveUrl . "/Admin",
-                ]);
+
             ob_start();
             $this->BcAdmin->search();
             $actual = ob_get_clean();
-            // templateが同じ内容か
-            $this->assertStringContainsString($actual, $expected);
-            // search_boxが閉じてるか('')開いてるか('1')
-            $this->assertStringContainsString("data-adminSearchOpened=\"{$mode}\"", $expected);
+            $this->assertRegExp('/class="bca-search">(.*)<form/s', $actual);
         }
     }
     public function searchDataProvider()
