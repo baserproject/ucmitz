@@ -104,11 +104,18 @@ class BcPlugin extends BasePlugin
 
         // TODO clearAllCache 未実装
         // clearAllCache();
-
+        $pluginPath = BcUtil::getPluginPath($options['plugin']);
         try {
-            $this->migrations->migrate($options);
-            $this->migrations->seed($options);
             $plugins = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
+            $plugin = $plugins->findByName($pluginName)->first();
+            if(!$plugin || !$plugin->db_init) {
+                if (is_dir($pluginPath . 'config' . DS . 'Migrations')) {
+                    $this->migrations->migrate($options);
+                }
+                if (is_dir($pluginPath . 'config' . DS . 'Seeds')) {
+                    $this->migrations->seed($options);
+                }
+            }
             return $plugins->install($pluginName);
         } catch (BcException $e) {
             $this->migrations->rollback($options);
