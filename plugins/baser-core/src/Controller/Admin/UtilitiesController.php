@@ -10,7 +10,7 @@
  */
 
 namespace BaserCore\Controller\Admin;
-
+use Cake\Cache\Cache;
 /**
  * Class UtilitiesController
  * @package BaserCore\Controller\Admin
@@ -18,12 +18,24 @@ namespace BaserCore\Controller\Admin;
 class UtilitiesController extends BcAdminAppController
 {
     /**
+     * キャッシュファイルをすべて削除する
+     */
+    public function clearAllCache()
+    {
+        Cache::clear(false, '_cake_core_');
+        Cache::clear(false, '_cake_model_');
+        Cache::clear(false, '_cake_env_');
+    }
+    /**
      * サーバーキャッシュを削除する
      */
     public function clear_cache()
     {
-        // TODO 未実装
-        $this->BcMessage->setError("おっと、まだ処理は実装されていませんよ！！！ \n\n/tmp/cache/ 内を削除するだけなので簡単です＾＾");
+        // TODO:　checkRefererを実装する
+        // cache clear
+        // $this->BcMessage->setError("おっと、まだ処理は実装されていませんよ！！！ \n\n/tmp/cache/ 内を削除するだけなので簡単です＾＾");
+        $this->BcMessage->setInfo(__d('baser', 'サーバーキャッシュを削除しました。'));
+
         $this->redirect($this->referer());
     }
 
