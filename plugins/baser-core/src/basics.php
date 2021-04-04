@@ -9,10 +9,15 @@
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
-
-App::uses('EmailComponent', 'Controller/Component');
-App::uses('BcEmailComponent', 'Controller/Component');
-App::uses('CakeText', 'Utility');
+// TODO: 一部の関数使うため一時的にコメントアウト
+// App::uses('EmailComponent', 'Controller/Component');
+// App::uses('BcEmailComponent', 'Controller/Component');
+// App::uses('CakeText', 'Utility');
+use Cake\Utility\Inflector;
+use Cake\Utility\Text;
+use Cake\Cache\Cache;
+use Cake\Filesystem\Folder;
+use Cake\Filesystem\File;
 
 /**
  * baserCMS共通関数
@@ -300,6 +305,75 @@ function getPureUrl($Request)
 }
 
 /**
+ * NOTE: cakephp2系から移植
+ * Used to delete files in the cache directories, or clear contents of cache directories
+ *
+ * @param string|array $params As String name to be searched for deletion, if name is a directory all files in
+ *   directory will be deleted. If array, names to be searched for deletion. If clearCache() without params,
+ *   all files in app/tmp/cache/views will be deleted
+ * @param string $type Directory in tmp/cache defaults to view directory
+ * @param string $ext The file extension you are deleting
+ * @return bool `true` if files found and deleted, `false` otherwise.
+ */
+function clearCache($params = null, $type = 'views', $ext = '.php') {
+    if (is_string($params) || $params === null) {
+        $params = preg_replace('/\/\//', '/', $params);
+        $cache = CACHE . $type . DS . $params;
+
+        if (is_file($cache . $ext)) {
+            //@codingStandardsIgnoreStart
+            @unlink($cache . $ext);
+            //@codingStandardsIgnoreEnd
+            return true;
+        } elseif (is_dir($cache)) {
+            $files = glob($cache . '*');
+
+            if ($files === false) {
+                return false;
+            }
+
+            foreach ($files as $file) {
+                if (is_file($file) && strrpos($file, DS . 'empty') !== strlen($file) - 6) {
+                    //@codingStandardsIgnoreStart
+                    @unlink($file);
+                    //@codingStandardsIgnoreEnd
+                }
+            }
+            return true;
+        }
+        $cache = array(
+            CACHE . $type . DS . '*' . $params . $ext,
+            CACHE . $type . DS . '*' . $params . '_*' . $ext
+        );
+        $files = array();
+        while ($search = array_shift($cache)) {
+            $results = glob($search);
+            if ($results !== false) {
+                $files = array_merge($files, $results);
+            }
+        }
+        if (empty($files)) {
+            return false;
+        }
+        foreach ($files as $file) {
+            if (is_file($file) && strrpos($file, DS . 'empty') !== strlen($file) - 6) {
+                //@codingStandardsIgnoreStart
+                @unlink($file);
+                //@codingStandardsIgnoreEnd
+            }
+        }
+        return true;
+
+    } elseif (is_array($params)) {
+        foreach ($params as $file) {
+            clearCache($file, $type, $ext);
+        }
+        return true;
+    }
+    return false;
+}
+
+/**
  * Viewキャッシュを削除する
  * URLを指定しない場合は全てのViewキャッシュを削除する
  * 全て削除する場合、標準の関数clearCacheだとemptyファイルまで削除されてしまい、
@@ -346,11 +420,11 @@ function clearViewCache($url = null, $ext = '.php')
 		}
 	} elseif ($url) {
 		if (preg_match('/\/index$/', $url)) {
-			clearCache(strtolower(Inflector::slug($url)), 'views', $ext);
+			clearCache(strtolower(Text::slug($url)), 'views', $ext);
 			$url = preg_replace('/\/index$/', '', $url);
-			clearCache(strtolower(Inflector::slug($url)), 'views', $ext);
+			clearCache(strtolower(Text::slug($url)), 'views', $ext);
 		} else {
-			clearCache(strtolower(Inflector::slug($url)), 'views', $ext);
+			clearCache(strtolower(Text::slug($url)), 'views', $ext);
 		}
 	} else {
 		$folder = new Folder(CACHE . 'views' . DS);
@@ -388,7 +462,7 @@ function clearDataCache()
 function clearAllCache()
 {
 
-	Cache::clear(false, '_cake_core_');
+    Cache::clear(false, '_cake_core_');
 	Cache::clear(false, '_cake_model_');
 	Cache::clear(false, '_cake_env_');
 	// viewキャッシュ削除

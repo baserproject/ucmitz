@@ -18,7 +18,8 @@ use Exception;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-
+use BaserCore\Utility\BcUtil;
+use \Cake\Http\Exception\NotFoundException;
 /**
  * Class BcAdminAppController
  * @package BaserCore\Controller\Admin
@@ -232,5 +233,23 @@ class BcAdminAppController extends AppController
     {
         $this->set('help', $template);
     }
+
+    /**
+	 * リファラチェックを行う
+	 *
+	 * @return bool
+	 */
+	protected function _checkReferer()
+	{
+		$siteDomain = BcUtil::getCurrentDomain();
+		if (empty($_SERVER['HTTP_REFERER'])) {
+			return false;
+		}
+		$refererDomain = BcUtil::getDomain($_SERVER['HTTP_REFERER']);
+		if (!preg_match('/^' . preg_quote($siteDomain, '/') . '/', $refererDomain)) {
+			throw new NotFoundException();
+		}
+		return true;
+	}
 
 }
