@@ -60,10 +60,10 @@ class UtilitiesControllerTest extends BcTestCase
 
         // cacheファイルのバックアップ作成
         $folder = new Folder();
-        $from = CACHE;
-        $to = str_replace('cache', 'cache_backup', CACHE);
-        $folder->move($to, [
-            'from' => $from,
+        $origin = CACHE;
+        $backup = str_replace('cache', 'cache_backup', CACHE);
+        $folder->move($backup, [
+            'from' => $origin,
             'mode' => 0777,
             'schema' => Folder::OVERWRITE,
         ]);
@@ -90,11 +90,12 @@ class UtilitiesControllerTest extends BcTestCase
         }
 
         // cacheファイル復元
-        $folder->move($from, [
-            'from' => $to,
+        $folder->move($origin, [
+            'from' => $backup,
             'mode' => 0777,
             'schema' => Folder::OVERWRITE,
         ]);
+        $folder->chmod($origin, 0777);
     }
 
     /**
