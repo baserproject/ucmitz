@@ -34,4 +34,4 @@ Cache::setConfig(Configure::consume('Cache'));
  * パス定義
  */
 require __DIR__ . DS . 'paths.php';
-require BASER . DS . 'src' . DS . 'basics.php';
+// require BASER . DS . 'src' . DS . 'basics.php';
