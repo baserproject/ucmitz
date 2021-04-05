@@ -13,18 +13,25 @@ namespace BaserCore\Test\TestCase\Controller;
 
 use Cake\TestSuite\IntegrationTestTrait;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Controller\Admin\UtilitiesController;
+use Cake\Filesystem\Folder;
+use Cake\Cache\Cache;
 
 /**
- * BaserCore\Controller\UtilitiesController Test Case
+ * class UtilitiesControllerTest
+ * @package Cake\TestSuite\BcTestCase;
+ * @package BaserCore\Controller\Admin\UtilitiesController;
  */
 class UtilitiesControllerTest extends BcTestCase
 {
+    use IntegrationTestTrait;
     /**
      * set up
      */
     public function setUp(): void
     {
         parent::setUp();
+        $this->UtilitiesController = new UtilitiesController();
     }
 
     /**
@@ -34,6 +41,9 @@ class UtilitiesControllerTest extends BcTestCase
 	 */
 	public function tearDown(): void
 	{
+        Cache::drop('_cake_env_');
+        Cache::drop('_cake_core_');
+        Cache::drop('_cake_model_');
 		parent::tearDown();
 	}
 
@@ -44,7 +54,47 @@ class UtilitiesControllerTest extends BcTestCase
 	 */
     public function testClear_cache(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+        $this->get('/baser/admin/utilities/clear_cache');
+        $this->assertResponseCode(302);
+
+        // cacheファイルのバックアップ作成
+        $folder = new Folder();
+        $from = CACHE;
+        $to = str_replace('cache', 'cache_backup', CACHE);
+        $folder->move($to, [
+            'from' => $from,
+            'mode' => 0777,
+            'schema' => Folder::OVERWRITE,
+        ]);
+
+        // cache環境準備
+        $cacheList = ['enviroment' => '_cake_env_', 'persistent' => '_cake_core_', 'models' => '_cake_model_'];
+
+        foreach ($cacheList as $path => $cacheName) {
+            Cache::drop($cacheName);
+            Cache::setConfig($cacheName, [
+                'className' => "File",
+                'prefix' => 'myapp'. $cacheName,
+                'path' => CACHE . $path . DS,
+                'serialize' => true,
+                'duration' => '+999 days',
+            ]);
+            Cache::write($cacheName . 'test', 'testtest', $cacheName);
+        }
+
+        // 削除実行
+        $this->UtilitiesController->clear_cache();
+        foreach($cacheList as $cacheName) {
+            $this->assertNull(Cache::read($cacheName . 'test', $cacheName));
+        }
+
+        // cacheファイル復元
+        $folder->move($from, [
+            'from' => $to,
+            'mode' => 0777,
+            'schema' => Folder::OVERWRITE,
+        ]);
     }
 
     /**
