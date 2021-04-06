@@ -17,6 +17,8 @@ return [
          * 特権管理者グループID
          */
         'adminGroup' => ['admins'],
+        // 管理者グループID
+        'adminGroupId' => 1,
         /**
          * コアパッケージ名
          */
@@ -203,6 +205,5 @@ return [
             'duration' => '+999 days',
             'url' => env('CACHE_CAKEENV_URL', null),
         ],
-    ]
-
+    ],
 ];
