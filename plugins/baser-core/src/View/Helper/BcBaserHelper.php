@@ -488,17 +488,14 @@ class BcBaserHelper extends Helper
      */
     public function isAdminUser($userGroupId = null)
     {
-        // TODO 未実装
-        // >>>
-        return true;
-        // <<<
-        if (!$userGroupId) {
-            return BcUtil::isAdminUser();
-        }
-        if ($userGroupId == Configure::read('BcApp.adminGroupId')) {
-            return true;
+        if ($userGroupId) {
+            if ($userGroupId == Configure::read('BcApp.adminGroupId')) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
-            return false;
+            return BcUtil::isAdminUser();
         }
     }
 
