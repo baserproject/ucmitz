@@ -33,20 +33,20 @@ class UtilitiesControllerTest extends BcTestCase
     }
 
     /**
-	 * tearDown
-	 *
-	 * @return void
-	 */
-	public function tearDown(): void
-	{
-		parent::tearDown();
-	}
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        parent::tearDown();
+    }
 
     /**
-	 * test clear_cache
-	 *
-	 * @return void
-	 */
+     * test clear_cache
+     *
+     * @return void
+     */
     public function testClear_cache(): void
     {
 
@@ -55,10 +55,10 @@ class UtilitiesControllerTest extends BcTestCase
     }
 
     /**
-	 * test ajax_save_search_box
-	 *
-	 * @return void
-	 */
+     * test ajax_save_search_box
+     *
+     * @return void
+     */
     public function testAjax_save_search_box(): void
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');

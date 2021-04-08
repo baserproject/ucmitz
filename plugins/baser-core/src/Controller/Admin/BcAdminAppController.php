@@ -235,23 +235,23 @@ class BcAdminAppController extends AppController
     }
 
     /**
-	 * リファラチェックを行う
+     * リファラチェックを行う
      * @checked
      * @noTodo
      * @unitTest
-	 * @return bool
-	 */
-	protected function _checkReferer(): bool
-	{
-		$siteDomain = BcUtil::getCurrentDomain();
-		if (empty($_SERVER['HTTP_REFERER'])) {
-			return false;
-		}
-		$refererDomain = BcUtil::getDomain($_SERVER['HTTP_REFERER']);
-		if (!preg_match('/^' . preg_quote($siteDomain, '/') . '/', $refererDomain)) {
-			throw new NotFoundException();
-		}
-		return true;
-	}
+     * @return bool
+     */
+    protected function _checkReferer(): bool
+    {
+        $siteDomain = BcUtil::getCurrentDomain();
+        if (empty($_SERVER['HTTP_REFERER'])) {
+            return false;
+        }
+        $refererDomain = BcUtil::getDomain($_SERVER['HTTP_REFERER']);
+        if (!preg_match('/^' . preg_quote($siteDomain, '/') . '/', $refererDomain)) {
+            throw new NotFoundException();
+        }
+        return true;
+    }
 
 }
