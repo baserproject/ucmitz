@@ -17,6 +17,7 @@ use BaserCore\View\BcAdminAppView;
 use BaserCore\View\Helper\BcBaserHelper;
 use Cake\View\Helper\FlashHelper;
 use Cake\View\Helper\UrlHelper;
+use Cake\Routing\Router;
 
 
 // use BaserCore\View\BcAdminAppView;
@@ -41,7 +42,50 @@ class BcBaserHelperTest extends BcTestCase {
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
+
+        // TODO: basercms4系より移植
+        // 'baser.Default.Page',    // メソッド内で読み込む
+		// 'baser.Default.Content',    // メソッド内で読み込む
+		// 'baser.Routing.Route.BcContentsRoute.ContentBcContentsRoute',    // メソッド内で読み込む
+		// 'baser.Routing.Route.BcContentsRoute.SiteBcContentsRoute',    // メソッド内で読み込む
+		// 'baser.View.Helper.BcBaserHelper.PageBcBaserHelper',
+		// 'baser.View.Helper.BcBaserHelper.SiteConfigBcBaserHelper',
+		// 'baser.Default.SearchIndex',
+		// 'baser.Default.User',
+		// 'baser.Default.UserGroup',
+		// 'baser.Default.Favorite',
+		// 'baser.Default.Permission',
+		// 'baser.Default.ThemeConfig',
+		// 'baser.Default.WidgetArea',
+		// 'baser.Default.Plugin',
+		// 'baser.Default.BlogContent',
+		// 'baser.Default.BlogPost',
+		// 'baser.Default.BlogCategory',
+		// 'baser.Default.BlogTag',
+		// 'baser.Default.BlogPostsBlogTag',
+		// 'baser.Default.Site',
+		// 'baser.Default.BlogComment',
+		// 'baser.View.Helper.BcContentsHelper.ContentBcContentsHelper',
     ];
+
+    /**
+	 * View
+	 *
+	 * @var View
+	 */
+	protected $_View;
+
+	/**
+	 * __construct
+	 * @since basercms4
+	 * @param string $name
+	 * @param array $data
+	 * @param string $dataName
+	 */
+	public function __construct($name = null, array $data = [], $dataName = '')
+	{
+		parent::__construct($name, $data, $dataName);
+	}
     /**
      * setUp method
      *
@@ -56,6 +100,17 @@ class BcBaserHelperTest extends BcTestCase {
         $this->Flash = new FlashHelper($this->BcAdminAppView);
         $this->Url = new UrlHelper($this->BcAdminAppView);
 
+        // TODO: basercms4より移植
+        // $this->_View = new BcAppView();
+		// $this->_View->request = $this->_getRequest('/');
+		// $SiteConfig = ClassRegistry::init('SiteConfig');
+		// $siteConfig = $SiteConfig->findExpanded();
+		// $this->_View->set('widgetArea', $siteConfig['widget_area']);
+		// $this->_View->set('siteConfig', $siteConfig);
+		// $this->_View->helpers = ['BcBaser'];
+		// $this->_View->loadHelpers();
+		// $this->BcBaser = $this->_View->BcBaser;
+
 
     }
 
@@ -67,10 +122,10 @@ class BcBaserHelperTest extends BcTestCase {
     public function tearDown(): void
     {
         unset($this->BcAdminAppView, $this->BcBaser, $this->Html, $this->Flash, $this->Url);
+        Router::reload();
         parent::tearDown();
     }
-
-    /**
+        /**
      * Test BcBaser->jsが適切な<script>を取得できているかテスト
      *
      * @return void
@@ -288,15 +343,21 @@ class BcBaserHelperTest extends BcTestCase {
     }
 
     /**
-     * Test getContentsTitle
-     *
-     * @return void
+	 * コンテンツタイトルを取得する
+	 * @since basercms4
      * @todo メソッド未実装
-     */
-    public function testGetContentsTitle()
-    {
-        $this->markTestIncomplete('テストが未実装です');
-    }
+	 * @return void
+	 */
+	public function testGetContentsTitle()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+		// 設定なし
+		$this->assertEmpty($this->BcBaser->getContentsTitle());
+
+		// 設定あり
+		$this->BcBaser->setTitle('会社データ');
+		$this->assertEquals('会社データ', $this->BcBaser->getContentsTitle());
+	}
 
     /**
      * Test BcBaser->contentsNameが適切なコンテンツ名を出力してるかテスト
@@ -366,5 +427,466 @@ class BcBaserHelperTest extends BcTestCase {
             $this->assertEquals($expected, $result);
         }
     }
+
+    /**************** TODO:下記basercms4系より移行 メソッドが準備され次第　調整して上記のテストコードに追加してください　********************/
+
+    /**
+	 * ログイン状態にする
+	 * @since basercms4
+	 * @return void
+	 */
+	protected function _login()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$User = ClassRegistry::init('User');
+		$user = $User->find('first', ['conditions' => ['User.id' => 1]]);
+		unset($user['User']['password']);
+		$this->BcBaser->set('user', $user['User']);
+		$user['User']['UserGroup'] = $user['UserGroup'];
+		$sessionKey = BcUtil::authSessionKey('admin');
+		$_SESSION['Auth'][$sessionKey] = $user['User'];
+	}
+
+	/**
+	 * ログイン状態を解除する
+	 * @since basercms4
+	 * @return void
+	 */
+	protected function _logout()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->set('user', '');
+	}
+    	/**
+	 * タイトルを設定する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testSetTitle()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$topTitle = '｜baserCMS inc. [デモ]';
+		$this->BcBaser->request = $this->_getRequest('/about');
+		// カテゴリがない場合
+		$this->BcBaser->setTitle('会社案内');
+		$this->assertEquals("会社案内{$topTitle}", $this->BcBaser->getTitle());
+
+		// カテゴリがある場合
+		$this->BcBaser->request = $this->_getRequest('/service/service2');
+		$this->BcBaser->_View->set('crumbs', [
+			['name' => '会社案内', 'url' => '/service/index'],
+			['name' => '会社データ', 'url' => '/service/data']
+		]);
+		$this->BcBaser->setTitle('会社沿革');
+		$this->assertEquals("会社沿革｜会社データ｜会社案内{$topTitle}", $this->BcBaser->getTitle());
+
+		// カテゴリは存在するが、カテゴリの表示をオフにした場合
+		$this->BcBaser->setTitle('会社沿革', false);
+		$this->assertEquals("会社沿革{$topTitle}", $this->BcBaser->getTitle());
+	}
+
+    /**
+	 * タイトルをセットする
+     * @since basercms4
+	 */
+	public function testSetHomeTitle()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->setHomeTitle();
+		$this->assertEquals(null, $this->_View->viewVars['homeTitle'], 'タイトルをセットできません。');
+
+		$this->BcBaser->setHomeTitle('hoge');
+		$this->assertEquals('hoge', $this->_View->viewVars['homeTitle'], 'タイトルをセットできません。');
+	}
+
+    /**
+	 * ページにeditLinkを追加する
+     * @since basercms4
+	 */
+	public function testSetPageEditLink()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		// 存在しない
+		$this->BcBaser->setPageEditLink(1);
+		$this->assertEquals(true, empty($this->_View->viewVars['editLink']));
+		// 存在する
+		$this->_View->viewVars['user'] = ['User' => ['id' => 1]];
+		$this->BcBaser->setPageEditLink(1);
+		$this->assertEquals(['admin' => true, 'controller' => 'pages', 'action' => 'edit', '0' => '1'], $this->_View->viewVars['editLink']);
+	}
+
+    /**
+	 * meta タグのキーワードを設定する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testSetKeywords()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->setKeywords('baserCMS,国産,オープンソース');
+		$this->assertEquals('baserCMS,国産,オープンソース', $this->BcBaser->getKeywords());
+	}
+
+    	/**
+	 * meta タグの説明文を設定する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testSetDescription()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->setDescription('国産オープンソースのホームページです');
+		$this->assertEquals('国産オープンソースのホームページです', $this->BcBaser->getDescription());
+	}
+
+	/**
+	 * レイアウトで利用する為の変数を設定する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testSet()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->set('keywords', 'baserCMS,国産,オープンソース');
+		$this->assertEquals('baserCMS,国産,オープンソース', $this->BcBaser->getKeywords());
+	}
+
+    /**
+	 * タイトルへのカテゴリタイトルの出力有無を設定する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testSetCategoryTitle()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$topTitle = '｜baserCMS inc. [デモ]';
+		$this->BcBaser->request = $this->_getRequest('/about');
+		$this->BcBaser->_View->set('crumbs', [
+			['name' => '会社案内', 'url' => '/company/index'],
+			['name' => '会社データ', 'url' => '/company/data']
+		]);
+		$this->BcBaser->setTitle('会社沿革');
+
+		// カテゴリをオフにした場合
+		$this->BcBaser->setCategoryTitle(false);
+		$this->assertEquals("会社沿革{$topTitle}", $this->BcBaser->getTitle());
+
+		// カテゴリをオンにした場合
+		$this->BcBaser->setCategoryTitle(true);
+		$this->assertEquals("会社沿革｜会社データ｜会社案内{$topTitle}", $this->BcBaser->getTitle());
+
+		// カテゴリを指定した場合
+		$this->BcBaser->setCategoryTitle('店舗案内');
+		$this->assertEquals("会社沿革｜店舗案内{$topTitle}", $this->BcBaser->getTitle());
+
+		// パンくず用にリンクも指定した場合
+		$this->BcBaser->setCategoryTitle([
+			'name' => '店舗案内',
+			'url' => '/shop/index'
+		]);
+		$expected = [
+			[
+				'name' => '店舗案内',
+				'url' => '/shop/index'
+			],
+			[
+				'name' => '会社沿革',
+				'url' => ''
+			]
+		];
+		$this->assertEquals($expected, $this->BcBaser->getCrumbs());
+	}
+
+    /**
+	 * meta タグ用のキーワードを取得する
+	 * @since basercms4
+	 * @param string $expected 期待値
+	 * @param string|null $keyword 設定されるキーワードの文字列
+	 * @dataProvider getKeywordsDataProvider
+	 */
+	public function testGetKeywords($expected, $keyword = null)
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		if ($keyword !== null) {
+			$this->BcBaser->setKeywords($keyword);
+		}
+		$this->assertEquals($expected, $this->BcBaser->getKeywords());
+	}
+
+	public function getKeywordsDataProvider()
+	{
+		return [
+			['baser,CMS,コンテンツマネジメントシステム,開発支援'],
+			['baser,CMS,コンテンツマネジメントシステム,開発支援', ''],
+			['baserCMS,国産,オープンソース', 'baserCMS,国産,オープンソース'],
+		];
+	}
+
+    /**
+	 * meta タグ用のページ説明文を取得する
+	 * @since basercms4
+	 * @param string $expected 期待値
+	 * @param string|null $description 設定されるキーワードの文字列
+	 * @return void
+	 * @dataProvider getDescriptionDataProvider
+	 */
+	public function testGetDescription($expected, $description = null)
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		if ($description !== null) {
+			$this->BcBaser->setDescription($description);
+		}
+		$this->assertEquals($expected, $this->BcBaser->getDescription());
+	}
+
+	public function getDescriptionDataProvider()
+	{
+		return [
+			['baserCMS は、CakePHPを利用し、環境準備の素早さに重点を置いた基本開発支援プロジェクトです。Webサイトに最低限必要となるプラグイン、そしてそのプラグインを組み込みやすい管理画面、認証付きのメンバーマイページを最初から装備しています。', ''],
+			['国産オープンソースのホームページです', '国産オープンソースのホームページです']
+		];
+	}
+
+    	/**
+	 * タイトルタグを取得する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testGetTitle()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$topTitle = 'baserCMS inc. [デモ]';
+		$this->BcBaser->request = $this->_getRequest('/about');
+		// 通常
+		$this->BcBaser->_View->set('crumbs', [
+			['name' => '会社案内', 'url' => '/company/index'],
+			['name' => '会社データ', 'url' => '/company/data']
+		]);
+		$this->BcBaser->setTitle('会社沿革');
+		$this->assertEquals("会社沿革｜会社データ｜会社案内｜{$topTitle}", $this->BcBaser->getTitle());
+
+		// 区切り文字を ≫ に変更
+		$this->assertEquals("会社沿革≫会社データ≫会社案内≫{$topTitle}", $this->BcBaser->getTitle('≫'));
+
+		// カテゴリタイトルを除外
+		$this->assertEquals("会社沿革｜{$topTitle}", $this->BcBaser->getTitle('｜', false));
+
+		// カテゴリが対象ページと同じ場合に省略する
+		$this->BcBaser->setTitle('会社データ');
+		$this->assertEquals("会社データ｜会社案内｜{$topTitle}", $this->BcBaser->getTitle('｜', true));
+
+		// strip_tagの機能確認 tag付
+		$this->BcBaser->setTitle('会社<br>沿革<center>真ん中</center>');
+		$this->assertEquals("会社<br>沿革<center>真ん中</center>｜会社データ｜会社案内｜{$topTitle}", $this->BcBaser->getTitle('｜', true));
+
+		// strip_tagの機能確認 tagを削除
+		$options = [
+			'categoryTitleOn' => true,
+			'tag' => false
+		];
+		$this->assertEquals("会社沿革真ん中｜会社データ｜会社案内｜{$topTitle}", $this->BcBaser->getTitle('｜', $options));
+
+		// 一部タグだけ削除
+		$options = [
+			'categoryTitleOn' => true,
+			'tag' => false,
+			'allowableTags' => '<center>'
+		];
+		$this->assertEquals("会社沿革<center>真ん中</center>｜会社データ｜会社案内｜{$topTitle}", $this->BcBaser->getTitle('｜', $options));
+	}
+
+    /**
+	 * パンくずリストの配列を取得する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testGetCrumbs()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		// パンくずが設定されてない場合
+		$result = $this->BcBaser->getCrumbs(true);
+		$this->assertEmpty($result);
+
+		// パンくずが設定されている場合
+		$this->BcBaser->_View->set('crumbs', [
+			['name' => '会社案内', 'url' => '/company/index'],
+			['name' => '会社データ', 'url' => '/company/data']
+		]);
+		$this->BcBaser->setTitle('会社沿革');
+		$expected = [
+			['name' => '会社案内', 'url' => '/company/index'],
+			['name' => '会社データ', 'url' => '/company/data'],
+			['name' => '会社沿革', 'url' => '']
+		];
+		$this->assertEquals($expected, $this->BcBaser->getCrumbs(true));
+
+		// パンくずは設定されているが、オプションでカテゴリをオフにした場合
+		$expected = [
+			['name' => '会社沿革', 'url' => '']
+		];
+		$this->assertEquals($expected, $this->BcBaser->getCrumbs(false));
+	}
+
+	/**
+	 * コンテンツタイトルを出力する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testContentsTitle()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+		$this->expectOutputString('会社データ');
+		$this->BcBaser->setTitle('会社データ');
+		$this->BcBaser->contentsTitle();
+	}
+
+	/**
+	 * コンテンツメニューを取得する
+     * @since basercms4
+	 */
+	public function testGetContentsMenu()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->assertRegExp('/<ul class="menu ul-level-1">/s', $this->BcBaser->getContentsMenu());
+		$this->assertRegExp('/<ul class="menu ul-level-1">/s', $this->BcBaser->getContentsMenu(1, 1));
+		$this->assertRegExp('/<ul class="menu ul-level-1">/s', $this->BcBaser->getContentsMenu(1, 1, 1));
+	}
+
+    /**
+	 * タイトルタグを出力する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testTitle()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$topTitle = 'baserCMS inc. [デモ]';
+		$title = '会社データ';
+		$this->BcBaser->request = $this->_getRequest('/about');
+		$this->expectOutputString('<title>' . $title . '｜' . $topTitle . '</title>' . PHP_EOL);
+		$this->BcBaser->setTitle($title);
+		$this->BcBaser->title();
+	}
+
+	/**
+	 * キーワード用のメタタグを出力する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testMetaKeywords()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->setKeywords('baserCMS,国産,オープンソース');
+		ob_start();
+		$this->BcBaser->metaKeywords();
+		$result = ob_get_clean();
+		$excepted = [
+			'meta' => [
+				'name' => 'keywords',
+				'content' => 'baserCMS,国産,オープンソース'
+			]
+		];
+
+		$this->assertTags($result, $excepted);
+	}
+
+    /**
+	 * ページ説明文用のメタタグを出力する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testMetaDescription()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->setDescription('国産オープンソースのホームページです');
+		ob_start();
+		$this->BcBaser->metaDescription();
+		$result = ob_get_clean();
+		$excepted = [
+			'meta' => [
+				'name' => 'description',
+				'content' => '国産オープンソースのホームページです'
+			]
+		];
+		$this->assertTags($result, $excepted);
+	}
+
+	/**
+	 * RSSフィードのリンクタグを出力する
+	 * @since basercms4
+	 * @return void
+	 */
+	public function testRss()
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		ob_start();
+		$this->BcBaser->rss('ブログ', 'http://localhost/blog/');
+		$result = ob_get_clean();
+		$excepted = [
+			'link' => [
+				'href' => 'http://localhost/blog/',
+				'type' => 'application/rss+xml',
+				'rel' => 'alternate',
+				'title' => 'ブログ'
+			]
+		];
+		$this->assertTags($result, $excepted);
+	}
+
+    /**
+	 * 現在のページがトップページかどうかを判定する
+	 * @since basercms4
+	 * @param bool $expected 期待値
+	 * @param string $url リクエストURL
+	 * @return void
+	 * @dataProvider isHomeDataProvider
+	 */
+	public function testIsHome($expected, $url)
+	{
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+		$this->BcBaser->request = $this->_getRequest($url);
+		$this->assertEquals($expected, $this->BcBaser->isHome());
+	}
+
+	public function isHomeDataProvider()
+	{
+		return [
+			//PC
+			[true, '/'],
+			[true, '/index'],
+			[false, '/news/index'],
+
+			// モバイルページ
+			[true, '/m/'],
+			[true, '/m/index'],
+			[false, '/m/news/index'],
+
+			// スマートフォンページ
+			[true, '/s/'],
+			[true, '/s/index'],
+			[false, '/s/news/index'],
+			[false, '/s/news/index']
+		];
+	}
+
 
 }
