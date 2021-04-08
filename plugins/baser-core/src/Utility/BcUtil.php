@@ -298,13 +298,16 @@ class BcUtil
 	 *
 	 * @return boolean
 	 */
-	public static function isAdminUser()
+	public static function isAdminUser(): bool
 	{
 		$user = self::loginUser('admin');
-		if (empty($user['UserGroup']['id'])) {
+        $group = $user['AuthAdmin']->user_groups;
+		if (empty($group)) {
 			return false;
 		}
-		return ($user['UserGroup']['id'] == Configure::read('BcApp.adminGroupId'));
+        $group_id = array_column($group, 'id');
+
+		return (in_array(Configure::read('BcApp.adminGroupId'), $group_id));
 	}
 
 	/**

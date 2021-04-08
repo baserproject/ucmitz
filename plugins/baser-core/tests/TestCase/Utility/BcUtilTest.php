@@ -18,8 +18,10 @@ use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
+use Cake\Http\Session;
 
 /**
+ * TODO: $this->getRequest();などをsetupに統一する
  * Class BcUtilTest
  * @package BaserCore\Test\TestCase\Utility
  */
@@ -201,6 +203,37 @@ class BcUtilTest extends BcTestCase
         $this->assertEquals(false, BcUtil::includePluginClass('BcTest'));
     }
 
+    /**
+	 * 管理ユーザーかチェック
+	 *
+	 * @param string $userGroupId ユーザーグループ名
+	 * @param bool $expect 期待値
+     * @return void
+	 * @dataProvider isAdminUserDataProvider
+	 */
+	public function testIsAdminUser($userGroupId, $expect): void
+	{
+        // TODO: sessionを後にsetupに統一する
+        Bcutil::loginUser();
+		$Session = new Session();
+		$sessionKey = Configure::read('BcPrefixAuth.admin.sessionKey');
+		$Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
+		$result = BcUtil::isAdminUser();
+		$this->assertEquals($expect, $result, '正しく管理ユーザーがチェックできません');
+	}
+    /**
+	 * isAdminUser用データプロバイダ
+	 *
+	 * @return array
+	 */
+	public function isAdminUserDataProvider()
+	{
+		return [
+			[Configure::read('BcApp.adminGroupId'), true],
+			['hoge', false],
+			['', false],
+		];
+	}
 
 	/**
 	 * 管理システムかチェック
@@ -238,42 +271,6 @@ class BcUtilTest extends BcTestCase
 	}
 
 	/**
-	 * 管理ユーザーかチェック
-	 *
-	 * @param string $userGroupId ユーザーグループ名
-	 * @param bool $expect 期待値
-	 * @dataProvider isAdminUserDataProvider
-	 */
-	public function testIsAdminUser($userGroupId, $expect)
-	{
-
-	    // TODO ucmitz移行時に未実装のため代替措置
-	    // >>>
-	    $this->markTestIncomplete('このテストは、まだ実装されていません。');
-	    // <<<
-
-		$Session = new CakeSession();
-		$sessionKey = Configure::read('BcAuthPrefix.admin.sessionKey');
-		$Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
-		$result = BcUtil::isAdminUser();
-		$this->assertEquals($expect, $result, '正しく管理ユーザーがチェックできません');
-	}
-
-	/**
-	 * isAdminUser用データプロバイダ
-	 *
-	 * @return array
-	 */
-	public function isAdminUserDataProvider()
-	{
-		return [
-			[Configure::read('BcApp.adminGroupId'), true],
-			['hoge', false],
-			['', false],
-		];
-	}
-
-	/**
 	 * 現在ログインしているユーザーのユーザーグループ情報を取得する
 	 */
 	public function testLoginUserGroup()
@@ -296,6 +293,7 @@ class BcUtilTest extends BcTestCase
 		$this->assertEmpty($result, 'ログインユーザーのデータを正しく取得できません');
 
 		// ログインしている場合
+
 		$Session = new CakeSession();
 		$Session->write('Auth.' . BcUtil::authSessionKey() . '.name', 'hoge');
 		$result = BcUtil::loginUserName();
