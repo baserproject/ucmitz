@@ -19,7 +19,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Utility\BcUtil;
-use \Cake\Http\Exception\NotFoundException;
+use Cake\Http\Exception\NotFoundException;
 /**
  * Class BcAdminAppController
  * @package BaserCore\Controller\Admin
@@ -241,7 +241,7 @@ class BcAdminAppController extends AppController
      * @unitTest
 	 * @return bool
 	 */
-	protected function _checkReferer()
+	protected function _checkReferer(): bool
 	{
 		$siteDomain = BcUtil::getCurrentDomain();
 		if (empty($_SERVER['HTTP_REFERER'])) {
