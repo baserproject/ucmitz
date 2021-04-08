@@ -236,7 +236,9 @@ class BcAdminAppController extends AppController
 
     /**
 	 * リファラチェックを行う
-	 *
+     * @checked
+     * @noTodo
+     * @unitTest
 	 * @return bool
 	 */
 	protected function _checkReferer()

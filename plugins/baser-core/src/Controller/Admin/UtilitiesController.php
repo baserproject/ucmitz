@@ -10,7 +10,7 @@
  */
 
 namespace BaserCore\Controller\Admin;
-use Cake\Cache\Cache;
+use BaserCore\Utility\BcUtil;
 /**
  * Class UtilitiesController
  * @package BaserCore\Controller\Admin
@@ -23,9 +23,7 @@ class UtilitiesController extends BcAdminAppController
     public function clear_cache()
     {
         $this->_checkReferer();
-        Cache::clear('_cake_core_');
-        Cache::clear('_cake_model_');
-        Cache::clear('_cake_env_');
+        BcUtil::clearAllCache();
         $this->BcMessage->setInfo(__d('baser', 'サーバーキャッシュを削除しました。'));
         $this->redirect($this->referer());
     }
