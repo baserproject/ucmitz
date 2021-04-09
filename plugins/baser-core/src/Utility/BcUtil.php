@@ -270,7 +270,6 @@ class BcUtil
 
     /**
      * キャッシュファイルを全て削除する
-     * @todo view・dataキャッシュ未実装
      * @return void
      * @checked
      * @unitTest
@@ -280,9 +279,9 @@ class BcUtil
         Cache::clear('_cake_core_');
         Cache::clear('_cake_model_');
         Cache::clear('_cake_env_');
-        // viewキャッシュ削除
+        //TODO: viewキャッシュ削除
         // clearCache();
-        // dataキャッシュ削除
+        //TODO: dataキャッシュ削除
         // clearDataCache();
     }
 
