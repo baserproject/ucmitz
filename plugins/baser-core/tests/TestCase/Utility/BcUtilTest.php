@@ -46,7 +46,7 @@ class BcUtilTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Session = new Session();
+        $this->request = $this->getRequest();
     }
 
     /**
@@ -60,7 +60,6 @@ class BcUtilTest extends BcTestCase
         Cache::drop('_cake_core_');
         Cache::drop('_cake_model_');
         parent::tearDown();
-        $this->Session->destroy();
     }
 
     /**
@@ -70,7 +69,6 @@ class BcUtilTest extends BcTestCase
      */
     public function testLoginUser($isLogin, $expects): void
     {
-        $this->getRequest();
         if ($isLogin) {
             $this->loginAdmin();
         }
@@ -98,7 +96,6 @@ class BcUtilTest extends BcTestCase
      */
     public function testIsSuperUser($id, $expects): void
     {
-        $this->getRequest();
         if ($id) {
             $this->loginAdmin($id);
         }
@@ -126,10 +123,9 @@ class BcUtilTest extends BcTestCase
     public function testIsAgentUser($id, $expects): void
     {
 
-        $request = $this->getRequest();
         if ($id) {
             $user = $this->loginAdmin($id);
-            $session = $request->getSession();
+            $session = $this->request->getSession();
             $session->write('AuthAgent.User', $user);
         }
         $result = BcUtil::isAgentUser();
@@ -317,19 +313,19 @@ class BcUtilTest extends BcTestCase
     /**
      * 管理ユーザーかチェック
      *
-     * @param string $userGroupId ユーザーグループ名
+     * @param string $id ユーザーグループに基づいたid
      * @param bool $expect 期待値
      * @return void
      * @dataProvider isAdminUserDataProvider
      */
-    public function testIsAdminUser($userGroupId, $expect): void
+    public function testIsAdminUser($id, $expect): void
     {
-        // TODO: sessionを後にsetupに統一する
-        Bcutil::loginUser();
-        $sessionKey = Configure::read('BcPrefixAuth.admin.sessionKey');
-        $this->Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
+        $sessionKey = Configure::read('BcPrefixAuth.Admin.sessionKey');
+        $session = $this->request->getSession();
+        $user = $this->getUser($id);
+        $session->write($sessionKey, $user);
         $result = BcUtil::isAdminUser();
-        $this->assertEquals($expect, $result, '正しく管理ユーザーがチェックできません');
+        $this->assertEquals($expect, $result);
     }
     /**
      * isAdminUser用データプロバイダ
@@ -339,9 +335,10 @@ class BcUtilTest extends BcTestCase
     public function isAdminUserDataProvider()
     {
         return [
-            [Configure::read('BcApp.adminGroupId'), true],
-            ['hoge', false],
-            ['', false],
+            // 管理ユーザー
+            [1, true],
+            // 運営者ユーザー
+            [2, false],
         ];
     }
     /**

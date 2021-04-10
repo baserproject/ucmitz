@@ -308,6 +308,9 @@ class BcUtil
      * 管理ユーザーかチェック
      * @param array|null
      * @return bool
+     * @checked
+     * @notodo
+     * @unitTest
      */
 	public static function isAdminUser($user = null): bool
 	{

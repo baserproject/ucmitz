@@ -492,6 +492,9 @@ class BcBaserHelper extends Helper
      *
      * @param array| BaserCore\Model\Entity\User $user ユーザー（初期値 : null）※ 指定しない場合は、現在のログインユーザーについてチェックする
      * @return bool 管理者グループの場合は true を返す
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isAdminUser($user = null): bool
     {
