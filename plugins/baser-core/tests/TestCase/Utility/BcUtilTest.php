@@ -234,38 +234,6 @@ class BcUtilTest extends BcTestCase
     }
 
     /**
-     * 管理ユーザーかチェック
-     *
-     * @param string $userGroupId ユーザーグループ名
-     * @param bool $expect 期待値
-     * @return void
-     * @dataProvider isAdminUserDataProvider
-     */
-    public function testIsAdminUser($userGroupId, $expect): void
-    {
-        // TODO: sessionを後にsetupに統一する
-        Bcutil::loginUser();
-        $Session = new Session();
-        $sessionKey = Configure::read('BcPrefixAuth.admin.sessionKey');
-        $Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
-        $result = BcUtil::isAdminUser();
-        $this->assertEquals($expect, $result, '正しく管理ユーザーがチェックできません');
-    }
-    /**
-     * isAdminUser用データプロバイダ
-     *
-     * @return array
-     */
-    public function isAdminUserDataProvider()
-    {
-        return [
-            [Configure::read('BcApp.adminGroupId'), true],
-            ['hoge', false],
-            ['', false],
-        ];
-    }
-
-    /**
      * test clearAllCache
      * @return void
      */
@@ -344,29 +312,25 @@ class BcUtilTest extends BcTestCase
             ['hoge/', false],
         ];
     }
-
     /**
      * 管理ユーザーかチェック
      *
      * @param string $userGroupId ユーザーグループ名
      * @param bool $expect 期待値
+     * @return void
      * @dataProvider isAdminUserDataProvider
      */
-    public function testIsAdminUser($userGroupId, $expect)
+    public function testIsAdminUser($userGroupId, $expect): void
     {
-
-        // TODO ucmitz移行時に未実装のため代替措置
-        // >>>
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        // <<<
-
-        $Session = new CakeSession();
-        $sessionKey = Configure::read('BcAuthPrefix.admin.sessionKey');
+        $this->markTestIncomplete("現在進行中");
+        // TODO: sessionを後にsetupに統一する
+        Bcutil::loginUser();
+        $Session = new Session();
+        $sessionKey = Configure::read('BcPrefixAuth.admin.sessionKey');
         $Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
         $result = BcUtil::isAdminUser();
         $this->assertEquals($expect, $result, '正しく管理ユーザーがチェックできません');
     }
-
     /**
      * isAdminUser用データプロバイダ
      *
@@ -380,7 +344,6 @@ class BcUtilTest extends BcTestCase
             ['', false],
         ];
     }
-
     /**
      * 現在ログインしているユーザーのユーザーグループ情報を取得する
      */
