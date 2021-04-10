@@ -46,6 +46,7 @@ class BcUtilTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->Session = new Session();
     }
 
     /**
@@ -59,6 +60,7 @@ class BcUtilTest extends BcTestCase
         Cache::drop('_cake_core_');
         Cache::drop('_cake_model_');
         parent::tearDown();
+        $this->Session->destroy();
     }
 
     /**
@@ -66,7 +68,7 @@ class BcUtilTest extends BcTestCase
      * @return void
      * @dataProvider loginUserDataProvider
      */
-    public function testLoginUser($isLogin, $expects) : void
+    public function testLoginUser($isLogin, $expects): void
     {
         $this->getRequest();
         if ($isLogin) {
@@ -94,7 +96,7 @@ class BcUtilTest extends BcTestCase
      * @return void
      * @dataProvider isSuperUserDataProvider
      */
-    public function testIsSuperUser($id, $expects) : void
+    public function testIsSuperUser($id, $expects): void
     {
         $this->getRequest();
         if ($id) {
@@ -121,7 +123,7 @@ class BcUtilTest extends BcTestCase
      * @return void
      * @dataProvider isAgentUserDataProvider
      */
-    public function testIsAgentUser($id, $expects) : void
+    public function testIsAgentUser($id, $expects): void
     {
 
         $request = $this->getRequest();
@@ -150,7 +152,7 @@ class BcUtilTest extends BcTestCase
      * @return void
      * @dataProvider isInstallModeDataProvider
      */
-    public function testIsInstallMode($mode, $expects) : void
+    public function testIsInstallMode($mode, $expects): void
     {
         $_SERVER["INSTALL_MODE"] = $mode;
         $result = BcUtil::isInstallMode();
@@ -171,7 +173,7 @@ class BcUtilTest extends BcTestCase
      * Test getVersion
      * @return void
      */
-    public function testGetVersion() : void
+    public function testGetVersion(): void
     {
         // BaserCore
         $file = new File(BASER . DS . 'VERSION.txt');
@@ -201,7 +203,7 @@ class BcUtilTest extends BcTestCase
      * バージョンを特定する一意の数値を取得する
      * @return void
      */
-    public function testVerpoint() : void
+    public function testVerpoint(): void
     {
         $version = 'baserCMS 3.0.6.1';
         $result = BcUtil::verpoint($version);
@@ -216,7 +218,7 @@ class BcUtilTest extends BcTestCase
      * 有効なプラグインの一覧を取得する
      * @return void
      */
-    public function testGetEnablePlugins() : void
+    public function testGetEnablePlugins(): void
     {
         $expects = ['BcBlog'];
         $result = BcUtil::getEnablePlugins();
@@ -227,7 +229,7 @@ class BcUtilTest extends BcTestCase
      * testIncludePluginClass
      * @return void
      */
-    public function testIncludePluginClass() : void
+    public function testIncludePluginClass(): void
     {
         $this->assertEquals(true, BcUtil::includePluginClass('BcBlog'));
         $this->assertEquals(false, BcUtil::includePluginClass('BcTest'));
@@ -237,7 +239,7 @@ class BcUtilTest extends BcTestCase
      * test clearAllCache
      * @return void
      */
-    public function testClearAllCache() : void
+    public function testClearAllCache(): void
     {
          // cacheファイルのバックアップ作成
         $folder = new Folder();
@@ -322,12 +324,10 @@ class BcUtilTest extends BcTestCase
      */
     public function testIsAdminUser($userGroupId, $expect): void
     {
-        $this->markTestIncomplete("現在進行中");
         // TODO: sessionを後にsetupに統一する
         Bcutil::loginUser();
-        $Session = new Session();
         $sessionKey = Configure::read('BcPrefixAuth.admin.sessionKey');
-        $Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
+        $this->Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
         $result = BcUtil::isAdminUser();
         $this->assertEquals($expect, $result, '正しく管理ユーザーがチェックできません');
     }

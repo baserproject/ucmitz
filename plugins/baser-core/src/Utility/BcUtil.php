@@ -46,12 +46,7 @@ class BcUtil
     {
         $session = Router::getRequest()->getSession();
         $sessionKey = Configure::read('BcPrefixAuth.' . $prefix . '.sessionKey');
-        $user = $session->read($sessionKey);
-        if (!$user) {
-            if (!empty($_SESSION[$sessionKey])) {
-                $user = $_SESSION[$sessionKey];
-            }
-        }
+        $user = isset($_SESSION[$sessionKey]) ? $session->read($sessionKey) : null;
         return $user;
     }
 
@@ -311,21 +306,15 @@ class BcUtil
 
     /**
      * 管理ユーザーかチェック
-     *
-     * @return boolean
+     * @param array|null
+     * @return bool
      */
-    public static function isAdminUser(): bool
-    {
-        $user = self::loginUser('admin');
-        $group = $user['AuthAdmin']->user_groups;
-        if (empty($group)) {
-            return false;
-        }
-        $group_id = array_column($group, 'id');
-
-        return (in_array(Configure::read('BcApp.adminGroupId'), $group_id));
-
-    }
+	public static function isAdminUser($user = null): bool
+	{
+        $User = $user ? $user : self::loginUser('Admin');
+        $group_id = array_column($User->user_groups, 'id');
+        return in_array(Configure::read('BcApp.adminGroupId'), $group_id);
+	}
 
     /**
      * 現在ログインしているユーザーのユーザーグループ情報を取得する
