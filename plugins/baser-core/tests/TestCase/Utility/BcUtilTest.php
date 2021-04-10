@@ -19,6 +19,7 @@ use Cake\Core\Plugin;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\Http\Session;
+use Cake\Cache\Cache;
 
 /**
  * TODO: $this->getRequest();などをsetupに統一する
@@ -40,10 +41,32 @@ class BcUtilTest extends BcTestCase
     ];
 
     /**
+     * set up
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+    }
+
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        Cache::drop('_cake_env_');
+        Cache::drop('_cake_core_');
+        Cache::drop('_cake_model_');
+        parent::tearDown();
+    }
+
+    /**
      * Test loginUser
+     * @return void
      * @dataProvider loginUserDataProvider
      */
-    public function testLoginUser($isLogin, $expects)
+    public function testLoginUser($isLogin, $expects) : void
     {
         $this->getRequest();
         if ($isLogin) {
@@ -68,9 +91,10 @@ class BcUtilTest extends BcTestCase
 
     /**
      * Test isSuperUser
+     * @return void
      * @dataProvider isSuperUserDataProvider
      */
-    public function testIsSuperUser($id, $expects)
+    public function testIsSuperUser($id, $expects) : void
     {
         $this->getRequest();
         if ($id) {
@@ -94,9 +118,10 @@ class BcUtilTest extends BcTestCase
 
     /**
      * Test isAgentUser
+     * @return void
      * @dataProvider isAgentUserDataProvider
      */
-    public function testIsAgentUser($id, $expects)
+    public function testIsAgentUser($id, $expects) : void
     {
 
         $request = $this->getRequest();
@@ -122,9 +147,10 @@ class BcUtilTest extends BcTestCase
 
     /**
      * Test isInstallMode
+     * @return void
      * @dataProvider isInstallModeDataProvider
      */
-    public function testIsInstallMode($mode, $expects)
+    public function testIsInstallMode($mode, $expects) : void
     {
         $_SERVER["INSTALL_MODE"] = $mode;
         $result = BcUtil::isInstallMode();
@@ -143,8 +169,9 @@ class BcUtilTest extends BcTestCase
 
     /**
      * Test getVersion
+     * @return void
      */
-    public function testGetVersion()
+    public function testGetVersion() : void
     {
         // BaserCore
         $file = new File(BASER . DS . 'VERSION.txt');
@@ -172,8 +199,9 @@ class BcUtilTest extends BcTestCase
 
     /**
      * バージョンを特定する一意の数値を取得する
+     * @return void
      */
-    public function testVerpoint()
+    public function testVerpoint() : void
     {
         $version = 'baserCMS 3.0.6.1';
         $result = BcUtil::verpoint($version);
@@ -186,8 +214,9 @@ class BcUtilTest extends BcTestCase
 
     /**
      * 有効なプラグインの一覧を取得する
+     * @return void
      */
-    public function testGetEnablePlugins()
+    public function testGetEnablePlugins() : void
     {
         $expects = ['BcBlog'];
         $result = BcUtil::getEnablePlugins();
@@ -196,8 +225,9 @@ class BcUtilTest extends BcTestCase
 
     /**
      * testIncludePluginClass
+     * @return void
      */
-    public function testIncludePluginClass()
+    public function testIncludePluginClass() : void
     {
         $this->assertEquals(true, BcUtil::includePluginClass('BcBlog'));
         $this->assertEquals(false, BcUtil::includePluginClass('BcTest'));
@@ -236,6 +266,51 @@ class BcUtilTest extends BcTestCase
     }
 
     /**
+     * test clearAllCache
+     * @return void
+     */
+    public function testClearAllCache() : void
+    {
+         // cacheファイルのバックアップ作成
+        $folder = new Folder();
+        $origin = CACHE;
+        $backup = str_replace('cache', 'cache_backup', CACHE);
+        $folder->move($backup, [
+            'from' => $origin,
+            'mode' => 0777,
+            'schema' => Folder::OVERWRITE,
+        ]);
+
+        // cache環境準備
+        $cacheList = ['environment' => '_cake_env_', 'persistent' => '_cake_core_', 'models' => '_cake_model_'];
+
+        foreach ($cacheList as $path => $cacheName) {
+            Cache::drop($cacheName);
+            Cache::setConfig($cacheName, [
+                'className' => "File",
+                'prefix' => 'myapp'. $cacheName,
+                'path' => CACHE . $path . DS,
+                'serialize' => true,
+                'duration' => '+999 days',
+            ]);
+            Cache::write($cacheName . 'test', 'testtest', $cacheName);
+        }
+
+        // 削除実行
+        BcUtil::clearAllCache();
+        foreach($cacheList as $cacheName) {
+            $this->assertNull(Cache::read($cacheName . 'test', $cacheName));
+        }
+
+        // cacheファイル復元
+        $folder->move($origin, [
+            'from' => $backup,
+            'mode' => 0777,
+            'schema' => Folder::OVERWRITE,
+        ]);
+        $folder->chmod($origin, 0777);
+    }
+    /**
      * 管理システムかチェック
      *
      * @param string $url 対象URL
@@ -271,6 +346,42 @@ class BcUtilTest extends BcTestCase
     }
 
     /**
+     * 管理ユーザーかチェック
+     *
+     * @param string $userGroupId ユーザーグループ名
+     * @param bool $expect 期待値
+     * @dataProvider isAdminUserDataProvider
+     */
+    public function testIsAdminUser($userGroupId, $expect)
+    {
+
+        // TODO ucmitz移行時に未実装のため代替措置
+        // >>>
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // <<<
+
+        $Session = new CakeSession();
+        $sessionKey = Configure::read('BcAuthPrefix.admin.sessionKey');
+        $Session->write('Auth.' . $sessionKey . '.UserGroup.id', $userGroupId);
+        $result = BcUtil::isAdminUser();
+        $this->assertEquals($expect, $result, '正しく管理ユーザーがチェックできません');
+    }
+
+    /**
+     * isAdminUser用データプロバイダ
+     *
+     * @return array
+     */
+    public function isAdminUserDataProvider()
+    {
+        return [
+            [Configure::read('BcApp.adminGroupId'), true],
+            ['hoge', false],
+            ['', false],
+        ];
+    }
+
+    /**
      * 現在ログインしているユーザーのユーザーグループ情報を取得する
      */
     public function testLoginUserGroup()
@@ -293,7 +404,6 @@ class BcUtilTest extends BcTestCase
         $this->assertEmpty($result, 'ログインユーザーのデータを正しく取得できません');
 
         // ログインしている場合
-
         $Session = new CakeSession();
         $Session->write('Auth.' . BcUtil::authSessionKey() . '.name', 'hoge');
         $result = BcUtil::loginUserName();
@@ -416,7 +526,6 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetDefaultDataPath($plugin, $theme, $pattern, $expect)
     {
-
         // TODO ucmitz移行時に未実装のため代替措置
         // >>>
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
@@ -450,7 +559,6 @@ class BcUtilTest extends BcTestCase
         if ($isset_plptt) {
             $Folder->delete(BASER_THEMES . $theme . DS . 'Config' . DS . 'data' . DS . $pattern . DS . $plugin);
         }
-
         $this->assertEquals($expect, $result, '初期データのパスを正しく取得できません');
     }
 
