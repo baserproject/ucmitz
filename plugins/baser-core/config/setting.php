@@ -17,6 +17,8 @@ return [
          * 特権管理者グループID
          */
         'adminGroup' => ['admins'],
+        // 管理者グループID
+        'adminGroupId' => 1,
         /**
          * コアパッケージ名
          */
@@ -29,6 +31,10 @@ return [
          * パスワード再発行URLの有効時間(min) デフォルト24時間
          */
         'passwordRequestAllowTime' => 1440,
+        /**
+         * baserマーケットRSS
+         */
+        'marketPluginRss' => 'https://market.basercms.net/plugins.php',
         /**
          * システムナビ
          *
@@ -203,6 +209,5 @@ return [
             'duration' => '+999 days',
             'url' => env('CACHE_CAKEENV_URL', null),
         ],
-    ]
-
+    ],
 ];

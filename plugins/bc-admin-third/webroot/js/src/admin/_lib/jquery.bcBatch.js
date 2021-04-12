@@ -9,22 +9,23 @@
  */
 
 /**
- * baserAjaxBatch プラグイン
+ * bcBatch プラグイン
  */
 
 (function ($) {
-    $.baserAjaxBatch = {
+    $.bcBatch = {
         /**
          * 初期値
          */
         config: {
-            url: '',
+            batchUrl: '',
+            listTable: '#ListTable',
             executeButton: '#BtnApplyBatch',
-            methodSelect: '#ListToolBatch',
+            methodSelect: '#listtool-batch',
+            checkAll: '#listtool-checkall',
             targetCheckbox: '.batch-targets',
             alertBox: '#AlertMessage',
             loader: '#Waiting',
-            checkAll: '#ListToolCheckall',
             flashBox: '#flashMessage'
         },
         /**
@@ -32,8 +33,9 @@
          */
         init: function (config) {
             if (config) {
-                $.extend($.baserAjaxBatch.config, config);
+                $.extend($.bcBatch.config, config);
             }
+            this.initList();
             return this;
         },
         /**
@@ -41,60 +43,53 @@
          */
         initList: function () {
 
-            var config = $.baserAjaxBatch.config;
+            var config = $.bcBatch.config;
 
             // イベント削除
-            $($.baserAjaxBatch.config.executeButton).unbind();
-            $($.baserAjaxBatch.config.methodSelect).unbind();
+            $($.bcBatch.config.executeButton).unbind();
+            $($.bcBatch.config.methodSelect).unbind();
             $(config.listTable + " " + config.targetCheckbox).unbind();
             $(config.checkAll).unbind();
 
             // イベント登録
-            $($.baserAjaxBatch.config.executeButton).click(function () {
+            $($.bcBatch.config.executeButton).click(function () {
                 if (!$(config.targetCheckbox + ":checked").length) {
                     alert(bcI18n.commonSelectDataFailedMessage);
                     return false;
                 }
 
                 var method = $(config.methodSelect).val();
-                if (config.methods[method] !== undefined && config.methods[method].confirm && !confirm(config.methods[method].confirm)) {
+                if (!confirm(bcI18n.batchConfirmMessage)) {
                     return false;
                 }
 
-                var form = $('<form/>').append($(config.targetCheckbox + ":checked").clone());
-                form.append($(config.methodSelect).clone().val($(config.methodSelect).val()));
-
-                if (config.methods[method] !== undefined && config.methods[method].beforeSend && !config.methods[method].beforeSend(form)) {
-                    return false;
-                }
+                var form = $('<form/>').append($(config.methodSelect).clone().val($(config.methodSelect).val()));
+                $(config.targetCheckbox + ":checked").each(function(){
+                    var value = $(this).attr('name').replace(/ListTool\[batch_targets\]\[([0-9]*)\]/, "$1");
+                    if(value) {
+                        form.append($('<input name="ListTool[batch_targets][]" type="hidden">').val(value));
+                    }
+                });
 
                 $.bcToken.check(function () {
                     form.append($('<input name="data[_Token][key]" type="hidden">').val($.bcToken.key));
                     return $.ajax({
-                        url: config.url,
+                        url: config.batchUrl,
                         type: 'POST',
                         data: form.serialize(),
                         dataType: 'text',
                         beforeSend: function () {
                             $(config.alertBox).fadeOut(200);
                             $(config.flashBox).parent().fadeOut(200);
-                            $(config.loader).show();
+                            $.bcUtil.showLoader();
                         },
                         success: function (result) {
-                            $.bcToken.key = null;
-                            $(config.loader).hide();
-                            form.remove();
                             if (result) {
-                                if (config.methods[result].result !== undefined) {
-                                    config.methods[result].result();
-                                    $(config.checkAll).prop('checked', false);
-                                } else {
-                                    $.baserAjaxDataList.load(document.location.href, function () {
-                                        $(config.flashBox).html(bcI18n.commonExecCompletedMessage);
-                                        $(config.flashBox).parent().fadeIn(500);
-                                    });
-                                }
+                                location.reload();
                             } else {
+                                $.bcToken.key = null;
+                                $.bcUtil.hideLoader();
+                                form.remove();
                                 $(config.alertBox).html(bcI18n.commonBatchExecFailedMessage);
                                 $(config.alertBox).fadeIn(500);
                             }
@@ -111,7 +106,7 @@
                                     errorMessage = '<br>' + errorThrown;
                                 }
                             }
-                            $(config.loader).hide();
+                            $.bcUtil.hideLoader();
                             form.remove();
                             $(config.alertBox).html(bcI18n.commonBatchExecFailedMessage + '(' + XMLHttpRequest.status + ')' + errorMessage);
                             $(config.alertBox).fadeIn(500);
@@ -122,7 +117,7 @@
             });
 
 
-            $($.baserAjaxBatch.config.methodSelect).change(toolChangeHandler);
+            $($.bcBatch.config.methodSelect).change(toolChangeHandler);
 
             $(config.listTable + " tbody td").click(function () {
                 var checkbox = $(this).parent().find(config.targetCheckbox);
@@ -155,18 +150,18 @@
                 } else {
                     $(config.listTable + " " + config.targetCheckbox).prop('checked', false);
                 }
-                $.baserAjaxBatch.initRowSelected();
+                $.bcBatch.initRowSelected();
             });
 
             toolChangeHandler();
-            $.baserAjaxBatch.initRowSelected();
+            $.bcBatch.initRowSelected();
 
         },
         /**
          * 行の選択状態を初期化
          */
         initRowSelected: function () {
-            var config = $.baserAjaxBatch.config;
+            var config = $.bcBatch.config;
             $(config.listTable + " " + config.targetCheckbox).each(function () {
                 if ($(this).prop('checked')) {
                     $(this).parent().parent().addClass('selectedrow');
@@ -182,7 +177,7 @@
      * バッチ処理ドロップダウン変更時イベント
      */
     function toolChangeHandler() {
-        var config = $.baserAjaxBatch.config;
+        var config = $.bcBatch.config;
         if ($(config.methodSelect).val()) {
             $(config.executeButton).removeAttr('disabled');
         } else {
