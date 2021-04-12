@@ -1,19 +1,16 @@
+<?php
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
  * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @since           baserCMS v 2.0.0
+ * @package         Baser.View
+ * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
 
 /**
- * baseUrl プラグイン
+ * [ADMIN] baserマーケットテーマ一覧
  */
-
-(function ($) {
-    $(function () {
-        $.baseUrl = $("#BaseUrl").html();
-    });
-})(jQuery);
+$this->BcBaser->element('Admin/plugins/index_list_market');

@@ -490,23 +490,15 @@ class BcBaserHelper extends Helper
     /**
      * 管理者グループかどうかチェックする
      *
-     * @param int $userGroupId ユーザーグループID（初期値 : null）※ 指定しない場合は、現在のログインユーザーについてチェックする
+     * @param array| BaserCore\Model\Entity\User $user ユーザー（初期値 : null）※ 指定しない場合は、現在のログインユーザーについてチェックする
      * @return bool 管理者グループの場合は true を返す
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function isAdminUser($userGroupId = null)
+    public function isAdminUser($user = null): bool
     {
-        // TODO 未実装
-        // >>>
-        return true;
-        // <<<
-        if (!$userGroupId) {
-            return BcUtil::isAdminUser();
-        }
-        if ($userGroupId == Configure::read('BcApp.adminGroupId')) {
-            return true;
-        } else {
-            return false;
-        }
+        return BcUtil::isAdminUser($user);
     }
 
     /**
@@ -1538,6 +1530,8 @@ class BcBaserHelper extends Helper
      *  ※ その他のパラメータについては、HtmlHelper::css() を参照。
      *    ※ false を指定した場合、inline が false となる。
      * @return string|void
+     * @checked
+     * @noTodo
      */
     public function css($path, $options = [])
     {
@@ -1548,9 +1542,7 @@ class BcBaserHelper extends Helper
             'rel' => 'stylesheet',
             'inline' => true
         ], $options);
-        $rel = $options['rel'];
-        unset($options['rel']);
-        $result = $this->BcHtml->css($path, $rel, $options);
+        $result = $this->BcHtml->css($path, $options);
         if ($options['inline']) {
             echo $result;
         }

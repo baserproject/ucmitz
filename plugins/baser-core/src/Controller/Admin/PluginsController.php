@@ -15,14 +15,17 @@ use BaserCore\Controller\Component\BcMessageComponent;
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\PluginsTable;
 use BaserCore\Utility\BcUtil;
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Core\Exception\Exception;
 use Cake\Core\Plugin;
 use Cake\Event\EventInterface;
+use Cake\Http\Client;
 use Cake\Http\Response;
-use Cake\Utility\Hash;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use Cake\Utility\Xml;
 
 /**
  * Class PluginsController
@@ -47,9 +50,7 @@ class PluginsController extends BcAdminAppController
     public function beforeFilter(EventInterface $event): void
     {
         parent::beforeFilter($event);
-        if ($this->request->getParam('action') === 'reset_db') {
-            $this->Security->setConfig('validatePost', false);
-        }
+        $this->Security->setConfig('unlockedActions', ['reset_db', 'update_sort', 'batch']);
     }
 
     /**
@@ -58,34 +59,28 @@ class PluginsController extends BcAdminAppController
      * @return void
      * @checked
      * @unitTest
+     * @noTodo
      */
     public function index()
     {
-
-        $plugins = $this->Plugins->getAvailable();
-        $available = $unavailable = [];
-        foreach($plugins as $pluginInfo) {
-            if (isset($pluginInfo['Plugin']['priority'])) {
-                $available[] = $pluginInfo;
+        $available = $this->Plugins->getAvailable();
+        $registered = $unregistered = [];
+        foreach($available as $pluginInfo) {
+            if (isset($pluginInfo->priority)) {
+                $registered[] = $pluginInfo;
             } else {
-                $unavailable[] = $pluginInfo;
+                $unregistered[] = $pluginInfo;
             }
         }
 
-        //並び替えモードの場合はDBにデータが登録されていないプラグインを表示しない
-        // TODO 未実装
-//		if (!empty($this->passedArgs['sortmode'])) {
-//			$sortmode = true;
-//			$pluginConfigs = Hash::sort($availables, '{n}.Plugin.priority', 'asc', 'numeric');
-//		} else {
-        $sortmode = false;
-
-        $plugins = array_merge(Hash::sort(
-            $available,
-            '{n}.Plugin.priority',
-            'asc',
-            'numeric'), $unavailable);
-//		}
+		if (!empty($this->request->getQuery('sortmode'))) {
+		    //並び替えモードの場合はDBにデータが登録されていないプラグインを表示しない
+			$sortmode = true;
+			$plugins = $registered;
+		} else {
+            $sortmode = false;
+            $plugins = array_merge($registered, $unregistered);
+		}
 
         $this->set('plugins', $plugins);
         $this->set('corePlugins', Configure::read('BcApp.corePlugins'));
@@ -319,58 +314,54 @@ class PluginsController extends BcAdminAppController
      *
      * @return void
      */
-    public function ajax_get_market_plugins()
+    public function get_market_plugins()
     {
-        $cachePath = 'views' . DS . 'baser_market_plugins.rss';
+        $this->viewBuilder()->disableAutoLayout();
         if (Configure::read('debug') > 0) {
-            clearCache('baser_market_plugins', 'views', '.rss');
+            Cache::delete('baserMarketPlugins');
         }
-        $baserPlugins = cache($cachePath);
+        if (!($baserPlugins = Cache::read('baserMarketPlugins', '_cake_env_'))) {
+            $Xml = new Xml();
+            try {
+				$client = new Client([
+				    'host' => ''
+                ]);
+				$response = $client->get(Configure::read('BcApp.marketPluginRss'));
+				if ($response->getStatusCode() !== 200) {
+                    return;
+				}
+                $baserPlugins = $Xml->build($response->getBody()->getContents());
+                $baserPlugins = $Xml->toArray($baserPlugins->channel);
+                $baserPlugins = $baserPlugins['channel']['item'];
+            } catch (Exception $e) {
+
+            }
+            Cache::write('baserMarketPlugins', $baserPlugins, '_cake_env_');
+        }
         if ($baserPlugins) {
-            $baserPlugins = BcUtil::unserialize($baserPlugins);
             $this->set('baserPlugins', $baserPlugins);
-            return;
         }
-
-        $Xml = new Xml();
-        try {
-            $baserPlugins = $Xml->build(Configure::read('BcApp.marketPluginRss'));
-        } catch (Exception $ex) {
-
-        }
-        if ($baserPlugins) {
-            $baserPlugins = $Xml->toArray($baserPlugins->channel);
-            $baserPlugins = $baserPlugins['channel']['item'];
-            cache($cachePath, BcUtil::serialize($baserPlugins));
-            chmod(CACHE . $cachePath, 0666);
-        } else {
-            $baserPlugins = [];
-        }
-        $this->set('baserPlugins', $baserPlugins);
     }
 
     /**
-     * 並び替えを更新する [AJAX]
-     *
-     * @return bool
+     * 並び替えを更新する
+     * @return void|Response
      */
-    public function ajax_update_sort()
+    public function update_sort()
     {
-        $this->autoRender = false;
+        $this->disableAutoRender();
         if (!$this->request->getData()) {
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
-            return false;
+            return;
         }
 
-        if (!$this->Plugin->changePriority($this->request->getData('Sort.id'), $this->request->getData('Sort.offset'))) {
+        if (!$this->Plugins->changePriority($this->request->getData('Sort.id'), $this->request->getData('Sort.offset'))) {
             $this->ajaxError(500, __d('baser', '一度リロードしてから再実行してみてください。'));
-            return false;
+            return;
         }
 
-        clearViewCache();
-        clearDataCache();
-        Configure::write('debug', 0);
-        return true;
+        BcUtil::clearAllCache();
+        return $this->response->withStringBody(true);
     }
 
     /**
@@ -474,27 +465,28 @@ class PluginsController extends BcAdminAppController
     }
 
     /**
-     * 一括無効
+     * 一括処理
      *
      * @param array $ids プラグインIDの配列
-     * @return bool
+     * @return void|Response
      */
-    protected function _batch_del($ids)
+    public function batch()
     {
-        if (!$ids) {
-            return true;
+        $this->autoRender = false;
+        if($this->request->getData('ListTool.batch') !== 'detach') {
+            return;
         }
-        foreach($ids as $id) {
-            $data = $this->Plugin->read(null, $id);
-            // TODO PluginsTable::detach() に移行
-            if ($this->BcManager->uninstallPlugin($data['Plugin']['name'])) {
-                $this->Plugin->saveDbLog(
-                    sprintf(__d('baser', 'プラグイン「%s」 を 無効化しました。'), $data['Plugin']['title'])
+        foreach($this->request->getData('ListTool.batch_targets') as $id) {
+            $plugin = $this->Plugins->get($id);
+            if ($this->Plugins->detach($plugin->name)) {
+                $this->BcMessage->setSuccess(
+                    sprintf(__d('baser', 'プラグイン「%s」 を 無効化しました。'), $plugin->title),
+                    true,
+                    false
                 );
             }
         }
-        clearAllCache();
-        return true;
+        return $this->response->withStringBody(true);
     }
 
 }
