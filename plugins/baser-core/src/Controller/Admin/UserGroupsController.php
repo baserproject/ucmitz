@@ -233,16 +233,16 @@ class UserGroupsController extends BcAdminAppController
         }
         $userGroup = $this->UserGroups->patchEntity($userGroup, $data);
 
-        if (!$this->UserGroups->save($userGroup)) {
+        if ($this->UserGroups->save($userGroup)) {
+            $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroup->name));
+            // TODO 未実装
+            /* >>>
+            $this->BcAuth->relogin();
+            <<< */
+            return $this->redirect(['action' => 'index']);
+        } else {
             $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
         }
-
-        $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroup->name));
-        // TODO 未実装
-        /* >>>
-        $this->BcAuth->relogin();
-        <<< */
-        return $this->redirect(['action' => 'index']);
     }
 
     /**
