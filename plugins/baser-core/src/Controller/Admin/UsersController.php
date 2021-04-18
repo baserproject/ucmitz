@@ -27,7 +27,6 @@ use Cake\Http\Exception\ForbiddenException;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use Cake\Database\Query;
 
 /**
  * Class UsersController
