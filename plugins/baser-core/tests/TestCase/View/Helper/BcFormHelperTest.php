@@ -41,14 +41,85 @@ class BcFormHelperTest extends BcTestCase
     {
         parent::setUp();
         $this->BcForm = new BcFormHelper(new BcAdminAppView($this->getRequest('/contacts/add')));
+        // TODO: bc_formを直接読み込む用に修正する
+        // $this->BcForm->setTemplates(['templates' => 'BaserCore.bc_form']);
+        $this->BcForm->setTemplates([
+            'error' => '<div class="{{class}}">{{content}}</div>',
+            'errorList' => '<ul>{{content}}</ul>',
+            'errorItem' => '<li class="{{class}}">{{text}}</li>',
+            ]);
+        //TODO: NOTE: lib/Baser/Plugin/Mail/Config/Schema/mail_fields.php より転用 見直す必要あり
+        $this->contacts = [
+            'schema' => [
+                'id' => ['type' => 'integer'],
+                'mail_content_id' => ['type' => 'integer', 'null' => true],
+                'name' => ['type' => 'string', 'null' => true],
+                'description' => ['type' => 'string', 'null' => true],
+            ],
+            'required' => [
+                'id' => true,
+                'name' => true,
+            ]
+        ];
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        unset($this->BcForm);
     }
     /**
-     * エラーメッセージを出力する
-     *
+     * エラーメッセージを出力する FormHelperTest testError() のテスト拡張
+     *  @see Cake\Test\TestCase\View\Helper\FormHelperTest testError()
+     *  @param $error エラー例
+     *  @param $expected 期待値
+     *  @return void
+     *  @dataProvider errorProvider
      */
-    public function testError(): void
+    public function testError($error, $expected): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->contacts['errors'] = [
+            'Contact' => ['field' => $error],
+        ];
+        $this->BcForm->create($this->contacts);
+        $result = $this->BcForm->error('Contact.field');
+        $this->assertHtml($expected, $result);
+    }
+
+    public function errorProvider()
+    {
+        return [
+            // エラーが1つの場合
+            [
+                ['エラー1'],
+                [
+                    ['div' => ['class' => 'error-message']],
+                    'エラー1',
+                    '/div',
+                ]
+            ],
+            // エラーが２つ以上の場合
+            [
+                ['エラー1', 'エラー2'],
+                [
+                    'div' => ['class' => ''],
+                    'ul' => [],
+                    ['li' => ['class' => 'error-message']],
+                    'エラー1',
+                    '/li',
+                    ['li' => ['class' => 'error-message']],
+                    'エラー2',
+                    '/li',
+                    '/ul',
+                    '/div',
+                ]
+            ],
+        ];
     }
 
     /**
