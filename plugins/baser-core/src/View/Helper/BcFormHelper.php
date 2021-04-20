@@ -92,7 +92,7 @@ class BcFormHelper extends FormHelper
 	{
 	    // TODO 未実装のため代替措置
 	    // >>>
-	    return '';
+        return '';
 	    // <<<
 
 		if ($type) {
