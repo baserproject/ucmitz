@@ -19,11 +19,11 @@ return [
     // Wrapper container for checkboxes.
     'checkboxWrapper' => '<{{tag}} class="{{class}}">{{label}}</{{tag}}>',
     // Error message wrapper elements.
-    'error' => '<div class="error-message">{{content}}</div>',
+    'error' => '<div class="{{class}}">{{content}}</div>',
     // Container for error items.
     'errorList' => '<ul>{{content}}</ul>',
     // Error item wrapper.
-    'errorItem' => '<li class="error-message">{{text}}</li>',
+    'errorItem' => '<li class="{{class}}">{{text}}</li>',
     // File input used by file().
     'file' => '<input type="file" name="{{name}}"{{attrs}}>',
     // Fieldset element used by allControls().

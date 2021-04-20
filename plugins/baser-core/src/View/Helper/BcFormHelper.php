@@ -115,6 +115,78 @@ class BcFormHelper extends FormHelper
 	}
 
     /**
+     * 追加分: hack
+     * 前提: bc_form テンプレート
+     * フォーマット化されたエラーメッセージを出力します なければ''を返す
+     * `error`と複数エラー対応の `errorList` ・ `errorItem` テンプレートを使う
+     * エラーが１つの場合はdivにclass="error-message"が付与され、複数の場合はliに付与
+     *
+     * ### オプション:
+     * - `escape` boolean - エラー文章をescapeする
+     * @param string $field フィールド名, 例:"modelname.fieldname"
+     * @param string|array|null $text 文字列or配列のエラーメッセージ
+     * @param array
+     * @return string
+     * @link https://book.cakephp.org/4/en/views/helpers/form.html#displaying-and-checking-errors
+     */
+    public function error(string $field, $text = null, array $options = []): string
+    {
+        if (substr($field, -5) === '._ids') {
+            $field = substr($field, 0, -5);
+        }
+        $options += ['escape' => true];
+
+        $context = $this->_getContext();
+        if (!$context->hasError($field)) {
+            return '';
+        }
+        $error = $context->error($field);
+        // hack: $class
+        if($error) {
+            $class = 'error-message';
+        }
+
+        if (is_array($text)) {
+            $tmp = [];
+            foreach ($error as $k => $e) {
+                if (isset($text[$k])) {
+                    $tmp[] = $text[$k];
+                } elseif (isset($text[$e])) {
+                    $tmp[] = $text[$e];
+                } else {
+                    $tmp[] = $e;
+                }
+            }
+            $text = $tmp;
+        }
+
+        if ($text !== null) {
+            $error = $text;
+        }
+
+        if ($options['escape']) {
+            $error = h($error);
+            unset($options['escape']);
+        }
+        if (is_array($error)) {
+            if (count($error) > 1) {
+                $errorText = [];
+                // hack: $class
+                foreach ($error as $err) {
+                    $errorText[] = $this->formatTemplate('errorItem', ['class' => $class, 'text' => $err]);
+                }
+                $class = '';
+                $error = $this->formatTemplate('errorList', [
+                    'content' => implode('', $errorText),
+                ]);
+            } else {
+                $error = array_pop($error);
+            }
+        }
+
+        return $this->formatTemplate('error', ['class' => $class, 'content' => $error]);
+    }
+    /**
      * コントロールソースを取得する
      * Model側でメソッドを用意しておく必要がある
      *
