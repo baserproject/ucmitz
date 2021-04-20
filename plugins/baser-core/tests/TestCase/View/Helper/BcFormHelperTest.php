@@ -42,6 +42,14 @@ class BcFormHelperTest extends BcTestCase
         parent::setUp();
         $this->BcForm = new BcFormHelper(new BcAdminAppView($this->getRequest('/contacts/add')));
     }
+    /**
+     * エラーメッセージを出力する
+     *
+     */
+    public function testError(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
 
     /**
      * コントロールソースを取得する

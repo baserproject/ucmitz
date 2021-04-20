@@ -115,7 +115,7 @@ class BcFormHelper extends FormHelper
 	}
 
     /**
-     * 追加分: hack
+     * 追加分: hack: $class
      * 前提: bc_form テンプレート
      * フォーマット化されたエラーメッセージを出力します なければ''を返す
      * `error`と複数エラー対応の `errorList` ・ `errorItem` テンプレートを使う
