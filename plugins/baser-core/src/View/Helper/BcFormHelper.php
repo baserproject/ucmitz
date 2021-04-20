@@ -178,7 +178,7 @@ class BcFormHelper extends FormHelper
                 foreach ($error as $err) {
                 // CUSTOMIZE MODIFY 2021/04/20 humuhimi
                 // >>>
-                //     $errorText[] = $this->formatTemplate('errorItem', ['class' => $class, 'text' => $err]);
+                //     $errorText[] = $this->formatTemplate('errorItem', ['text' => $err]);
                 // ---
                     $errorText[] = $this->formatTemplate('errorItem', ['class' => $class, 'text' => $err]);
                 }
