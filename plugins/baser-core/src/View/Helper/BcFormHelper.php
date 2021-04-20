@@ -115,7 +115,6 @@ class BcFormHelper extends FormHelper
 	}
 
     /**
-     * 追加分: hack: $class
      * 前提: bc_form テンプレート
      * フォーマット化されたエラーメッセージを出力します なければ''を返す
      * `error`と複数エラー対応の `errorList` ・ `errorItem` テンプレートを使う
@@ -128,6 +127,9 @@ class BcFormHelper extends FormHelper
      * @param array
      * @return string
      * @link https://book.cakephp.org/4/en/views/helpers/form.html#displaying-and-checking-errors
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function error(string $field, $text = null, array $options = []): string
     {
@@ -141,10 +143,12 @@ class BcFormHelper extends FormHelper
             return '';
         }
         $error = $context->error($field);
-        // hack: $class
+        // CUSTOMIZE ADD 2021/04/20 humuhimi
+        // カスタマイズ用に$classを追加
+        // >>>
         if($error) {
             $class = 'error-message';
-        }
+        }// <<<
 
         if (is_array($text)) {
             $tmp = [];
@@ -171,11 +175,15 @@ class BcFormHelper extends FormHelper
         if (is_array($error)) {
             if (count($error) > 1) {
                 $errorText = [];
-                // hack: $class
                 foreach ($error as $err) {
+                // CUSTOMIZE MODIFY 2021/04/20 humuhimi
+                // >>>
+                //     $errorText[] = $this->formatTemplate('errorItem', ['class' => $class, 'text' => $err]);
+                // ---
                     $errorText[] = $this->formatTemplate('errorItem', ['class' => $class, 'text' => $err]);
                 }
                 $class = '';
+                // <<<
                 $error = $this->formatTemplate('errorList', [
                     'content' => implode('', $errorText),
                 ]);
@@ -183,8 +191,12 @@ class BcFormHelper extends FormHelper
                 $error = array_pop($error);
             }
         }
-
+        // CUSTOMIZE MODIFY 2021/04/20 humuhimi
+        // >>>
+        // return $this->formatTemplate('error', ['content' => $error]);
+        // ---
         return $this->formatTemplate('error', ['class' => $class, 'content' => $error]);
+        // <<<
     }
     /**
      * コントロールソースを取得する
