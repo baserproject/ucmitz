@@ -556,11 +556,11 @@ class BlogHelper extends AppHelper
     /**
      * カテゴリ一覧へのURLを取得する
      *
-     * [注意] リンク関数でラップする前提の為、ベースURLは考慮されない
+     * [注意] リンク関数でラップする前提のためベースURLは考慮されない
      *
      * @param string $blogCategoyId ブログカテゴリID
      * @param array $options オプション（初期値 : array()）
-     *    `named` : URLの名前付きパラメーター
+     *    `named` : URLの名前付きパラメータ
      * @return string カテゴリ一覧へのURL
      */
     public function getCategoryUrl($blogCategoryId, $options = [])
@@ -1200,7 +1200,7 @@ class BlogHelper extends AppHelper
     public function getNextPost($post)
     {
         $BlogPost = ClassRegistry::init('Blog.BlogPost');
-        // 投稿日が年月日時分秒が同一のデータの対応の為、投稿日が同じでIDが小さいデータを検索
+        // 投稿日が年月日時分秒が同一のデータの対応のため、投稿日が同じでIDが小さいデータを検索
         $conditions = [];
         $conditions['BlogPost.id >'] = $post['BlogPost']['id'];
         $conditions['BlogPost.posts_date'] = $post['BlogPost']['posts_date'];
@@ -1237,7 +1237,7 @@ class BlogHelper extends AppHelper
     public function getPrevPost($post)
     {
         $BlogPost = ClassRegistry::init('Blog.BlogPost');
-        // 投稿日が年月日時分秒が同一のデータの対応の為、投稿日が同じでIDが大きいデータを検索
+        // 投稿日が年月日時分秒が同一のデータの対応のため、投稿日が同じでIDが大きいデータを検索
         $conditions = [];
         $conditions['BlogPost.id <'] = $post['BlogPost']['id'];
         $conditions['BlogPost.posts_date'] = $post['BlogPost']['posts_date'];
@@ -1587,7 +1587,7 @@ class BlogHelper extends AppHelper
      *    - `year` : 年で絞り込む（初期値 : null）
      *    - `month` : 月で絞り込む（初期値 : null）
      *    - `day` : 日で絞り込む（初期値 : null）
-     *    - `id` : 記事NO で絞り込む（初期値 : null）※ 後方互換の為 id を維持
+     *    - `id` : 記事NO で絞り込む（初期値 : null）※ 後方互換のため id を維持
      *    - `no` : 記事NO で絞り込む（初期値 : null）
      *    - `keyword` : キーワードで絞り込む場合にキーワードを指定（初期値 : null）
      *  - `postId` : 記事ID で絞り込む（初期値 : null）

@@ -625,7 +625,7 @@ class MailController extends MailAppController
 			}
 		}
 
-		// 前バージョンとの互換性の為 type が email じゃない場合にも取得できるようにしておく
+		// 前バージョンとの互換性のため type が email じゃない場合にも取得できるようにしておく
 		if (!$userMail) {
 			if (!empty($data['message']['email'])) {
 				$userMail = $data['message']['email'];

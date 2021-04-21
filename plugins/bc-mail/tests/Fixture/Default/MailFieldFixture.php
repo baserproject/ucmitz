@@ -198,7 +198,7 @@ class MailFieldFixture extends BaserTestFixture
 			'class' => '',
 			'separator' => '',
 			'default_value' => '',
-			'description' => '<small>確認の為、２回入力して下さい。</small><br />',
+			'description' => '<small>確認のため２回入力して下さい。</small><br />',
 			'group_field' => 'email',
 			'group_valid' => 'email',
 			'valid' => 'VALID_EMAIL',

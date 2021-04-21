@@ -62,7 +62,7 @@ class BlogBaserHelper extends AppHelper
      *    - `year` : 年で絞り込む（初期値 : null）
      *    - `month` : 月で絞り込む（初期値 : null）
      *    - `day` : 日で絞り込む（初期値 : null）
-     *    - `id` : 記事NO で絞り込む（初期値 : null）※ 後方互換の為 id を維持
+     *    - `id` : 記事NO で絞り込む（初期値 : null）※ 後方互換のため id を維持
      *    - `no` : 記事NO で絞り込む（初期値 : null）
      *    - `keyword` : キーワードで絞り込む場合にキーワードを指定（初期値 : null）
      *  - `postId` : 記事ID で絞り込む（初期値 : null）

@@ -128,7 +128,7 @@ class BlogController extends BlogAppController
             if (!empty($this->request->params['entityId'])) {
                 $blogContentId = $this->request->params['entityId'];
             } elseif (!empty($this->request->params['pass'])) {
-                // 後方互換の為 pass もチェック
+                // 後方互換のため pass もチェック
                 $blogContentId = $this->request->params['pass'];
             }
 

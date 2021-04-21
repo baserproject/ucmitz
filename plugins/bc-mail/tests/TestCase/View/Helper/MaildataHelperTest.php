@@ -36,7 +36,7 @@ class MaildataHelperTest extends BaserTestCase
 	 * メール表示用のデータを出力する
 	 *
 	 * public function testControl() {
-	 * $this->markTestIncomplete('このメソッドは、同一クラス内のメソッドをラッピングしているメソッドの為スキップします。');
+	 * $this->markTestIncomplete('このメソッドは、同一クラス内のメソッドをラッピングしているメソッドのためスキップします。');
 	 * }
 	 */
 

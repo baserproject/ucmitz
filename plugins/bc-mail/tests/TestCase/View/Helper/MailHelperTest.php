@@ -62,7 +62,7 @@ class MailHelperTest extends BaserTestCase
 	 * 説明文の取得結果
 	 *
 	 * public function testDescription() {
-	 * $this->markTestIncomplete('このメソッドは、同一クラス内のメソッドをラッピングしているメソッドの為スキップします。');
+	 * $this->markTestIncomplete('このメソッドは、同一クラス内のメソッドをラッピングしているメソッドのためスキップします。');
 	 * }
 	 */
 
@@ -192,7 +192,7 @@ class MailHelperTest extends BaserTestCase
 	 * ブラウザの戻るボタンの生成結果取得
 	 *
 	 * public function testToken() {
-	 * $this->markTestIncomplete('このメソッドは、同一クラス内のメソッドをラッピングしているメソッドの為スキップします。');
+	 * $this->markTestIncomplete('このメソッドは、同一クラス内のメソッドをラッピングしているメソッドのためスキップします。');
 	 * }
 	 */
 

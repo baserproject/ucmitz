@@ -89,7 +89,7 @@ class MailMessageTest extends BaserTestCase
 		// ======================================================
 		// createTable の際、CakeSchema::read(); が実行され、
 		// ClassRegistry内のモデルが全てAppModelに変換され MailMessage::setup() が失敗する
-		// その為、ClassRegistry::flush() を行うが、次は、setup() 内の setupUpload() で、Behavior のロードに失敗する
+		// そのため、ClassRegistry::flush() を行うが、次は、setup() 内の setupUpload() で、Behavior のロードに失敗する
 		// といったわけで、ClassRegistry::addObject で強制的に更新
 		// ======================================================
 		ClassRegistry::flush();
