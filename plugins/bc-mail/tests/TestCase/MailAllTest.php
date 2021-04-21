@@ -25,7 +25,7 @@ class MailAllTest extends CakeTestSuite
 	{
 		$suite = new CakeTestSuite('Baser Mail All Tests');
 
-		$path = dirname(__FILE__) . DS;
+		$path = __DIR__ . DS;
 
 		$suite->addTestFile($path . 'MailAllControllerTest.php');
 		$suite->addTestFile($path . 'MailAllModelTest.php');

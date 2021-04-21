@@ -21,7 +21,7 @@ class UploaderAllModelTest extends CakeTestSuite
 	public static function suite()
 	{
 		$suite = new CakeTestSuite('All Uploader Model tests');
-		$suite->addTestDirectory(dirname(__FILE__) . DS . 'Model' . DS);
+		$suite->addTestDirectory(__DIR__ . DS . 'Model' . DS);
 		return $suite;
 	}
 

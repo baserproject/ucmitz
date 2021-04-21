@@ -21,7 +21,7 @@ class MailAllHelpersTest extends CakeTestSuite
 	public static function suite()
 	{
 		$suite = new CakeTestSuite('All Helper tests');
-		$suite->addTestDirectory(dirname(__FILE__) . DS . 'View' . DS . 'Helper' . DS);
+		$suite->addTestDirectory(__DIR__ . DS . 'View' . DS . 'Helper' . DS);
 		return $suite;
 	}
 

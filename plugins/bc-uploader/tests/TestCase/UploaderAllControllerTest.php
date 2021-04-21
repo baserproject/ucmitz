@@ -21,7 +21,7 @@ class UploaderAllControllerTest extends CakeTestSuite
 	public static function suite()
 	{
 		$suite = new CakeTestSuite('All Uploader Controller tests');
-		$suite->addTestDirectory(dirname(__FILE__) . DS . 'Controller' . DS);
+		$suite->addTestDirectory(__DIR__ . DS . 'Controller' . DS);
 		return $suite;
 	}
 

@@ -21,7 +21,7 @@ class UploaderAllEventTest extends CakeTestSuite
 	public static function suite()
 	{
 		$suite = new CakeTestSuite('All Uploader Event tests');
-		$suite->addTestDirectory(dirname(__FILE__) . DS . 'Event' . DS);
+		$suite->addTestDirectory(__DIR__ . DS . 'Event' . DS);
 		return $suite;
 	}
 
