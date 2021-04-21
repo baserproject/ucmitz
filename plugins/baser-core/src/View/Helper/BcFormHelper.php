@@ -2194,7 +2194,7 @@ DOC_END;
 		$out = '<div id="' . $_id . '">' . $this->select($fieldName . '_', $options, $attributes) . '</div>';
 		$out .= $this->hidden($fieldName);
 		$script = <<< DOC_END
-$(document).ready(function() {
+$(function() {
     aryValue = $("#{$id}").val().replace(/\'/g,"").split(",");
     for(key in aryValue){
         var value = aryValue[key];

@@ -27,7 +27,7 @@ $this->BcBaser->i18nScript([
 ?>
 
 <script type="text/javascript">
-	$(document).ready(function () {
+	$(function () {
 		$('#btnfinish,#btnback').click(function () {
 			$.bcUtil.showLoader();
 			var result = true;
