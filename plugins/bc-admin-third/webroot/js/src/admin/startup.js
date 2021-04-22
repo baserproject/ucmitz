@@ -80,6 +80,9 @@ $(function () {
      * bcToken 初期化
      */
     $.bcToken.init();
-
+    /**
+     * バリデーションerror-messageカスタム
+     */
+    $(".error-message:has(ul)").removeClass("error-message").addClass("error-wrap");
 });
 
