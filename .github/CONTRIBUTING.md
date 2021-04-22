@@ -70,6 +70,7 @@ ucmitz の開発では、ユニットテストのカバレッジ100%を目指し
 
 - [全体的な変更点](https://github.com/baserproject/ucmitz/blob/dev/docs/development/changed.md)
 - [既知の問題点](https://github.com/baserproject/ucmitz/blob/dev/docs/development/problem.md)
+- [cakephp2系→cakephp4系における変更](https://github.com/baserproject/ucmitz/blob/dev/docs/development/cake2_cake4.md)
 
 　
 ## 開発の進捗管理と新しい課題や機能の定義
