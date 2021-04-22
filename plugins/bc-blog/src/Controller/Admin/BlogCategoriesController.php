@@ -22,7 +22,6 @@ return;
  */
 class BlogCategoriesController extends BlogAppController
 {
-
     /**
      * クラス名
      *
@@ -49,7 +48,12 @@ class BlogCategoriesController extends BlogAppController
      *
      * @var array
      */
-    public $components = ['BcAuth', 'Cookie', 'BcAuthConfigure', 'BcContents' => ['type' => 'Blog.BlogContent']];
+    public $components = [
+        'BcAuth',
+        'Cookie',
+        'BcAuthConfigure',
+        'BcContents' => ['type' => 'Blog.BlogContent']
+    ];
 
     /**
      * サブメニューエレメント
@@ -68,16 +72,33 @@ class BlogCategoriesController extends BlogAppController
         parent::beforeFilter();
 
         $this->BlogContent->recursive = -1;
-        $content = $this->BcContents->getContent($this->request->params['pass'][0]);
+        $content = $this->BcContents->getContent(
+            $this->request->params['pass'][0]
+        );
         if (!$content) {
             $this->notFound();
         }
-        $this->request->params['Content'] = $content['Content'];
-        $this->request->params['Site'] = $content['Site'];
-        $this->blogContent = $this->BlogContent->read(null, $this->params['pass'][0]);
-        $this->crumbs[] = ['name' => sprintf(__d('baser', '%s 管理'), $this->request->params['Content']['title']), 'url' => ['controller' => 'blog_posts', 'action' => 'index', $this->params['pass'][0]]];
 
-        if ($this->params['prefix'] == 'admin') {
+        $this->request->params['Content'] = $content['Content'];
+        $this->request->params['Site']    = $content['Site'];
+
+        $this->blogContent = $this->BlogContent->read(
+            null,
+            $this->params['pass'][0]
+        );
+        $this->crumbs[] = [
+            'name' => sprintf(
+                __d('baser', '%s 管理'),
+                $this->request->params['Content']['title']
+            ),
+            'url' => [
+                'controller' => 'blog_posts',
+                'action' => 'index',
+                $this->params['pass'][0]
+            ]
+        ];
+
+        if ($this->params['prefix'] === 'admin') {
             $this->subMenuElements = ['blog_posts'];
         }
 
@@ -107,21 +128,33 @@ class BlogCategoriesController extends BlogAppController
         $_dbDatas = $this->BlogCategory->generateTreeList($conditions);
         $dbDatas = [];
         foreach ($_dbDatas as $key => $dbData) {
-            $category = $this->BlogCategory->find('first', ['conditions' => ['BlogCategory.id' => $key]]);
-            if (preg_match("/^([_]+)/i", $dbData, $matches)) {
-                $prefix = str_replace('_', '   ', $matches[1]);
-                $category['BlogCategory']['title'] = $prefix . '└' . $category['BlogCategory']['title'];
-                $category['BlogCategory']['depth'] = strlen($matches[1]);
-            } else {
+            $category = $this->BlogCategory->find(
+                'first',
+                [
+                    'conditions' => ['BlogCategory.id' => $key]
+                ]
+            );
+            if (!preg_match("/^([_]+)/i", $dbData, $matches)) {
                 $category['BlogCategory']['depth'] = 0;
+                $dbDatas[] = $category;
+                continue;
             }
+            $category['BlogCategory']['title'] = sprintf(
+                "%s└%s",
+                str_replace('_', '   ', $matches[1]),
+                $category['BlogCategory']['title']
+            );
+            $category['BlogCategory']['depth'] = strlen($matches[1]);
             $dbDatas[] = $category;
         }
 
         /* 表示設定 */
         $this->set('owners', $this->BlogCategory->getControlSource('owner_id'));
         $this->set('dbDatas', $dbDatas);
-        $this->pageTitle = sprintf(__d('baser', '%s｜カテゴリ一覧'), $this->request->params['Content']['title']);
+        $this->pageTitle = sprintf(
+            __d('baser', '%s｜カテゴリ一覧'),
+            $this->request->params['Content']['title']
+        );
         $this->help = 'blog_categories_index';
     }
 
@@ -135,29 +168,42 @@ class BlogCategoriesController extends BlogAppController
     {
         if (!$blogContentId) {
             $this->BcMessage->setError(__d('baser', '無効なIDです。'));
-            $this->redirect(['controller' => 'blog_contents', 'action' => 'index']);
+            $this->redirect([
+                'controller' => 'blog_contents',
+                'action' => 'index'
+            ]);
         }
 
         if (empty($this->request->data)) {
 
             $user = $this->BcAuth->user();
-            $this->request->data = ['BlogCategory' => [
-                'owner_id' => $user['user_group_id']
-            ]];
+            $this->request->data = [
+                'BlogCategory' => [
+                    'owner_id' => $user['user_group_id']
+                ]
+            ];
         } else {
 
             /* 登録処理 */
             $this->request->data['BlogCategory']['blog_content_id'] = $blogContentId;
-            $this->request->data['BlogCategory']['no'] = $this->BlogCategory->getMax('no', ['BlogCategory.blog_content_id' => $blogContentId]) + 1;
+            $this->request->data['BlogCategory']['no'] = $this->BlogCategory->getMax(
+                    'no', [
+                    'BlogCategory.blog_content_id' => $blogContentId
+                ]) + 1;
             $this->BlogCategory->create($this->request->data);
 
             // データを保存
             if ($this->BlogCategory->save()) {
-                $this->BcMessage->setSuccess(sprintf(__d('baser', 'カテゴリー「%s」を追加しました。'), $this->request->data['BlogCategory']['name']));
+                $this->BcMessage->setSuccess(
+                    sprintf(
+                        __d('baser', 'カテゴリー「%s」を追加しました。'),
+                        $this->request->data['BlogCategory']['name']
+                    )
+                );
                 $this->redirect(['action' => 'index', $blogContentId]);
-            } else {
-                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+                return;
             }
+            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
         }
 
         /* 表示設定 */
@@ -173,7 +219,10 @@ class BlogCategoriesController extends BlogAppController
             $parents = ['' => __d('baser', '指定しない')];
         }
         $this->set('parents', $parents);
-        $this->pageTitle = sprintf(__d('baser', '%s｜新規カテゴリ登録'), $this->request->params['Content']['title']);
+        $this->pageTitle = sprintf(
+            __d('baser', '%s｜新規カテゴリ登録'),
+            $this->request->params['Content']['title']
+        );
         $this->help = 'blog_categories_form';
         $this->render('form');
     }
@@ -199,11 +248,16 @@ class BlogCategoriesController extends BlogAppController
 
             /* 更新処理 */
             if ($this->BlogCategory->save($this->request->data)) {
-                $this->BcMessage->setSuccess(sprintf(__d('baser', 'カテゴリー「%s」を更新しました。'), $this->request->data['BlogCategory']['name']));
+                $this->BcMessage->setSuccess(
+                    sprintf(
+                        __d('baser', 'カテゴリー「%s」を更新しました。'),
+                        $this->request->data['BlogCategory']['name']
+                    )
+                );
                 $this->redirect(['action' => 'index', $blogContentId]);
-            } else {
-                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+                return;
             }
+            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
         }
 
         /* 表示設定 */
@@ -221,9 +275,23 @@ class BlogCategoriesController extends BlogAppController
         } else {
             $parents = ['' => __d('baser', '指定しない')];
         }
-        $this->set('publishLink', $this->Content->getUrl($this->request->params['Content']['url'] . 'archives/category/' . $this->request->data['BlogCategory']['name'], true, $this->request->params['Site']['use_subdomain']));
+        $this->set(
+            'publishLink',
+            $this->Content->getUrl(
+                sprintf(
+                    "%s/archives/category/%s",
+                    rtrim($this->request->params['Content']['url'],'/'),
+                    $this->request->data['BlogCategory']['name']
+                ),
+                true,
+                $this->request->params['Site']['use_subdomain']
+            )
+        );
         $this->set('parents', $parents);
-        $this->pageTitle = sprintf(__d('baser', '%s｜カテゴリ編集'), $this->request->params['Content']['title']);
+        $this->pageTitle = sprintf(
+            __d('baser', '%s｜カテゴリ編集'),
+            $this->request->params['Content']['title']
+        );
         $this->help = 'blog_categories_form';
         $this->render('form');
     }
@@ -233,7 +301,7 @@ class BlogCategoriesController extends BlogAppController
      *
      * @param int $blogContentId
      * @param int $id
-     * @return    void
+     * @return    bool
      */
     protected function _batch_del($ids)
     {
@@ -260,11 +328,10 @@ class BlogCategoriesController extends BlogAppController
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
 
-        if ($this->_del($id)) {
-            exit(true);
-        } else {
+        if (!$this->_del($id)) {
             exit();
         }
+        exit(true);
     }
 
     /**
@@ -272,19 +339,25 @@ class BlogCategoriesController extends BlogAppController
      *
      * @param int $blogContentId
      * @param int $id
-     * @return    void
+     * @return    false
      */
     protected function _del($id = null)
     {
-        // メッセージ用にデータを取得
-        $data = $this->BlogCategory->read(null, $id);
         /* 削除処理 */
-        if ($this->BlogCategory->removeFromTreeRecursive($id)) {
-            $this->BlogCategory->saveDbLog(sprintf(__d('baser', 'カテゴリー「%s」を削除しました。'), $data['BlogCategory']['name']));
-            return true;
-        } else {
+        if (!$this->BlogCategory->removeFromTreeRecursive($id)) {
             return false;
         }
+
+        // メッセージ用にデータを取得
+        $data = $this->BlogCategory->read(null, $id);
+
+        $this->BlogCategory->saveDbLog(
+            sprintf(
+                __d('baser', 'カテゴリー「%s」を削除しました。'),
+                $data['BlogCategory']['name']
+            )
+        );
+        return true;
     }
 
     /**
@@ -303,12 +376,16 @@ class BlogCategoriesController extends BlogAppController
             $this->redirect(['action' => 'index']);
         }
 
-        // メッセージ用にデータを取得
-        $post = $this->BlogCategory->read(null, $id);
-
         /* 削除処理 */
         if ($this->BlogCategory->removeFromTreeRecursive($id)) {
-            $this->BcMessage->setSuccess(sprintf(__d('baser', '%s を削除しました。'), $post['BlogCategory']['name']));
+            // メッセージ用にデータを取得
+            $post = $this->BlogCategory->read(null, $id);
+            $this->BcMessage->setSuccess(
+                sprintf(
+                    __d('baser', '%s を削除しました。'),
+                    $post['BlogCategory']['name']
+                )
+            );
         } else {
             $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。'));
         }
@@ -340,7 +417,12 @@ class BlogCategoriesController extends BlogAppController
         }
 
         $this->request->data['BlogCategory']['blog_content_id'] = $blogContentId;
-        $this->request->data['BlogCategory']['no'] = $this->BlogCategory->getMax('no', ['BlogCategory.blog_content_id' => $blogContentId]) + 1;
+        $this->request->data['BlogCategory']['no'] = $this->BlogCategory->getMax(
+            'no',
+            ['BlogCategory.blog_content_id' => $blogContentId]
+            )
+            + 1;
+
         $this->BlogCategory->create($this->request->data);
 
         if (!$this->BlogCategory->save()) {

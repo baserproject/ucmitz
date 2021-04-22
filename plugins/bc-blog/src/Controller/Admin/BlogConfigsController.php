@@ -19,7 +19,6 @@ return;
  */
 class BlogConfigsController extends BlogAppController
 {
-
     /**
      * クラス名
      *
@@ -32,7 +31,12 @@ class BlogConfigsController extends BlogAppController
      *
      * @var array
      */
-    public $uses = ['User', 'Blog.BlogCategory', 'Blog.BlogConfig', 'Blog.BlogContent'];
+    public $uses = [
+        'User',
+        'Blog.BlogCategory',
+        'Blog.BlogConfig',
+        'Blog.BlogContent'
+    ];
 
     /**
      * コンポーネント
@@ -64,8 +68,21 @@ class BlogConfigsController extends BlogAppController
     {
         parent::__construct($request, $response);
         $this->crumbs = [
-            ['name' => __d('baser', 'プラグイン管理'), 'url' => ['plugin' => '', 'controller' => 'plugins', 'action' => 'index']],
-            ['name' => __d('baser', 'ブログ管理'), 'url' => ['controller' => 'blog_contents', 'action' => 'index']]
+            [
+                'name' => __d('baser', 'プラグイン管理'),
+                'url' => [
+                    'plugin' => '',
+                    'controller' => 'plugins',
+                    'action' => 'index'
+                ]
+            ],
+            [
+                'name' => __d('baser', 'ブログ管理'),
+                'url' => [
+                    'controller' => 'blog_contents',
+                    'action' => 'index'
+                ]
+            ]
         ];
     }
 

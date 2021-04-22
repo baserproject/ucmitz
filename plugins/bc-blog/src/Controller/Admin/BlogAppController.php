@@ -21,7 +21,6 @@ return;
  */
 class BlogAppController extends AppController
 {
-
     /**
      * コメントを管理者メールへメール送信する
      *
@@ -35,17 +34,29 @@ class BlogAppController extends AppController
             return false;
         }
 
-        $data = array_merge($data, $this->BlogPost->find('first', [
-            'conditions' => ['BlogPost.id' => $postId],
-            'recursive' => 0
-        ]));
+        $data = array_merge(
+            $data,
+            $this->BlogPost->find(
+                'first',
+                [
+                    'conditions' => ['BlogPost.id' => $postId],
+                    'recursive' => 0
+                ]
+            )
+        );
         $data['SiteConfig'] = $this->siteConfigs;
-        $to = $this->siteConfigs['email'];
-        $title = sprintf(__d('baser', '【%s】コメントを受け付けました'), $this->siteConfigs['name']);
-        return $this->sendMail($to, $title, $data, [
-            'template' => 'Blog.blog_comment_admin',
-            'agentTemplate' => false
-        ]);
+        return $this->sendMail(
+            $this->siteConfigs['email'],
+            sprintf(
+                __d('baser', '【%s】コメントを受け付けました'),
+                $this->siteConfigs['name']
+            ),
+            $data,
+            [
+                'template' => 'Blog.blog_comment_admin',
+                'agentTemplate' => false
+            ]
+        );
     }
 
     /**
@@ -61,12 +72,14 @@ class BlogAppController extends AppController
             return false;
         }
 
-        $_data = $this->BlogPost->find('first', [
-            'conditions' => [
-                'BlogPost.id' => $postId
-            ],
-            'recursive' => 1
-        ]);
+        $_data = $this->BlogPost->find(
+            'first', [
+                'conditions' => [
+                    'BlogPost.id' => $postId
+                ],
+                'recursive' => 1
+            ]
+        );
 
         // 公開されているコメントがない場合は true を返して終了
         if (empty($_data['BlogComment'])) {
@@ -78,20 +91,32 @@ class BlogAppController extends AppController
         $data = array_merge($_data, $data);
 
         $data['SiteConfig'] = $this->siteConfigs;
-        $title = sprintf(__('【%s】コメントが投稿されました'), $this->siteConfigs['name']);
-
-        $result = true;
         $sended = [];
         foreach ($blogComments as $blogComment) {
-            if ($blogComment['email'] && $blogComment['status'] && !in_array($blogComment['email'], $sended) && $blogComment['email'] != $data['BlogComment']['email']) {
-                $result = $this->sendMail($blogComment['email'], $title, $data, [
+            if (!$blogComment['email'] || !$blogComment['status']) {
+                $sended[] = $blogComment['email'];
+                continue;
+            }
+            if (in_array($blogComment['email'], $sended)) {
+                $sended[] = $blogComment['email'];
+                continue;
+            }
+            if ($blogComment['email'] === $data['BlogComment']['email']) {
+                $sended[] = $blogComment['email'];
+                continue;
+            }
+            $result = $this->sendMail(
+                $blogComment['email'],
+                sprintf(__('【%s】コメントが投稿されました'), $this->siteConfigs['name']),
+                $data,
+                [
                     'template' => 'Blog.blog_comment_contributor',
                     'agentTemplate' => false
-                ]);
-            }
+                ]
+            );
             $sended[] = $blogComment['email'];
         }
 
-        return $result;
+        return $result ?? true;
     }
 }

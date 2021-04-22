@@ -24,7 +24,6 @@ return;
  */
 class BlogTagsController extends BlogAppController
 {
-
     /**
      * クラス名
      *
@@ -53,8 +52,17 @@ class BlogTagsController extends BlogAppController
      */
     public function admin_index()
     {
-        $default = ['named' => ['num' => $this->siteConfigs['admin_list_num'], 'sort' => 'id', 'direction' => 'asc']];
-        $this->setViewConditions('BlogTag', ['default' => $default]);
+        $default = [
+            'named' => [
+                'num' => $this->siteConfigs['admin_list_num'],
+                'sort' => 'id',
+                'direction' => 'asc'
+            ]
+        ];
+        $this->setViewConditions(
+            'BlogTag',
+            ['default' => $default]
+        );
 
         $this->paginate = [
             'order' => 'BlogTag.id',
@@ -76,10 +84,17 @@ class BlogTagsController extends BlogAppController
         if (!empty($this->request->data)) {
             $this->BlogTag->create($this->request->data);
             if ($this->BlogTag->save()) {
-                $this->BcMessage->setSuccess(sprintf(__d('baser', 'タグ「%s」を追加しました。'), $this->request->data['BlogTag']['name']));
+                $this->BcMessage->setSuccess(
+                    sprintf(
+                        __d('baser', 'タグ「%s」を追加しました。'),
+                        $this->request->data['BlogTag']['name']
+                    )
+                );
                 $this->redirect(['action' => 'index']);
             } else {
-                $this->BcMessage->setError(__d('baser', 'エラーが発生しました。内容を確認してください。'));
+                $this->BcMessage->setError(
+                    __d('baser', 'エラーが発生しました。内容を確認してください。')
+                );
             }
         }
         $this->pageTitle = __d('baser', '新規タグ登録');
@@ -103,10 +118,17 @@ class BlogTagsController extends BlogAppController
         } else {
             $this->BlogTag->set($this->request->data);
             if ($this->BlogTag->save()) {
-                $this->BcMessage->setSuccess(sprintf(__d('baser', 'タグ「%s」を更新しました。'), $this->request->data['BlogTag']['name']));
+                $this->BcMessage->setSuccess(
+                    sprintf(
+                        __d('baser', 'タグ「%s」を更新しました。'),
+                        $this->request->data['BlogTag']['name']
+                    )
+                );
                 $this->redirect(['action' => 'index']);
             } else {
-                $this->BcMessage->setError(__d('baser', 'エラーが発生しました。内容を確認してください。'));
+                $this->BcMessage->setError(
+                    __d('baser', 'エラーが発生しました。内容を確認してください。')
+                );
             }
         }
         $this->pageTitle = __d('baser', 'タグ編集');
@@ -130,11 +152,17 @@ class BlogTagsController extends BlogAppController
         $data = $this->BlogTag->read(null, $id);
 
         if ($this->BlogTag->delete($id)) {
-            $this->BcMessage->setSuccess(sprintf(__d('baser', 'タグ「%s」を削除しました。'), $this->BlogTag->data['BlogTag']['name']));
+            $this->BcMessage->setSuccess(
+                sprintf(
+                    __d('baser', 'タグ「%s」を削除しました。'),
+                    $this->BlogTag->data['BlogTag']['name']
+                )
+            );
         } else {
-            $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。'));
+            $this->BcMessage->setError(
+                __d('baser', 'データベース処理中にエラーが発生しました。')
+            );
         }
-
         $this->redirect(['action' => 'index']);
     }
 
@@ -153,7 +181,10 @@ class BlogTagsController extends BlogAppController
 
         $data = $this->BlogTag->read(null, $id);
         if ($this->BlogTag->delete($id)) {
-            $message = sprintf(__d('baser', 'タグ「%s」を削除しました。'), $this->BlogTag->data['BlogTag']['name']);
+            $message = sprintf(
+                __d('baser', 'タグ「%s」を削除しました。'),
+                $this->BlogTag->data['BlogTag']['name']
+            );
             $this->BlogTag->saveDbLog($message);
             exit(true);
         }
@@ -164,7 +195,7 @@ class BlogTagsController extends BlogAppController
      * [ADMIN] 一括削除
      *
      * @param int $id
-     * @return void
+     * @return bool
      */
     protected function _batch_del($ids)
     {
@@ -172,7 +203,10 @@ class BlogTagsController extends BlogAppController
             foreach ($ids as $id) {
                 $data = $this->BlogTag->read(null, $id);
                 if ($this->BlogTag->delete($id)) {
-                    $message = sprintf(__d('baser', 'タグ「%s」を削除しました。'), $this->BlogTag->data['BlogTag']['name']);
+                    $message = sprintf(
+                        __d('baser', 'タグ「%s」を削除しました。'),
+                        $this->BlogTag->data['BlogTag']['name']
+                    );
                     $this->BlogTag->saveDbLog($message);
                 }
             }
@@ -187,16 +221,18 @@ class BlogTagsController extends BlogAppController
      */
     public function admin_ajax_add()
     {
-        if (!empty($this->request->data)) {
-            $this->BlogTag->create($this->request->data);
-            if ($data = $this->BlogTag->save()) {
-                $result = [$this->BlogTag->id => $data['BlogTag']['name']];
-                $this->set('result', $result);
-            } else {
-                $this->ajaxError(500, $this->BlogTag->validationErrors);
-            }
-        } else {
+        if (empty($this->request->data)) {
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
+            return;
         }
+
+        $this->BlogTag->create($this->request->data);
+        if (!($data = $this->BlogTag->save())) {
+            $this->ajaxError(500, $this->BlogTag->validationErrors);
+            return;
+        }
+
+        $result = [$this->BlogTag->id => $data['BlogTag']['name']];
+        $this->set('result', $result);
     }
 }

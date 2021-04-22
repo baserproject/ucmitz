@@ -26,7 +26,6 @@ return;
  */
 class BlogContentsController extends BlogAppController
 {
-
     /**
      * モデル
      *
@@ -63,7 +62,7 @@ class BlogContentsController extends BlogAppController
     public function beforeFilter()
     {
         parent::beforeFilter();
-        if (isset($this->params['prefix']) && $this->params['prefix'] == 'admin') {
+        if (isset($this->params['prefix']) && $this->params['prefix'] === 'admin') {
             $this->subMenuElements = ['blog_common'];
         }
     }
@@ -79,17 +78,24 @@ class BlogContentsController extends BlogAppController
         if (!$this->request->data) {
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
+
         $this->request->data['BlogContent'] = $this->BlogContent->getDefaultValue()['BlogContent'];
-        $this->request->data = $this->BlogContent->deconstructEyeCatchSize($this->request->data);
+        $this->request->data = $this->BlogContent->deconstructEyeCatchSize(
+            $this->request->data
+        );
+
         $data = $this->BlogContent->save($this->request->data);
-        if ($data) {
-            $message = sprintf(__d('baser', 'ブログ「%s」を追加しました。'), $this->request->data['Content']['title']);
-            $this->BcMessage->setSuccess($message, true, false);
-            return json_encode($data['Content']);
-        } else {
+        if (!$data) {
             $this->ajaxError(500, $this->BlogContent->validationErrors);
+            return false;
         }
-        return false;
+
+        $message = sprintf(
+            __d('baser', 'ブログ「%s」を追加しました。'),
+            $this->request->data['Content']['title']
+        );
+        $this->BcMessage->setSuccess($message, true, false);
+        return json_encode($data['Content']);
     }
 
     /**
@@ -106,19 +112,31 @@ class BlogContentsController extends BlogAppController
             $this->request->data = $this->BlogContent->getDefaultValue();
         } else {
 
-            $this->request->data = $this->BlogContent->deconstructEyeCatchSize($this->request->data);
+            $this->request->data = $this->BlogContent->deconstructEyeCatchSize(
+                $this->request->data
+            );
             $this->BlogContent->create($this->request->data);
 
             if ($this->BlogContent->save()) {
-
-                $id = $this->BlogContent->getLastInsertId();
-                $this->BcMessage->setSuccess(sprintf(__d('baser', '新規ブログ「%s」を追加しました。'), $this->request->data['BlogContent']['title']));
-                $this->redirect(['action' => 'edit', $id]);
+                $this->BcMessage->setSuccess(
+                    sprintf(
+                        __d('baser', '新規ブログ「%s」を追加しました。'),
+                        $this->request->data['BlogContent']['title']
+                    )
+                );
+                $this->redirect(
+                    [
+                        'action' => 'edit',
+                        $this->BlogContent->getLastInsertId()
+                    ]
+                );
             } else {
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
 
-            $this->request->data = $this->BlogContent->constructEyeCatchSize($this->request->data);
+            $this->request->data = $this->BlogContent->constructEyeCatchSize(
+                $this->request->data
+            );
         }
 
         // テーマの一覧を取得
@@ -136,39 +154,77 @@ class BlogContentsController extends BlogAppController
     {
         if (!$id && empty($this->request->data)) {
             $this->BcMessage->setError(__d('baser', '無効なIDです。'));
-            $this->redirect(['plugin' => false, 'admin' => true, 'controller' => 'contents', 'action' => 'index']);
+            $this->redirect([
+                'plugin' => false,
+                'admin' => true,
+                'controller' => 'contents',
+                'action' => 'index'
+            ]);
         }
 
         if ($this->request->is(['post', 'put'])) {
             if ($this->BlogContent->isOverPostSize()) {
-                $this->BcMessage->setError(__d('baser', '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。', ini_get('post_max_size')));
+                $this->BcMessage->setError(
+                    __d(
+                        'baser',
+                        '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。',
+                        ini_get('post_max_size')
+                    )
+                );
                 $this->redirect(['action' => 'edit', $id]);
             }
 
-            $this->request->data = $this->BlogContent->deconstructEyeCatchSize($this->request->data);
+            $this->request->data = $this->BlogContent->deconstructEyeCatchSize(
+                $this->request->data
+            );
             $this->BlogContent->set($this->request->data);
 
             if ($this->BlogContent->save()) {
-                $this->BcMessage->setSuccess(sprintf(__d('baser', 'ブログ「%s」を更新しました。'), $this->request->data['Content']['title']));
+                $this->BcMessage->setSuccess(
+                    sprintf(
+                        __d('baser', 'ブログ「%s」を更新しました。'),
+                        $this->request->data['Content']['title']
+                    )
+                );
                 if ($this->request->data['BlogContent']['edit_blog_template']) {
-                    $this->redirectEditBlog($this->request->data['BlogContent']['template']);
+                    $this->redirectEditBlog(
+                        $this->request->data['BlogContent']['template']
+                    );
                 } else {
                     $this->redirect(['action' => 'edit', $id]);
                 }
             } else {
-                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+                $this->BcMessage->setError(
+                    __d('baser', '入力エラーです。内容を修正してください。')
+                );
             }
-            $this->request->data = $this->BlogContent->constructEyeCatchSize($this->request->data);
+            $this->request->data = $this->BlogContent->constructEyeCatchSize(
+                $this->request->data
+            );
         } else {
-            $this->request->data = $this->BlogContent->constructEyeCatchSize($this->BlogContent->read(null, $id));
+            $this->request->data = $this->BlogContent->constructEyeCatchSize(
+                $this->BlogContent->read(null, $id)
+            );
             if (!$this->request->data) {
                 $this->BcMessage->setError(__d('baser', '無効な処理です。'));
-                $this->redirect(['plugin' => false, 'admin' => true, 'controller' => 'contents', 'action' => 'index']);
+                $this->redirect([
+                    'plugin' => false,
+                    'admin' => true,
+                    'controller' => 'contents',
+                    'action' => 'index'
+                ]);
             }
         }
         $site = BcSite::findById($this->request->data['Content']['site_id']);
         if (!empty($this->request->data['Content']['status'])) {
-            $this->set('publishLink', $this->Content->getUrl($this->request->data['Content']['url'], true, $site->useSubDomain));
+            $this->set(
+                'publishLink',
+                $this->Content->getUrl(
+                    $this->request->data['Content']['url'],
+                    true,
+                    $site->useSubDomain
+                )
+            );
         }
         $this->request->params['Content'] = $this->BcContents->getContent($id)['Content'];
         $this->set('blogContent', $this->request->data);
@@ -187,26 +243,45 @@ class BlogContentsController extends BlogAppController
      */
     protected function redirectEditLayout($template)
     {
-        $target = WWW_ROOT . 'theme' . DS . $this->siteConfigs['theme'] . DS . 'Layouts' . DS . $template . $this->ext;
+        $target = sprintf(
+            "%stheme/%s/Layouts/%s%s",
+            WWW_ROOT,
+            $this->siteConfigs['theme'],
+            $template,
+            $this->ext
+        );
         $sorces = [
-            BASER_PLUGINS . 'blog' . DS . 'View' . DS . 'Layouts' . DS . $template . $this->ext,
-            BASER_VIEWS . 'Layouts' . DS . $template . $this->ext
+            sprintf("%sblog/View/Layouts/%s%s", BASER_PLUGINS, $template, $this->ext),
+            sprintf("%sLayouts/%s%s", BASER_VIEWS, $template, $this->ext)
         ];
-        if ($this->siteConfigs['theme']) {
-            if (!file_exists($target)) {
-                foreach ($sorces as $source) {
-                    if (file_exists($source)) {
-                        copy($source, $target);
-                        chmod($target, 0666);
-                        break;
-                    }
+        if (!$this->siteConfigs['theme']) {
+            $this->BcMessage->setError(
+                __d(
+                    'baser',
+                    '現在、「テーマなし」の場合、管理画面でのテンプレート編集はサポートされていません。'
+                )
+            );
+            $this->redirect(['action' => 'index']);
+            return;
+        }
+
+        if (!file_exists($target)) {
+            foreach ($sorces as $source) {
+                if (file_exists($source)) {
+                    copy($source, $target);
+                    chmod($target, 0666);
+                    break;
                 }
             }
-            $this->redirect(['plugin' => null, 'controller' => 'theme_files', 'action' => 'edit', $this->siteConfigs['theme'], 'Layouts', $template . $this->ext]);
-        } else {
-            $this->BcMessage->setError(__d('baser', '現在、「テーマなし」の場合、管理画面でのテンプレート編集はサポートされていません。'));
-            $this->redirect(['action' => 'index']);
         }
+        $this->redirect([
+            'plugin' => null,
+            'controller' => 'theme_files',
+            'action' => 'edit',
+            $this->siteConfigs['theme'],
+            'Layouts',
+            $template . $this->ext
+        ]);
     }
 
     /**
@@ -217,26 +292,55 @@ class BlogContentsController extends BlogAppController
      */
     protected function redirectEditBlog($template)
     {
-        $path = 'Blog' . DS . $template;
-        $target = WWW_ROOT . 'theme' . DS . $this->siteConfigs['theme'] . DS . $path;
-        $sources = [BASER_PLUGINS . 'Blog' . DS . 'View' . DS . $path];
-        if ($this->siteConfigs['theme']) {
-            if (!file_exists($target . DS . 'index' . $this->ext)) {
-                foreach ($sources as $source) {
-                    if (is_dir($source)) {
-                        $folder = new Folder();
-                        $folder->create(dirname($target), 0777);
-                        $folder->copy(['from' => $source, 'to' => $target, 'chmod' => 0777, 'skip' => ['_notes']]);
-                        break;
-                    }
-                }
-            }
-            $path = str_replace(DS, '/', $path);
-            $this->redirect(array_merge(['plugin' => null, 'controller' => 'theme_files', 'action' => 'edit', $this->siteConfigs['theme'], 'etc'], explode('/', $path . '/index' . $this->ext)));
-        } else {
-            $this->BcMessage->setError(__d('baser', '現在、「テーマなし」の場合、管理画面でのテンプレート編集はサポートされていません。'));
+        $path = str_replace(DS, '/', 'Blog/' . $template);
+        $target = sprintf(
+            "%stheme/%s/%s",
+            WWW_ROOT,
+            $this->siteConfigs['theme'],
+            $path
+        );
+        if (!$this->siteConfigs['theme']) {
+            $this->BcMessage->setError(
+                __d(
+                    'baser',
+                    '現在、「テーマなし」の場合、管理画面でのテンプレート編集はサポートされていません。'
+                )
+            );
             $this->redirect(['action' => 'index']);
+            return;
         }
+
+        if (!file_exists(sprintf('%s/index%s', $target, $this->ext))) {
+            $sources = [
+                sprintf('%sBlog/View/%s', BASER_PLUGINS, $path)
+            ];
+            foreach ($sources as $source) {
+                if (!is_dir($source)) {
+                    continue;
+                }
+                $folder = new Folder();
+                $folder->create(dirname($target), 0777);
+                $folder->copy([
+                    'from' => $source,
+                    'to' => $target,
+                    'chmod' => 0777,
+                    'skip' => ['_notes']
+                ]);
+                break;
+            }
+        }
+        $this->redirect(
+            array_merge(
+                [
+                    'plugin' => null,
+                    'controller' => 'theme_files',
+                    'action' => 'edit',
+                    $this->siteConfigs['theme'],
+                    'etc'
+                ],
+                explode('/', $path . '/index' . $this->ext)
+            )
+        );
     }
 
     /**
@@ -269,14 +373,23 @@ class BlogContentsController extends BlogAppController
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
         $user = $this->BcAuth->user();
-        $data = $this->BlogContent->copy($this->request->data['entityId'], $this->request->data['parentId'], $this->request->data['title'], $user['id'], $this->request->data['siteId']);
-        if ($data) {
-            $message = sprintf(__d('baser', 'ブログのコピー「%s」を追加しました。'), $this->request->data['title']);
-            $this->BcMessage->setSuccess($message, true, false);
-            return json_encode($data['Content']);
-        } else {
+        $data = $this->BlogContent->copy(
+            $this->request->data['entityId'],
+            $this->request->data['parentId'],
+            $this->request->data['title'],
+            $user['id'],
+            $this->request->data['siteId']
+        );
+        if (!$data) {
             $this->ajaxError(500, $this->BlogContent->validationErrors);
+            return false;
         }
-        return false;
+
+        $message = sprintf(
+            __d('baser', 'ブログのコピー「%s」を追加しました。'),
+            $this->request->data['title']
+        );
+        $this->BcMessage->setSuccess($message, true, false);
+        return json_encode($data['Content']);
     }
 }
