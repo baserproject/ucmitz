@@ -593,7 +593,7 @@ class UsersController extends BcAdminAppController
 
         $user = $this->Users->get($id, ['contain' => ['UserGroups']]);
         // TODO: UsersTableにUsersUserGroupsアソシエーションを追加後メソッドとして作成する必要あり↓↓↓$group_count
-        $group_count = $this->Users
+        $groupCount = $this->Users
             ->find('all', ['conditions' => ['UsersUserGroups.user_group_id' => Configure::read('BcApp.adminGroupId')]])
             ->join(['table' => 'users_user_groups',
                     'alias' => 'UsersUserGroups',
@@ -601,7 +601,7 @@ class UsersController extends BcAdminAppController
                     'conditions' => 'UsersUserGroups.user_id = Users.id'])
             ->count();
          /* 最後のシステム管理者でなければ、削除処理 */
-        if (BcUtil::isAdminUser($user) && $group_count === 1) {
+        if (BcUtil::isAdminUser($user) && $groupCount === 1) {
             $this->BcMessage->setError(__d('baser', '最後のシステム管理者は削除できません'));
         } else {
             if ($this->Users->delete($user)) {
