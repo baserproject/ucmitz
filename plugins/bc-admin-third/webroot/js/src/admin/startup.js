@@ -81,7 +81,9 @@ $(function () {
      */
     $.bcToken.init();
     /**
-     * バリデーションerror-messageカスタム
+     * Cake\View\Helper\FormHelper
+     * @method error()
+     * `error`, `errorList` and `errorItem` templatesのclassをjsで変更する
      */
     $(".error-message:has(ul)").removeClass("error-message").addClass("error-wrap");
 });
