@@ -69,6 +69,7 @@ class AnalyseController extends AppController
      * @param string $path
      * @return array
      * @checked
+     * @unitTest
      * @noTodo
      */
     private function getList($path)

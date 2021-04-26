@@ -70,24 +70,32 @@ class AnalyseControllerTest extends BcTestCase
      */
     public function testGetList()
     {
-        $path = '/';
-
+        $path = ROOT . DS . 'plugins' . DS;
         $method = $this->ref->getMethod('getList');
         $method->setAccessible(true);
         $result = $method->invokeArgs($this->Controller, [$path]);
-        // $this->assertSame();
+        $expected = [
+            "file" => "content_folders.php",
+            "path" => "/plugins/baser-core/config/Schema/content_folders.php",
+            "class" => "",
+            "method" => "",
+            "checked" => false,
+            "unitTest" => false,
+            "noTodo" => false
+        ];
+        $this->assertContains($expected, $result);
     }
 
     /**
      * Test getAnnotations
-     * @see \BaserCore\Controller\Admin\BcAdminAppController @method initialize
+     * @see BaserCore\Controller\AnalyseController @method index
      * @return void
      */
     public function testGetAnnotations()
     {
         $method = $this->ref->getMethod('getAnnotations');
         $method->setAccessible(true);
-        $result = $method->invokeArgs($this->Controller, ["\BaserCore\Controller\Admin\BcAdminAppController", "initialize"]);
+        $result = $method->invokeArgs($this->Controller, ["\BaserCore\Controller\AnalyseCotroller", "index"]);
         $expected = [
             "checked" => true,
             "unitTest" => true,
