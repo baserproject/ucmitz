@@ -43,24 +43,27 @@ class AnalyseControllerTest extends BcTestCase
     }
 
     /**
+     * プライベートメソッドを使用する
+     * @param string $name メソッド名
+     * @return ReflectionMethod $method
+     */
+    private function usePrivateMethod($name)
+    {
+        $method = $this->ref->getMethod($name);
+        $method->setAccessible(true);
+        return $method;
+    }
+
+    /**
      * Test index
      *
      * @return void
      */
     public function testIndex()
     {
-        $this->get('/baser/analyse/index/baser-core.json');
+        $this->get('/baser/analyse/index/bc-admin-third.json');
         $this->assertResponseOk();
         $this->assertHeader('Content-Type', 'application/json');
-        $this->assertResponseContains('"0": {
-            "file": "content_folders.php",
-            "path": "\/plugins\/baser-core\/config\/Schema\/content_folders.php",
-            "class": "",
-            "method": "",
-            "checked": false,
-            "unitTest": false,
-            "noTodo": false
-        }');
     }
 
     /**
@@ -71,8 +74,7 @@ class AnalyseControllerTest extends BcTestCase
     public function testGetList()
     {
         $path = ROOT . DS . 'plugins' . DS;
-        $method = $this->ref->getMethod('getList');
-        $method->setAccessible(true);
+        $method = $this->usePrivateMethod('getList');
         $result = $method->invokeArgs($this->Controller, [$path]);
         $expected = [
             "file" => "content_folders.php",
@@ -93,9 +95,8 @@ class AnalyseControllerTest extends BcTestCase
      */
     public function testGetAnnotations()
     {
-        $method = $this->ref->getMethod('getAnnotations');
-        $method->setAccessible(true);
-        $result = $method->invokeArgs($this->Controller, ["\BaserCore\Controller\AnalyseCotroller", "index"]);
+        $method = $this->usePrivateMethod('getAnnotations');
+        $result = $method->invokeArgs($this->Controller, ["\BaserCore\Controller\AnalyseController", "index"]);
         $expected = [
             "checked" => true,
             "unitTest" => true,
@@ -112,8 +113,7 @@ class AnalyseControllerTest extends BcTestCase
      */
     public function testGetTraitMethod()
     {
-        $method = $this->ref->getMethod('getTraitMethod');
-        $method->setAccessible(true);
+        $method = $this->usePrivateMethod('getTraitMethod');
         // AnalyseControllerTestのIntegrationTestTraitでテスト
         $class = new ReflectionClass($this);
         $result = $method->invokeArgs($this->Controller, [$class]);
@@ -131,8 +131,7 @@ class AnalyseControllerTest extends BcTestCase
      */
     public function testPathToClass($path, $expected)
     {
-        $method = $this->ref->getMethod('pathToClass');
-        $method->setAccessible(true);
+        $method = $this->usePrivateMethod('pathToClass');
         $result = $method->invokeArgs($this->Controller, [$path]);
         $this->assertEquals($result, $expected);
     }
