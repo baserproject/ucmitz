@@ -18,6 +18,7 @@ use ReflectionMethod;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Controller\AppController;
 
 /**
  * Class AnalyseController
@@ -39,6 +40,7 @@ class AnalyseController extends AppController
      * 解析したファイル情報一覧
      *
      * .json 付でアクセスすることで JSON を出力
+     * 例）http://localhost/baser/analyse/index.json
      * 例）http://localhost/baser/analyse/index/baser-core.json
      * API) http://reflection.basercms.net/baser/analyse/index/baser-core.json
      *

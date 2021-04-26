@@ -73,7 +73,7 @@ class AnalyseControllerTest extends BcTestCase
      */
     public function testGetList()
     {
-        $path = ROOT . DS . 'plugins' . DS;
+        $path = ROOT . DS . 'plugins' . DS . 'baser-core';
         $method = $this->usePrivateMethod('getList');
         $result = $method->invokeArgs($this->Controller, [$path]);
         $expected = [
