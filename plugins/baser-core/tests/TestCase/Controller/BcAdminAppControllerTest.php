@@ -15,6 +15,7 @@ use Cake\TestSuite\IntegrationTestTrait;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Controller\Admin\BcAdminAppController;
 use Cake\Core\Configure;
+use Cake\Event\Event;
 use ReflectionClass;
 use \Cake\Http\Exception\NotFoundException;
 
@@ -84,7 +85,11 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSaveViewConditions()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $ref = new ReflectionClass($this->BcAdminApp);
+        $method = $ref->getMethod('saveViewConditions');
+        $method->setAccessible(true);
+        // $method->invokeArgs($this->BcAdminApp, ['Users',[]]);
+
     }
 
     /**
@@ -94,7 +99,14 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testBeforeRender()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        // request handlerがない場合
+        $this->BcAdminApp->components();
+        $event = new Event('Controller.beforeRender', $this->BcAdminApp);
+        $this->BcAdminApp->beforeRender($event);
+        $this->assertEquals('BaserCore.BcAdminApp', $this->BcAdminApp->viewBuilder()->getClassName());
+
+        //TODO: request handlerがある場合
+
     }
 
     /**
