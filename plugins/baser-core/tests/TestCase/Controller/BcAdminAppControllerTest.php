@@ -85,10 +85,11 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSaveViewConditions()
     {
-        $ref = new ReflectionClass($this->BcAdminApp);
-        $method = $ref->getMethod('saveViewConditions');
-        $method->setAccessible(true);
-        // $method->invokeArgs($this->BcAdminApp, ['Users',[]]);
+        // $ref = new ReflectionClass($this->BcAdminApp);
+        // $method = $ref->getMethod('saveViewConditions');
+        // $method->setAccessible(true);
+        // $method->invokeArgs($this->BcAdminApp, ['User',[]]);
+        $this->markTestIncomplete('Not implemented yet.');
 
     }
 
@@ -101,19 +102,16 @@ class BcAdminAppControllerTest extends BcTestCase
     {
         $event = new Event('Controller.beforeRender', $this->BcAdminApp);
         // 拡張子指定なしの場合
-        $this->RequestHandler->startup($event);
         $this->BcAdminApp->beforeRender($event);
         $this->assertEquals('BaserCore.BcAdminApp', $this->BcAdminApp->viewBuilder()->getClassName());
         $this->assertEquals("BcAdminThird", $this->BcAdminApp->viewBuilder()->getTheme());
-        // classNameとthemeをリセット
+        // classNameをリセット
         $this->BcAdminApp->viewBuilder()->setClassName('');
-        $this->BcAdminApp->viewBuilder()->setTheme('');
-        // 拡張子jsonの場合
+        // 拡張子jsonの場合classNameがsetされないか確認
         $this->BcAdminApp->setRequest($this->BcAdminApp->getRequest()->withParam('_ext', 'json'));
         $this->RequestHandler->startup($event);
         $this->BcAdminApp->beforeRender($event);
         $this->assertEmpty($this->BcAdminApp->viewBuilder()->getClassName());
-        $this->assertEquals("BcAdminThird", $this->BcAdminApp->viewBuilder()->getTheme());
     }
 
     /**
