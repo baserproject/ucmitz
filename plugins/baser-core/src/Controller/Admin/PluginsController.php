@@ -47,6 +47,7 @@ class PluginsController extends BcAdminAppController
      * initialize
      * @throws \Exception
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function initialize():void
@@ -59,6 +60,7 @@ class PluginsController extends BcAdminAppController
      * Before Filter
      * @param \Cake\Event\EventInterface $event An Event instance
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function beforeFilter(EventInterface $event): void

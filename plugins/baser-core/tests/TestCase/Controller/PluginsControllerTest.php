@@ -16,6 +16,8 @@ use BaserCore\Utility\BcUtil;
 use Cake\Datasource\ConnectionManager;
 use Cake\Filesystem\Folder;
 use Cake\TestSuite\IntegrationTestTrait;
+use BaserCore\Controller\Admin\PluginsController;
+use Cake\Event\Event;
 
 /**
  * Class PluginsControllerTest
@@ -47,6 +49,7 @@ class PluginsControllerTest extends BcTestCase
     {
         parent::setUp();
         $this->loginAdmin();
+        $this->PluginsController = new PluginsController($this->getRequest());
     }
 
     /**
@@ -57,6 +60,22 @@ class PluginsControllerTest extends BcTestCase
         parent::tearDown();
     }
 
+    /**
+     * プラグインの初期化テスト
+     */
+    public function testInitialize()
+    {
+        $this->assertNotEmpty($this->PluginsController->RequestHandler);
+    }
+    /**
+     * beforeFilterテスト
+     */
+    public function testBeforeFilter()
+    {
+        $event = new Event('Controller.beforeFilter', $this->PluginsController);
+        $this->PluginsController->beforeFilter($event);
+        $this->assertEquals($this->PluginsController->Security->getConfig('unlockedActions'), ['reset_db', 'update_sort', 'batch']);
+    }
     /**
      * プラグインをアップロードしてインストールする
      */
