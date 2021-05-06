@@ -18,7 +18,6 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use ReflectionClass;
 use \Cake\Http\Exception\NotFoundException;
-
 /**
  * BaserCore\Controller\BcAdminAppController Test Case
  */
@@ -33,6 +32,7 @@ class BcAdminAppControllerTest extends BcTestCase
     {
         parent::setUp();
         $this->BcAdminApp = new BcAdminAppController($this->getRequest());
+        $this->RequestHandler = $this->BcAdminApp->components()->load('RequestHandler');
     }
 
     /**
@@ -99,14 +99,21 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testBeforeRender()
     {
-        // request handlerがない場合
-        $this->BcAdminApp->components();
         $event = new Event('Controller.beforeRender', $this->BcAdminApp);
+        // 拡張子指定なしの場合
+        $this->RequestHandler->startup($event);
         $this->BcAdminApp->beforeRender($event);
         $this->assertEquals('BaserCore.BcAdminApp', $this->BcAdminApp->viewBuilder()->getClassName());
-
-        //TODO: request handlerがある場合
-
+        $this->assertEquals("BcAdminThird", $this->BcAdminApp->viewBuilder()->getTheme());
+        // classNameとthemeをリセット
+        $this->BcAdminApp->viewBuilder()->setClassName('');
+        $this->BcAdminApp->viewBuilder()->setTheme('');
+        // 拡張子jsonの場合
+        $this->BcAdminApp->setRequest($this->BcAdminApp->getRequest()->withParam('_ext', 'json'));
+        $this->RequestHandler->startup($event);
+        $this->BcAdminApp->beforeRender($event);
+        $this->assertEmpty($this->BcAdminApp->viewBuilder()->getClassName());
+        $this->assertEquals("BcAdminThird", $this->BcAdminApp->viewBuilder()->getTheme());
     }
 
     /**
