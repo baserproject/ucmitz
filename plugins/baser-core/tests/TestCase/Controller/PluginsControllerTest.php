@@ -98,7 +98,8 @@ class PluginsControllerTest extends BcTestCase
      */
     public function testAjax_get_market_plugins()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->get('/baser/admin/baser-core/plugins/get_market_plugins');
+        $this->assertResponseOk();
     }
 
     /**
@@ -133,7 +134,7 @@ class PluginsControllerTest extends BcTestCase
         $this->post('/baser/admin/baser-core/plugins/detach/BcBlog');
         $this->assertFlashMessage('プラグイン「BcBlog」を無効にしました。');
 
-        $this->put('/baser/admin/baser-core/plugins/install/BcBlog', ['connection' => 'test']);
+        $this->post('/baser/admin/baser-core/plugins/install/BcBlog', ['connection' => 'test']);
         $this->assertRedirect([
             'plugin' => 'BaserCore',
             'prefix' => 'Admin',
