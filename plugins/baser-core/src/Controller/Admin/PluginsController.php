@@ -141,7 +141,7 @@ class PluginsController extends BcAdminAppController
         $this->setTitle(__d('baser', '新規プラグイン登録'));
         $this->setHelp('plugins_install');
 
-        if (!$isInstallable || !$this->request->is('post')) {
+        if (!$isInstallable || !$this->request->is(['put', 'post'])) {
             return;
         }
 
@@ -337,6 +337,7 @@ class PluginsController extends BcAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function get_market_plugins()
     {
@@ -348,7 +349,7 @@ class PluginsController extends BcAdminAppController
             $Xml = new Xml();
             try {
 				$client = new Client([
-				    'host' => ''
+                    'host' => ''
                 ]);
 				$response = $client->get(Configure::read('BcApp.marketPluginRss'));
 				if ($response->getStatusCode() !== 200) {
@@ -450,6 +451,7 @@ class PluginsController extends BcAdminAppController
      *
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function reset_db()
@@ -477,13 +479,7 @@ class PluginsController extends BcAdminAppController
             $this->BcMessage->setError(__d('baser', '処理中にエラーが発生しました。プラグインの開発者に確認してください。'));
             return;
         }
-
-        // TODO
-        /*
-        clearAllCache();
-        $this->BcAuth->relogin();
-        */
-
+        BcUtil::clearAllCache();
         $this->BcMessage->setSuccess(
             sprintf(__d('baser', '%s プラグインのデータを初期化しました。'), $plugin->title)
         );

@@ -134,7 +134,7 @@ class PluginsControllerTest extends BcTestCase
         $this->post('/baser/admin/baser-core/plugins/detach/BcBlog');
         $this->assertFlashMessage('プラグイン「BcBlog」を無効にしました。');
 
-        $this->post('/baser/admin/baser-core/plugins/install/BcBlog', ['connection' => 'test']);
+        $this->put('/baser/admin/baser-core/plugins/install/BcBlog', ['connection' => 'test']);
         $this->assertRedirect([
             'plugin' => 'BaserCore',
             'prefix' => 'Admin',
@@ -191,6 +191,13 @@ class PluginsControllerTest extends BcTestCase
             'BcBlog'
         ]);
         $this->assertFlashMessage('ブログ プラグインのデータを初期化しました。');
+    }
+    /**
+     * データベースをリセットする
+     */
+    public function testBatch()
+    {
+        $this->markTestIncomplete('未実装');
     }
 
 }
