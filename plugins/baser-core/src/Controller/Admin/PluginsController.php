@@ -451,7 +451,6 @@ class PluginsController extends BcAdminAppController
      *
      * @return void
      * @checked
-     * @noTodo
      * @unitTest
      */
     public function reset_db()
@@ -480,6 +479,8 @@ class PluginsController extends BcAdminAppController
             return;
         }
         BcUtil::clearAllCache();
+        // TODO
+        // $this->BcAuth->relogin();
         $this->BcMessage->setSuccess(
             sprintf(__d('baser', '%s プラグインのデータを初期化しました。'), $plugin->title)
         );
