@@ -204,6 +204,7 @@ class PluginsControllerTest extends BcTestCase
         $this->assertResponseOk();
         $plugins = $this->getTableLocator()->get('Plugins');
         $query = $plugins->find()->select(['id', 'status']);
+        // 複数detachされてるかテスト
         foreach($query as $plugin) {
             if (in_array($plugin->id, $batchList)) {
                 $this->assertFalse($plugin->status);
