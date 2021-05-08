@@ -193,11 +193,21 @@ class PluginsControllerTest extends BcTestCase
         $this->assertFlashMessage('ブログ プラグインのデータを初期化しました。');
     }
     /**
-     * データベースをリセットする
+     * 一括処理できてるかテスト
      */
-    public function testBatch()
+    public function testAjax_Batch()
     {
-        $this->markTestIncomplete('未実装');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $batchList = [1, 2];
+        $this->post('/baser/admin/baser-core/plugins/batch', ['connection' => 'test', 'ListTool' => ['batch' => 'detach', 'batch_targets' => $batchList]]);
+        $this->assertResponseOk();
+        $plugins = $this->getTableLocator()->get('Plugins');
+        $query = $plugins->find()->select(['id', 'status']);
+        foreach($query as $plugin) {
+            if (in_array($plugin->id, $batchList)) {
+                $this->assertFalse($plugin->status);
+            }
+        }
     }
-
 }
