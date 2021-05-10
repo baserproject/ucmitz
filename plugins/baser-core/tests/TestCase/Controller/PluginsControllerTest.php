@@ -195,7 +195,7 @@ class PluginsControllerTest extends BcTestCase
     /**
      * 一括処理できてるかテスト
      */
-    public function testAjax_Batch()
+    public function testAjax_batch()
     {
         $this->enableSecurityToken();
         $this->enableCsrfToken();
