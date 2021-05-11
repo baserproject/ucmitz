@@ -20,6 +20,8 @@ use Cake\Http\ServerRequest;
 use BaserCore\Model\Table\LoginStoresTable;
 use Cake\Http\Cookie\Cookie;
 use DateTime;
+use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -194,16 +196,25 @@ class BcAppController extends AppController
     ) {
 		parent::__construct($request, $response, $name, $eventManager, $components);
 
-		// TODO 未確認のため代替措置
+        // if (isConsole()) {
+        // TODO isConsoleのCAKEPHP_SHELLが非推奨&&未定義のため代替措置
+        // >>>
+        $isConsole = substr(php_sapi_name(), 0, 3) == 'cgi';
+        if ($isConsole) {
+			unset($this->components['Session']);
+		}
+        // <<<
+
+		// テンプレートの拡張子
+		$this->ext = Configure::read('BcApp.templateExt');
+        // TODO siteConfigs代替措置
+        // $config = $this->getTableLocator()->exists('SiteConfigs')? [] : ['className' => 'BaserCore\Model\Table\SiteConfigsTable'];
+        // $this->siteConfigs = TableRegistry::getTableLocator()->get('SiteConfigs');
+        $this->siteConfigs['theme'] = 'bc_sample';
+        // TODO 未確認のため代替措置
 		// >>>
 		return;
 		// <<<
-
-		if (isConsole()) {
-			unset($this->components['Session']);
-		}
-		// テンプレートの拡張子
-		$this->ext = Configure::read('BcApp.templateExt');
 		$isRequestView = $request->is('requestview');
 		$isInstall = $request->is('install');
 

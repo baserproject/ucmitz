@@ -599,6 +599,16 @@ class BcUtilTest extends BcTestCase
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
+    /**
+     * templatesのpath取得のテスト
+     */
+    public function testTemplatePath()
+    {
+        $plugin = 'BaserCore';
+        $expected = ['/var/www/html/plugins/baser-core/templates/'];
+        $result = BcUtil::templatePath($plugin);
+        $this->assertEquals($expected,  $result);
+    }
 
     /**
      * 全てのテーマリストを取得する

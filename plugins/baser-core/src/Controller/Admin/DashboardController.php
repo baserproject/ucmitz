@@ -12,6 +12,7 @@
 namespace BaserCore\Controller\Admin;
 
 use BaserCore\Utility\BcUtil;
+use Cake\Core\Plugin;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -45,24 +46,12 @@ class DashboardController extends BcAdminAppController
 	 */
 	public function index()
 	{
-	    $this->setTitle(__d('baser', 'ダッシュボード'));
-
-	    // TODO 未実装のため代替措置
-	    // >>>
-	    return;
-	    // <<<
-
+        $this->setTitle(__d('baser', 'ダッシュボード'));
 		$panels = [];
-		$panels['Core'] = BcUtil::getTemplateList('Elements/admin/dashboard', '', $this->siteConfigs['theme']);
-		$plugins = CakePlugin::loaded();
+		$plugins = Plugin::loaded();
 		if ($plugins) {
 			foreach($plugins as $plugin) {
-				$templates = BcUtil::getTemplateList('Elements/admin/dashboard', $plugin, $this->siteConfigs['theme']);
-				foreach($templates as $key => $template) {
-					if (in_array($template, $panels['Core'])) {
-						unset($templates[$key]);
-					}
-				}
+				$templates = BcUtil::getTemplateList('element/Admin/Dashboard', $plugin, $this->siteConfigs['theme']);
 				$panels[$plugin] = $templates;
 			}
 		}

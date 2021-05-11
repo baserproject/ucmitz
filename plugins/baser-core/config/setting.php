@@ -31,6 +31,8 @@ return [
          * baserコアのプレフィックスの後に付与
          */
         'adminPrefix' => $adminPrefix,
+        // テンプレートの基本となる拡張子（.php 推奨）
+        'templateExt' => '.php',
         /**
          * 特権管理者グループID
          */

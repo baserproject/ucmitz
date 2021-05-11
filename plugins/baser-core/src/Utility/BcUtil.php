@@ -571,9 +571,9 @@ class BcUtil
     {
 
         if ($plugin) {
-            $templatesPathes = App::path('View', $plugin);
+            $templatesPathes = self::templatePath($plugin);
         } else {
-            $templatesPathes = App::path('View');
+            $templatesPathes = App::classPath('templates');
             if ($theme) {
                 array_unshift($templatesPathes, WWW_ROOT . 'theme' . DS . $theme . DS);
             }
@@ -601,6 +601,19 @@ class BcUtil
             }
         }
         return $templates;
+    }
+    /**
+     * テンプレートのpathを返す
+     *
+     * @param string $plugin
+     * @return array $templatePath
+     * @checked
+     * @notodo
+     * @unitTest
+     */
+    public static function templatePath(string $plugin): array
+    {
+        return str_replace('src/', '', App::classPath('templates', $plugin));
     }
 
     /**

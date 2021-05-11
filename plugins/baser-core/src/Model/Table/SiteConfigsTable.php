@@ -1,16 +1,27 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Model
- * @since           baserCMS v 0.1.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
+
+namespace BaserCore\Model\Table;
+
+use BaserCore\Event\BcEventDispatcherTrait;
+use Cake\ORM\Query;
+use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
+use Cake\Validation\Validator;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Utility\BcUtil;
+use Cake\Utility\Inflector;
+use Cake\Filesystem\Folder;
 
 /**
  * Class SiteConfig
@@ -19,28 +30,64 @@ return;
  *
  * @package Baser.Model
  */
-class SiteConfig extends AppModel
+class SiteConfigsTable extends Table
 {
+    /**
+     * Trait
+     */
+    use BcEventDispatcherTrait;
 
 	/**
 	 * ビヘイビア
-	 *
+	 * // TODO 暫定措置
 	 * @var array
 	 */
-	public $actsAs = ['BcCache'];
+	// public $actsAs = ['BcCache'];
 
 	/**
 	 * SiteConfig constructor.
-	 *
+	 * @since basercms4
 	 * @param bool $id
 	 * @param null $table
 	 * @param null $ds
+     * ---------------
+     * @since basercms5
+     * @param array $config
 	 */
-	public function __construct($id = false, $table = null, $ds = null)
+	public function __construct($config)
 	{
-		parent::__construct($id, $table, $ds);
-		$this->validate = [
-			'formal_name' => [
+		parent::__construct($config);
+	}
+
+    /**
+     * Initialize
+     *
+     * @param array $config テーブル設定
+     * @return void
+     */
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+    }
+    /**
+     * Validation Default
+     *
+     * @param Validator $validator
+     * @return Validator
+     */
+    public function validationDefault(Validator $validator): Validator
+    {
+        $validator
+        ->integer('id')
+        ->allowEmptyString('id', null, 'create');
+
+        $validator
+        ->scalar('name')
+        ->maxLength('name', 255, __d('baser', '255文字以内で入力してください。'))
+        ->notEmptyString('name', __d('baser', 'を入力してください。'))
+        // __constructから移動
+        ->add('name', [
+            'formal_name' => [
 				'rule' => ['notBlank'], 'message' => __d('baser', 'Webサイト名を入力してください。'), 'required' => true],
 			'name' => [
 				'rule' => ['notBlank'], 'message' => __d('baser', 'Webサイトタイトルを入力してください。'), 'required' => true],
@@ -55,12 +102,19 @@ class SiteConfig extends AppModel
 				'rule' => ['sslUrlExists'], 'message' => __d('baser', '管理画面をSSLで利用するには、SSL用のWebサイトURLを入力してください。')],
 			'main_site_display_name' => [
 				'rule' => ['notBlank'], 'message' => __d('baser', 'メインサイト表示名を入力してください。'), 'required' => false]
-		];
-	}
+        ]);
+
+        $validator
+        ->scalar('text')
+        ->maxLength('name', 65535, __d('baser', '65535文字以内で入力してください。'))
+        ->notEmptyString('text', __d('baser', 'テキストを入力してください。'));
+
+        return $validator;
+    }
 
 	/**
 	 * テーマの一覧を取得する
-	 *
+	 * @since basercms4
 	 * @return array
 	 */
 	public function getThemes()
@@ -81,7 +135,7 @@ class SiteConfig extends AppModel
 
 	/**
 	 * コントロールソースを取得する
-	 *
+	 * @since basercms4
 	 * @param string $field
 	 * @return mixed array | false
 	 */
@@ -97,7 +151,7 @@ class SiteConfig extends AppModel
 
 	/**
 	 * SSL用のURLが設定されているかチェックする
-	 *
+	 * @since basercms4
 	 * @param mixed $check
 	 * @return boolean
 	 */
@@ -112,7 +166,7 @@ class SiteConfig extends AppModel
 
 	/**
 	 * コンテンツ一覧を表示してから、コンテンツの並び順が変更されていないかどうか
-	 *
+	 * @since basercms4
 	 * @param $listDisplayed
 	 * @return bool
 	 */
@@ -138,6 +192,7 @@ class SiteConfig extends AppModel
 
 	/**
 	 * コンテンツ並び順変更時間を更新する
+	 * @since basercms4
 	 */
 	public function updateContentsSortLastModified()
 	{
@@ -149,6 +204,7 @@ class SiteConfig extends AppModel
 
 	/**
 	 * コンテンツ並び替え順変更時間をリセットする
+	 * @since basercms4
 	 */
 	public function resetContentsSortLastModified()
 	{
@@ -158,6 +214,7 @@ class SiteConfig extends AppModel
 
 	/**
 	 * 指定したフィールドの値がDBのデータと比較して変更状態か確認
+	 * @since basercms4
 	 *
 	 * @param string $field フィールド名
 	 * @param string $value 値
