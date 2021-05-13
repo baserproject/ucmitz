@@ -373,6 +373,7 @@ class PluginsController extends BcAdminAppController
      * @return void|Response
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update_sort()
     {
