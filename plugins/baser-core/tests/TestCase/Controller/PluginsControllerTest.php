@@ -107,7 +107,11 @@ class PluginsControllerTest extends BcTestCase
      */
     public function testAjax_update_sort()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $this->post('/baser/admin/baser-core/plugins/update_sort', ['connection' => 'test', 'Sort' => ['id' => 1, 'offset' => 1]]);
+        $this->assertResponseOk();
+        $this->assertSame('true', $this->_getBodyAsString());
     }
 
     /**
@@ -210,5 +214,6 @@ class PluginsControllerTest extends BcTestCase
                 $this->assertFalse($plugin->status);
             }
         }
+        $this->assertSame('true', $this->_getBodyAsString());
     }
 }

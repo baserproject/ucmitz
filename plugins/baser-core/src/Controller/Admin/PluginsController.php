@@ -388,7 +388,7 @@ class PluginsController extends BcAdminAppController
         }
 
         BcUtil::clearAllCache();
-        return $this->response->withStringBody(true);
+        return $this->response->withStringBody('true');
     }
 
     /**
@@ -512,7 +512,7 @@ class PluginsController extends BcAdminAppController
                 );
             }
         }
-        return $this->response->withStringBody(true);
+        return $this->response->withStringBody('true');
     }
 
 }
