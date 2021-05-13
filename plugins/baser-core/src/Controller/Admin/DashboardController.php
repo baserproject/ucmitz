@@ -43,6 +43,8 @@ class DashboardController extends BcAdminAppController
 	 *
 	 * @return void
      * @checked
+     * @noTodo
+     * @unitTest
 	 */
 	public function index()
 	{
@@ -55,7 +57,7 @@ class DashboardController extends BcAdminAppController
 				$panels[$plugin] = $templates;
 			}
 		}
-		$this->set('panels', $panels);
+        $this->set('panels', $panels);
 		$this->setHelp('dashboard_index');
 	}
 

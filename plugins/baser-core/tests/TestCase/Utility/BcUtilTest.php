@@ -597,7 +597,9 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetTemplateList()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $result = BcUtil::getTemplateList('element/Admin/Dashboard', 'BcAdminThird', 'bc_sample');
+        $expected = ['baser_news' => 'baser_news', "update_log" => "update_log", "contents_info" => "contents_info"];
+        $this->assertEquals($expected, $result);
     }
     /**
      * templatesのpath取得のテスト

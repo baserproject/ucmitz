@@ -566,6 +566,9 @@ class BcUtil
      * @param string $plugin
      * @param string $theme
      * @return array
+     * @checked
+     * @notodo
+     * @unitTest
      */
     public static function getTemplateList($path, $plugin, $theme)
     {
@@ -573,7 +576,7 @@ class BcUtil
         if ($plugin) {
             $templatesPathes = self::templatePath($plugin);
         } else {
-            $templatesPathes = App::classPath('templates');
+            $templatesPathes = App::classPath('View');
             if ($theme) {
                 array_unshift($templatesPathes, WWW_ROOT . 'theme' . DS . $theme . DS);
             }
@@ -585,11 +588,7 @@ class BcUtil
             $files = $folder->read(true, true);
             $foler = null;
             if ($files[1]) {
-                if ($_templates) {
-                    $_templates = array_merge($_templates, $files[1]);
-                } else {
-                    $_templates = $files[1];
-                }
+                $_templates = $_templates ? array_merge($_templates, $files[1]) : $files[1];
             }
         }
         $templates = [];
