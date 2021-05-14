@@ -13,6 +13,7 @@ namespace BaserCore\Utility;
 
 use Cake\Cache\Cache;
 use Cake\Core\App;
+use Cake\Core\Plugin;
 use Cake\Core\Configure;
 use Cake\Database\Exception;
 use Cake\Datasource\ConnectionManager;
@@ -560,6 +561,19 @@ class BcUtil
     }
 
     /**
+     * コンソールから実行されているかチェックする
+     *
+     * @return bool
+     */
+    public static function isConsole()
+    {
+        // TODO isConsoleのCAKEPHP_SHELLが非推奨&&未定義のため代替措置
+        // return defined('CAKEPHP_SHELL') && CAKEPHP_SHELL;
+        return substr(php_sapi_name(), 0, 3) == 'cgi';
+
+    }
+
+    /**
      * レイアウトテンプレートのリストを取得する
      *
      * @param string $path
@@ -572,15 +586,15 @@ class BcUtil
      */
     public static function getTemplateList($path, $plugin, $theme)
     {
-
-        if ($plugin) {
-            $templatesPathes = self::templatePath($plugin);
-        } else {
-            $templatesPathes = App::classPath('View');
-            if ($theme) {
-                array_unshift($templatesPathes, WWW_ROOT . 'theme' . DS . $theme . DS);
-            }
+        if (!$plugin) {
+            return [];
         }
+
+        $templatesPathes = self::templatePath($plugin);
+        if ($theme) {
+            array_push($templatesPathes, $templatesPathes[0] . 'theme' . DS . $theme . DS);
+        }
+
         $_templates = [];
         foreach($templatesPathes as $templatesPath) {
             $templatesPath .= $path . DS;
@@ -593,9 +607,8 @@ class BcUtil
         }
         $templates = [];
         foreach($_templates as $template) {
-            $ext = Configure::read('BcApp.templateExt');
-            if ($template != 'installations' . $ext) {
-                $template = basename($template, $ext);
+            if ($template != 'installations.php') {
+                $template = basename($template, '.php');
                 $templates[$template] = $template;
             }
         }
@@ -612,7 +625,7 @@ class BcUtil
      */
     public static function templatePath(string $plugin): array
     {
-        return str_replace('src/', '', App::classPath('templates', $plugin));
+        return [Plugin::path($plugin) . 'templates/'];
     }
 
     /**

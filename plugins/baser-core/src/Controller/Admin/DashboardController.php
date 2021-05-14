@@ -24,41 +24,41 @@ use BaserCore\Annotation\Checked;
 class DashboardController extends BcAdminAppController
 {
 
-	/**
-	 * モデル
-	 *
-	 * @var array
-	 */
-	public $uses = ['BaserCore.User', 'BaserCore.Page'];
+    /**
+     * モデル
+     *
+     * @var array
+     */
+    public $uses = ['BaserCore.User', 'BaserCore.Page'];
 
-	/**
-	 * ぱんくずナビ
-	 *
-	 * @var string
-	 */
-	public $crumbs = [];
+    /**
+     * ぱんくずナビ
+     *
+     * @var string
+     */
+    public $crumbs = [];
 
-	/**
-	 * [ADMIN] 管理者ダッシュボードページを表示する
-	 *
-	 * @return void
+    /**
+     * [ADMIN] 管理者ダッシュボードページを表示する
+     *
+     * @return void
      * @checked
      * @noTodo
      * @unitTest
-	 */
-	public function index()
-	{
+     */
+    public function index()
+    {
         $this->setTitle(__d('baser', 'ダッシュボード'));
-		$panels = [];
-		$plugins = Plugin::loaded();
-		if ($plugins) {
-			foreach($plugins as $plugin) {
-				$templates = BcUtil::getTemplateList('element/Admin/Dashboard', $plugin, $this->siteConfigs['theme']);
-				$panels[$plugin] = $templates;
-			}
-		}
+        $panels = [];
+        $plugins = Plugin::loaded();
+        if ($plugins) {
+            foreach($plugins as $plugin) {
+                $templates = BcUtil::getTemplateList('element/Admin/Dashboard', $plugin, $this->siteConfigs['theme']);
+                $panels[$plugin] = $templates;
+            }
+        }
         $this->set('panels', $panels);
-		$this->setHelp('dashboard_index');
-	}
+        $this->setHelp('dashboard_index');
+    }
 
 }

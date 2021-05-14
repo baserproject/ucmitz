@@ -593,12 +593,22 @@ class BcUtilTest extends BcTestCase
     }
 
     /**
+     * コンソールから実行されてるかどうかチェックする
+     *
+     *
+     */
+    public function testIsConsole()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
      * レイアウトテンプレートのリストを取得する
      */
     public function testGetTemplateList()
     {
         $result = BcUtil::getTemplateList('element/Admin/Dashboard', 'BcAdminThird', 'bc_sample');
-        $expected = ['baser_news' => 'baser_news', "update_log" => "update_log", "contents_info" => "contents_info"];
+        $expected = ['baser_news' => 'baser_news', "contents_info" => "contents_info", "update_log" => "update_log"];
         $this->assertEquals($expected, $result);
     }
     /**
@@ -609,7 +619,7 @@ class BcUtilTest extends BcTestCase
         $plugin = 'BaserCore';
         $expected = ['/var/www/html/plugins/baser-core/templates/'];
         $result = BcUtil::templatePath($plugin);
-        $this->assertEquals($expected,  $result);
+        $this->assertEquals($expected, $result);
     }
 
     /**
