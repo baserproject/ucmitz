@@ -16,6 +16,7 @@ use BaserCore\Model\Entity\UserGroup;
 use Cake\ORM\Association\BelongsToMany;
 use Cake\ORM\Behavior\TimestampBehavior as TimestampBehaviorAlias;
 use Cake\Datasource\{EntityInterface, ResultSetInterface as ResultSetInterfaceAlias};
+use BaserCore\Model\AppTable;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use BaserCore\Model\Table\Exception\CopyFailedException;
@@ -43,7 +44,7 @@ use BaserCore\Annotation\Checked;
  * @mixin TimestampBehaviorAlias
  * @uses UserGroupsTable
  */
-class UserGroupsTable extends Table
+class UserGroupsTable extends Table //TODO AppTableに変更必
 {
 
     /**
@@ -51,29 +52,29 @@ class UserGroupsTable extends Table
      */
     use BcEventDispatcherTrait;
 
-	/**
-	 * hasMany
-	 *
-	 * @var array
-	 */
-	public $hasMany = [
-		'Permission' => [
-			'className' => 'Permission',
-			'order' => 'id',
-			'foreignKey' => 'user_group_id',
-			'dependent' => true,
-			'exclusive' => false,
-			'finderQuery' => ''
-		],
-		'User' => [
-			'className' => 'User',
-			'order' => 'id',
-			'foreignKey' => 'user_group_id',
-			'dependent' => false,
-			'exclusive' => false,
-			'finderQuery' => ''
-		]
-	];
+    /**
+     * hasMany
+     *
+     * @var array
+     */
+    public $hasMany = [
+        'Permission' => [
+            'className' => 'Permission',
+            'order' => 'id',
+            'foreignKey' => 'user_group_id',
+            'dependent' => true,
+            'exclusive' => false,
+            'finderQuery' => ''
+        ],
+        'User' => [
+            'className' => 'User',
+            'order' => 'id',
+            'foreignKey' => 'user_group_id',
+            'dependent' => false,
+            'exclusive' => false,
+            'finderQuery' => ''
+        ]
+    ];
 
     /**
      * Initialize method
@@ -218,82 +219,81 @@ class UserGroupsTable extends Table
         }
     }
 
-	/**
-	 * ビヘイビア
-	 *
-	 * @var array
-	 */
-	public $actsAs = ['BcCache'];
+    /**
+     * ビヘイビア
+     *
+     * @var array
+     */
+    public $actsAs = ['BcCache'];
 
-	/**
-	 * 関連するユーザーを管理者グループに変更し保存する
-	 *
-	 * @param boolean $cascade
-	 * @return boolean
-	 */
-	public function beforeDelete($cascade = true)
-	{
-		parent::beforeDelete($cascade);
-		$ret = true;
-		if (!empty($this->data['UserGroup']['id'])) {
-			$id = $this->data['UserGroup']['id'];
-			$this->User->unBindModel(['belongsTo' => ['UserGroup']]);
-			$datas = $this->User->find('all', ['conditions' => ['User.user_group_id' => $id]]);
-			if ($datas) {
-				foreach($datas as $data) {
-					$data['User']['user_group_id'] = Configure::read('BcApp.adminGroupId');
-					$this->User->set($data);
-					if (!$this->User->save()) {
-						$ret = false;
-					}
-				}
-			}
-		}
-		return $ret;
-	}
+    /**
+     * 関連するユーザーを管理者グループに変更し保存する
+     *
+     * @param boolean $cascade
+     * @return boolean
+     */
+    public function beforeDelete($cascade = true)
+    {
+        $cascade = true;
+        if (!empty($this->data['UserGroup']['id'])) {
+            $id = $this->data['UserGroup']['id'];
+            $this->User->unBindModel(['belongsTo' => ['UserGroup']]);
+            $datas = $this->User->find('all', ['conditions' => ['User.user_group_id' => $id]]);
+            if ($datas) {
+                foreach($datas as $data) {
+                    $data['User']['user_group_id'] = Configure::read('BcApp.adminGroupId');
+                    $this->User->set($data);
+                    if (!$this->User->save()) {
+                        $cascade = false;
+                    }
+                }
+            }
+        }
+        return $cascade;
+    }
 
-	/**
-	 * 管理者グループ以外のグループが存在するかチェックする
-	 * @return    boolean
-	 */
-	public function checkOtherAdmins()
-	{
-		if ($this->find('first', ['conditions' => ['UserGroup.id <>' => 1]])) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    /**
+     * 管理者グループ以外のグループが存在するかチェックする
+     * @return    boolean
+     */
+    public function checkOtherAdmins()
+    {
+        if ($this->find('first', ['conditions' => ['UserGroup.id <>' => 1]])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-	/**
-	 * 認証プレフィックスを取得する
-	 *
-	 * @param int $id ユーザーグループID
-	 * @return    string
-	 */
-	public function getAuthPrefix($id)
-	{
-		$data = $this->find('first', [
-			'conditions' => ['UserGroup.id' => $id],
-			'fields' => ['UserGroup.auth_prefix'],
-			'recursive' => -1
-		]);
-		if (isset($data['UserGroup']['auth_prefix'])) {
-			return $data['UserGroup']['auth_prefix'];
-		} else {
-			return '';
-		}
-	}
+    /**
+     * 認証プレフィックスを取得する
+     *
+     * @param int $id ユーザーグループID
+     * @return    string
+     */
+    public function getAuthPrefix($id)
+    {
+        $data = $this->find('first', [
+            'conditions' => ['UserGroup.id' => $id],
+            'fields' => ['UserGroup.auth_prefix'],
+            'recursive' => -1
+        ]);
+        if (isset($data['UserGroup']['auth_prefix'])) {
+            return $data['UserGroup']['auth_prefix'];
+        } else {
+            return '';
+        }
+    }
 
-	/**
-	 * グローバルメニューを利用可否確認
-	 *
-	 * @param string $id ユーザーグループID
-	 * @return boolean
-	 */
-	public function isAdminGlobalmenuUsed($id)
-	{
-		return $this->field('use_admin_globalmenu', ['UserGroup.id' => $id]);
-	}
+    /**
+     * グローバルメニューを利用可否確認
+     *
+     * @param string $id ユーザーグループID
+     * @return boolean
+     */
+    public function isAdminGlobalmenuUsed($id)
+    {
+        return $this->field('use_admin_globalmenu', ['UserGroup.id' => $id]);
+    }
 
 }
