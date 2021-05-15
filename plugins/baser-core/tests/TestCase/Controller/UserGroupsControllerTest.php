@@ -140,7 +140,7 @@ class UserGroupsControllerTest extends BcTestCase
         $this->enableCsrfToken();
         $this->post('/baser/admin/baser-core/user_groups/delete/1');
         $userGroups = $this->getTableLocator()->get('UserGroups');
-        $this->assertEquals( $userGroups->find()->first()['id'], '2');
+        $this->assertEquals($userGroups->find()->first()->id, '2');
         $this->assertRedirect('/baser/admin/baser-core/user_groups/index');
     }
 
