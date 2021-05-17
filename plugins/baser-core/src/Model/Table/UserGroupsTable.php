@@ -82,7 +82,6 @@ class UserGroupsTable extends Table //TODO AppTableに変更必
      * @param array $config The configuration for the Table.
      * @return void
      * @checked
-     * @noTodo
      * @unitTest
      */
     public function initialize(array $config): void
@@ -93,6 +92,7 @@ class UserGroupsTable extends Table //TODO AppTableに変更必
         $this->setDisplayField('name');
         $this->setPrimaryKey('id');
         $this->addBehavior('Timestamp');
+        // $this->addBehavior('BcCache'); //TODO 未実装
         $this->belongsToMany('Users', [
             'className' => 'BaserCore.Users',
             'foreignKey' => 'user_group_id',
