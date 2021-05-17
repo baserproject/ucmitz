@@ -35,12 +35,12 @@ class UserGroupManageService extends UserGroupsService implements UserGroupManag
 
     /**
      * ユーザーグループ全件取得する
-     * @param null
+     * @param array $options
      * @return Query
      */
-    public function all(): Query
+    public function all($options = []): Query
     {
-        return parent::all();
+        return parent::all($options);
     }
 
     /**

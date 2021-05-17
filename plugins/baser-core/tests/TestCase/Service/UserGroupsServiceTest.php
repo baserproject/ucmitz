@@ -106,7 +106,7 @@ class UserGroupsServiceTest extends BcTestCase
         $request = $request->withParsedBody($data);
         $userGroup = $this->UserGroups->get(1);
         $this->UserGroups->update($userGroup, $request);
-        $group = $this->UserGroups->all;
+        $group = $this->UserGroups->all();
         $this->assertEquals($group->first()->name, $data['name']);
     }
 

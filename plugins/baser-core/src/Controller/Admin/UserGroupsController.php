@@ -109,7 +109,7 @@ class UserGroupsController extends BcAdminAppController
      *
      * - pagination
      * - view num
-     *
+     * @param UserGroupManageServiceInterface $UserGroupManage
      * @return Response|null|void Renders view
      * @checked
      * @noTodo
@@ -125,9 +125,9 @@ class UserGroupsController extends BcAdminAppController
         $this->paginate = [
             'limit' => $this->request->getQuery('num'),
         ];
-        $query = $this->UserGroups->find('all', $this->paginate);
+
         $this->set([
-            'userGroups' => $this->paginate($query),
+            'userGroups' => $this->paginate($UserGroupManage->all($this->paginate)),
             '_serialize' => ['userGroups']
         ]);
 
@@ -146,34 +146,30 @@ class UserGroupsController extends BcAdminAppController
      *  - UserGroup.use_admin_globalmenu
      *  - UserGroup.use_move_contents
      *  - submit
-     *
+     * @param UserGroupManageServiceInterface $UserGroupManage
      * @return Response|null|void Redirects on successful add, renders view otherwise.
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function add()
+    public function add(UserGroupManageServiceInterface $UserGroupManage)
     {
         $this->setTitle(__d('baser', '新規ユーザーグループ登録'));
         $this->setHelp('user_groups_form');
-        $userGroup = $this->UserGroups->newEmptyEntity();
-        $this->set(compact('userGroup'));
-        if (!$this->request->is('post')) {
-            return;
-        }
-        $data = $this->request->getData();
-        if (empty($data['auth_prefix'])) {
-            $data['auth_prefix'] = 'Admin';
+
+        if ($this->request->is('post')) {
+            if ($userGroup = $UserGroupManage->create($this->request)) {
+                $this->BcMessage->setSuccess(__d('baser', '新規ユーザーグループ「{0}」を追加しました。', $userGroup->name));
+                return $this->redirect(['action' => 'index']);
+            } else {
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+                return;
+            }
         } else {
-            $data['auth_prefix'] = implode(',', $data['auth_prefix']);
-        }
-        $userGroup = $this->UserGroups->patchEntity($userGroup, $data);
-        if (!$this->UserGroups->save($userGroup)) {
-            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+            $userGroup = $this->UserGroups->newEmptyEntity();
+            $this->set(compact('userGroup'));
             return;
         }
-        $this->BcMessage->setSuccess(__d('baser', '新規ユーザーグループ「{0}」を追加しました。', $userGroup->name));
-        return $this->redirect(['action' => 'index']);
     }
 
     /**
@@ -194,13 +190,13 @@ class UserGroupsController extends BcAdminAppController
      *  - UserGroup.use_admin_globalmenu
      *  - UserGroup.use_move_contents
      *  - submit
-     *
+     * @param UserGroupManageServiceInterface $UserGroupManage
      * @param string|null $id User Group id.
      * @return Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws RecordNotFoundException When record not found.
      * @checked
      */
-    public function edit($id = null)
+    public function edit(UserGroupManageServiceInterface $UserGroupManage, $id = null)
     {
 		if (!$id) {
 			$this->BcMessage->setError(__d('baser', '無効なIDです。'));
@@ -219,23 +215,24 @@ class UserGroupsController extends BcAdminAppController
         }
 
         $data = $this->request->getData();
-        if (empty($data['auth_prefix'])) {
-            $data['auth_prefix'] = 'Admin';
-        } else {
-            $data['auth_prefix'] = implode(',', $data['auth_prefix']);
+        // if (empty($data['auth_prefix'])) {
+        //     $data['auth_prefix'] = 'Admin';
+        // } else {
+        //     $data['auth_prefix'] = implode(',', $data['auth_prefix']);
+        // }
+        if($userGroup = $UserGroupManage->update($userGroup, $this->request)) {
+            $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroup->name));
+            // TODO 未実装
+            /* >>>
+            $this->BcAuth->relogin();
+            <<< */
+            return $this->redirect(['action' => 'index']);
         }
         $userGroup = $this->UserGroups->patchEntity($userGroup, $data);
         if (!$this->UserGroups->save($userGroup)) {
             $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             return;
         }
-
-        $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroup->name));
-        // TODO 未実装
-        /* >>>
-        $this->BcAuth->relogin();
-        <<< */
-        return $this->redirect(['action' => 'index']);
     }
 
     /**

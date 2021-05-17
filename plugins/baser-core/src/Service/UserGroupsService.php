@@ -58,15 +58,15 @@ class UserGroupsService implements UserGroupsServiceInterface
 
     /**
      * ユーザーグループ全件取得する
-     * @param null
+     * @param array $options
      * @return Query
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function all(): Query
+    public function all($options = []): Query
     {
-        return $this->UserGroups->find('all');
+        return $this->UserGroups->find('all', $options);
     }
 
     /**

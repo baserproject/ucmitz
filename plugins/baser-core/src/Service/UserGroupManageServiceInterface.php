@@ -30,10 +30,10 @@ interface UserGroupManageServiceInterface
 
     /**
      * ユーザーグループ全件取得する
-     * @param null
+     * @param array $options
      * @return Query
      */
-    public function all(): Query;
+    public function all($options = []): Query;
 
     /**
      * 新規登録する
