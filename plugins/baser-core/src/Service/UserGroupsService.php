@@ -53,7 +53,9 @@ class UserGroupsService implements UserGroupsServiceInterface
      */
     public function get($id): EntityInterface
     {
-        return $this->UserGroups->get($id);
+        return $this->UserGroups->get($id, [
+            'contain' => ['Users'],
+        ]);
     }
 
     /**

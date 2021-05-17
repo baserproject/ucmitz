@@ -200,40 +200,29 @@ class UserGroupsController extends BcAdminAppController
      */
     public function edit(UserGroupManageServiceInterface $UserGroupManage, $id = null)
     {
-        if (!$id) {
+        if ($id) {
+            $userGroup = $UserGroupManage->get($id);
+            $this->setTitle(__d('baser', 'ユーザーグループ編集'));
+            $this->setHelp('user_groups_form');
+        } else {
             $this->BcMessage->setError(__d('baser', '無効なIDです。'));
             return $this->redirect(['action' => 'index']);
         }
 
-        $this->setTitle(__d('baser', 'ユーザーグループ編集'));
-        $this->setHelp('user_groups_form');
-        $userGroup = $this->UserGroups->get($id, [
-            'contain' => ['Users'],
-        ]);
-        $this->set(compact('userGroup'));
-
-        if (!$this->request->is(['patch', 'post', 'put'])) {
-            return;
-        }
-
-        $data = $this->request->getData();
-        // if (empty($data['auth_prefix'])) {
-        //     $data['auth_prefix'] = 'Admin';
-        // } else {
-        //     $data['auth_prefix'] = implode(',', $data['auth_prefix']);
-        // }
-        if($userGroup = $UserGroupManage->update($userGroup, $this->request)) {
-            $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroup->name));
-            // TODO 未実装
-            /* >>>
-            $this->BcAuth->relogin();
-            <<< */
-            return $this->redirect(['action' => 'index']);
-        }
-        $userGroup = $this->UserGroups->patchEntity($userGroup, $data);
-        if (!$this->UserGroups->save($userGroup)) {
-            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
-            return;
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            if($userGroup = $UserGroupManage->update($userGroup, $this->request)) {
+                $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroup->name));
+                // TODO 未実装
+                /* >>>
+                $this->BcAuth->relogin();
+                <<< */
+                return $this->redirect(['action' => 'index']);
+            } else {
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+                return;
+            }
+        } else {
+            $this->set(compact('userGroup'));
         }
     }
 
@@ -241,14 +230,14 @@ class UserGroupsController extends BcAdminAppController
      * ユーザーグループ削除
      *
      * ユーザーグループを削除する
-     *
+     * @param UserGroupManageServiceInterface $UserGroupManage
      * @param string|null $id User Group id.
      * @return Response|null|void Redirects to index.
      * @throws RecordNotFoundException When record not found.
      * @checked
      * @unitTest
      */
-    public function delete($id = null)
+    public function delete(UserGroupManageServiceInterface $UserGroupManage, $id = null)
     {
         // TODO 未実装
         /* >>>
@@ -256,25 +245,27 @@ class UserGroupsController extends BcAdminAppController
         <<< */
 
         /* 除外処理 */
-        if (!$id) {
+        if ($id) {
+            $this->request->allowMethod(['post', 'delete']);
+            $userGroup = $UserGroupManage->get($id);
+
+            if ($UserGroupManage->delete($id)) {
+                $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を削除しました。', $userGroup->name));
+            } else {
+                $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。'));
+            }
+            return $this->redirect(['action' => 'index']);
+        } else {
             $this->BcMessage->setError(__d('baser', '無効なIDです。'));
             return $this->redirect(['action' => 'index']);
         }
-        $this->request->allowMethod(['post', 'delete']);
-        $userGroup = $this->UserGroups->get($id);
-        if ($this->UserGroups->delete($userGroup)) {
-            $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を削除しました。', $userGroup->name));
-        } else {
-            $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。'));
-        }
-        return $this->redirect(['action' => 'index']);
     }
 
     /**
      * ユーザーグループコピー
      *
      * ユーザーグループをコピーする
-     *
+     * @param UserGroupManageServiceInterface $UserGroupManage
      * @param string|null $id User Group id.
      * @return Response|null|void Redirects to index.
      * @throws RecordNotFoundException When record not found.
@@ -283,14 +274,14 @@ class UserGroupsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function copy($id = null)
+    public function copy(UserGroupManageServiceInterface $UserGroupManage, $id = null)
     {
         $this->request->allowMethod(['post']);
         if (!$id || !is_numeric($id)) {
             $this->BcMessage->setError(__d('baser', '無効な処理です。'));
             return $this->redirect(['action' => 'index']);
         }
-        $userGroup = $this->UserGroups->get($id);
+        $userGroup = $UserGroupManage->get($id);
         try {
             if ($this->UserGroups->copy($id)) {
                 $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」をコピーしました。', $userGroup->name));
@@ -310,11 +301,11 @@ class UserGroupsController extends BcAdminAppController
 
     /**
      * [ADMIN] 削除処理 (ajax)
-     *
+     * @param UserGroupManageServiceInterface $UserGroupManage
      * @param int ID
      * @return void
      */
-    public function ajax_delete($id = null)
+    public function ajax_delete(UserGroupManageServiceInterface $UserGroupManage, $id = null)
     {
         $this->_checkSubmitToken();
         /* 除外処理 */
@@ -326,7 +317,7 @@ class UserGroupsController extends BcAdminAppController
         $post = $this->UserGroup->read(null, $id);
 
         /* 削除処理 */
-        if (!$this->UserGroup->delete($id)) {
+        if (!$UserGroupManage->delete($id)) {
             exit;
         }
 
