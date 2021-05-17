@@ -13,6 +13,7 @@ namespace BaserCore\Model\Table;
 
 use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\Entity\UserGroup;
+use Cake\Core\Configure;
 use Cake\ORM\Association\BelongsToMany;
 use Cake\ORM\Behavior\TimestampBehavior as TimestampBehaviorAlias;
 use Cake\Datasource\{EntityInterface, ResultSetInterface as ResultSetInterfaceAlias};
@@ -233,8 +234,6 @@ class UserGroupsTable extends Table
 	 */
 	public function beforeDelete($cascade = true)
 	{
-		parent::beforeDelete($cascade);
-		$ret = true;
 		if (!empty($this->data['UserGroup']['id'])) {
 			$id = $this->data['UserGroup']['id'];
 			$this->User->unBindModel(['belongsTo' => ['UserGroup']]);
@@ -244,12 +243,12 @@ class UserGroupsTable extends Table
 					$data['User']['user_group_id'] = Configure::read('BcApp.adminGroupId');
 					$this->User->set($data);
 					if (!$this->User->save()) {
-						$ret = false;
+						$cascade = false;
 					}
 				}
 			}
 		}
-		return $ret;
+		return $cascade;
 	}
 
 	/**

@@ -11,44 +11,36 @@
 
 namespace BaserCore\Service;
 
-use BaserCore\Model\Entity\User;
 use Cake\Datasource\EntityInterface;
 use Cake\Http\ServerRequest;
-use Cake\ORM\Query;
 
 /**
- * Interface UsersServiceInterface
+ * Class UserGroupManageService
  * @package BaserCore\Service
+ * @property UserGroupsTable $UserGroups
  */
-interface UsersServiceInterface
+class UserGroupManageService extends UserGroupsService implements UserGroupManageServiceInterface
 {
-
     /**
-     * ユーザーを取得する
+     * ユーザーグループを取得する
      * @param int $id
      * @return EntityInterface
      */
-    public function get($id): EntityInterface;
 
-    /**
-     * ユーザー一覧を取得
-     * @param ServerRequest $request
-     * @return Query
-     */
-    public function getIndex(ServerRequest $request): Query;
-
-    /**
-     * 新しいデータの初期値を取得する
-     * @return EntityInterface
-     */
-    public function getNew(): User;
+    public function get($id): EntityInterface
+    {
+        return parent::get($id);
+    }
 
     /**
      * 新規登録する
      * @param ServerRequest $request
      * @return EntityInterface|false
      */
-    public function create(ServerRequest $request);
+    public function create(ServerRequest $request)
+    {
+        return parent::create($request);
+    }
 
     /**
      * 編集する
@@ -56,13 +48,18 @@ interface UsersServiceInterface
      * @param ServerRequest $request
      * @return mixed
      */
-    public function update(EntityInterface $target, ServerRequest $request);
+    public function update(EntityInterface $target, ServerRequest $request)
+    {
+        return parent::update($target, $request);
+    }
 
     /**
      * 削除する
      * @param int $id
-     * @return mixed
+     * @return bool
      */
-    public function delete(int $id);
-
+    public function delete($id)
+    {
+        return parent::delete($id);
+    }
 }
