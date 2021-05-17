@@ -234,7 +234,6 @@ class UserGroupsTable extends Table //TODO AppTableに変更必
      */
     public function beforeDelete($cascade = true)
     {
-        $cascade = true;
         if (!empty($this->data['UserGroup']['id'])) {
             $id = $this->data['UserGroup']['id'];
             $this->User->unBindModel(['belongsTo' => ['UserGroup']]);
