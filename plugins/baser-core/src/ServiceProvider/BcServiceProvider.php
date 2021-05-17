@@ -15,6 +15,10 @@ use BaserCore\Service\UserManageService;
 use BaserCore\Service\UserManageServiceInterface;
 use BaserCore\Service\UsersService;
 use BaserCore\Service\UsersServiceInterface;
+use BaserCore\Service\UserGroupManageService;
+use BaserCore\Service\UserGroupManageServiceInterface;
+use BaserCore\Service\UserGroupsService;
+use BaserCore\Service\UserGroupsServiceInterface;
 use Cake\Core\ServiceProvider;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -33,7 +37,9 @@ class BcServiceProvider extends ServiceProvider
      */
     protected $provides = [
         UsersServiceInterface::class,
-        UserManageServiceInterface::class
+        UserManageServiceInterface::class,
+        UserGroupsServiceInterface::class,
+        UserGroupManageServiceInterface::class,
     ];
 
     /**

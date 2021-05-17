@@ -29,92 +29,92 @@ class UserGroupsController extends BcApiController
 {
     /**
      * ユーザー情報一覧取得
-     * @param UserGroupsServiceInterface $userGroups
+     * @param UserGroupsServiceInterface $groups
 
      */
-    public function index(UserGroupsServiceInterface $userGroups)
+    public function index(UserGroupsServiceInterface $groups)
     {
         $this->set([
-            'userGroups' => $this->paginate($userGroups->getIndex($this->request))
+            'groups' => $this->paginate($groups->UserGroups->find('all'))
         ]);
-        $this->viewBuilder()->setOption('serialize', ['users']);
+        $this->viewBuilder()->setOption('serialize', ['groups']);
     }
 
-    /**
-     * ユーザー情報取得
-     * @param UserGroupsServiceInterface $userGroups
-     * @param $id
+    // /**
+    //  * ユーザー情報取得
+    //  * @param UserGroupsServiceInterface $groups
+    //  * @param $id
 
-     */
-    public function view(UserGroupsServiceInterface $userGroups, $id)
-    {
-        $this->set([
-            'user' => $userGroups->get($id)
-        ]);
-        $this->viewBuilder()->setOption('serialize', ['user']);
-    }
+    //  */
+    // public function view(UserGroupsServiceInterface $groups, $id)
+    // {
+    //     $this->set([
+    //         'user' => $groups->get($id)
+    //     ]);
+    //     $this->viewBuilder()->setOption('serialize', ['user']);
+    // }
 
-    /**
-     * ユーザー情報登録
-     * @param UserGroupsServiceInterface $userGroups
+    // /**
+    //  * ユーザー情報登録
+    //  * @param UserGroupsServiceInterface $groups
 
-     */
-    public function add(UserGroupsServiceInterface $userGroups)
-    {
-        if ($user = $userGroups->create($this->request)) {
-            $message = __d('baser', 'ユーザー「{0}」を追加しました。', $user->name);
-        } else {
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-        }
-        $this->set([
-            'message' => $message,
-            'user' => $user
-        ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'user']);
-    }
+    //  */
+    // public function add(UserGroupsServiceInterface $groups)
+    // {
+    //     if ($user = $groups->create($this->request)) {
+    //         $message = __d('baser', 'ユーザー「{0}」を追加しました。', $user->name);
+    //     } else {
+    //         $message = __d('baser', '入力エラーです。内容を修正してください。');
+    //     }
+    //     $this->set([
+    //         'message' => $message,
+    //         'user' => $user
+    //     ]);
+    //     $this->viewBuilder()->setOption('serialize', ['message', 'user']);
+    // }
 
-    /**
-     * ユーザー情報編集
-     * @param UserGroupsServiceInterface $userGroups
-     * @param $id
+    // /**
+    //  * ユーザー情報編集
+    //  * @param UserGroupsServiceInterface $groups
+    //  * @param $id
 
-     */
-    public function edit(UserGroupsServiceInterface $userGroups, $id)
-    {
-        $user = $userGroups->get($id);
-        if ($this->request->is(['post', 'put'])) {
-            if ($user = $userGroups->update($user, $this->request)) {
-                $message = __d('baser', 'ユーザー「{0}」を更新しました。', $user->name);
-            } else {
-                $message = __d('baser', '入力エラーです。内容を修正してください。');
-            }
-        }
-        $this->set([
-            'message' => $message,
-            'user' => $user
-        ]);
-        $this->viewBuilder()->setOption('serialize', ['user', 'message']);
-    }
+    //  */
+    // public function edit(UserGroupsServiceInterface $groups, $id)
+    // {
+    //     $user = $groups->get($id);
+    //     if ($this->request->is(['post', 'put'])) {
+    //         if ($user = $groups->update($user, $this->request)) {
+    //             $message = __d('baser', 'ユーザー「{0}」を更新しました。', $user->name);
+    //         } else {
+    //             $message = __d('baser', '入力エラーです。内容を修正してください。');
+    //         }
+    //     }
+    //     $this->set([
+    //         'message' => $message,
+    //         'user' => $user
+    //     ]);
+    //     $this->viewBuilder()->setOption('serialize', ['user', 'message']);
+    // }
 
-    /**
-     * ユーザー情報削除
-     * @param UserGroupsServiceInterface $userGroups
-     * @param $id
-     */
-    public function delete(UserGroupsServiceInterface $userGroups, $id)
-    {
-        $user = $userGroups->get($id);
-        try {
-            if ($userGroups->delete($id)) {
-                $message = __d('baser', 'ユーザー: {0} を削除しました。', $user->name);
-            }
-        } catch (Exception $e) {
-            $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
-        }
-        $this->set([
-            'message' => $message,
-            'user' => $user
-        ]);
-        $this->viewBuilder()->setOption('serialize', ['user', 'message']);
-    }
+    // /**
+    //  * ユーザー情報削除
+    //  * @param UserGroupsServiceInterface $groups
+    //  * @param $id
+    //  */
+    // public function delete(UserGroupsServiceInterface $groups, $id)
+    // {
+    //     $user = $groups->get($id);
+    //     try {
+    //         if ($groups->delete($id)) {
+    //             $message = __d('baser', 'ユーザー: {0} を削除しました。', $user->name);
+    //         }
+    //     } catch (Exception $e) {
+    //         $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
+    //     }
+    //     $this->set([
+    //         'message' => $message,
+    //         'user' => $user
+    //     ]);
+    //     $this->viewBuilder()->setOption('serialize', ['user', 'message']);
+    // }
 }
