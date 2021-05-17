@@ -13,6 +13,7 @@ namespace BaserCore\Service;
 
 use Cake\Datasource\EntityInterface;
 use Cake\Http\ServerRequest;
+use Cake\ORM\Query;
 
 /**
  * Interface UserGroupsServiceInterface
@@ -26,6 +27,13 @@ interface UserGroupManageServiceInterface
      * @return EntityInterface
      */
     public function get($id): EntityInterface;
+
+    /**
+     * ユーザーグループ全件取得する
+     * @param null
+     * @return Query
+     */
+    public function all(): Query;
 
     /**
      * 新規登録する

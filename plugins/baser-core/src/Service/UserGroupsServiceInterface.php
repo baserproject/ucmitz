@@ -30,6 +30,13 @@ interface UserGroupsServiceInterface
     public function get($id): EntityInterface;
 
     /**
+     * ユーザーグループ全件取得する
+     * @param null
+     * @return Query
+     */
+    public function all(): Query;
+
+    /**
      * 新規登録する
      * @param ServerRequest $request
      * @return EntityInterface|false

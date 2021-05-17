@@ -13,6 +13,7 @@ namespace BaserCore\Service;
 
 use Cake\Datasource\EntityInterface;
 use Cake\Http\ServerRequest;
+use Cake\ORM\Query;
 
 /**
  * Class UserGroupManageService
@@ -30,6 +31,16 @@ class UserGroupManageService extends UserGroupsService implements UserGroupManag
     public function get($id): EntityInterface
     {
         return parent::get($id);
+    }
+
+    /**
+     * ユーザーグループ全件取得する
+     * @param null
+     * @return Query
+     */
+    public function all(): Query
+    {
+        return parent::all();
     }
 
     /**

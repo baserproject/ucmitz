@@ -16,6 +16,7 @@ use BaserCore\Model\Table\UserGroupsTable;
 use Cake\Http\ServerRequest;
 use Cake\ORM\TableRegistry;
 use Cake\Datasource\EntityInterface;
+use Cake\ORM\Query;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -53,6 +54,19 @@ class UserGroupsService implements UserGroupsServiceInterface
     public function get($id): EntityInterface
     {
         return $this->UserGroups->get($id);
+    }
+
+    /**
+     * ユーザーグループ全件取得する
+     * @param null
+     * @return Query
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function all(): Query
+    {
+        return $this->UserGroups->find('all');
     }
 
     /**

@@ -60,10 +60,10 @@ class UserGroupsControllerTest extends BcTestCase
     public function testIndex()
     {
         $a = $this->token;
-        $this->get('/baser/api/baser-core/UserGroups/index.json?token=' . $this->token);
+        $this->get('/baser/api/baser-core/user_groups/index.json?token=' . $this->token);
         $this->assertResponseOk();
         $result = json_decode((string) $this->_response->getBody());
-        // $this->assertEquals('baser admin', $result->UserGroups[0]->name);
+        $this->assertEquals('admins', $result->userGroups[0]->name);
     }
 
     /**
@@ -76,15 +76,11 @@ class UserGroupsControllerTest extends BcTestCase
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         $data = [
-            'name' => 'Test_test_Man',
-            'password_1' => 'Lorem ipsum dolor sit amet',
-            'password_2' => 'Lorem ipsum dolor sit amet',
-            'real_name_1' => 'Lorem ipsum dolor sit amet',
-            'real_name_2' => 'Lorem ipsum dolor sit amet',
-            'email' => 'test@example.com',
-            'nickname' => 'Lorem ipsum dolor sit amet',
+            'name' => 'ucmitzGroup',
+            'title' => 'ucmitzグループ',
+            'use_move_contents' => '1',
         ];
-        $this->post('/baser/api/baser-core/UserGroups/add.json?token=' . $this->token, $data);
+        $this->post('/baser/api/baser-core/user_groups/add.json?token=' . $this->token, $data);
         $this->assertResponseSuccess();
         $UserGroups = $this->getTableLocator()->get('UserGroups');
         $query = $UserGroups->find()->where(['name' => $data['name']]);
@@ -103,7 +99,7 @@ class UserGroupsControllerTest extends BcTestCase
         $data = [
             'name' => 'Test_test_Man'
         ];
-        $this->post('/baser/api/baser-core/UserGroups/edit/1.json?token=' . $this->token, $data);
+        $this->post('/baser/api/baser-core/user_groups/edit/1.json?token=' . $this->token, $data);
         $this->assertResponseSuccess();
     }
 
@@ -125,10 +121,10 @@ class UserGroupsControllerTest extends BcTestCase
      */
     public function testView()
     {
-        $this->get('/baser/api/baser-core/UserGroups/view/1.json?token=' . $this->token);
+        $this->get('/baser/api/baser-core/user_groups/view/1.json?token=' . $this->token);
         $this->assertResponseOk();
         $result = json_decode((string) $this->_response->getBody());
-        $this->assertEquals('baser admin', $result->user->name);
+        $this->assertEquals('admins', $result->userGroups->name);
     }
 
 }

@@ -66,8 +66,17 @@ class UserGroupsServiceTest extends BcTestCase
      */
     public function testGet()
     {
-        $userGroup = $this->UserGroups->get(1);
-        $this->assertEquals('admins', $userGroup->name);
+        $userGroups = $this->UserGroups->get(1);
+        $this->assertEquals('admins', $userGroups->name);
+    }
+
+    /**
+     * Test all
+     */
+    public function testAll()
+    {
+        $userGroups = $this->UserGroups->all();
+        $this->assertEquals(2, $userGroups->count());
     }
 
     /**
@@ -83,7 +92,7 @@ class UserGroupsServiceTest extends BcTestCase
         ];
         $request = $request->withParsedBody($data);
         $this->UserGroups->create($request);
-        $group = $this->UserGroups->UserGroups->find('all')->all();
+        $group = $this->UserGroups->all();
         $this->assertEquals($group->last()->name, $data['name']);
     }
 
@@ -97,7 +106,7 @@ class UserGroupsServiceTest extends BcTestCase
         $request = $request->withParsedBody($data);
         $userGroup = $this->UserGroups->get(1);
         $this->UserGroups->update($userGroup, $request);
-        $group = $this->UserGroups->UserGroups->find('all');
+        $group = $this->UserGroups->all;
         $this->assertEquals($group->first()->name, $data['name']);
     }
 
