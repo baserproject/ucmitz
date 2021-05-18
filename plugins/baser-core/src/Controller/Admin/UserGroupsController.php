@@ -200,6 +200,7 @@ class UserGroupsController extends BcAdminAppController
      */
     public function edit(UserGroupManageServiceInterface $UserGroupManage, $id = null)
     {
+
         if ($id) {
             $userGroup = $UserGroupManage->get($id);
             $this->setTitle(__d('baser', 'ユーザーグループ編集'));
@@ -207,6 +208,7 @@ class UserGroupsController extends BcAdminAppController
         } else {
             $this->BcMessage->setError(__d('baser', '無効なIDです。'));
             return $this->redirect(['action' => 'index']);
+
         }
 
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -318,6 +320,7 @@ class UserGroupsController extends BcAdminAppController
 
         /* 削除処理 */
         if (!$UserGroupManage->delete($id)) {
+
             exit;
         }
 
