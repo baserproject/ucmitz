@@ -590,9 +590,10 @@ class BcUtil
             return [];
         }
 
-        $templatesPathes = self::templatePath($plugin);
+        $templatesPath = self::templatePath($plugin);
+        $templatesPathes = [$templatesPath];
         if ($theme) {
-            array_push($templatesPathes, $templatesPathes[0] . 'theme' . DS . $theme . DS);
+            array_push($templatesPathes, $templatesPath . 'theme' . DS . $theme . DS);
         }
 
         $_templates = [];
@@ -618,14 +619,14 @@ class BcUtil
      * テンプレートのpathを返す
      *
      * @param string $plugin
-     * @return array $templatePath
+     * @return string $templatePath
      * @checked
      * @notodo
      * @unitTest
      */
-    public static function templatePath(string $plugin): array
+    public static function templatePath(string $plugin): string
     {
-        return [Plugin::path($plugin) . 'templates/'];
+        return Plugin::path($plugin) . 'templates/';
     }
 
     /**

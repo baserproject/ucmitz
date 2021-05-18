@@ -617,7 +617,7 @@ class BcUtilTest extends BcTestCase
     public function testTemplatePath()
     {
         $plugin = 'BaserCore';
-        $expected = ['/var/www/html/plugins/baser-core/templates/'];
+        $expected = '/var/www/html/plugins/baser-core/templates/';
         $result = BcUtil::templatePath($plugin);
         $this->assertEquals($expected, $result);
     }

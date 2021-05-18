@@ -46,12 +46,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * SiteConfig constructor.
-     * @since basercms4
-     * @param bool $id
-     * @param null $table
-     * @param null $ds
-     * ---------------
-     * @since basercms5
      * @param array $config
      */
     public function __construct($config)
@@ -114,7 +108,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * テーマの一覧を取得する
-     * @since basercms4
      * @return array
      */
     public function getThemes()
@@ -135,7 +128,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * コントロールソースを取得する
-     * @since basercms4
      * @param string $field
      * @return mixed array | false
      */
@@ -151,7 +143,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * SSL用のURLが設定されているかチェックする
-     * @since basercms4
      * @param mixed $check
      * @return boolean
      */
@@ -166,7 +157,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * コンテンツ一覧を表示してから、コンテンツの並び順が変更されていないかどうか
-     * @since basercms4
      * @param $listDisplayed
      * @return bool
      */
@@ -192,7 +182,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * コンテンツ並び順変更時間を更新する
-     * @since basercms4
      */
     public function updateContentsSortLastModified()
     {
@@ -204,7 +193,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * コンテンツ並び替え順変更時間をリセットする
-     * @since basercms4
      */
     public function resetContentsSortLastModified()
     {
@@ -214,7 +202,6 @@ class SiteConfigsTable extends AppTable
 
     /**
      * 指定したフィールドの値がDBのデータと比較して変更状態か確認
-     * @since basercms4
      *
      * @param string $field フィールド名
      * @param string $value 値
