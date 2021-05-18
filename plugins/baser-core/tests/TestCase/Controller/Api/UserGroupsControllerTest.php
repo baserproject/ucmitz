@@ -59,7 +59,6 @@ class UserGroupsControllerTest extends BcTestCase
      */
     public function testIndex()
     {
-        $a = $this->token;
         $this->get('/baser/api/baser-core/user_groups/index.json?token=' . $this->token);
         $this->assertResponseOk();
         $result = json_decode((string) $this->_response->getBody());
