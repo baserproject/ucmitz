@@ -67,10 +67,12 @@ class UserGroupsController extends BcApiController
      */
     public function add(UserGroupsServiceInterface $UserGroups)
     {
-        if ($userGroups = $UserGroups->create($this->request)) {
-            $message = __d('baser', 'ユーザーグループ「{0}」を追加しました。', $userGroups->name);
-        } else {
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        if ($this->request->is('post')) {
+            if ($userGroups = $UserGroups->create($this->request)) {
+                $message = __d('baser', 'ユーザーグループ「{0}」を追加しました。', $userGroups->name);
+            } else {
+                $message = __d('baser', '入力エラーです。内容を修正してください。');
+            }
         }
         $this->set([
             'message' => $message,
@@ -90,7 +92,7 @@ class UserGroupsController extends BcApiController
     public function edit(UserGroupsServiceInterface $UserGroups, $id)
     {
         $userGroups = $UserGroups->get($id);
-        if ($this->request->is(['post', 'put'])) {
+        if ($this->request->is(['patch', 'post', 'put'])) {
             if ($userGroups = $UserGroups->update($userGroups, $this->request)) {
                 $message = __d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroups->name);
             } else {
@@ -115,12 +117,14 @@ class UserGroupsController extends BcApiController
     public function delete(UserGroupsServiceInterface $UserGroups, $id)
     {
         $userGroups = $UserGroups->get($id);
-        try {
-            if ($UserGroups->delete($id)) {
-                $message = __d('baser', 'ユーザー: {0} を削除しました。', $userGroups->name);
+        if($this->request->is(['post', 'delete'])) {
+            try {
+                if ($UserGroups->delete($id)) {
+                    $message = __d('baser', 'ユーザー: {0} を削除しました。', $userGroups->name);
+                }
+            } catch (Exception $e) {
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
             }
-        } catch (Exception $e) {
-            $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
         }
         $this->set([
             'message' => $message,
