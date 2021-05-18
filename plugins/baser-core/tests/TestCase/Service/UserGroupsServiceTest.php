@@ -73,9 +73,9 @@ class UserGroupsServiceTest extends BcTestCase
     /**
      * Test all
      */
-    public function testAll()
+    public function testGetIndex()
     {
-        $userGroups = $this->UserGroups->all();
+        $userGroups = $this->UserGroups->getIndex();
         $this->assertEquals(2, $userGroups->count());
     }
 
@@ -92,7 +92,7 @@ class UserGroupsServiceTest extends BcTestCase
         ];
         $request = $request->withParsedBody($data);
         $this->UserGroups->create($request);
-        $group = $this->UserGroups->all();
+        $group = $this->UserGroups->getIndex();
         $this->assertEquals($group->last()->name, $data['name']);
     }
 
@@ -106,7 +106,7 @@ class UserGroupsServiceTest extends BcTestCase
         $request = $request->withParsedBody($data);
         $userGroup = $this->UserGroups->get(1);
         $this->UserGroups->update($userGroup, $request);
-        $group = $this->UserGroups->all();
+        $group = $this->UserGroups->getIndex();
         $this->assertEquals($group->first()->name, $data['name']);
     }
 

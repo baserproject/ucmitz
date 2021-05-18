@@ -112,7 +112,7 @@ class UserGroupsControllerTest extends BcTestCase
     {
         $this->enableSecurityToken();
         $this->enableCsrfToken();
-        $this->post('/baser/admin/baser-core/UserGroups/delete/1?token=' . $this->token);
+        $this->post('/baser/admin/baser-core/UserGroups/delete/1.json?token=' . $this->token);
         $this->assertResponseSuccess();
     }
 

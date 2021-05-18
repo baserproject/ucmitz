@@ -38,9 +38,9 @@ class UserGroupManageService extends UserGroupsService implements UserGroupManag
      * @param array $options
      * @return Query
      */
-    public function all($options = []): Query
+    public function getIndex($options = []): Query
     {
-        return parent::all($options);
+        return parent::getIndex($options);
     }
 
     /**

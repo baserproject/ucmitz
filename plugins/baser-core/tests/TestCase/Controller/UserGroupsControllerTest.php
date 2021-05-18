@@ -172,22 +172,6 @@ class UserGroupsControllerTest extends BcTestCase
     }
 
     /**
-     * [ADMIN] 削除処理 (ajax)
-     */
-    public function testAjax_delete()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * [ADMIN] データコピー（AJAX）
-     */
-    public function testAjax_copy()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * ユーザーグループのよく使う項目の初期値を登録する
      */
     public function testSet_default_favorites()

@@ -21,7 +21,7 @@ use BaserCore\Annotation\Checked;
 /**
  * Class UserGroupsController
  *
- * https://localhost/baser/api/baser-core/user_UserGroup/action_name.json で呼び出す
+ * https://localhost/baser/api/baser-core/user_groups/action_name.json で呼び出す
  *
  * @package BaserCore\Controller\Api
  */
@@ -37,7 +37,7 @@ class UserGroupsController extends BcApiController
     public function index(UserGroupsServiceInterface $UserGroups)
     {
         $this->set([
-            'userGroups' => $this->paginate($UserGroups->all())
+            'userGroups' => $this->paginate($UserGroups->getIndex())
         ]);
         $this->viewBuilder()->setOption('serialize', ['userGroups']);
     }

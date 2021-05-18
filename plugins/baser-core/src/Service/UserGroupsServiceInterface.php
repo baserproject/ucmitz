@@ -34,7 +34,7 @@ interface UserGroupsServiceInterface
      * @param array $options
      * @return Query
      */
-    public function all($options = []): Query;
+    public function getIndex($options = []): Query;
 
     /**
      * 新規登録する

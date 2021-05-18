@@ -66,7 +66,7 @@ class UserGroupsService implements UserGroupsServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function all($options = []): Query
+    public function getIndex($options = []): Query
     {
         return $this->UserGroups->find('all', $options);
     }

@@ -128,7 +128,7 @@ class UserGroupsController extends BcAdminAppController
         ];
 
         $this->set([
-            'userGroups' => $this->paginate($UserGroupManage->all($this->paginate)),
+            'userGroups' => $this->paginate($UserGroupManage->getIndex($this->paginate)),
             '_serialize' => ['userGroups']
         ]);
 
@@ -299,55 +299,6 @@ class UserGroupsController extends BcAdminAppController
             $this->BcMessage->setError(implode("\n", $message), false);
         }
         return $this->redirect(['action' => 'index']);
-    }
-
-    /**
-     * [ADMIN] 削除処理 (ajax)
-     * @param UserGroupManageServiceInterface $UserGroupManage
-     * @param int ID
-     * @return void
-     */
-    public function ajax_delete(UserGroupManageServiceInterface $UserGroupManage, $id = null)
-    {
-        $this->_checkSubmitToken();
-        /* 除外処理 */
-        if (!$id) {
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
-        }
-
-        // メッセージ用にデータを取得
-        $post = $this->UserGroup->read(null, $id);
-
-        /* 削除処理 */
-        if (!$UserGroupManage->delete($id)) {
-
-            exit;
-        }
-
-        $message = 'ユーザーグループ「' . $post['UserGroup']['title'] . '」 を削除しました。';
-        $this->UserGroup->saveDbLog($message);
-        exit(true);
-    }
-
-    /**
-     * [ADMIN] データコピー（AJAX）
-     *
-     * @param int $id
-     * @return void
-     */
-    public function ajax_copy($id)
-    {
-        $this->_checkSubmitToken();
-        if (!$id) {
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
-        }
-
-        $result = $this->UserGroup->copy($id);
-        if (!$result) {
-            $this->ajaxError(500, $this->UserGroup->validationErrors);
-        } else {
-            $this->set('data', $result);
-        }
     }
 
     /**
