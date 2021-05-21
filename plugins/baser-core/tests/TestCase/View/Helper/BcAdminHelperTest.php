@@ -209,8 +209,18 @@ class BcAdminHelperTest extends BcTestCase
      */
     public function testGetJsonMenu(): void
     {
-        $jsonMenu = $this->BcAdmin->getJsonMenu();
-        echo $jsonMenu;
+        $jsonMenu = json_decode($this->BcAdmin->getJsonMenu());
+        // $currentSiteIdのテスト
+        $this->assertEquals($jsonMenu->currentSiteId, "0");
+        // $menuListに項目が入ってるかテスト
+        $adminMenuGroups = $this->BcAdmin->getAdminMenuGroups();
+        foreach($jsonMenu->menuList as $menuList) {
+            $this->assertContains($menuList->name, array_keys($adminMenuGroups));
+        }
+        // adminNavigationがnullの場合 nullが返る
+        Configure::write('BcApp.adminNavigation', null);
+        $this->assertNull(json_decode($this->BcAdmin->getJsonMenu()));
+
     }
 
     /**

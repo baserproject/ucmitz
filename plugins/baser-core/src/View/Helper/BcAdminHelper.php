@@ -121,6 +121,7 @@ class BcAdminHelper extends Helper
         $url = $request->getUri();
         $currentUrl = '/' . $url;
         $params = null;
+        
         if (strpos($currentUrl, '?') !== false) {
             [$currentUrl, $params] = explode('?', $currentUrl);
         }
@@ -230,6 +231,7 @@ class BcAdminHelper extends Helper
      * - 数値：対象のサイトのみ表示（javascript で扱いやすいよう文字列に変換）
      * @return string
      * @checked
+     * @unitTest
      */
     public function getJsonMenu()
     {       
@@ -241,11 +243,14 @@ class BcAdminHelper extends Helper
         //     return null;
         // }
 
-        $currentSiteId = (string)$this->_View->getRequest()
-        ->getSession()
-        ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
+        // TODO: $currentSiteIdで"0"以外の値が読み込まれる場所が見当たらないため一旦"0"代入で代用
 
-        $currentSiteId = $currentSiteId ? (string)$currentSiteId : "0";
+        // $currentSiteId = (string)$this->_View->getRequest()
+        //                 ->getSession()
+        //                 ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
+
+        // $currentSiteId = $currentSiteId ? (string)$currentSiteId : "0";
+        $currentSiteId = "0";
 
         $covertedAdminMenuGroups = $this->convertAdminMenuGroups($adminMenuGroups);
 
