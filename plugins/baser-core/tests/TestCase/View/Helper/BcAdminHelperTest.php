@@ -12,6 +12,7 @@
 namespace BaserCore\Test\TestCase\View\Helper;
 
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Core\Configure;
 use BaserCore\View\BcAdminAppView;
 use BaserCore\View\Helper\BcAdminHelper;
 
@@ -179,10 +180,35 @@ class BcAdminHelperTest extends BcTestCase
     }
 
     /**
+     * Test getAdminMenuGroups
+     * @return void
+     */
+    public function testGetAdminMenuGroups(): void
+    {
+        $adminMenuGroups = $this->BcAdmin->getAdminMenuGroups();
+        $this->assertArrayHasKey('Dashboard', $adminMenuGroups);
+        $this->assertArrayHasKey('Users', $adminMenuGroups);
+        $this->assertArrayHasKey('Plugin', $adminMenuGroups);
+        // adminNavigationがない場合
+        Configure::write('BcApp.adminNavigation', null);
+        $this->assertFalse($this->BcAdmin->getAdminMenuGroups());
+    }
+
+    /**
+     * Test convertAdminMenuGroups
+     * @return void
+     */
+    public function testConvertAdminMenuGroups(): void
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    /**
      * Test getJsonMenu
      * @return void
      */
-    public function testGetJsonMenu() {
+    public function testGetJsonMenu(): void
+    {
         $jsonMenu = $this->BcAdmin->getJsonMenu();
         echo $jsonMenu;
     }

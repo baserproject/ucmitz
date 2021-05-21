@@ -84,8 +84,11 @@ class BcAdminHelper extends Helper
     /**
      * 管理画面のメニューを取得する
      * @return array|false
+     * @checked
+     * @unitTest
+     * @noTodo
      */
-    protected function getAdminMenuGroups()
+    public function getAdminMenuGroups()
     {
         $adminMenuGroups = Configure::read('BcApp.adminNavigation');
 
@@ -111,7 +114,7 @@ class BcAdminHelper extends Helper
      * 管理画面のメニューに変更を加える
      * @return array
      */
-    protected function convertAdminMenuGroups($adminMenuGroups)
+    public function convertAdminMenuGroups($adminMenuGroups)
     {
         $request = $this->_View->getRequest();
         $base = $request->getAttributes()['base'];
