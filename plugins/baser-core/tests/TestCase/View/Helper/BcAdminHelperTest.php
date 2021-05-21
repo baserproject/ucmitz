@@ -234,7 +234,7 @@ class BcAdminHelperTest extends BcTestCase
     }
     
     /**
-     * Test contentsMenu
+     * Test addAdminMainBodyHeaderLinks
      *
      * @return void
      */
