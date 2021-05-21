@@ -179,6 +179,15 @@ class BcAdminHelperTest extends BcTestCase
     }
 
     /**
+     * Test getJsonMenu
+     * @return void
+     */
+    public function testGetJsonMenu() {
+        $jsonMenu = $this->BcAdmin->getJsonMenu();
+        echo $jsonMenu;
+    }
+
+    /**
      * Test contentsMenu
      *
      * @return void

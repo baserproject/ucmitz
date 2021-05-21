@@ -39,76 +39,80 @@ class BcAdminHelper extends Helper
      */
     public $helpers = ['BcBaser'];
 
-	/**
-	 * 管理システムグローバルメニューの利用可否確認
-	 *
-	 * @return bool
-	 */
-	public function isAdminGlobalmenuUsed()
-	{
-	    return true;
-	    // TODO 要コード確認
-	    /* >>>
-		if (!BC_INSTALLED) {
-			return false;
-		}
-		if (Configure::read('BcRequest.isUpdater')) {
-			return false;
-		}
-		$user = $this->_View->get('user');
-		if (!$user) {
-			return false;
-		}
-		$UserGroup = ClassRegistry::init('UserGroup');
-		return $UserGroup->isAdminGlobalmenuUsed($user['user_group_id']);
-	    <<< */
-	}
-
-	/**
-	 * ログインユーザーがシステム管理者かチェックする
-	 *
-	 * @return boolean
-	 */
-	public function isSystemAdmin()
-	{
-		$user = $this->_View->getVar('user');
-		if ($this->request->getParam['prefix'] === 'Admin' || !$user) {
-			return false;
-		}
-		if ($user['user_group_id'] == Configure::read('BcApp.adminGroupId')) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * 管理システムグローバルメニューの利用可否確認
+     *
+     * @return bool
+     */
+    public function isAdminGlobalmenuUsed()
+    {
+        return true;
+        // TODO 要コード確認
+        /* >>>
+        if (!BC_INSTALLED) {
+            return false;
+        }
+        if (Configure::read('BcRequest.isUpdater')) {
+            return false;
+        }
+        $user = $this->_View->get('user');
+        if (!$user) {
+            return false;
+        }
+        $UserGroup = ClassRegistry::init('UserGroup');
+        return $UserGroup->isAdminGlobalmenuUsed($user['user_group_id']);
+        <<< */
+    }
 
     /**
-     * JSON形式でメニューデータを取得する
-     * # siteId の仕様
-     * - null：全てのサイトで表示
-     * - 数値：対象のサイトのみ表示（javascript で扱いやすいよう文字列に変換）
-     * @return string
-     * @checked
+     * ログインユーザーがシステム管理者かチェックする
+     *
+     * @return boolean
      */
-    public function getJsonMenu()
+    public function isSystemAdmin()
+    {
+        $user = $this->_View->getVar('user');
+        if ($this->request->getParam['prefix'] === 'Admin' || !$user) {
+            return false;
+        }
+        if ($user['user_group_id'] == Configure::read('BcApp.adminGroupId')) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 管理画面のメニューを取得する
+     * @return array|false
+     */
+    protected function getAdminMenuGroups()
     {
         $adminMenuGroups = Configure::read('BcApp.adminNavigation');
 
-        $currentSiteId = (string)$this->_View->getRequest()
-            ->getSession()
-            ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
-
-        if (!$adminMenuGroups) {
-            return null;
-        }
-        // TODO : 要実装
-//		if(empty($this->_View->viewVars['user']['user_group_id'])) {
-//			return null;
-//		}
-        if (!is_null($currentSiteId) && $currentSiteId) {
-            $currentSiteId = (string)$currentSiteId;
+        if($adminMenuGroups) {
+            $contents = $adminMenuGroups['Contents'];
+            $systems = $adminMenuGroups['Systems'];
+            $plugins = $adminMenuGroups['Plugins'] ?? [];
+    
+            unset($adminMenuGroups['Contents'], $adminMenuGroups['Systems'], $adminMenuGroups['Plugins']);
+            if ($plugins) {
+                foreach($plugins['menus'] as $plugin) {
+                    $systems['Plugin']['menus'][] = $plugin;
+                }
+            }
+            $adminMenuGroups = $contents + $adminMenuGroups + $systems;
+            return $adminMenuGroups;
         } else {
-            $currentSiteId = "0";
+            return false;
         }
+    }
+
+    /**
+     * 管理画面のメニューに変更を加える
+     * @return array
+     */
+    protected function convertAdminMenuGroups($adminMenuGroups)
+    {
         $request = $this->_View->getRequest();
         $base = $request->getAttributes()['base'];
         $url = $request->getUri();
@@ -121,18 +125,8 @@ class BcAdminHelper extends Helper
         if ($params) {
             $currentUrl .= '?' . $params;
         }
-        $contents = $adminMenuGroups['Contents'];
-        $systems = $adminMenuGroups['Systems'];
-        $plugins = (isset($adminMenuGroups['Plugins']))? $adminMenuGroups['Plugins'] : [];
-        unset($adminMenuGroups['Contents'], $adminMenuGroups['Systems'], $adminMenuGroups['Plugins']);
-        if ($plugins) {
-            foreach($plugins['menus'] as $plugin) {
-                $systems['Plugin']['menus'][] = $plugin;
-            }
-        }
-        $adminMenuGroups = $contents + $adminMenuGroups + $systems;
         // TODO 要実装
-//		$Permission = ClassRegistry::init('Permission');
+        // $Permission = ClassRegistry::init('Permission');
         $covertedAdminMenuGroups = [];
         $currentOn = false;
         foreach($adminMenuGroups as $group => $adminMenuGroup) {
@@ -223,11 +217,39 @@ class BcAdminHelper extends Helper
             }
         }
 
+        return $covertedAdminMenuGroups;
+    }
+
+    /**
+     * JSON形式でメニューデータを取得する
+     * # siteId の仕様
+     * - null：全てのサイトで表示
+     * - 数値：対象のサイトのみ表示（javascript で扱いやすいよう文字列に変換）
+     * @return string
+     * @checked
+     */
+    public function getJsonMenu()
+    {       
+        $adminMenuGroups = $this->getAdminMenuGroups();
+        if($adminMenuGroups === false) return null;
+
+        // TODO : 要実装 BcUtil::loginUserGroup()で代用可能?
+        // if(empty($this->_View->viewVars['user']['user_group_id'])) {
+        //     return null;
+        // }
+
+        $currentSiteId = (string)$this->_View->getRequest()
+        ->getSession()
+        ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
+
+        $currentSiteId = $currentSiteId ? (string)$currentSiteId : "0";
+
+        $covertedAdminMenuGroups = $this->convertAdminMenuGroups($adminMenuGroups);
+
         $menuSettings = [
             'currentSiteId' => $currentSiteId,
             'menuList' => $covertedAdminMenuGroups
         ];
-
         return json_encode($menuSettings);
     }
 
