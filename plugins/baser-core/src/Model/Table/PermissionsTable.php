@@ -1,44 +1,42 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Model
- * @since           baserCMS v 0.1.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
+
+namespace BaserCore\Model\Table;
+
+use Cake\ORM\Table;
+use Cake\Validation\Validator;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+
 
 /**
- * Class Permission
- * パーミッションモデル
- *
- * @package Baser.Model
+ * Class PermissionTable
+ * @package BaserCore\Model\Table
  */
-class Permission extends AppModel
+class PermissionsTable extends Table
 {
+    // 許可/拒否する対象メソッド
+    const METHOD_LIST = [
+        '*' => 'ALL',
+        'GET' => 'GET',
+        'POST' => 'POST',
+    ];
 
-	/**
-	 * ビヘイビア
-	 *
-	 * @var array
-	 */
-	public $actsAs = ['BcCache'];
-
-	/**
-	 * belongsTo
-	 * @var array
-	 */
-	public $belongsTo = ['UserGroup' => ['className' => 'UserGroup',
-		'foreignKey' => 'user_group_id']];
 
 	/**
 	 * permissionsTmp
 	 * ログインしているユーザーの拒否URLリスト
 	 * キャッシュ用
+     * TODO 未確認
 	 *
 	 * @var mixed
 	 */
@@ -46,26 +44,59 @@ class Permission extends AppModel
 
 	/**
 	 * Permission constructor.
+     * // TODO 未確認
 	 *
 	 * @param bool $id
 	 * @param null $table
 	 * @param null $ds
 	 */
-	public function __construct($id = false, $table = null, $ds = null)
-	{
-		parent::__construct($id, $table, $ds);
-		$this->validate = [
-			'name' => [
-				['rule' => ['notBlank'], 'message' => __d('baser', '設定名を入力してください。')],
-				['rule' => ['maxLength', 255], 'message' => __d('baser', '設定名は255文字以内で入力してください。')]],
-			'user_group_id' => [
-				['rule' => ['notBlank'], 'message' => __d('baser', 'ユーザーグループを選択してください。'), 'required' => true]],
-			'url' => [
-				['rule' => ['notBlank'], 'message' => __d('baser', '設定URLを入力してください。')],
-				['rule' => ['maxLength', 255], 'message' => __d('baser', '設定URLは255文字以内で入力してください。')],
-				['rule' => ['checkUrl'], 'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]]
-		];
-	}
+	// public function __construct($id = false, $table = null, $ds = null)
+	// {
+    //     // TODO 未確認
+    //     return;
+	// 	parent::__construct($id, $table, $ds);
+	// 	$this->validate = [
+	// 		'name' => [
+	// 			['rule' => ['notBlank'], 'message' => __d('baser', '設定名を入力してください。')],
+	// 			['rule' => ['maxLength', 255], 'message' => __d('baser', '設定名は255文字以内で入力してください。')]],
+	// 		'user_group_id' => [
+	// 			['rule' => ['notBlank'], 'message' => __d('baser', 'ユーザーグループを選択してください。'), 'required' => true]],
+	// 		'url' => [
+	// 			['rule' => ['notBlank'], 'message' => __d('baser', '設定URLを入力してください。')],
+	// 			['rule' => ['maxLength', 255], 'message' => __d('baser', '設定URLは255文字以内で入力してください。')],
+	// 			['rule' => ['checkUrl'], 'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]]
+	// 	];
+	// }
+
+    /**
+     * Validation Default
+     *
+     * @param Validator $validator
+     * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function validationDefault(Validator $validator): Validator
+    {
+        // $validator
+        //     ->integer('id')
+        //     ->allowEmptyString('id', null, 'create');
+        // $validator
+        //     ->scalar('name')
+        //     ->maxLength('name', 255, __d('baser', '設定名は255文字以内で入力してください。'))
+        //     ->notEmptyString('name', __d('baser', '設定名を入力してください。'));
+        // $validator
+        //     ->integer('id')
+        //     ->notEmpty('id', __d('baser', 'ユーザーグループを選択してください。'));
+        // $validator
+        //     ->scalar('url')
+        //     ->maxLength('name', 255, __d('baser', '設定URLは255文字以内で入力してください。'))
+        //     ->notEmptyString('url', __d('baser', '設定URLを入力してください。'));
+        // TODO validation
+
+        return $validator;
+    }
 
 	/**
 	 * 権限の必要なURLかチェックする
@@ -75,6 +106,8 @@ class Permission extends AppModel
 	 */
 	public function checkUrl($check)
 	{
+        // TODO 未確認
+        return;
 		if (!$check[key($check)]) {
 			return true;
 		}
@@ -109,6 +142,8 @@ class Permission extends AppModel
 	 */
 	public function getAuthPrefix($id)
 	{
+        // TODO 未確認
+        return;
 		$data = $this->find('first', [
 			'conditions' => ['Permission.id' => $id],
 			'recursive' => 1
@@ -126,6 +161,8 @@ class Permission extends AppModel
 	 */
 	public function getDefaultValue()
 	{
+        // TODO 未確認
+        return;
 		$data['Permission']['auth'] = 0;
 		$data['Permission']['status'] = 1;
 		return $data;
@@ -139,6 +176,8 @@ class Permission extends AppModel
 	 */
 	public function getControlSource($field = null)
 	{
+        // TODO 未確認
+        return;
 		$controlSources['user_group_id'] = $this->UserGroup->find('list', ['conditions' => ['UserGroup.id <>' => Configure::read('BcApp.adminGroupId')]]);
 		$controlSources['auth'] = ['0' => __d('baser', '不可'), '1' => __d('baser', '可')];
 		if (isset($controlSources[$field])) {
@@ -157,6 +196,8 @@ class Permission extends AppModel
 	 */
 	public function beforeSave($options = [])
 	{
+        // TODO 未確認
+        return;
 		if (isset($this->data['Permission'])) {
 			$data = $this->data['Permission'];
 		} else {
@@ -180,6 +221,8 @@ class Permission extends AppModel
 	 */
 	public function check($url, $userGroupId)
 	{
+        // TODO 未確認
+        return;
 		if ($userGroupId == Configure::read('BcApp.adminGroupId')) {
 			return true;
 		}
@@ -243,6 +286,8 @@ class Permission extends AppModel
 	 */
 	public function copy($id, $data = [])
 	{
+        // TODO 未確認
+        return;
 		if ($id) {
 			$data = $this->find('first', ['conditions' => ['Permission.id' => $id], 'recursive' => -1]);
 		}
@@ -279,6 +324,8 @@ class Permission extends AppModel
 	 */
 	public function setCheck($userGroupId)
 	{
+        // TODO 未確認
+        return;
 		if ($this->permissionsTmp === -1) {
 			$conditions = ['Permission.user_group_id' => $userGroupId];
 			$permissions = $this->find('all', [
@@ -303,6 +350,8 @@ class Permission extends AppModel
 	 */
 	public function addCheck($url, $auth)
 	{
+        // TODO 未確認
+        return;
 		$this->setCheck(BcUtil::loginUser('admin')['user_group_id']);
 		$this->permissionsTmp[] = [
 			'Permission' => [
