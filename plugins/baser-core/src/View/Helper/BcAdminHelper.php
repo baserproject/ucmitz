@@ -112,6 +112,7 @@ class BcAdminHelper extends Helper
 
     /**
      * 管理画面のメニューに変更を加える
+     * @todo 整理する必要あり
      * @return array
      */
     public function convertAdminMenuGroups($adminMenuGroups)
@@ -197,7 +198,6 @@ class BcAdminHelper extends Helper
                 $covertedAdminMenuGroups[] = $adminMenuGroup;
             }
         }
-
         if ($currentOn === false) {
             foreach($covertedAdminMenuGroups as $key => $adminMenuGroup) {
                 if (!empty($adminMenuGroup['disable']) && $adminMenuGroup['disable'] === true) {
