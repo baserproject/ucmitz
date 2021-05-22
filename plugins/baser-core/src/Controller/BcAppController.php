@@ -25,6 +25,7 @@ use Cake\Core\Configure;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Service\DblogsService;
 
 /**
  * Class BcAppController
@@ -1655,5 +1656,28 @@ class BcAppController extends AppController
                 'secure' => true,
             ]
         ));
+    }
+
+    /**
+     * データベースログを記録する
+     *
+     * @param string $message
+     * @return \Cake\Datasource\EntityInterface
+     * @checked
+     */
+    protected function saveDblog($message)
+    {
+        $DblogsService = new DblogsService();
+        $data = [
+            'message' => $message,
+            'controller' => $this->request->getParam('controller'),
+            'action' => $this->request->getParam('action')
+        ];
+        // TODO フロントでのログイン対応のためBcUtilではなくBcAuthComponentを使用する
+        $user = BcUtil::loginUser();
+        if ($user) {
+            $data['user_id'] = $user->id;
+        }
+        return $DblogsService->create($data);
     }
 }
