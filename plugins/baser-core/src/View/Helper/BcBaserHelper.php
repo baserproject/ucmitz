@@ -1525,6 +1525,7 @@ class BcBaserHelper extends Helper
      *    ※ false を指定した場合、inline が false となる。
      * @return string|void
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function css($path, $options = [])
