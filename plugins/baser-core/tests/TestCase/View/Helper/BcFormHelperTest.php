@@ -122,6 +122,21 @@ class BcFormHelperTest extends BcTestCase
     }
 
     /**
+     * test select
+     *
+     * @return void
+     */
+    public function testSelect(): void
+    {
+        $result = $this->BcForm->select('Model.field', []);
+        $expected = [
+            'select' => ['name' => 'Model[field]'],
+            '/select',
+        ];
+        $this->assertHtml($expected, $result);
+    }
+
+    /**
      * Returns a set of SELECT elements for a full datetime setup: day, month and year, and then time.
      *
      * @param string $fieldName Prefix name for the SELECT element
@@ -159,29 +174,43 @@ class BcFormHelperTest extends BcTestCase
      *
      * @param string $fieldName Name of a field, like this "Modelname.fieldname"
      * @param array $options Array of HTML attributes.
-     * @param string $expected 期待値
-     * @param string $message テストが失敗した時に表示されるメッセージ
+     * @param array $expected 期待値
      * @dataProvider checkboxDataProvider
      */
-    public function testCheckbox($fieldName, $options, $expected, $message)
+    public function testCheckbox($fieldName, $options, $expected)
     {
-        // TODO ucmitz移行時に未実装のため代替措置
-        // >>>
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        // <<<
-
         $result = $this->BcForm->checkbox($fieldName, $options);
-        $this->assertRegExp('/' . $expected . '/s', $result, $message);
+        $this->assertHtml($expected, $result);
     }
-
     public function checkboxDataProvider()
     {
         return [
-            ['test', [], '<input type="checkbox" name="data\[test\]" value="1" id="test"', 'checkbox()を出力できません'],
-            ['test', ['label' => 'testLabel'], '<input type="checkbox".*label for="test">testLabel', '属性を付与できません'],
+            ['test', [],     
+                // htmlパターン
+                [
+                    'input' => ['type' => 'hidden', 'name' => 'test', 'value' => '0'], 
+                    ['input' =>  ['type' => 'checkbox', 'name' => 'test', 'value' => '1']]
+                ]
+            ],
+
+            ['test', ['label' => 'testLabel'],
+                // htmlパターン
+                [
+                    'input' => ['type' => 'hidden', 'name' => 'test', 'value' => '0'], 
+                    ['input' =>  ['type' => 'checkbox', 'name' => 'test', 'value' => '1', 'label' => 'testLabel']]
+                ]
+            ]
         ];
     }
-
+    /**
+     * test hidden 
+     */
+    public function testHidden(): void
+    {
+        $result = $this->BcForm->hidden('field', ['id' => 'theID']);
+        $expected = ['input' => ['type' => 'hidden', 'name' => 'field', 'id' => 'theID']];
+        $this->assertHtml($expected, $result);
+    }
     /**
      * Creates a hidden input field.
      *
@@ -191,7 +220,7 @@ class BcFormHelperTest extends BcTestCase
      * @param string $message テストが失敗した時に表示されるメッセージ
      * @dataProvider hiddenDataProvider
      */
-    public function testHidden($fieldName, $options, $expected, $message)
+    public function testHidden_Version4($fieldName, $options, $expected, $message)
     {
 
         // TODO ucmitz移行時に未実装のため代替措置
@@ -215,6 +244,16 @@ class BcFormHelperTest extends BcTestCase
 
 
     /**
+     * test create
+     * @return string
+     */
+    public function testCreate()
+    {
+        $result = $this->BcForm->create();
+        $expected = ['form' => ['method' => 'post', 'accept-charset' => 'utf-8', 'action' => '/contacts/add']];
+        $this->assertHtml($expected, $result);
+    }
+    /**
      * create
      * フック用にラッピング
      *
@@ -222,7 +261,7 @@ class BcFormHelperTest extends BcTestCase
      * @param array $options
      * @return string
      */
-    public function testCreate()
+    public function testCreate_Version4()
     {
 
         // TODO ucmitz移行時に未実装のため代替措置
@@ -234,6 +273,14 @@ class BcFormHelperTest extends BcTestCase
         $this->assertRegExp('/<form action="\/contacts\/add" novalidate="novalidate" id="addForm" method="post" accept-charset="utf-8"><div style="display:none;">.*/', $result);
     }
 
+    /**
+     * end
+     */
+    public function testEnd()
+    {
+        $result = $this->BcForm->end();
+        $this->assertEquals("</form>", $result);
+    }
 
     /**
      * end
@@ -244,7 +291,7 @@ class BcFormHelperTest extends BcTestCase
      * @access    public
      * @dataProvider endProvider
      */
-    public function testEnd($array1, $array2, $expected)
+    public function testEnd_Version4($array1, $array2, $expected)
     {
 
         // TODO ucmitz移行時に未実装のため代替措置

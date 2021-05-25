@@ -346,6 +346,7 @@ SCRIPT_END;
      * @return string An formatted opening FORM tag.
      * @link https://book.cakephp.org/4/en/views/helpers/form.html#Cake\View\Helper\FormHelper::
      * @checked
+     * @unitTest
      */
     public function create($context = null, $options = []): string
     {
@@ -404,6 +405,7 @@ SCRIPT_END;
      * @return string A closing FORM tag.
      * @link https://book.cakephp.org/4/en/views/helpers/form.html#closing-the-form
      * @checked
+     * @unitTest
      */
     public function end(array $secureAttributes = []): string
     {
@@ -780,6 +782,7 @@ DOC_END;
      * @return string An HTML text input element.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#options-for-select-checkbox-and-radio-inputs
      * @checked
+     * @unitTest
      */
     public function checkbox($fieldName, $options = [])
     {
@@ -871,6 +874,7 @@ DOC_END;
      * @return string A generated hidden input
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::hidden
      * @checked
+     * @unitTest
      */
     public function hidden($fieldName, $options = []): string
     {
@@ -1281,6 +1285,7 @@ DOC_END;
      * @return string Formatted SELECT element
      * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#options-for-select-checkbox-and-radio-inputs
      * @checked
+     * @unitTest
      */
     public function select($fieldName, $options = [], $attributes = []): string
     {
