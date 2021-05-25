@@ -88,7 +88,7 @@ class BcAdminHelper extends Helper
      * @unitTest
      * @noTodo
      */
-    public function getAdminMenuGroups()
+    private function getAdminMenuGroups()
     {
         $adminMenuGroups = Configure::read('BcApp.adminNavigation');
 
@@ -115,7 +115,7 @@ class BcAdminHelper extends Helper
      * @todo 整理する必要あり
      * @return array
      */
-    public function convertAdminMenuGroups($adminMenuGroups)
+    private function convertAdminMenuGroups($adminMenuGroups)
     {
         $request = $this->_View->getRequest();
         $base = $request->getAttributes()['base'];
@@ -242,15 +242,10 @@ class BcAdminHelper extends Helper
         // if(empty($this->_View->viewVars['user']['user_group_id'])) {
         //     return null;
         // }
-
-        // TODO: $currentSiteIdで"0"以外の値が読み込まれる場所が見当たらないため一旦"0"代入で代用
-
-        // $currentSiteId = (string)$this->_View->getRequest()
-        //                 ->getSession()
-        //                 ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
-
-        // $currentSiteId = $currentSiteId ? (string)$currentSiteId : "0";
-        $currentSiteId = "0";
+        $currentSiteId = (string)$this->_View->getRequest()
+                        ->getSession()
+                        ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
+        $currentSiteId = $currentSiteId ? (string)$currentSiteId : "0";
 
         $covertedAdminMenuGroups = $this->convertAdminMenuGroups($adminMenuGroups);
 

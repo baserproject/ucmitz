@@ -15,6 +15,7 @@ use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
 use BaserCore\View\BcAdminAppView;
 use BaserCore\View\Helper\BcAdminHelper;
+use ReflectionClass;
 
 /**
  * Class BcAdminHelperTest
@@ -33,7 +34,7 @@ class BcAdminHelperTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
     ];
 
-   /**
+    /**
      * setUp method
      *
      * @return void
@@ -185,13 +186,17 @@ class BcAdminHelperTest extends BcTestCase
      */
     public function testGetAdminMenuGroups(): void
     {
-        $adminMenuGroups = $this->BcAdmin->getAdminMenuGroups();
+        $ref = new ReflectionClass($this->BcAdmin);
+        $method = $ref->getMethod('getAdminMenuGroups');
+        $method->setAccessible(true);        
+        $adminMenuGroups = $method->invokeArgs($this->BcAdmin, []);
+        // それぞれのメニューキーを持つか
         $this->assertArrayHasKey('Dashboard', $adminMenuGroups);
         $this->assertArrayHasKey('Users', $adminMenuGroups);
         $this->assertArrayHasKey('Plugin', $adminMenuGroups);
         // adminNavigationがない場合
         Configure::write('BcApp.adminNavigation', null);
-        $this->assertFalse($this->BcAdmin->getAdminMenuGroups());
+        $this->assertFalse($method->invokeArgs($this->BcAdmin, []));
     }
 
     /**
@@ -214,8 +219,12 @@ class BcAdminHelperTest extends BcTestCase
         $jsonMenu = json_decode($this->BcAdmin->getJsonMenu());
         // $currentSiteIdのテスト
         $this->assertEquals($jsonMenu->currentSiteId, "0");
+        // $adminMenuGroupsの取得
+        $ref = new ReflectionClass($this->BcAdmin);
+        $method = $ref->getMethod('getAdminMenuGroups');
+        $method->setAccessible(true);  
+        $adminMenuGroups = $method->invokeArgs($this->BcAdmin, []);
         // $menuListに項目が入ってるかテスト
-        $adminMenuGroups = $this->BcAdmin->getAdminMenuGroups();
         foreach($jsonMenu->menuList as $menuList) {
             $this->assertContains($menuList->name, array_keys($adminMenuGroups));
         }
