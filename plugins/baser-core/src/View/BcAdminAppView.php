@@ -45,6 +45,7 @@ class BcAdminAppView extends AppView
     /**
      * initialize
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function initialize(): void
