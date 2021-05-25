@@ -22,3 +22,4 @@ ucmitz は、現在、CMSとしての機能はありませんが、Webアプリ�
 - [ucmitzのプラグインを開発する](https://github.com/baserproject/ucmitz/wiki/ucmitz%E3%81%AE%E3%83%97%E3%83%A9%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%92%E9%96%8B%E7%99%BA%E3%81%99%E3%82%8B)
 - [開発に貢献する](https://github.com/baserproject/ucmitz/blob/dev/.github/CONTRIBUTING.md)
 
+![マイルスートン表](./ucmitz_mileStone.png) 
