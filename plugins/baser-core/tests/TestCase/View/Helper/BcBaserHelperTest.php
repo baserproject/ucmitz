@@ -1474,11 +1474,6 @@ class BcBaserHelperTest extends BcTestCase {
         $this->BcBaser->css('admin/import3.css', ['inline' => false]);
         $result = ob_get_clean();
         $this->assertEmpty($result);
-        // // インラインオフ（boolean）
-        ob_start();
-        $this->BcBaser->css('admin/import4.css', false);
-        $result = ob_get_clean();
-        $this->assertEmpty($result);
     }
 
     /**

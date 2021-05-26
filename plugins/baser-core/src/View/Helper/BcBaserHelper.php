@@ -1524,7 +1524,6 @@ class BcBaserHelper extends Helper
      * 下記のbasercms4系引数は残したまま
      * - 'inline'=trueを指定する (代替:$options['block']にnullが入る)
      * - 'inline'=falseを指定する (代替:$options['block']にtrueが入る)
-     * - $options引数にfalse を指定した場合、$options['block']にtrueが入る
      * @return string|void
      * @checked
      * @unitTest
@@ -1532,9 +1531,6 @@ class BcBaserHelper extends Helper
      */
     public function css($path, $options = [])
     {
-        if ($options === false) {
-            $options['block'] = true;
-        }
         if (isset($options['inline'])) {
             $options['block'] = $options['inline'] ? null : true;
         }
