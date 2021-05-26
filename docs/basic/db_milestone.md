@@ -1,2 +1,2 @@
 ### DB情報とマイルストーン
-![マイルスートン表](../../ucmitz_mileStone.png)
+![マイルスートン表](./ucmitz_mileStone.png)
