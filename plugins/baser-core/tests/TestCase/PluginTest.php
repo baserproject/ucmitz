@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase;
 
+use App\Application;
 use BaserCore\Plugin;
 use BaserCore\TestSuite\BcTestCase;
 
@@ -44,7 +45,8 @@ class PluginTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Plugin = new Plugin();
+        $this->application = new Application(CONFIG);
+        $this->Plugin = new Plugin(['name' => 'BcBlog']);
     }
 
     /**
