@@ -9,9 +9,7 @@
  * @license       http://basercms.net/license/index.html MIT License
  */
 
-// TODO: 移行必要か確認する
-// App::uses('BcAppView', 'View');
-// App::uses('BcListTableHelper', 'View/Helper');
+namespace BaserCore\Test\TestCase\View\Helper;
 
 use BaserCore\View\AppView;
 use BaserCore\View\Helper\BcListTableHelper;
