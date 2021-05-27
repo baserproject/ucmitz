@@ -56,6 +56,7 @@ class PluginTest extends BcTestCase
      */
     public function tearDown(): void
     {
+        unset($this->application);
         unset($this->Plugin);
         parent::tearDown();
     }
@@ -77,7 +78,7 @@ class PluginTest extends BcTestCase
      */
     public function testLoadPlugin(): void
     {
-        $priority = 0;
+        $priority = 1;
         $plugin = $this->Plugin->getName();
         $this->assertTrue($this->Plugin->loadPlugin($this->application, $plugin, $priority));
     }
