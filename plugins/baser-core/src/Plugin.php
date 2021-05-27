@@ -119,6 +119,8 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to setup.
      * @return \Cake\Http\MiddlewareQueue The updated middleware queue.
      * @checked
+     * @noTodo
+     * @unitTest
      */
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
     {

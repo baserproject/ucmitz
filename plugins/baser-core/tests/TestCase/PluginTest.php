@@ -85,7 +85,9 @@ class PluginTest extends BcTestCase
      */
     public function testMiddleware(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $middleware = new MiddlewareQueue();
+        $middlewareQueue = $this->Plugin->middleware($middleware);
+        $this->assertInstanceOf(AuthenticationMiddleware::class, $middlewareQueue->current());
     }
 
     /**
