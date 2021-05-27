@@ -75,7 +75,9 @@ class PluginTest extends BcTestCase
      */
     public function testLoadPlugin(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $priority = 0;
+        $plugin = $this->Plugin->getName();
+        $this->assertTrue($this->Plugin->loadPlugin($this->application, $plugin, $priority));
     }
 
     /**
