@@ -13,6 +13,8 @@ namespace BaserCore\Test\TestCase;
 
 use BaserCore\Plugin;
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Http\MiddlewareQueue;
+use Authentication\Middleware\AuthenticationMiddleware;
 
 /**
  * Class PluginTest
