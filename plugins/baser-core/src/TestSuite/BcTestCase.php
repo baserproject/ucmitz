@@ -161,7 +161,7 @@ class BcTestCase extends TestCase
         $ref = new ReflectionClass($class);
         $method = $ref->getMethod($method);
         $method->setAccessible(true);
-        $value= $method->invokeArgs($class, $args);
+        $value = $method->invokeArgs($class, $args);
         return $value;
     }
 
