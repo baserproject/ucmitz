@@ -32,7 +32,6 @@ class BcAdminAppControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->template = 'test';
         $this->BcAdminApp = new BcAdminAppController($this->getRequest());
         $this->RequestHandler = $this->BcAdminApp->components()->load('RequestHandler');
     }
@@ -123,13 +122,14 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetTitle()
     {
-        $this->execPrivateMethod($this->BcAdminApp, 'setTitle', [$this->template]);
+        $template = 'test';
+        $this->execPrivateMethod($this->BcAdminApp, 'setTitle', [$template]);
 
         $viewBuilder = new ReflectionClass($this->BcAdminApp->viewBuilder());
         $vars = $viewBuilder->getProperty('_vars');
         $vars->setAccessible(true);
         $actual = $vars->getValue($this->BcAdminApp->viewBuilder())['title'];
-        $this->assertEquals($this->template, $actual);
+        $this->assertEquals($template, $actual);
     }
 
     /**
@@ -139,13 +139,14 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetSearch()
     {
-        $this->execPrivateMethod($this->BcAdminApp, 'setSearch', [$this->template]);
+        $template = 'test';
+        $this->execPrivateMethod($this->BcAdminApp, 'setSearch', [$template]);
 
         $viewBuilder = new ReflectionClass($this->BcAdminApp->viewBuilder());
         $vars = $viewBuilder->getProperty('_vars');
         $vars->setAccessible(true);
         $actual = $vars->getValue($this->BcAdminApp->viewBuilder())['search'];
-        $this->assertEquals($this->template, $actual);
+        $this->assertEquals($template, $actual);
     }
 
     /**
@@ -155,13 +156,14 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetHelp()
     {
-        $this->execPrivateMethod($this->BcAdminApp, 'setHelp', [$this->template]);
+        $template = 'test';
+        $this->execPrivateMethod($this->BcAdminApp, 'setHelp', [$template]);
 
         $viewBuilder = new ReflectionClass($this->BcAdminApp->viewBuilder());
         $vars = $viewBuilder->getProperty('_vars');
         $vars->setAccessible(true);
         $actual = $vars->getValue($this->BcAdminApp->viewBuilder())['help'];
-        $this->assertEquals($this->template, $actual);
+        $this->assertEquals($template, $actual);
     }
 
     /**
