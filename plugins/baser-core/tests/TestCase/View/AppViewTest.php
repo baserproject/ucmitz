@@ -44,7 +44,7 @@ class AppViewTest extends BcTestCase
     }
 
     /**
-     * メソッドが未実装でエラーが出るためサンプルメソッド配置
+     * メソッドが未実装でwarningが出るためサンプルメソッド配置
      * @test
      * @return void
      */
