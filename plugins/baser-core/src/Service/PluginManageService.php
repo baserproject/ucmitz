@@ -11,16 +11,27 @@
 
 namespace BaserCore\Service;
 
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 /**
- * Interface PluginsServiceInterface
+ * Class PluginManageService
  * @package BaserCore\Service
+ * @property PluginsTable $Plugins
  */
-interface PluginsServiceInterface
+
+class PluginManageService extends PluginsService implements PluginManageServiceInterface
 {
     /**
      * ユーザー一覧を取得
      * @param string $sortMode
      * @return array $plugins
+     * @checked
+     * @unitTest
+     * @noTodo
      */
-    public function getIndex(string $sortMode): array;
+    public function getIndex(string $sortMode): array
+    {
+        return parent::getIndex($sortMode);
+    }
 }

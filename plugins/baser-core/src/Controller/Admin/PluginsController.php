@@ -11,6 +11,7 @@
 
 namespace BaserCore\Controller\Admin;
 
+use BaserCore\Service\PluginManageServiceInterface;
 use BaserCore\Controller\Component\BcMessageComponent;
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\PluginsTable;
@@ -71,45 +72,16 @@ class PluginsController extends BcAdminAppController
 
     /**
      * プラグインの一覧を表示する
-     *
+     * @param PluginManageServiceInterface $PluginManage
      * @return void
      * @checked
      * @unitTest
      * @noTodo
      */
-    public function index()
+    public function index(PluginManageServiceInterface $PluginManage)
     {
-        // 使用可能なプラグインを取得
-        $available = $this->Plugins->getAvailable();
-        $registered = $unregistered = [];
-        foreach($available as $pluginInfo) {
-            if (isset($pluginInfo->priority)) {
-                $registered[] = $pluginInfo;
-            } else {
-                $unregistered[] = $pluginInfo;
-            }
-        }
-        // ソートの順を指定
-        if (!empty($this->request->getQuery('sortmode'))) {
-            //並び替えモードの場合はDBにデータが登録されていないプラグインを表示しない
-            $sortmode = true;
-            $plugins = $registered;
-        } else {
-            $sortmode = false;
-            $plugins = array_merge($registered, $unregistered);
-        }
-
-        $this->set('plugins', $plugins);
-        // Api用に分ける
-        if ($this->RequestHandler->prefers('json')) {
-            $this->viewBuilder()->setOption('serialize', ['plugins']);
-            return;
-        }
-
-        $this->set('corePlugins', Configure::read('BcApp.corePlugins'));
-        $this->set('sortmode', $sortmode);
-        $this->setTitle(__d('baser', 'プラグイン一覧'));
-        $this->setHelp('plugins_index');
+        $this->set('plugins', $PluginManage->getIndex($this->request->getQuery('sortmode') ?? '0'));
+        $this->set('sortmode', $this->request->getQuery('sortmode'));
     }
 
     /**

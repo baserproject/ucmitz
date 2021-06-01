@@ -12,10 +12,10 @@
 namespace BaserCore\Service;
 
 /**
- * Interface PluginsServiceInterface
+ * Interface PluginManageServiceInterface
  * @package BaserCore\Service
  */
-interface PluginsServiceInterface
+interface PluginManageServiceInterface
 {
     /**
      * ユーザー一覧を取得
