@@ -59,13 +59,15 @@ class BcServiceProvider extends ServiceProvider
     public function services($container): void
     {
         // Usersサービス
-        $container->add(UsersServiceInterface::class, UsersService::class);
-        $container->add(UserManageServiceInterface::class, UserManageService::class);
+        $container->add(UsersServiceInterface::class, UsersService::class, true);
+        $container->add(UserManageServiceInterface::class, UserManageService::class, true);
         // UserGroupsサービス
-        $container->add(UserGroupsServiceInterface::class, UserGroupsService::class);
-        $container->add(UserGroupManageServiceInterface::class, UserGroupManageService::class);
+        $container->add(UserGroupsServiceInterface::class, UserGroupsService::class, true);
+        $container->add(UserGroupManageServiceInterface::class, UserGroupManageService::class, true);
         // Pluginsサービス
-        $container->add(PluginsServiceInterface::class, PluginsService::class);
-        $container->add(PluginManageServiceInterface::class, PluginManageService::class);
+        $container->add(PluginsServiceInterface::class, PluginsService::class, true);
+        $container->add(PluginManageServiceInterface::class, PluginManageService::class, true);
+
     }
+
 }
