@@ -29,14 +29,23 @@ class PluginsControllerTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.Plugins',
     ];
 
     /**
-     * Token
+     * Access Token
      * @var string
      */
-    public $token = null;
+    public $accessToken = null;
+
+    /**
+     * Refresh Token
+     * @var null
+     */
+    public $refreshToken = null;
 
     /**
      * set up
@@ -46,7 +55,18 @@ class PluginsControllerTest extends BcTestCase
         parent::setUp();
         Configure::config('baser', new PhpConfig());
         Configure::load('BaserCore.setting', 'baser');
-        $this->token = Configure::read('BcApp.apiToken');
+        $token = $this->apiLoginAdmin(1);
+        $this->accessToken = $token['access_token'];
+        $this->refreshToken = $token['refresh_token'];
+    }
+
+    /**
+     * tear Down
+     */
+    public function tearDown(): void
+    {
+        Configure::clear();
+        parent::tearDown();
     }
 
     /**
@@ -56,7 +76,7 @@ class PluginsControllerTest extends BcTestCase
      */
     public function testIndex()
     {
-        $this->get('/baser/api/baser-core/plugins/index.json?token=' . $this->token);
+        $this->get('/baser/api/baser-core/plugins/index.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('BcSample', $result->plugins[0]->name);
