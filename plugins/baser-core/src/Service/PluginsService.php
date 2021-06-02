@@ -59,26 +59,25 @@ class PluginsService implements PluginsServiceInterface
 
     /**
      * 利用可能なプラグインの一覧を取得
-     * @param string $isRegister
+     * @param string $isRegistered
      * @return array
      * @checked
      * @unitTest
      */
     public function getAvailable(string $isRegistered): array
     {
-        // DBに登録されてる場合
         if($isRegistered) {
+            // DBに登録されてる場合
             $registered = $this->Plugins->find()
                 ->order(['priority'])
                 ->all()
                 ->toArray();
             return $registered;
         } else {
-            // DBに登録されてない場合
+            // DBに登録されてないもの含めて、プラグインフォルダから取得
             // TODO: チェック必要
             $paths = App::path('plugins');
             $pluginConfigs = [];
-            // プラグインフォルダに基づき返す
             foreach($paths as $path) {
                 $Folder = new Folder($path);
                 $files = $Folder->read(true, true, true);
@@ -89,8 +88,7 @@ class PluginsService implements PluginsServiceInterface
                     }
                 }
             }
-            $unregistered = array_values($pluginConfigs);
-            return $unregistered;
+            return array_values($pluginConfigs);
         }
     }
 
