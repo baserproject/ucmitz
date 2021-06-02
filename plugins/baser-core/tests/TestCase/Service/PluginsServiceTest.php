@@ -61,53 +61,44 @@ class PluginsServiceTest extends BcTestCase
     }
 
     /**
+     * sortModeが1の時、DBに登録されてるプラグインのみ取得
+     * sortModeが0の時、DBに登録されてるプラグインとプラグインファイル全て取得
+     * @param string $sortMode ソートモードかどうか ｜ DBに登録されてるデータかファイルも含めるか
+     * @param string $expectedPlugin 期待されるプラグイン
+     * @param string $expectedCount 期待される取得数
+     * @return void
      * Test getIndex
      * @dataProvider indexDataprovider
      */
-    public function testGetIndex($sortMode, $expected)
-    {
-        $plugins = $this->Plugins->getIndex($sortMode);
-        $this->assertEquals(count($plugins), $expected);
-    }
-    public function indexDataprovider()
-    {
-        return [
-            // 普通の場合
-            ["0", "4"],
-            // ソートモードの場合
-            ["1", "3"],
-        ];
-    }
-
-    /**
-     * testGetAvailable
-     * @dataProvider getAvailableDataProvider
-     */
-    public function testGetAvailable($isRegistered, $expected)
+    public function testGetIndex($sortMode, $expectedPlugin, $expectedCount): void
     {
         // テスト用のプラグインフォルダ作成
         $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
         $folder = new Folder($pluginPath);
         $folder->create($pluginPath, 0777);
-        $plugins = $this->Plugins->getAvailable($isRegistered);
+
+        $plugins = $this->Plugins->getIndex($sortMode);
         $pluginNames = [];
         foreach($plugins as $plugin) {
             $pluginNames[] = $plugin->name;
         }
         $folder->delete($pluginPath);
-
-        if ($isRegistered) {
+        if ($sortMode) {
+            // フォルダ内プラグインが含まれてないか
             $this->assertNotContains('BcTest', $pluginNames);
         }
-        $this->assertContains($expected, $pluginNames);
+        //期待されるプラグインを含むか
+        $this->assertContains($expectedPlugin, $pluginNames);
+        // プラグイン数
+        $this->assertEquals(count($plugins), $expectedCount);
     }
-    public function getAvailableDataProvider()
+    public function indexDataprovider()
     {
         return [
-            // DBに登録されてる場合
-            ['1', 'BcBlog'],
-            // DBに登録されておらず、フォルダから取得してる場合
-            ['0', 'BcTest'],
+            // 普通の場合 | DBに登録されてるプラグインのみ
+            ["0", 'BcTest', "5"],
+            // ソートモードの場合 | DBに登録されてるプラグインとプラグインファイル全て
+            ["1", 'BcBlog', "3"],
         ];
     }
 

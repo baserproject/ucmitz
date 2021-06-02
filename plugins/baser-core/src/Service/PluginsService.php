@@ -47,26 +47,13 @@ class PluginsService implements PluginsServiceInterface
     /**
      * ユーザー一覧を取得
      * @param string $sortMode
-     * @return array $plugin
+     * @return array $plugins
      * @checked
      * @unitTest
-     * @noTodo
      */
     public function getIndex(string $sortMode): array
     {
-        return $this->getAvailable($sortMode);
-    }
-
-    /**
-     * 利用可能なプラグインの一覧を取得
-     * @param string $isRegistered
-     * @return array
-     * @checked
-     * @unitTest
-     */
-    public function getAvailable(string $isRegistered): array
-    {
-        if($isRegistered) {
+        if($sortMode) {
             // DBに登録されてる場合
             $registered = $this->Plugins->find()
                 ->order(['priority'])
