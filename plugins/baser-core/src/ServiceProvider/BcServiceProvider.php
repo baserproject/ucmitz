@@ -11,6 +11,8 @@
 
 namespace BaserCore\ServiceProvider;
 
+use BaserCore\Service\UserApiService;
+use BaserCore\Service\UserApiServiceInterface;
 use BaserCore\Service\UserManageService;
 use BaserCore\Service\UserManageServiceInterface;
 use BaserCore\Service\UsersService;
@@ -42,6 +44,7 @@ class BcServiceProvider extends ServiceProvider
     protected $provides = [
         UsersServiceInterface::class,
         UserManageServiceInterface::class,
+        UserApiServiceInterface::class,
         UserGroupsServiceInterface::class,
         UserGroupManageServiceInterface::class,
         PluginsServiceInterface::class,
@@ -59,8 +62,9 @@ class BcServiceProvider extends ServiceProvider
     public function services($container): void
     {
         // Usersサービス
-        $container->add(UsersServiceInterface::class, UsersService::class, true);
-        $container->add(UserManageServiceInterface::class, UserManageService::class, true);
+        $container->add(UsersServiceInterface::class, UsersService::class);
+        $container->add(UserManageServiceInterface::class, UserManageService::class);
+        $container->add(UserApiServiceInterface::class, UserApiService::class);
         // UserGroupsサービス
         $container->add(UserGroupsServiceInterface::class, UserGroupsService::class, true);
         $container->add(UserGroupManageServiceInterface::class, UserGroupManageService::class, true);

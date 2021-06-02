@@ -55,10 +55,6 @@ return [
          */
         'marketPluginRss' => 'https://market.basercms.net/plugins.php',
         /**
-         * Api トークン（簡易認証用）
-         */
-        'apiToken' => 'Xprg7JjhII1HEtGscjyIhf4Y852gSW4qBbiTXUV69R3ewY5QNfiHNqTo6I8iWhpH',
-        /**
          * システムナビ
          *
          * 初期状態で表示するメニューは、`Contents` キー配下に定義し、「設定」内に格納する場合は、`Systems` キー配下に定義する
@@ -209,7 +205,22 @@ return [
             'sessionKey' => 'AuthAdmin',
         ]
     ],
-
+    'Jwt' => [
+        // kid（鍵の識別子）
+        'kid' => 'Xprg7JjhII1HEtGscjyIhf4Y852gSW4qBbiTXUV69R3ewY5QNfiHNqTo6I8iWhpH',
+        // 発行者
+        'iss' => 'baser',
+        // アルゴリズム：RS256 / HS256
+        'algorithm' => 'RS256',
+        // アクセストークン有効期間（秒：30分間）
+        'accessTokenExpire' => 60 * 30,
+        // リフレッシュトークン有効期間（秒：14日間）
+        'refreshTokenExpire' => 60 * 60 * 24 * 14,
+        // 秘密鍵のパス
+        'privateKeyPath' => CONFIG . 'jwt.key',
+        // 公開鍵のパス
+        'publicKeyPath' => CONFIG . 'jwt.pem'
+    ],
     'links' => [
         'marketThemeRss' => 'https://market.basercms.net/themes.rss',
         'marketPluginRss' => 'https://market.basercms.net/plugins.rss',
