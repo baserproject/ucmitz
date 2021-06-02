@@ -81,28 +81,34 @@ class PluginsServiceTest extends BcTestCase
 
     /**
      * testGetAvailable
+     * @dataProvider getAvailableDataProvider
      */
-    public function testGetAvailable()
+    public function testGetAvailable($isRegistered, $expected)
     {
-        $plugins = $this->Plugins->getAvailable();
-        $pluginNames = [];
-        foreach($plugins as $plugin) {
-            $pluginNames[] = $plugin->name;
-        }
-        $this->assertContains('BcBlog', $pluginNames);
-
+        // テスト用のプラグインフォルダ作成
         $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
         $folder = new Folder($pluginPath);
         $folder->create($pluginPath, 0777);
-
-        $plugins = $this->Plugins->getAvailable();
+        $plugins = $this->Plugins->getAvailable($isRegistered);
         $pluginNames = [];
         foreach($plugins as $plugin) {
             $pluginNames[] = $plugin->name;
         }
-        $this->assertContains('BcTest', $pluginNames);
-
         $folder->delete($pluginPath);
+
+        if ($isRegistered) {
+            $this->assertNotContains('BcTest', $pluginNames);
+        }
+        $this->assertContains($expected, $pluginNames);
+    }
+    public function getAvailableDataProvider()
+    {
+        return [
+            // DBに登録されてる場合
+            ['1', 'BcBlog'],
+            // DBに登録されておらず、フォルダから取得してる場合
+            ['0', 'BcTest'],
+        ];
     }
 
     /**

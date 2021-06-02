@@ -54,60 +54,43 @@ class PluginsService implements PluginsServiceInterface
      */
     public function getIndex(string $sortMode): array
     {
-        $available = $this->getAvailable();
-
-        $registered = $unregistered = [];
-
-        foreach($available as $pluginInfo) {
-            if (isset($pluginInfo->priority)) {
-                $registered[] = $pluginInfo;
-            } else {
-                $unregistered[] = $pluginInfo;
-            }
-        }
-
-        $plugins = $sortMode ? $registered : array_merge($registered, $unregistered);
-        return $plugins;
+        return $this->getAvailable($sortMode);
     }
 
     /**
      * 利用可能なプラグインの一覧を取得
-     *
+     * @param string $isRegister
      * @return array
      * @checked
      * @unitTest
-     * @noTodo
      */
-    public function getAvailable()
+    public function getAvailable(string $isRegistered): array
     {
-        // データ取得
-        $result = $this->Plugins->find()
-            ->order(['priority'])
-            ->all();
-
-        // fileに基づいたconfig取得
-        $pluginConfigs = [];
-        foreach($result as $plugin) {
-            $pluginConfigs[$plugin->name] = $this->getPluginConfig($plugin->name);
-        }
-        // プラグイン登録
-        $registered = array_keys($pluginConfigs);
-
-        // プラグインフォルダーのチェックを行う
-        // TODO: チェック必要
-        $paths = App::path('plugins');
-
-        foreach($paths as $path) {
-            $Folder = new Folder($path);
-            $files = $Folder->read(true, true, true);
-            foreach($files[0] as $file) {
-                $name = Inflector::camelize(Inflector::underscore(basename($file)));
-                if (!in_array(basename($file), Configure::read('BcApp.core')) && !in_array($name, $registered)) {
-                    $pluginConfigs[$name] = $this->getPluginConfig($name);
+        // DBに登録されてる場合
+        if($isRegistered) {
+            $registered = $this->Plugins->find()
+                ->order(['priority'])
+                ->all()
+                ->toArray();
+            return $registered;
+        } else {
+            // DBに登録されてない場合
+            // TODO: チェック必要
+            $paths = App::path('plugins');
+            // プラグインフォルダに基づき返す
+            foreach($paths as $path) {
+                $Folder = new Folder($path);
+                $files = $Folder->read(true, true, true);
+                foreach($files[0] as $file) {
+                    $name = Inflector::camelize(Inflector::underscore(basename($file)));
+                    if (!in_array(basename($file), Configure::read('BcApp.core'))) {
+                        $pluginConfigs[$name] = $this->getPluginConfig($name);
+                    }
                 }
             }
+            $unregistered = array_values($pluginConfigs);
+            return $unregistered;
         }
-        return array_values($pluginConfigs);
     }
 
     /**
