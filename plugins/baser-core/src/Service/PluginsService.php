@@ -77,6 +77,7 @@ class PluginsService implements PluginsServiceInterface
             // DBに登録されてない場合
             // TODO: チェック必要
             $paths = App::path('plugins');
+            $pluginConfigs = [];
             // プラグインフォルダに基づき返す
             foreach($paths as $path) {
                 $Folder = new Folder($path);

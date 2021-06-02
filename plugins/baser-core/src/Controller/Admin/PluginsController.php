@@ -81,7 +81,7 @@ class PluginsController extends BcAdminAppController
     public function index(PluginManageServiceInterface $PluginManage)
     {
         $this->set('plugins', $PluginManage->getIndex($this->request->getQuery('sortmode') ?? '0'));
-        $this->set('sortmode', $this->request->getQuery('sortmode'));
+        // $this->set('sortmode', );
     }
 
     /**
