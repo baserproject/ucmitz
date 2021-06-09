@@ -18,6 +18,7 @@ use Cake\ORM\Query;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use Cake\Core\Configure;
 
 /**
  * Class UserGroupsService
@@ -40,6 +41,21 @@ class UserGroupsService implements UserGroupsServiceInterface
     {
         $this->UserGroups = TableRegistry::getTableLocator()->get('BaserCore.UserGroups');
     }
+
+    /**
+     * ユーザーグループの新規データ用の初期値を含んだエンティティを取得する
+     * @return UserGroup
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    // public function getNew(): UserGroup
+    // {
+    //     return $this->UserGroups->newEntity([
+    //         'user_groups' => [
+    //             '_ids' => [1]
+    //         ]]);
+    // }
 
     /**
      * ユーザーグループを取得する
@@ -79,7 +95,7 @@ class UserGroupsService implements UserGroupsServiceInterface
      */
     public function create(array $postData)
     {
-        $postData['auth_prefix' ] = $postData['auth_prefix' ] ?? "Admin";
+        $postData['auth_prefix'] = $postData['auth_prefix'] ?? ["Admin"];
         $userGroup = $this->UserGroups->newEmptyEntity();
         $userGroup = $this->UserGroups->patchEntity($userGroup, $postData);
         return $this->UserGroups->save($userGroup);
@@ -88,8 +104,7 @@ class UserGroupsService implements UserGroupsServiceInterface
     /**
      * ユーザーグループ情報を更新する
      * @param EntityInterface $target
-     * @param array $postData
-     * @return EntityInterface|false
+     * @param array $postData     * @return EntityInterface|false
      * @checked
      * @noTodo
      * @unitTest

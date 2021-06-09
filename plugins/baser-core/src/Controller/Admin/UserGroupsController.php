@@ -34,22 +34,6 @@ use BaserCore\Annotation\Checked;
  */
 class UserGroupsController extends BcAdminAppController
 {
-    public $siteConfigs = [];
-
-    /**
-     * beforeFilter
-     * @param EventInterface $event
-     * @return Response|void|null
-     * @checked
-     * @unitTest
-     */
-    public function beforeFilter(EventInterface $event)
-    {
-        parent::beforeFilter($event);
-        if (count(Configure::read('BcAuthPrefix')) === 1) {
-            $this->UserGroup->validator()->remove('auth_prefix');
-        }
-    }
 
     /**
      * ログインユーザーグループリスト
@@ -120,14 +104,13 @@ class UserGroupsController extends BcAdminAppController
                 $this->BcMessage->setSuccess(__d('baser', '新規ユーザーグループ「{0}」を追加しました。', $userGroup->name));
                 return $this->redirect(['action' => 'index']);
             } else {
+                // $userGroup = $this->request->getData();
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
-                return;
             }
         } else {
             $userGroup = $this->UserGroups->newEmptyEntity();
-            $this->set(compact('userGroup'));
-            return;
         }
+        $this->set(compact('userGroup'));
     }
 
     /**
