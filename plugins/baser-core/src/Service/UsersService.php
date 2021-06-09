@@ -110,9 +110,12 @@ class UsersService implements UsersServiceInterface
      */
     public function create(array $postData)
     {
-        $user = $this->Users->newEmptyEntity();
+        $user = $this->getNew();
         $user = $this->Users->patchEntity($user, $postData, ['validate' => 'new']);
-        return $this->Users->save($user);
+        if (!$user->hasErrors()) {
+            $user = $this->Users->save($user);
+        }
+        return $user;
     }
 
     /**

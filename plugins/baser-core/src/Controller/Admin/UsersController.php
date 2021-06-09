@@ -186,7 +186,8 @@ class UsersController extends BcAdminAppController
     public function add(UserManageServiceInterface $userManage)
     {
         if ($this->request->is('post')) {
-            if ($user = $userManage->create($this->request->getData())) {
+            $user = $userManage->create($this->request->getData());
+            if (empty($user->getErrors())) {
                 // EVENT Users.afterAdd
                 $this->getEventManager()->dispatch(new Event('Controller.Users.afterAdd', $this, [
                     'user' => $user
@@ -198,6 +199,7 @@ class UsersController extends BcAdminAppController
         } else {
             $user = $userManage->getNew();
         }
+
         $this->set('user', $user);
     }
 
