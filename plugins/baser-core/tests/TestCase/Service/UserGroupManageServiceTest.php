@@ -62,6 +62,14 @@ class UserGroupManageServiceTest extends BcTestCase
     }
 
     /**
+     * Test getNew
+     */
+    public function testGetNew()
+    {
+        $this->assertEquals('Admin', $this->UserGroups->getNew()->auth_prefix);
+    }
+
+    /**
      * Test get
      */
     public function testGet()

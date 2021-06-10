@@ -105,11 +105,10 @@ class UserGroupsController extends BcAdminAppController
                 $this->BcMessage->setSuccess(__d('baser', '新規ユーザーグループ「{0}」を追加しました。', $userGroup->name));
                 return $this->redirect(['action' => 'index']);
             } else {
-                // $userGroup = $this->request->getData();
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
         } else {
-            $userGroup = $this->UserGroups->newEmptyEntity();
+            $userGroup = $UserGroupManage->getNew();
         }
         $this->set(compact('userGroup'));
     }

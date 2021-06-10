@@ -11,6 +11,7 @@
 
 namespace BaserCore\Service;
 
+use BaserCore\Model\Entity\UserGroup;
 use BaserCore\Model\Table\UserGroupsTable;
 use Cake\ORM\TableRegistry;
 use Cake\Datasource\EntityInterface;
@@ -43,21 +44,6 @@ class UserGroupsService implements UserGroupsServiceInterface
     }
 
     /**
-     * ユーザーグループの新規データ用の初期値を含んだエンティティを取得する
-     * @return UserGroup
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    // public function getNew(): UserGroup
-    // {
-    //     return $this->UserGroups->newEntity([
-    //         'user_groups' => [
-    //             '_ids' => [1]
-    //         ]]);
-    // }
-
-    /**
      * ユーザーグループを取得する
      * @param int $id
      * @return EntityInterface
@@ -69,6 +55,20 @@ class UserGroupsService implements UserGroupsServiceInterface
     {
         return $this->UserGroups->get($id, [
             'contain' => ['Users'],
+        ]);
+    }
+
+    /**
+     * ユーザーグループの新規データ用の初期値を含んだエンティティを取得する
+     * @return UserGroup
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getNew(): UserGroup
+    {
+        return $this->UserGroups->newEntity([
+            'auth_prefix' => 'Admin',
         ]);
     }
 
