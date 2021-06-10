@@ -140,7 +140,7 @@ class UserGroupsTable extends Table //TODO AppTableに変更必
             ->notEmptyString('title', __d('baser', '表示名を入力してください。'));
 
         $validator
-            ->notEmptyArray('auth_prefix')
+            ->scalar('auth_prefix')
             ->notEmptyString('auth_prefix', __d('baser', '認証プレフィックスを選択してください。'));
 
         $validator
