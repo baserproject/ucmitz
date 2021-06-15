@@ -91,6 +91,7 @@ class PluginsController extends BcAdminAppController
      * @param string $name プラグイン名
      * @return Response|void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function install(PluginManageServiceInterface $PluginManage, $name)
@@ -102,8 +103,7 @@ class PluginsController extends BcAdminAppController
             try {
                 if ($PluginManage->install($name, $this->request->getData('connection'))) {
                     $this->BcMessage->setSuccess(sprintf(__d('baser', '新規プラグイン「%s」を baserCMS に登録しました。'), $name));
-                    // TODO: アクセス権限を追加する
-                    // $this->_addPermission($this->request->data);
+                    $PluginManage->permit($this->request->getData());
                     return $this->redirect(['action' => 'index']);
                 } else {
                     $this->BcMessage->setError(__d('baser', 'プラグインに問題がある為インストールを完了できません。プラグインの開発者に確認してください。'));

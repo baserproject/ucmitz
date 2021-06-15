@@ -246,16 +246,17 @@ class PluginsService implements PluginsServiceInterface
     }
 
     /**
-     * アクセス制限設定を追加する
+     * ユーザーグループにアクセス制限設定を追加する
      *
      * @param array $data リクエストデータ
      * @return void
+     * @checked
+     * @unitTest
      */
-    public function addPermission($data)
+    public function permit($data): void
     {
-        $permission = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
-        $userGroups = $permission->UserGroups->find('all')->where(['UserGroups.id <>' => Configure::read('BcApp.adminGroupId')]);
-
+        $permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
+        $userGroups = $permissions->UserGroups->find('all')->where(['UserGroups.id <>' => Configure::read('BcApp.adminGroupId')]);
         if (!$userGroups) {
             return;
         }
@@ -264,32 +265,28 @@ class PluginsService implements PluginsServiceInterface
             //$permissionAuthPrefix = $Permission->UserGroup->getAuthPrefix($userGroup['UserGroup']['id']);
             // TODO 現在 admin 固定、今後、mypage 等にも対応する
             $permissionAuthPrefix = 'admin';
-            $url = '/' . $permissionAuthPrefix . '/' . Inflector::underscore($data['Plugin']['name']) . '/*';
-            $permission = $permission->find(
-                'first',
-                [
-                    'conditions' => ['Permission.url' => $url],
-                    'recursive' => -1
-                ]
-            );
-            switch($data['Plugin']['permission']) {
+            $url = '/baser/' . $permissionAuthPrefix . '/' . Inflector::underscore($data['name']) . '/*';
+
+            $prePermissions = $permissions->find()->where(['url' => $url])->first();
+            switch($data['permission']) {
                 case 1:
-                    if (!$permission) {
-                        $Permission->create([
-                            'name' => $data['Plugin']['title'] . ' ' . __d('baser', '管理'),
-                            'user_group_id' => $userGroup['UserGroup']['id'],
-                            'auth' => true,
-                            'status' => true,
-                            'url' => $url,
-                            'no' => $Permission->getMax('no', ['user_group_id' => $userGroup['UserGroup']['id']]) + 1,
-                            'sort' => $Permission->getMax('sort', ['user_group_id' => $userGroup['UserGroup']['id']]) + 1
-                        ]);
-                        $Permission->save();
+                    if (!$prePermissions) {
+
+                        $permission = $permissions->newEmptyEntity();
+
+                        $permission->name = $data['title'] . ' ' . __d('baser', '管理');
+                        $permission->user_group_id = $userGroup->id;
+                        $permission->auth = 1;
+                        $permission->status = 1;
+                        $permission->url = $url;
+                        $permission->no = $permissions->getMax('no', ['user_group_id' => $userGroup->id]) + 1;
+                        $permission->sort = $permissions->getMax('no', ['user_group_id' => $userGroup->id]) + 1;
+                        $permissions->save($permission);
                     }
                     break;
                 case 2:
-                    if ($permission) {
-                        $Permission->delete($permission['Permission']['id']);
+                    if ($prePermissions) {
+                        $permissions->delete($prePermissions->id);
                     }
                     break;
             }

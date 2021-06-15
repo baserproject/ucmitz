@@ -135,22 +135,15 @@ class PermissionsTable extends AppTable
      * beforeSave
      * urlの先頭に / を付けて絶対パスにする
      *
-     * @param array $options
+     * @param object $options
      * @return boolean
      */
     public function beforeSave($options = [])
     {
-        if (isset($this->data['Permission'])) {
-            $data = $this->data['Permission'];
-        } else {
-            $data = $this->data;
+        $data = $options->getData();
+        if (preg_match('/^[^\/]/is', $data["entity"]->get("url"))) {
+            $data["entity"]->set("url", '/' . $data["entity"]->get("url"));
         }
-        if (isset($data['url'])) {
-            if (preg_match('/^[^\/]/is', $data['url'])) {
-                $data['url'] = '/' . $data['url'];
-            }
-        }
-        $this->data['Permission'] = $data;
         return true;
     }
 

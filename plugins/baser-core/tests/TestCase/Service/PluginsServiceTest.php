@@ -15,6 +15,7 @@ use BaserCore\Service\PluginsService;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Filesystem\Folder;
 use Cake\Core\App;
+use Cake\ORM\TableRegistry;
 
 /**
  * Class PluginsServiceTest
@@ -174,10 +175,21 @@ class PluginsServiceTest extends BcTestCase
     /**
      * アクセス制限設定を追加する
      */
-    public function test_addPermission()
+    public function testPermit()
     {
-        $data = [];
-        $this->Plugins->addPermission($data);
+        $data = [
+            'name' => 'BcTest',
+            'title' => 'テスト',
+            'status' => "0",
+            'version' => "1.0.0",
+            'permission' => "1"
+        ];
+
+        $this->Plugins->permit($data);
+        $permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
+        $result = $permissions->find('all')->all();
+        
+        $this->assertEquals($data['title'] ." 管理", $result->last()->name);
     }
 
 }
