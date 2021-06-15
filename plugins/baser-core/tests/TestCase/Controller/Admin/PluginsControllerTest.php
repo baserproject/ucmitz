@@ -178,14 +178,6 @@ class PluginsControllerTest extends BcTestCase
     }
 
     /**
-     * アクセス制限設定を追加する
-     */
-    public function test_addPermission()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * データベースをリセットする
      */
     public function testReset_db()

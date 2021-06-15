@@ -31,6 +31,8 @@ class PluginsServiceTest extends BcTestCase
      */
     public $fixtures = [
         'plugin.BaserCore.Plugins',
+        'plugin.BaserCore.Permissions',
+        'plugin.BaserCore.UserGroups'
     ];
 
     /**
@@ -167,6 +169,15 @@ class PluginsServiceTest extends BcTestCase
     {
         $plugin = $this->Plugins->get(1);
         $this->assertEquals('BcBlog', $plugin->name);
+    }
+
+    /**
+     * アクセス制限設定を追加する
+     */
+    public function test_addPermission()
+    {
+        $data = [];
+        $this->Plugins->addPermission($data);
     }
 
 }

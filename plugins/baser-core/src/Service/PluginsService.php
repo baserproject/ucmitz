@@ -245,4 +245,55 @@ class PluginsService implements PluginsServiceInterface
         return [];
     }
 
+    /**
+     * アクセス制限設定を追加する
+     *
+     * @param array $data リクエストデータ
+     * @return void
+     */
+    public function addPermission($data)
+    {
+        $permission = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
+        $userGroups = $permission->UserGroups->find('all')->where(['UserGroups.id <>' => Configure::read('BcApp.adminGroupId')]);
+
+        if (!$userGroups) {
+            return;
+        }
+
+        foreach($userGroups as $userGroup) {
+            //$permissionAuthPrefix = $Permission->UserGroup->getAuthPrefix($userGroup['UserGroup']['id']);
+            // TODO 現在 admin 固定、今後、mypage 等にも対応する
+            $permissionAuthPrefix = 'admin';
+            $url = '/' . $permissionAuthPrefix . '/' . Inflector::underscore($data['Plugin']['name']) . '/*';
+            $permission = $permission->find(
+                'first',
+                [
+                    'conditions' => ['Permission.url' => $url],
+                    'recursive' => -1
+                ]
+            );
+            switch($data['Plugin']['permission']) {
+                case 1:
+                    if (!$permission) {
+                        $Permission->create([
+                            'name' => $data['Plugin']['title'] . ' ' . __d('baser', '管理'),
+                            'user_group_id' => $userGroup['UserGroup']['id'],
+                            'auth' => true,
+                            'status' => true,
+                            'url' => $url,
+                            'no' => $Permission->getMax('no', ['user_group_id' => $userGroup['UserGroup']['id']]) + 1,
+                            'sort' => $Permission->getMax('sort', ['user_group_id' => $userGroup['UserGroup']['id']]) + 1
+                        ]);
+                        $Permission->save();
+                    }
+                    break;
+                case 2:
+                    if ($permission) {
+                        $Permission->delete($permission['Permission']['id']);
+                    }
+                    break;
+            }
+        }
+    }
+
 }

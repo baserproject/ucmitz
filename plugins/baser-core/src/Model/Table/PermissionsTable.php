@@ -23,7 +23,7 @@ use Cake\Validation\Validator;
  *
  * @package Baser.Model
  */
-class Permission extends AppTable
+class PermissionsTable extends AppTable
 {
 
     /**
@@ -82,6 +82,7 @@ class Permission extends AppTable
         
         return $validator;
     }
+
 
     /**
      * 認証プレフィックスを取得する
