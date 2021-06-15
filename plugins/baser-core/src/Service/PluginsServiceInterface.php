@@ -38,10 +38,10 @@ interface PluginsServiceInterface
     /**
      * プラグインをインストールする
      * @param string $name プラグイン名
-     * @param string $connection test connection指定用
+     * @param array $data リクエストデータ
      * @return bool|null
      */
-    public function install($name, $connection = 'default'): ?bool;
+    public function install($name, $data): ?bool;
 
     /**
      * プラグインを無効にする
@@ -87,10 +87,10 @@ interface PluginsServiceInterface
     public function getMarketPlugins(): array;
 
     /**
-     * ユーザーグループにアクセス制限設定を追加する
+     * ユーザーグループにアクセス許可設定を追加する
      *
      * @param array $data リクエストデータ
      * @return void
      */
-    public function permit($data): void;
+    public function allow($data): void;
 }

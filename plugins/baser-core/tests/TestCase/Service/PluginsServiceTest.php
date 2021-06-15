@@ -109,20 +109,44 @@ class PluginsServiceTest extends BcTestCase
      */
     public function testInstall()
     {
+        $data = [
+            'connection' => 'test',
+            'name' => 'BcUploader',
+            'title' => 'アップローダー',
+            'status' => "0",
+            'version' => "1.0.0",
+            'permission' => "1"
+        ];
         // 正常な場合
-        $this->assertTrue($this->Plugins->install('BcUploader', 'test'));
+        $this->assertTrue($this->Plugins->install('BcUploader', $data));
         // プラグインがない場合
         try {
-            $this->Plugins->install('UnKnown', 'test');
+            $data = [
+                'connection' => 'test',
+                'name' => 'UnKnown',
+                'title' => '未知',
+                'status' => "0",
+                'version' => "1.0.0",
+                'permission' => "1"
+            ];
+            $this->Plugins->install('UnKnown', $data);
         } catch (\Exception $e) {
             $this->assertEquals("Plugin UnKnown could not be found.", $e->getMessage());
         }
         // フォルダはあるがインストールできない場合
+        $data = [
+            'connection' => 'test',
+            'name' => 'BcTest',
+            'title' => 'テスト',
+            'status' => "0",
+            'version' => "1.0.0",
+            'permission' => "1"
+        ];
         $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
         $folder = new Folder($pluginPath);
         $folder->create($pluginPath, 0777);
         try {
-            $this->assertNull($this->Plugins->install('BcTest', ['connection' => 'test']));
+            $this->assertNull($this->Plugins->install('BcTest', $data));
         } catch (\Exception $e) {
             $this->assertEquals("プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してください。", $e->getMessage());
         }
@@ -175,7 +199,7 @@ class PluginsServiceTest extends BcTestCase
     /**
      * アクセス制限設定を追加する
      */
-    public function testPermit()
+    public function testAllow()
     {
         $data = [
             'name' => 'BcTest',
@@ -185,7 +209,7 @@ class PluginsServiceTest extends BcTestCase
             'permission' => "1"
         ];
 
-        $this->Plugins->permit($data);
+        $this->Plugins->allow($data);
         $permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
         $result = $permissions->find('all')->all();
         

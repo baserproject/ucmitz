@@ -67,6 +67,7 @@ class PluginsController extends BcApiController
      * プラグインをインストールする
      * @param PluginsServiceInterface $Plugins
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function install(PluginsServiceInterface $plugins, $name)
@@ -74,11 +75,8 @@ class PluginsController extends BcApiController
         $this->request->allowMethod(['post', 'put']);
         $plugin = $plugins->getByName($name);
         try {
-            if($plugins->install($name, $this->request->getData('connection'))) {
+            if($plugins->install($name, $this->request->getData())) {
                 $message = sprintf(__d('baser', 'プラグイン「%s」をインストールしました。'), $name);
-                // TODO: アクセス権限を追加する
-                // PermissionsServiceに移動し、PluginsService::install() 内より呼び出す
-                // $this->_addPermission($this->request->data);
             } else {
                 $message = __d('baser', 'プラグインに問題がある為インストールを完了できません。プラグインの開発者に確認してください。');
             }

@@ -31,6 +31,8 @@ class PluginManageServiceTest extends BcTestCase
      */
     protected $fixtures = [
         'plugin.BaserCore.Plugins',
+        'plugin.BaserCore.Permissions',
+        'plugin.BaserCore.UserGroups'
     ];
 
     /**
@@ -84,21 +86,44 @@ class PluginManageServiceTest extends BcTestCase
      */
     public function testInstall()
     {
+        $data = [
+            'connection' => 'test',
+            'name' => 'BcUploader',
+            'title' => 'アップローダー',
+            'status' => "0",
+            'version' => "1.0.0",
+            'permission' => "1"
+        ];
         // 正常な場合
-        $this->assertTrue($this->PluginManage->install('BcUploader', ['connection' => 'test']));
+        $this->assertTrue($this->PluginManage->install('BcUploader', $data));
         // プラグインがない場合
         try {
-            $this->PluginManage->install('UnKnown', ['connection' => 'test']);
+            $data = [
+                'connection' => 'test',
+                'name' => 'UnKnown',
+                'title' => '未知',
+                'status' => "0",
+                'version' => "1.0.0",
+                'permission' => "1"
+            ];
+            $this->PluginManage->install('UnKnown', $data);
         } catch (\Exception $e) {
             $this->assertEquals("Plugin UnKnown could not be found.", $e->getMessage());
         }
         // フォルダはあるがインストールできない場合
+        $data = [
+            'connection' => 'test',
+            'name' => 'BcTest',
+            'title' => 'テスト',
+            'status' => "0",
+            'version' => "1.0.0",
+            'permission' => "1"
+        ];
         $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
         $folder = new Folder($pluginPath);
         $folder->create($pluginPath, 0777);
-        // プラグインがない場合
         try {
-            $this->PluginManage->install('BcTest', ['connection' => 'test']);
+            $this->assertNull($this->PluginManage->install('BcTest', $data));
         } catch (\Exception $e) {
             $this->assertEquals("プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してください。", $e->getMessage());
         }

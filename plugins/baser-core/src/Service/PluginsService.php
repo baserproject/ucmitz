@@ -101,23 +101,28 @@ class PluginsService implements PluginsServiceInterface
     /**
      * プラグインをインストールする
      * @param string $name プラグイン名
+     * @param array $data リクエストデータ
      * @return bool|null
-     * @param string $connection test connection指定用
      * @checked
      * @noTodo
      * @unitTest
      * @throws Exception
      */
-    public function install($name, $connection = 'default'): ?bool
+    public function install($name, $data): ?bool
     {
-        $options = ['connection' => $connection];
+        $connection = ['connection' => $data['connection'] ?? 'default'];
         BcUtil::includePluginClass($name);
         $plugins = CakePlugin::getCollection();
         $plugin = $plugins->create($name);
         if (!method_exists($plugin, 'install')) {
             throw new Exception(__d('baser', 'プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してください。'));
         } else {
-            return $plugin->install($options);
+            if($plugin->install($connection)) {
+                $this->allow($data);
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
@@ -246,14 +251,14 @@ class PluginsService implements PluginsServiceInterface
     }
 
     /**
-     * ユーザーグループにアクセス制限設定を追加する
+     * ユーザーグループにアクセス許可設定を追加する
      *
      * @param array $data リクエストデータ
      * @return void
      * @checked
      * @unitTest
      */
-    public function permit($data): void
+    public function allow($data): void
     {
         $permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
         $userGroups = $permissions->UserGroups->find('all')->where(['UserGroups.id <>' => Configure::read('BcApp.adminGroupId')]);
