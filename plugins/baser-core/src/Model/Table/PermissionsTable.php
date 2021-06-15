@@ -1,6 +1,4 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
  * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
@@ -11,6 +9,13 @@ return;
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
+namespace BaserCore\Model\Table;
+
+use BaserCore\Model\AppTable;
+// use Cake\ORM\Table;
+use Cake\Core\Configure;
+use BaserCore\Utility\BcUtil;
+use Cake\Validation\Validator;
 
 /**
  * Class Permission
@@ -18,23 +23,29 @@ return;
  *
  * @package Baser.Model
  */
-class Permission extends AppModel
+class Permission extends AppTable
 {
 
     /**
-     * ビヘイビア
+     * Initialize
      *
-     * @var array
+     * @param array $config テーブル設定
+     * @return void
      */
-    public $actsAs = ['BcCache'];
-
-    /**
-     * belongsTo
-     * @var array
-     */
-    public $belongsTo = ['UserGroup' => ['className' => 'UserGroup',
-        'foreignKey' => 'user_group_id']];
-
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+        $this->setTable('permissions');
+        $this->setPrimaryKey('id');
+        $this->addBehavior('Timestamp');
+        $this->belongsTo('UserGroups', [
+            'className' => 'BaserCore.UserGroups',
+            'foreignKey' => 'user_group_id',
+            'targetForeignKey' => 'id',
+            'joinTable' => 'user_groups',
+            'joinType' => 'left'
+        ]);
+    }
     /**
      * permissionsTmp
      * ログインしているユーザーの拒否URLリスト
@@ -45,60 +56,31 @@ class Permission extends AppModel
     public $permissionsTmp = -1;
 
     /**
-     * Permission constructor.
+     * Validation Default
      *
-     * @param bool $id
-     * @param null $table
-     * @param null $ds
+     * @param Validator $validator
+     * @return Validator
      */
-    public function __construct($id = false, $table = null, $ds = null)
+    public function validationDefault(Validator $validator): Validator
     {
-        parent::__construct($id, $table, $ds);
-        $this->validate = [
-            'name' => [
-                ['rule' => ['notBlank'], 'message' => __d('baser', '設定名を入力してください。')],
-                ['rule' => ['maxLength', 255], 'message' => __d('baser', '設定名は255文字以内で入力してください。')]],
-            'user_group_id' => [
-                ['rule' => ['notBlank'], 'message' => __d('baser', 'ユーザーグループを選択してください。'), 'required' => true]],
-            'url' => [
-                ['rule' => ['notBlank'], 'message' => __d('baser', '設定URLを入力してください。')],
-                ['rule' => ['maxLength', 255], 'message' => __d('baser', '設定URLは255文字以内で入力してください。')],
-                ['rule' => ['checkUrl'], 'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]]
-        ];
-    }
-
-    /**
-     * 権限の必要なURLかチェックする
-     *
-     * @param array $check チェックするURL
-     * @return boolean True if the operation should continue, false if it should abort
-     */
-    public function checkUrl($check)
-    {
-        if (!$check[key($check)]) {
-            return true;
-        }
-
-        $url = $check[key($check)];
-
-        if (preg_match('/^[^\/]/is', $url)) {
-            $url = '/' . $url;
-        }
-
-        // ルーティング設定に合わせて変換
-        $url = preg_replace('/^\/admin\//', '/' . Configure::read('Routing.prefixes.0') . '/', $url);
-
-        if (preg_match('/^(\/[a-z_]+)\*$/is', $url, $matches)) {
-            $url = $matches[1] . '/' . '*';
-        }
-
-        $params = Router::parse($url);
-
-        if (empty($params['prefix'])) {
-            return false;
-        }
-
-        return true;
+        $validator
+            ->scalar('name')
+            ->maxLength('name', 255,  __d('baser', '設定名は255文字以内で入力してください。'))
+            ->notEmptyString('name', __d('baser', '設定名を入力してください。'));
+        $validator
+            ->integer('user_group_id')
+            ->notEmptyString('user_group_id',  __d('baser', 'ユーザーグループを選択してください。'))
+            ->requirePresence('user_group_id', true);
+        $validator
+            ->scalar('url')
+            ->maxLength('url', 255, __d('baser', '設定URLは255文字以内で入力してください。'))
+            ->notEmptyString('url', __d('baser', '設定URLを入力してください。'))
+            ->add('url', 'checkUrl', [
+                'rule' => 'checkUrl',
+                'provider' => 'bc',
+                'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]);
+        
+        return $validator;
     }
 
     /**
