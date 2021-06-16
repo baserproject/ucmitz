@@ -480,6 +480,7 @@ class BcValidationTest extends BcTestCase
             [['hoge/'], false, '適当なURLです'],
             [['/hoge/'], false, '適当なURLです'],
             [['/hoge/*'], false, '適当なURLです'],
+            // TODO: router設定でのprefix設定できてないため
             // [['admin'], true, '権限の必要なURLです'],
             // [['/admin'], true, '権限の必要なURLです'],
             // [['admin/'], true, '権限の必要なURLです'],
