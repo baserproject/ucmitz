@@ -123,39 +123,6 @@ class PermissionTest extends BaserTestCase
     }
 
 
-    /**
-     * 設定をチェックする
-     *
-     * @param array $check チェックするURL
-     * @param array $expected 期待値
-     * @param string $message テストが失敗した時に表示されるメッセージ
-     * @dataProvider checkUrlDataProvider
-     */
-    public function testCheckUrl($check, $expected, $message = null)
-    {
-        $result = $this->Permission->checkUrl($check);
-        $this->assertEquals($expected, $result, $message);
-    }
-
-    public function checkUrlDataProvider()
-    {
-        return [
-            [[1], false, '適当なURLです'],
-            [['hoge'], false, '適当なURLです'],
-            [['/hoge'], false, '適当なURLです'],
-            [['hoge/'], false, '適当なURLです'],
-            [['/hoge/'], false, '適当なURLです'],
-            [['/hoge/*'], false, '適当なURLです'],
-            [['admin'], true, '権限の必要なURLです'],
-            [['/admin'], true, '権限の必要なURLです'],
-            [['admin/'], true, '権限の必要なURLです'],
-            [['admin/*'], true, '権限の必要なURLです'],
-            [['/admin/*'], true, '権限の必要なURLです'],
-            [['/admin/dashboard/'], true, '権限の必要なURLです'],
-            [['/admin/dashboard/*'], true, '権限の必要なURLです'],
-        ];
-    }
-
 
     /**
      * 認証プレフィックスを取得する

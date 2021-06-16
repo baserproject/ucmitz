@@ -12,7 +12,6 @@
 namespace BaserCore\Model\Table;
 
 use BaserCore\Model\AppTable;
-// use Cake\ORM\Table;
 use Cake\Core\Configure;
 use BaserCore\Utility\BcUtil;
 use Cake\Validation\Validator;

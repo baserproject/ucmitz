@@ -544,6 +544,8 @@ class BcValidation extends Validation
      *
      * @param array $check チェックするURL
      * @return boolean True if the operation should continue, false if it should abort
+     * @checked
+     * @unitTest
      */
     public function checkUrl($check)
     {
@@ -556,11 +558,13 @@ class BcValidation extends Validation
             $url = '/' . $url;
         }
         // ルーティング設定に合わせて変換
+        // TODO: Routing.prefixesはBaser4系なので、変更する
         $url = preg_replace('/^\/admin\//', '/' . Configure::read('Routing.prefixes.0') . '/', $url);
         if (preg_match('/^(\/[a-z_]+)\*$/is', $url, $matches)) {
             $url = $matches[1] . '/' . '*';
         }
-        $params = Router::parse($url);
+        $params = Router::getRouteCollection()->parse($url);
+        // TODO: $params['prefix']は出力されないので、別の方法で実装する
         if (empty($params['prefix'])) {
             return false;
         }
