@@ -165,6 +165,8 @@ class PluginManageService extends PluginsService implements PluginManageServiceI
      *
      * @param array $data リクエストデータ
      * @return void
+     * @checked
+     * @unitTest
      */
     public function allow($data): void
     {
