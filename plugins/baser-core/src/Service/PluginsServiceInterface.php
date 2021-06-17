@@ -38,10 +38,10 @@ interface PluginsServiceInterface
     /**
      * プラグインをインストールする
      * @param string $name プラグイン名
-     * @param array $data リクエストデータ
+     * @param string $connection test connection指定用
      * @return bool|null
      */
-    public function install($name, $data): ?bool;
+    public function install($name, $connection = 'default'): ?bool;
 
     /**
      * プラグインを無効にする

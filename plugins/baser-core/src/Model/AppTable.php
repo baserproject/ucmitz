@@ -517,43 +517,15 @@ class AppTable extends Table
      * @param string $field
      * @param array $conditions
      * @return int
+     * @checked
+     * @unitTest
      */
     public function getMax($field, $conditions = [])
     {
-        if (strpos($field, '.') === false) {
-            $modelName = $this->getAlias();
-        } else {
-            [$modelName, $field] = explode('\.', $field);
-        }
-        // TODO BcCsvに関してまだ未使用のため一旦コメントアウト
-        // $db = ConnectionManager::get($this->useDbConfig);
-        // $this->recursive = -1;
-        // if ($db->config['datasource'] == 'Database/BcCsv') {
-            // CSVDBの場合はMAX関数が利用できない為、プログラムで処理する
-            // TODO dboでMAX関数の実装できたらここも変更する
-        //     $this->cacheQueries = false;
-        //     $dbDatas = $this->find('all', ['conditions' => $conditions, 'fields' => [$modelName . '.' . $field]]);
-        //     $this->cacheQueries = true;
-        //     $max = 0;
-        //     if ($dbDatas) {
-        //         foreach($dbDatas as $dbData) {
-        //             if ($max < $dbData[$modelName][$field]) {
-        //                 $max = $dbData[$modelName][$field];
-        //             }
-        //         }
-        //     }
-        //     return $max;
-        // } else {
-            // $this->cacheQueries = false;
-            // $this->cacheQueries = true;
-            // SQLiteの場合、Max関数にmodel名を含むと、戻り値の添字が崩れる（CakePHPのバグ）
-            $max = $this->find()->where($conditions)->max($field);
-            if ($max) {
-                return $max[$field];
-            } else {
-                return 0;
-            }
-        // }
+        $max = $this->find()->where($conditions)->max($field);
+        // TODO: cacheが必要になり次第実装
+        // $max->cache('recent_max');
+        return $max[$field] ?? 0;
     }
 
     /**

@@ -109,44 +109,20 @@ class PluginsServiceTest extends BcTestCase
      */
     public function testInstall()
     {
-        $data = [
-            'connection' => 'test',
-            'name' => 'BcUploader',
-            'title' => 'アップローダー',
-            'status' => "0",
-            'version' => "1.0.0",
-            'permission' => "1"
-        ];
         // 正常な場合
-        $this->assertTrue($this->Plugins->install('BcUploader', $data));
+        $this->assertTrue($this->Plugins->install('BcUploader', 'test'));
         // プラグインがない場合
         try {
-            $data = [
-                'connection' => 'test',
-                'name' => 'UnKnown',
-                'title' => '未知',
-                'status' => "0",
-                'version' => "1.0.0",
-                'permission' => "1"
-            ];
-            $this->Plugins->install('UnKnown', $data);
+            $this->Plugins->install('UnKnown', 'test');
         } catch (\Exception $e) {
             $this->assertEquals("Plugin UnKnown could not be found.", $e->getMessage());
         }
         // フォルダはあるがインストールできない場合
-        $data = [
-            'connection' => 'test',
-            'name' => 'BcTest',
-            'title' => 'テスト',
-            'status' => "0",
-            'version' => "1.0.0",
-            'permission' => "1"
-        ];
         $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
         $folder = new Folder($pluginPath);
         $folder->create($pluginPath, 0777);
         try {
-            $this->assertNull($this->Plugins->install('BcTest', $data));
+            $this->assertNull($this->Plugins->install('BcTest', ['connection' => 'test']));
         } catch (\Exception $e) {
             $this->assertEquals("プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してください。", $e->getMessage());
         }

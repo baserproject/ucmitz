@@ -101,28 +101,23 @@ class PluginsService implements PluginsServiceInterface
     /**
      * プラグインをインストールする
      * @param string $name プラグイン名
-     * @param array $data リクエストデータ
      * @return bool|null
+     * @param string $connection test connection指定用
      * @checked
      * @noTodo
      * @unitTest
      * @throws Exception
      */
-    public function install($name, $data): ?bool
+    public function install($name, $connection = 'default'): ?bool
     {
-        $connection = ['connection' => $data['connection'] ?? 'default'];
+        $options = ['connection' => $connection];
         BcUtil::includePluginClass($name);
         $plugins = CakePlugin::getCollection();
         $plugin = $plugins->create($name);
         if (!method_exists($plugin, 'install')) {
             throw new Exception(__d('baser', 'プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してください。'));
         } else {
-            if($plugin->install($connection)) {
-                $this->allow($data);
-                return true;
-            } else {
-                return false;
-            }
+            return $plugin->install($options);
         }
     }
 
@@ -276,9 +271,7 @@ class PluginsService implements PluginsServiceInterface
             switch($data['permission']) {
                 case 1:
                     if (!$prePermissions) {
-
                         $permission = $permissions->newEmptyEntity();
-
                         $permission->name = $data['title'] . ' ' . __d('baser', '管理');
                         $permission->user_group_id = $userGroup->id;
                         $permission->auth = 1;

@@ -101,7 +101,8 @@ class PluginsController extends BcAdminAppController
             return;
         } else {
             try {
-                if ($PluginManage->install($name, $this->request->getData())) {
+                if ($PluginManage->install($name, $this->request->getData('connection'))) {
+                    $PluginManage->allow($this->request->getData());
                     $this->BcMessage->setSuccess(sprintf(__d('baser', '新規プラグイン「%s」を baserCMS に登録しました。'), $name));
                     return $this->redirect(['action' => 'index']);
                 } else {

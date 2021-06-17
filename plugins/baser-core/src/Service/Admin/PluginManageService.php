@@ -44,16 +44,16 @@ class PluginManageService extends PluginsService implements PluginManageServiceI
     /**
      * プラグインをインストールする
      * @param string $name プラグイン名
-     * @param array $data リクエストデータ
+     * @param string $connection test connection指定用
      * @return bool|null
      * @throws Exception
      * @checked
      * @unitTest
      * @noTodo
      */
-    public function install($name, $data): ?bool
+    public function install($name, $connection = 'default'): ?bool
     {
-        return parent::install($name, $data);
+        return parent::install($name, $connection);
     }
 
     /**
@@ -159,5 +159,15 @@ class PluginManageService extends PluginsService implements PluginManageServiceI
     public function getMarketPlugins(): array
     {
         return parent::getMarketPlugins();
+    }
+    /**
+     * ユーザーグループにアクセス許可設定を追加する
+     *
+     * @param array $data リクエストデータ
+     * @return void
+     */
+    public function allow($data): void
+    {
+        parent::allow($data);
     }
 }
