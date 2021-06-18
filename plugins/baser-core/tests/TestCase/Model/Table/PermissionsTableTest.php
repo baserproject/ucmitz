@@ -56,8 +56,8 @@ class PermissionsTableTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Permission = $this->getTableLocator()->get('Permissions');
-        $this->PermissionsTable = new PermissionsTable();
+        $config = $this->getTableLocator()->exists('Permissions')? [] : ['className' => 'BaserCore\Model\Table\PermissionsTable'];
+        $this->Permission = $this->getTableLocator()->get('Permissions', $config);
     }
 
     /**
@@ -79,10 +79,8 @@ class PermissionsTableTest extends BcTestCase
     {
         $this->assertEquals('permissions', $this->Permission->getTable());
         $this->assertEquals('id', $this->Permission->getPrimaryKey());
-        $this->assertEquals('permissions', $this->PermissionsTable->getTable());
-        $this->assertEquals('id', $this->PermissionsTable->getPrimaryKey());
-        $this->assertTrue($this->PermissionsTable->hasBehavior('Timestamp'));
-        $this->assertEquals('UserGroups', $this->PermissionsTable->getAssociation('UserGroups')->getName());
+        $this->assertTrue($this->Permission->hasBehavior('Timestamp'));
+        $this->assertEquals('UserGroups', $this->Permission->getAssociation('UserGroups')->getName());
 
     }
 
