@@ -30,6 +30,9 @@ class PermissionsTable extends AppTable
      *
      * @param array $config テーブル設定
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function initialize(array $config): void
     {
