@@ -121,7 +121,7 @@ class PermissionsTableTest extends BcTestCase
                 // フィールド
                 [
                     'name' => $maxName . 'a',
-                    'url' => [$maxUrl . 'a']
+                    'url' => ['url' => $maxUrl . 'a']
                 ],
                 // エラーメッセージ
                 [
