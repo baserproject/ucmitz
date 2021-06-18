@@ -196,20 +196,20 @@ class UserGroupsTable extends Table //TODO AppTableに変更必
         $result = $this->save($entity);
         if ($result) {
             // TODO: Permissionのコピー
-            $result['UserGroup']['id'] = $this->getInsertID();
-            if ($recursive) {
-                $permissions = $this->Permission->find('all', [
-                    'conditions' => ['Permission.user_group_id' => $id],
-                    'order' => ['Permission.sort'],
-                    'recursive' => -1
-                ]);
-                if ($permissions) {
-                    foreach($permissions as $permission) {
-                        $permission['Permission']['user_group_id'] = $result['UserGroup']['id'];
-                        $this->Permission->copy(null, $permission);
-                    }
-                }
-            }
+            // $result['UserGroup']['id'] = $this->getInsertID();
+            // if ($recursive) {
+            //     $permissions = $this->Permission->find('all', [
+            //         'conditions' => ['Permission.user_group_id' => $id],
+            //         'order' => ['Permission.sort'],
+            //         'recursive' => -1
+            //     ]);
+            //     if ($permissions) {
+            //         foreach($permissions as $permission) {
+            //             $permission['Permission']['user_group_id'] = $result['UserGroup']['id'];
+            //             $this->Permission->copy(null, $permission);
+            //         }
+            //     }
+            // }
             return $result;
         } else {
             if (!isset($errors['name'])) {
