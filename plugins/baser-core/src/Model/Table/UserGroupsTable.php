@@ -100,6 +100,13 @@ class UserGroupsTable extends Table //TODO AppTableに変更必
             'targetForeignKey' => 'user_id',
             'joinTable' => 'users_user_groups',
         ]);
+        $this->hasMany('Permissions', [
+            'className' => 'BaserCore.Permissions',
+            'order' => 'id',
+            'foreignKey' => 'user_group_id',
+            'dependent' => true,
+            'exclusive' => false,
+        ]);
     }
 
     /**
@@ -163,57 +170,45 @@ class UserGroupsTable extends Table //TODO AppTableに変更必
      *
      * @param int $id ユーザーグループID
      * @param array $data DBに挿入するデータ
-     * @param bool $recursive 関連したPermissionもcopyするかしないか
      * @return mixed UserGroups Or false
      * @throws CopyFailedException When copy failed.
      * @checked
      * @unitTest
      */
-    public function copy($id = null, $data = [], $recursive = true)
+    public function copy($id = null, $data = [])
     {
         if ($id && is_numeric($id)) {
             $data = $this->get($id)->toArray();
         } else {
-            if (!empty($data['id'])) {
+            if ($data['id']) {
                 $id = $data['id'];
             }
         }
         $data['name'] .= '_copy';
         $data['title'] .= '_copy';
 
-        unset($data['id']);
-        unset($data['created']);
-        unset($data['modified']);
+        unset($data['id'], $data['created'], $data['modified']);
 
         $entity = $this->newEntity($data);
-        $errors = $entity->getErrors();
-        if ($errors) {
+        if ($errors = $entity->getErrors()) {
             $exception = new CopyFailedException(__d('baser', '処理に失敗しました。'));
             $exception->setErrors($errors);
             throw $exception;
         }
 
-        $result = $this->save($entity);
-        if ($result) {
-            // TODO: Permissionのコピー
-            // $result['UserGroup']['id'] = $this->getInsertID();
-            // if ($recursive) {
-            //     $permissions = $this->Permission->find('all', [
-            //         'conditions' => ['Permission.user_group_id' => $id],
-            //         'order' => ['Permission.sort'],
-            //         'recursive' => -1
-            //     ]);
-            //     if ($permissions) {
-            //         foreach($permissions as $permission) {
-            //             $permission['Permission']['user_group_id'] = $result['UserGroup']['id'];
-            //             $this->Permission->copy(null, $permission);
-            //         }
-            //     }
-            // }
+        if ($result = $this->save($entity)) {
+            $permissions = $this->Permissions->find()->where(['user_group_id' => $id])->order(['sort'])->all();
+            if ($permissions) {
+                foreach($permissions as $permission) {
+                    $permission->user_group_id = $result->id;
+                    $this->Permissions->copy(null, $permission->toArray());
+                }
+            }
             return $result;
         } else {
-            if (!isset($errors['name'])) {
-                return $this->copy(null, $data, $recursive);
+            // fixme: ??
+            if (is_null($errors['name'])) {
+                return $this->copy(null, $data);
             } else {
                 return false;
             }
