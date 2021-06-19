@@ -18,6 +18,7 @@ use Cake\Validation\Validator;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Model\Table\Exception\CopyFailedException;
 
 /**
  * Class Permission
@@ -79,12 +80,12 @@ class PermissionsTable extends AppTable
         $validator
             ->scalar('url')
             ->maxLength('url', 255, __d('baser', '設定URLは255文字以内で入力してください。'))
-            ->notEmptyString('url', __d('baser', '設定URLを入力してください。'))
-            ->add('url', 'checkUrl', [
-                'rule' => 'checkUrl',
-                'provider' => 'bc',
-                'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]);
-        
+            ->notEmptyString('url', __d('baser', '設定URLを入力してください。'));
+            // ->add('url', 'checkUrl', [
+            //     'rule' => 'checkUrl',
+            //     'provider' => 'bc',
+            //     'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]);
+
         return $validator;
     }
 
@@ -221,32 +222,41 @@ class PermissionsTable extends AppTable
      * @param int $id
      * @param array $data
      * @return mixed UserGroup Or false
+     * @checked
+     * @unitTest
      */
     public function copy($id, $data = [])
     {
         if ($id) {
-            $data = $this->find('first', ['conditions' => ['Permission.id' => $id], 'recursive' => -1]);
+            $data = $this->find()->where(['id' => $id])->first()->toArray();
         }
 
-        if (!isset($data['Permission']['user_group_id']) || !isset($data['Permission']['name'])) {
+        if (is_null($data['user_group_id']) || is_null($data['name'])) {
             return false;
         }
+        $exists = $this->find()->where([
+            'Permissions.user_group_id' => $data['user_group_id'],
+            'Permissions.name' => $data['name'],
+            ])->count();
 
-        if ($this->find('count', ['conditions' => ['Permission.user_group_id' => $data['Permission']['user_group_id'], 'Permission.name' => $data['Permission']['name']]])) {
-            $data['Permission']['name'] .= '_copy';
-            return $this->copy(null, $data); // 再帰処理
+        if ($exists) {
+            $data['name'] .= '_copy';
+            // fix ??
+            return $this->copy(null, $data);
         }
 
-        unset($data['Permission']['id']);
-        unset($data['Permission']['modified']);
-        unset($data['Permission']['created']);
+        unset($data['id'], $data['modified'], $data['created']);
 
-        $data['Permission']['no'] = $this->getMax('no', ['user_group_id' => $data['Permission']['user_group_id']]) + 1;
-        $data['Permission']['sort'] = $this->getMax('sort', ['user_group_id' => $data['Permission']['user_group_id']]) + 1;
-        $this->create($data);
-        $result = $this->save();
-        if ($result) {
-            $result['Permission']['id'] = $this->getInsertID();
+        $data['no'] = $this->getMax('no', ['user_group_id' => $data['user_group_id']]) + 1;
+        $data['sort'] = $this->getMax('sort', ['user_group_id' => $data['user_group_id']]) + 1;
+        $permission = $this->newEntity($data);
+        // TODO: checkメソッドとして実装する
+        if ($errors = $permission->getErrors()) {
+            $exception = new CopyFailedException(__d('baser', '処理に失敗しました。'));
+            $exception->setErrors($errors);
+            throw $exception;
+        }
+        if ($result = $this->save($permission)) {
             return $result;
         } else {
             return false;
