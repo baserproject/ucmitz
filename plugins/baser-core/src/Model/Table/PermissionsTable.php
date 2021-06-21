@@ -226,8 +226,9 @@ class PermissionsTable extends AppTable
      *
      * @param int $id
      * @param array $data
-     * @return mixed UserGroup Or false
+     * @return mixed $permission | false
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function copy($id, $data = [])
@@ -236,36 +237,31 @@ class PermissionsTable extends AppTable
             $data = $this->find()->where(['id' => $id])->first()->toArray();
         }
 
-        if (is_null($data['user_group_id']) || is_null($data['name'])) {
+        if (empty($data['user_group_id']) || empty($data['name'])) {
             return false;
         }
-        $exists = $this->find()->where([
+        // $idが存在する場合アクセス制限コピー
+        $idExists = $this->find()->where([
             'Permissions.user_group_id' => $data['user_group_id'],
             'Permissions.name' => $data['name'],
             ])->count();
 
-        if ($exists) {
+        if ($idExists) {
             $data['name'] .= '_copy';
-            // fix ??
             return $this->copy(null, $data);
         }
-
+        // $idがない場合新規でアクセス制限作成
         unset($data['id'], $data['modified'], $data['created']);
-
+        // 新規の場合
         $data['no'] = $this->getMax('no', ['user_group_id' => $data['user_group_id']]) + 1;
         $data['sort'] = $this->getMax('sort', ['user_group_id' => $data['user_group_id']]) + 1;
         $permission = $this->newEntity($data);
-        // TODO: checkメソッドとして実装する
         if ($errors = $permission->getErrors()) {
             $exception = new CopyFailedException(__d('baser', '処理に失敗しました。'));
             $exception->setErrors($errors);
             throw $exception;
         }
-        if ($result = $this->save($permission)) {
-            return $result;
-        } else {
-            return false;
-        }
+        return ($result = $this->save($permission)) ? $result : false;
     }
 
     /**
