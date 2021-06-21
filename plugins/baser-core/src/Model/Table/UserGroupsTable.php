@@ -172,6 +172,7 @@ class UserGroupsTable extends AppTable
      * @return mixed UserGroups Or false
      * @throws CopyFailedException When copy failed.
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function copy($id = null, $data = [])
@@ -205,12 +206,7 @@ class UserGroupsTable extends AppTable
             }
             return $result;
         } else {
-            // fixme: ??
-            if (is_null($errors['name'])) {
-                return $this->copy(null, $data);
-            } else {
-                return false;
-            }
+            return ($result = $this->save(null, $data)) ? $result : false;
         }
     }
 
