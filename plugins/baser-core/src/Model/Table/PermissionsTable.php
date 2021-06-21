@@ -65,9 +65,14 @@ class PermissionsTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
+        $validator->setProvider('permission', 'BaserCore\Model\Validation\PermissionValidation');
+
         $validator
             ->scalar('name')
             ->maxLength('name', 255,  __d('baser', '設定名は255文字以内で入力してください。'))
@@ -82,7 +87,7 @@ class PermissionsTable extends AppTable
             ->notEmptyString('url', __d('baser', '設定URLを入力してください。'))
             ->add('url', 'checkUrl', [
                 'rule' => 'checkUrl',
-                'provider' => 'bc',
+                'provider' => 'permission',
                 'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]);
         
         return $validator;

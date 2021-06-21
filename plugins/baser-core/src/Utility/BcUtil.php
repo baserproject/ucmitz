@@ -189,6 +189,32 @@ class BcUtil
     }
 
     /**
+     * baserCore用のプレフィックスを取得する
+     *
+     * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public static function getBaserCorePrefix()
+    {
+        return Configure::read('BcApp.baserCorePrefix');
+    }
+
+    /**
+     * プレフィックス全体を取得する
+     *
+     * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public static function getPrefix()
+    {
+        return self::getBaserCorePrefix() . self::getAdminPrefix();
+    }
+
+    /**
      * 利用可能なプラグインのリストを取得する
      *
      * ClassRegistry::removeObject('Plugin'); で一旦 Plugin オブジェクトを削除
@@ -565,14 +591,12 @@ class BcUtil
      *
      * @return bool
      * @checked
+     * @noTodo
      * @unitTest
      */
     public static function isConsole()
     {
-        // TODO isConsoleのCAKEPHP_SHELLが非推奨&&未定義のため代替措置
-        // return defined('CAKEPHP_SHELL') && CAKEPHP_SHELL;
         return substr(php_sapi_name(), 0, 3) == 'cli';
-
     }
 
     /**
