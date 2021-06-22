@@ -168,28 +168,24 @@ class UserGroupsTable extends AppTable
      * ユーザーグループデータをコピーする
      *
      * @param int $id ユーザーグループID
-     * @param array $data DBに挿入するデータ
-     * @return mixed UserGroups Or false
+     * @return EntityInterface|false
      * @throws CopyFailedException When copy failed.
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function copy($id = null, $data = [])
+    public function copy($id)
     {
-        if ($id && is_numeric($id)) {
-            $data = $this->get($id)->toArray();
-        } else {
-            if ($data['id']) {
-                $id = $data['id'];
-            }
-        }
-        $data['name'] .= '_copy';
-        $data['title'] .= '_copy';
+        if (is_numeric($id)) {
+            $userGroup = $this->get($id);
+        } 
 
-        unset($data['id'], $data['created'], $data['modified']);
+        $userGroup->name .= '_copy';
+        $userGroup->title .= '_copy';
 
-        $entity = $this->newEntity($data);
+        unset($userGroup->id, $userGroup->created, $userGroup->modified);
+
+        $entity = $this->newEntity($userGroup->toArray());
         if ($errors = $entity->getErrors()) {
             $exception = new CopyFailedException(__d('baser', '処理に失敗しました。'));
             $exception->setErrors($errors);
@@ -205,8 +201,6 @@ class UserGroupsTable extends AppTable
                 }
             }
             return $result;
-        } else {
-            return ($result = $this->save(null, $data)) ? $result : false;
         }
     }
 
