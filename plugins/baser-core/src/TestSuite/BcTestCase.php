@@ -84,6 +84,7 @@ class BcTestCase extends TestCase
     public function tearDown(): void
     {
         BcContainer::clear();
+        parent::tearDown();
     }
 
     /**
