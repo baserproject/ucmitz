@@ -64,7 +64,7 @@ class CreatePermissions extends AbstractMigration
         ]);
         $table->addColumn('modified', 'datetime', [
             'default' => null,
-            'null' => false,
+            'null' => true,
         ]);
         $table->addPrimaryKey([
             'id',
