@@ -12,8 +12,8 @@
 namespace BaserCore\Service;
 
 use BaserCore\Model\Entity\Permission;
-use Cake\Datasource\EntityInterface;
 use Cake\Http\ServerRequest;
+use Cake\Datasource\EntityInterface;
 use Cake\ORM\Query;
 /**
  * Interface PermissionsServiceInterface
@@ -23,15 +23,15 @@ interface PermissionsServiceInterface
 {
 
     /**
-     * ユーザーを取得する
+     * サイトを取得する
      * @param int $id
      * @return EntityInterface
      */
     public function get($id): EntityInterface;
 
     /**
-     * ユーザー一覧を取得
-     * @param ServerRequest $request
+     * サイト一覧を取得
+     * @param array $queryParams
      * @return Query
      */
     public function getIndex(ServerRequest $request, $userGroupId): Query;
@@ -52,10 +52,10 @@ interface PermissionsServiceInterface
     /**
      * 編集する
      * @param EntityInterface $target
-     * @param ServerRequest $request
+     * @param array $postData
      * @return mixed
      */
-    public function update(EntityInterface $target, ServerRequest $request);
+    public function update(EntityInterface $target, array $postData);
 
     /**
      * 削除する
