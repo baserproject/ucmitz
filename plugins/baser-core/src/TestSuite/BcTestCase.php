@@ -12,10 +12,16 @@
 namespace BaserCore\TestSuite;
 
 use App\Application;
+use Authentication\AuthenticationService;
+use Authentication\Authenticator\Result;
 use BaserCore\Event\BcControllerEventListener;
 use BaserCore\Plugin;
+use BaserCore\Service\Api\UserApiService;
+use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
+use Cake\Http\BaseApplication;
+use Cake\Http\Response;
 use Cake\Http\ServerRequest;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
@@ -25,6 +31,9 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use Cake\Utility\Inflector;
+use ReflectionClass;
+use BaserCore\Utility\BcContainer;
+use BaserCore\ServiceProvider\BcServiceProvider;
 
 /**
  * Class BcTestCase
@@ -39,6 +48,16 @@ class BcTestCase extends TestCase
     use IntegrationTestTrait;
 
     /**
+     * @var Application
+     */
+    public $Application;
+
+    /**
+     * @var Plugin
+     */
+    public $BaserCore;
+
+    /**
      * Set Up
      * @checked
      * @noTodo
@@ -46,13 +65,26 @@ class BcTestCase extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        $application = new Application(CONFIG);
-        $application->bootstrap();
+        $this->Application = new Application(CONFIG);
+        $this->Application->bootstrap();
+        $this->Application->getContainer();
         $builder = Router::createRouteBuilder('/');
-        $application->routes($builder);
-        $plugin = new Plugin();
-        $plugin->bootstrap($application);
-        $plugin->routes($builder);
+        $this->Application->routes($builder);
+        $this->BaserCore = new Plugin();
+        $this->BaserCore->bootstrap($this->Application);
+        $this->BaserCore->routes($builder);
+        $container = BcContainer::get();
+        $container->addServiceProvider(new BcServiceProvider());
+    }
+    /**
+     * Tear Down
+     * @checked
+     * @noTodo
+     */
+    public function tearDown(): void
+    {
+        BcContainer::clear();
+        parent::tearDown();
     }
 
     /**
@@ -61,13 +93,24 @@ class BcTestCase extends TestCase
      * @param string $url
      * @return ServerRequest
      * @checked
+     * @unitTest
      * @noTodo
      */
-    public function getRequest($url = '/')
+    public function getRequest($url = '/', $data = [], $method = 'GET')
     {
-        $request = new ServerRequest(['url' => $url]);
+        $config = [
+            'url' => $url,
+            'environment' => [
+                'REQUEST_METHOD' => $method
+            ]];
+        $request = new ServerRequest($config);
         $params = Router::parseRequest($request);
         $request = $request->withAttribute('params', $params);
+        if ($data) {
+            $request = $request->withParsedBody($data);
+        }
+        $authentication = $this->BaserCore->getAuthenticationService($request);
+        $request = $request->withAttribute('authentication', $authentication);
         Router::setRequest($request);
         return $request;
     }
@@ -77,6 +120,7 @@ class BcTestCase extends TestCase
      *
      * @param string $group
      * @checked
+     * @unitTest
      * @noTodo
      */
     protected function getUser($id = 1)
@@ -93,20 +137,43 @@ class BcTestCase extends TestCase
      * 管理画面にログインする
      *
      * @param string $group
-     * @return array $user
+     * @return ServerRequest
      * @checked
+     * @unitTest
      * @noTodo
      */
-    protected function loginAdmin($id = 1)
+    protected function loginAdmin(ServerRequest $request, $id = 1)
     {
         $sessionKey = Configure::read('BcPrefixAuth.Admin.sessionKey');
         $user = $this->getUser($id);
         $this->session([$sessionKey => $user]);
-        // IntegrationTestTrait が提供するsession だけでは、テスト中に取得できないテストがあったため
-        // request から取得する session でも書き込むようにした
-        $session = $this->getRequest()->getSession();
-        $session->write($sessionKey, $user);
-        return $user;
+        $authentication = $request->getAttribute('authentication');
+        if(!$authentication) {
+            $authentication = $this->getAuthenticationService($request);
+            $request = $request->withAttribute('authentication', $authentication);
+        }
+        $reflectionClass = new ReflectionClass($authentication);
+        $result = $reflectionClass->getProperty('_result');
+        $result->setAccessible(true);
+        $result->setValue($authentication, new Result($user, Result::SUCCESS));
+        $request = $authentication->persistIdentity($request, new Response, $user)['request'];
+        return $request;
+    }
+
+    /**
+     * Api Login
+     * @param int $id
+     * @return array
+     */
+    protected function apiLoginAdmin($id = 1)
+    {
+        $userApi = new UserApiService();
+        $user = $this->getUser($id);
+        if($user) {
+            return $userApi->getAccessToken(new Result($this->getUser($id), Result::SUCCESS));
+        } else {
+            return [];
+        }
     }
 
     /**
@@ -132,6 +199,25 @@ class BcTestCase extends TestCase
             ->willReturn($this->returnCallback($callback));
         EventManager::instance()->on($listener);
         return $listener;
+    }
+
+    /**
+     * private・protectedメソッドを実行する
+     * @param object $class 対象クラス
+     * @param string $method 対象メソッド
+     * @param array $args 対象メソッドに必要な引数
+     * @return mixed $value
+     * @checked
+     * @unitTest
+     * @noTodo
+     */
+    protected function execPrivateMethod(object $class, string $method, array $args = [])
+    {
+        $ref = new ReflectionClass($class);
+        $method = $ref->getMethod($method);
+        $method->setAccessible(true);
+        $value = $method->invokeArgs($class, $args);
+        return $value;
     }
 
 }

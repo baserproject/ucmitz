@@ -17,8 +17,10 @@ use BaserCore\Annotation\Checked;
  * bootstrap
  *
  * @checked
+ * @unitTest
  */
 
+use BaserCore\Event\BcContainerEventListener;
 use BaserCore\Event\BcControllerEventDispatcher;
 use BaserCore\Event\BcModelEventDispatcher;
 use BaserCore\Event\BcViewEventDispatcher;
@@ -57,6 +59,8 @@ $event = EventManager::instance();
 $event->on(new BcControllerEventDispatcher());
 $event->on(new BcModelEventDispatcher());
 $event->on(new BcViewEventDispatcher());
+$event->on(new BcContainerEventListener());
+
 // TODO 未実装
 // >>>
 //$event->on(new PagesControllerEventListener());

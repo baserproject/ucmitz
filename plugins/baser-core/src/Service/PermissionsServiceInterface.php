@@ -1,9 +1,9 @@
 <?php
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Permission Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright     Copyright (c) baserCMS Permission Community
+ * @copyright     Copyright (c) baserCMS User Community
  * @link          https://basercms.net baserCMS Project
  * @since         5.0.0
  * @license       http://basercms.net/license/index.html MIT License
@@ -15,7 +15,6 @@ use BaserCore\Model\Entity\Permission;
 use Cake\Datasource\EntityInterface;
 use Cake\Http\ServerRequest;
 use Cake\ORM\Query;
-
 /**
  * Interface PermissionsServiceInterface
  * @package BaserCore\Service
@@ -65,10 +64,17 @@ interface PermissionsServiceInterface
      */
     public function delete(int $id);
 
-    /**
-     * 許可・拒否を指定するメソッドのリストを取得
-     * @return array
-     */
-    public function getMethodList(): array;
+    // /**
+    //  * 許可・拒否を指定するメソッドのリストを取得
+    //  * @return array
+    //  */
+    // public function getMethodList(): array;
 
+    // /**
+    //  * URLの権限チェックを行う
+    //  * @param string $url
+    //  * @param array $userGroupId
+    //  * @return bool
+    //  */
+    // public function check($url, $userGroupId): bool;
 }

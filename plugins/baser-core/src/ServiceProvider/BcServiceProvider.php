@@ -11,16 +11,26 @@
 
 namespace BaserCore\ServiceProvider;
 
-use BaserCore\Service\UserManageService;
-use BaserCore\Service\UserManageServiceInterface;
+use BaserCore\Service\Admin\PluginManageService;
+use BaserCore\Service\Admin\UserGroupManageService;
+use BaserCore\Service\Admin\UserManageService;
+use BaserCore\Service\Api\UserApiService;
+use BaserCore\Service\Api\UserApiServiceInterface;
+use BaserCore\Service\SiteConfigsMockService;
+use BaserCore\Service\SiteConfigsServiceInterface;
+use BaserCore\Service\Admin\UserManageServiceInterface;
 use BaserCore\Service\UsersService;
 use BaserCore\Service\UsersServiceInterface;
-use BaserCore\Service\UserGroupManageService;
-use BaserCore\Service\UserGroupManageServiceInterface;
+use BaserCore\Service\Admin\UserGroupManageServiceInterface;
 use BaserCore\Service\UserGroupsService;
 use BaserCore\Service\UserGroupsServiceInterface;
 use BaserCore\Service\PermissionsServiceInterface;
 use BaserCore\Service\PermissionsService;
+use BaserCore\Service\PluginsServiceInterface;
+use BaserCore\Service\PluginsService;
+use BaserCore\Service\DblogsServiceInterface;
+use BaserCore\Service\DblogsService;
+use BaserCore\Service\Admin\PluginManageServiceInterface;
 use Cake\Core\ServiceProvider;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -40,9 +50,14 @@ class BcServiceProvider extends ServiceProvider
     protected $provides = [
         UsersServiceInterface::class,
         UserManageServiceInterface::class,
+        UserApiServiceInterface::class,
         UserGroupsServiceInterface::class,
         UserGroupManageServiceInterface::class,
+        PluginsServiceInterface::class,
+        PluginManageServiceInterface::class,
+        SiteConfigsServiceInterface::class,
         PermissionsServiceInterface::class,
+        DblogsServiceInterface::class,
     ];
 
     /**
@@ -57,10 +72,20 @@ class BcServiceProvider extends ServiceProvider
         // Usersサービス
         $container->add(UsersServiceInterface::class, UsersService::class);
         $container->add(UserManageServiceInterface::class, UserManageService::class);
+        $container->add(UserApiServiceInterface::class, UserApiService::class);
         // UserGroupsサービス
-        $container->add(UserGroupsServiceInterface::class, UserGroupsService::class);
-        $container->add(UserGroupManageServiceInterface::class, UserGroupManageService::class);
-
+        $container->add(UserGroupsServiceInterface::class, UserGroupsService::class, true);
+        $container->add(UserGroupManageServiceInterface::class, UserGroupManageService::class, true);
+        // Pluginsサービス
+        $container->add(PluginsServiceInterface::class, PluginsService::class, true);
+        $container->add(PluginManageServiceInterface::class, PluginManageService::class, true);
+        // SiteConfigsサービス
+        // TODO 未実装のためモックを利用
+        $container->add(SiteConfigsServiceInterface::class, SiteConfigsMockService::class, true);
+        // Permissionsサービス
         $container->add(PermissionsServiceInterface::class, PermissionsService::class);
+        // Dblogsサービス
+        $container->add(DblogsServiceInterface::class, DblogsService::class, true);
     }
+
 }

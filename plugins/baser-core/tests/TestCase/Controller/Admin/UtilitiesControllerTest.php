@@ -23,13 +23,26 @@ use BaserCore\Controller\Admin\UtilitiesController;
 class UtilitiesControllerTest extends BcTestCase
 {
     use IntegrationTestTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
+    ];
+
     /**
      * set up
      */
     public function setUp(): void
     {
         parent::setUp();
-        $this->UtilitiesController = new UtilitiesController();
+        $request = $this->getRequest();
+        $this->loginAdmin($request);
     }
 
     /**

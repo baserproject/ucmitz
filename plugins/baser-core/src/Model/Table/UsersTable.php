@@ -242,6 +242,7 @@ class UsersTable extends Table
     public function validationNew(Validator $validator): Validator
     {
         $this->validationDefault($validator)
+            ->requirePresence('password', 'create', __d('baser', 'パスワードを入力してください。'))
             ->notEmptyString('password', __d('baser', 'パスワードを入力してください。'));
         return $validator;
     }
@@ -251,6 +252,7 @@ class UsersTable extends Table
      * @param Validator $validator
      * @return Validator
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function validationPasswordUpdate(Validator $validator): Validator
@@ -300,22 +302,6 @@ class UsersTable extends Table
         } else {
             return null;
         }
-    }
-
-    /**
-     * ログイン時のユーザデータを取得する
-     *
-     * @param [type] $id
-     * @return User
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function getLoginFormatData($id): User
-    {
-        return $this->get($id, [
-            'contain' => ['UserGroups'],
-        ]);
     }
 
     /**
@@ -413,6 +399,16 @@ class UsersTable extends Table
     public function deleteFavorites($userId)
     {
         return $this->Favorite->deleteAll(['Favorite.user_id' => $userId], false);
+    }
+
+    /**
+     * 利用可能なユーザーを取得する
+     * @param Query $query
+     * @return Query
+     */
+    public function findAvailable(Query $query)
+    {
+        return $query->where(['status' => true])->contain('UserGroups');
     }
 
 }

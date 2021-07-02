@@ -85,19 +85,19 @@ class UsersServiceTest extends BcTestCase
     {
         $request = $this->getRequest('/');
 
-        $users = $this->Users->getIndex($request);
+        $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals('baser admin', $users->first()->name);
 
         $request = $this->getRequest('/?user_group_id=2');
-        $users = $this->Users->getIndex($request);
+        $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals('baser operator', $users->first()->name);
 
         $request = $this->getRequest('/?num=1');
-        $users = $this->Users->getIndex($request);
+        $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals(1, $users->all()->count());
 
         $request = $this->getRequest('/?name=baser');
-        $users = $this->Users->getIndex($request);
+        $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals(2, $users->all()->count());
     }
 
@@ -115,9 +115,10 @@ class UsersServiceTest extends BcTestCase
             'password_1' => 'aaaaaaaaaaaaaa',
             'password_2' => 'aaaaaaaaaaaaaa'
         ]);
-        $this->Users->create($request);
+        $request = $request->withData('password', $request->getData('password_1'));
+        $this->Users->create($request->getData());
         $request = $this->getRequest('/?name=ucmitz');
-        $users = $this->Users->getIndex($request);
+        $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals(1, $users->all()->count());
     }
 
@@ -131,9 +132,9 @@ class UsersServiceTest extends BcTestCase
             'name' => 'ucmitz',
         ]);
         $user = $this->Users->get(1);
-        $this->Users->update($user, $request);
+        $this->Users->update($user, $request->getData());
         $request = $this->getRequest('/?name=ucmitz');
-        $users = $this->Users->getIndex($request);
+        $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals(1, $users->all()->count());
     }
 
@@ -144,7 +145,7 @@ class UsersServiceTest extends BcTestCase
     {
         $this->Users->delete(2);
         $request = $this->getRequest('/');
-        $users = $this->Users->getIndex($request);
+        $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals(1, $users->all()->count());
     }
 
@@ -155,16 +156,6 @@ class UsersServiceTest extends BcTestCase
     {
         $this->expectException("Cake\Core\Exception\Exception");
         $this->Users->delete(1);
-    }
-
-    /**
-     * Test isAdmin
-     */
-    public function testIsAdmin()
-    {
-        $request = $this->getRequest('/?user_group_id=2');
-        $users = $this->Users->getIndex($request);
-        $this->assertFalse($this->Users->isAdmin($users->first()));
     }
 
 }

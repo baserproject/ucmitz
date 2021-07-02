@@ -69,7 +69,7 @@ class BcUtilTest extends BcTestCase
     public function testLoginUser($isLogin, $expects): void
     {
         if ($isLogin) {
-            $this->loginAdmin();
+            $this->loginAdmin($this->getRequest());
         }
         $result = BcUtil::loginUser();
         if ($result) {
@@ -96,7 +96,7 @@ class BcUtilTest extends BcTestCase
     public function testIsSuperUser($id, $expects): void
     {
         if ($id) {
-            $this->loginAdmin($id);
+            $this->loginAdmin($this->getRequest(), $id);
         }
         $result = BcUtil::isSuperUser();
         $this->assertEquals($expects, $result);
@@ -123,7 +123,7 @@ class BcUtilTest extends BcTestCase
     {
 
         if ($id) {
-            $user = $this->loginAdmin($id);
+            $user = $this->loginAdmin($this->getRequest(), $id);
             $session = $this->request->getSession();
             $session->write('AuthAgent.User', $user);
         }
@@ -215,7 +215,7 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetEnablePlugins(): void
     {
-        $expects = ['BcBlog', 'BcMail', 'BcUploader'];
+        $expects = ['BcBlog', 'BcMail'];
         $result = BcUtil::getEnablePlugins();
         foreach($result as $key => $value) {
             $result[$key] = $value->name;
@@ -598,7 +598,8 @@ class BcUtilTest extends BcTestCase
      */
     public function testIsConsole()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // テストはCliから実行するためtrue
+        $this->assertTrue(BcUtil::isConsole());
     }
 
     /**
@@ -691,7 +692,28 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetAdminPrefix()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $result = BcUtil::getAdminPrefix();
+        $this->assertEquals('/admin', $result);
+    }
+
+    /**
+     * 
+     * baserコア用のプレフィックスを取得する
+     */
+    public function testGetBaserCorePrefix()
+    {
+        $result = BcUtil::getBaserCorePrefix();
+        $this->assertEquals('/baser', $result);
+    }
+
+    /**
+     * 
+     * プレフィックス全体を取得する
+     */
+    public function testGetPrefix()
+    {
+        $result = BcUtil::getPrefix();
+        $this->assertEquals('/baser/admin', $result);
     }
 
 

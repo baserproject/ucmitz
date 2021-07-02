@@ -13,13 +13,13 @@ namespace BaserCore\Service;
 
 use BaserCore\Model\Entity\UserGroup;
 use BaserCore\Model\Table\UserGroupsTable;
-use Cake\Http\ServerRequest;
 use Cake\ORM\TableRegistry;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\Query;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use Cake\Core\Configure;
 
 /**
  * Class UserGroupsService
@@ -59,6 +59,20 @@ class UserGroupsService implements UserGroupsServiceInterface
     }
 
     /**
+     * ユーザーグループの新規データ用の初期値を含んだエンティティを取得する
+     * @return UserGroup
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getNew(): UserGroup
+    {
+        return $this->UserGroups->newEntity([
+            'auth_prefix' => 'Admin',
+        ]);
+    }
+
+    /**
      * ユーザーグループ全件取得する
      * @param array $options
      * @return Query
@@ -73,34 +87,32 @@ class UserGroupsService implements UserGroupsServiceInterface
 
     /**
      * ユーザーグループ登録
-     * @param ServerRequest $request
-     * @return \Cake\Datasource\EntityInterface|false
+     * @param array $postData
+     * @return \Cake\Datasource\EntityInterface
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function create(ServerRequest $request)
+    public function create(array $postData)
     {
+        $postData['auth_prefix'] = isset($postData['auth_prefix']) ? implode(',', $postData['auth_prefix']) : "Admin";
         $userGroup = $this->UserGroups->newEmptyEntity();
-        $authPrefix = $request->getData('auth_prefix');
-        $request = $request->withData('auth_prefix', !$authPrefix ? 'Admin' : implode(',', $authPrefix));
-        $userGroup = $this->UserGroups->patchEntity($userGroup, $request->getData());
-        return $this->UserGroups->save($userGroup);
+        $userGroup = $this->UserGroups->patchEntity($userGroup, $postData);
+        return ($result = $this->UserGroups->save($userGroup))? $result : $userGroup;
     }
 
     /**
      * ユーザーグループ情報を更新する
      * @param EntityInterface $target
-     * @param ServerRequest $request
-     * @return EntityInterface|false
+     * @param array $postData     * @return EntityInterface
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function update(EntityInterface $target, ServerRequest $request)
+    public function update(EntityInterface $target, array $postData)
     {
-        $userGroup = $this->UserGroups->patchEntity($target, $request->getData());
-        return $this->UserGroups->save($userGroup);
+        $userGroup = $this->UserGroups->patchEntity($target, $postData);
+        return ($result = $this->UserGroups->save($userGroup))? $result : $userGroup;
     }
 
     /**
@@ -116,4 +128,14 @@ class UserGroupsService implements UserGroupsServiceInterface
         $userGroup = $this->UserGroups->get($id);
         return $this->UserGroups->delete($userGroup);
     }
+
+    /**
+     * リストを取得する
+     * @return array
+     */
+    public function list(): array
+    {
+        return $this->UserGroups->find('list', ['keyField' => 'id', 'valueField' => 'title'])->toArray();
+    }
+
 }

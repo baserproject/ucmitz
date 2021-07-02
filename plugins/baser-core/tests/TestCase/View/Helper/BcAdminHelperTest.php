@@ -12,6 +12,7 @@
 namespace BaserCore\Test\TestCase\View\Helper;
 
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Core\Configure;
 use BaserCore\View\BcAdminAppView;
 use BaserCore\View\Helper\BcAdminHelper;
 
@@ -32,7 +33,7 @@ class BcAdminHelperTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
     ];
 
-   /**
+    /**
      * setUp method
      *
      * @return void
@@ -45,16 +46,17 @@ class BcAdminHelperTest extends BcTestCase
         $this->BcAdmin = new BcAdminHelper($BcAdminAppView);
     }
 
-	/**
-	 * tearDown method
-	 *
-	 * @return void
-	 */
-	public function tearDown() : void
-	{
-		unset($this->BcAdmin);
-		parent::tearDown();
-	}
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->BcAdmin);
+        parent::tearDown();
+    }
+
     /**
      * Test isAvailableSideBar
      *
@@ -163,7 +165,8 @@ class BcAdminHelperTest extends BcTestCase
      * Test search
      * @return void
      */
-    public function testSearch() {
+    public function testSearch()
+    {
         $this->BcAdmin->getView()->setRequest($this->getRequest('/baser/admin'));
         $this->loadRoutes();
         ob_start();
@@ -176,6 +179,55 @@ class BcAdminHelperTest extends BcTestCase
         $this->BcAdmin->search();
         $actual = ob_get_clean();
         $this->assertRegExp('/class="bca-search">(.*)<form/s', $actual);
+    }
+
+    /**
+     * Test getAdminMenuGroups
+     * @return void
+     */
+    public function testGetAdminMenuGroups(): void
+    {
+        $adminMenuGroups = $this->execPrivateMethod($this->BcAdmin, 'getAdminMenuGroups');
+        // それぞれのメニューキーを持つか
+        $this->assertArrayHasKey('Dashboard', $adminMenuGroups);
+        $this->assertArrayHasKey('Users', $adminMenuGroups);
+        $this->assertArrayHasKey('Plugin', $adminMenuGroups);
+        // adminNavigationがない場合
+        Configure::write('BcApp.adminNavigation', null);
+        $adminMenuGroups = $this->execPrivateMethod($this->BcAdmin, 'getAdminMenuGroups');
+        $this->assertFalse($adminMenuGroups);
+    }
+
+    /**
+     * Test convertAdminMenuGroups
+     * @return void
+     */
+    public function testConvertAdminMenuGroups(): void
+    {
+        // $adminMenuGroups = $this->BcAdmin->getAdminMenuGroups();
+        // $covertedAdminMenuGroups = $this->BcAdmin->convertAdminMenuGroups($adminMenuGroups);
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    /**
+     * Test getJsonMenu
+     * @return void
+     */
+    public function testGetJsonMenu(): void
+    {
+        $jsonMenu = json_decode($this->BcAdmin->getJsonMenu());
+        // $currentSiteIdのテスト
+        $this->assertEquals($jsonMenu->currentSiteId, "0");
+        // $adminMenuGroupsの取得
+        $adminMenuGroups = $this->execPrivateMethod($this->BcAdmin, 'getAdminMenuGroups');
+        // $menuListに項目が入ってるかテスト
+        foreach($jsonMenu->menuList as $menuList) {
+            $this->assertContains($menuList->name, array_keys($adminMenuGroups));
+        }
+        // adminNavigationがnullの場合 nullが返る
+        Configure::write('BcApp.adminNavigation', null);
+        $this->assertNull(json_decode($this->BcAdmin->getJsonMenu()));
+
     }
 
     /**
@@ -233,17 +285,30 @@ class BcAdminHelperTest extends BcTestCase
         $this->assertEquals($expectedIsHelpIsLogin, $actualIsHelpIsLogin);
     }
 
-	/**
-	 * 管理システムグローバルメニューの利用可否確認
-	 *
-	 * @param mixed $admin request->params['admin']の値
-	 * @param int $groupId ユーザーグループID
-	 * @param boolean $expected 期待値
-	 * @param string $message テストが失敗した場合に表示されるメッセージ
-	 * @dataProvider isAdminGlobalmenuUsedDataProvider
-	 */
-	public function testIsAdminGlobalmenuUsed($admin, $groupId, $expected, $message = null)
-	{
+    /**
+     * Test addAdminMainBodyHeaderLinks
+     *
+     * @return void
+     */
+    public function testAddAdminMainBodyHeaderLinks(): void
+    {
+        $expected = ['url' => 'test', 'confirm' => 'confirm message', 'something attributes' => 'attr value'];
+        $this->BcAdmin->addAdminMainBodyHeaderLinks($expected);
+        $result = $this->BcAdmin->getView()->get('mainBodyHeaderLinks');
+        $this->assertEquals($expected, array_pop($result));
+    }
+
+    /**
+     * 管理システムグローバルメニューの利用可否確認
+     *
+     * @param mixed $admin request->params['admin']の値
+     * @param int $groupId ユーザーグループID
+     * @param boolean $expected 期待値
+     * @param string $message テストが失敗した場合に表示されるメッセージ
+     * @dataProvider isAdminGlobalmenuUsedDataProvider
+     */
+    public function testIsAdminGlobalmenuUsed($admin, $groupId, $expected, $message = null)
+    {
         $this->markTestIncomplete('Not implemented yet.');
         // TODO : 要コード確認
         /* >>>
@@ -255,51 +320,51 @@ class BcAdminHelperTest extends BcTestCase
 		$result = $this->BcAdmin->isAdminGlobalmenuUsed();
 		$this->assertEquals($expected, $result, $message);
         <<< */
-	}
+    }
 
-	public function isAdminGlobalmenuUsedDataProvider()
-	{
-		return [
-			['', null, false, '管理システムグローバルメニューの利用可否確認が正しくありません'],
-			[1, null, false, '管理システムグローバルメニューの利用可否確認が正しくありません'],
-			['', 1, true, '管理システムグローバルメニューの利用可否確認が正しくありません'],
-			['1', 1, true, '管理ユーザーの管理システムグローバルメニューの利用可否確認が正しくありません'],
-			['1', 2, 0, '運営ユーザーの管理システムグローバルメニューの利用可否確認が正しくありません'],
-		];
-	}
+    public function isAdminGlobalmenuUsedDataProvider()
+    {
+        return [
+            ['', null, false, '管理システムグローバルメニューの利用可否確認が正しくありません'],
+            [1, null, false, '管理システムグローバルメニューの利用可否確認が正しくありません'],
+            ['', 1, true, '管理システムグローバルメニューの利用可否確認が正しくありません'],
+            ['1', 1, true, '管理ユーザーの管理システムグローバルメニューの利用可否確認が正しくありません'],
+            ['1', 2, 0, '運営ユーザーの管理システムグローバルメニューの利用可否確認が正しくありません'],
+        ];
+    }
 
-	/**
-	 * testIsSystemAdmin method
-	 *
-	 * @param mixed $admin request->params['admin']の値
-	 * @param int $groupId ユーザーグループID
-	 * @param boolean $expected 期待値
-	 * @param string $message テストが失敗した場合に表示されるメッセージ
-	 * @dataProvider isSystemAdminDataProvider
-	 */
-	public function testIsSystemAdmin($admin, $groupId, $expected, $message = null)
-	{
-	    $this->markTestIncomplete('Not implemented yet.');
-	    // TODO : 要コード確認
-	    /* >>>
-		$this->BcAdmin->request = $this->BcAdmin->request->withParam('admin',  $admin);
-		$this->BcAdmin->_View->viewVars['user'] = [
-			'user_group_id' => $groupId
-		];
+    /**
+     * testIsSystemAdmin method
+     *
+     * @param mixed $admin request->params['admin']の値
+     * @param int $groupId ユーザーグループID
+     * @param boolean $expected 期待値
+     * @param string $message テストが失敗した場合に表示されるメッセージ
+     * @dataProvider isSystemAdminDataProvider
+     */
+    public function testIsSystemAdmin($admin, $groupId, $expected, $message = null)
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+        // TODO : 要コード確認
+        /* >>>
+        $this->BcAdmin->request = $this->BcAdmin->request->withParam('admin',  $admin);
+        $this->BcAdmin->_View->viewVars['user'] = [
+            'user_group_id' => $groupId
+        ];
 
-		$result = $this->BcAdmin->isSystemAdmin();
-		$this->assertEquals($expected, $result, $message);
-	    <<< */
-	}
+        $result = $this->BcAdmin->isSystemAdmin();
+        $this->assertEquals($expected, $result, $message);
+        <<< */
+    }
 
-	public function isSystemAdminDataProvider()
-	{
-		return [
-			['', null, false, 'ログインユーザーのシステム管理者チェックが正しくありません'],
-			[1, null, false, 'ログインユーザーのシステム管理者チェックが正しくありません'],
-			['', 1, false, 'ログインユーザーのシステム管理者チェックが正しくありません'],
-			['1', 1, true, '管理ユーザーのシステム管理者チェックが正しくありません'],
-			['1', 2, false, '運営ユーザーのシステム管理者チェックが正しくありません'],
-		];
-	}
+    public function isSystemAdminDataProvider()
+    {
+        return [
+            ['', null, false, 'ログインユーザーのシステム管理者チェックが正しくありません'],
+            [1, null, false, 'ログインユーザーのシステム管理者チェックが正しくありません'],
+            ['', 1, false, 'ログインユーザーのシステム管理者チェックが正しくありません'],
+            ['1', 1, true, '管理ユーザーのシステム管理者チェックが正しくありません'],
+            ['1', 2, false, '運営ユーザーのシステム管理者チェックが正しくありません'],
+        ];
+    }
 }

@@ -12,6 +12,8 @@
 namespace BaserCore\Controller\Admin;
 
 use BaserCore\Controller\BcAppController;
+use BaserCore\Service\Admin\UserManageServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Routing\Router;
@@ -21,12 +23,19 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Utility\BcUtil;
 use Cake\Http\Exception\NotFoundException;
+
 /**
  * Class BcAdminAppController
  * @package BaserCore\Controller\Admin
  */
 class BcAdminAppController extends BcAppController
 {
+
+    /**
+     * BcContainerTrait
+     */
+    use BcContainerTrait;
+
     /**
      * Initialize
      * @checked
@@ -39,7 +48,8 @@ class BcAdminAppController extends BcAppController
         $this->loadComponent('Authentication.Authentication', [
             'logoutRedirect' => Router::url(Configure::read('BcPrefixAuth.Admin.loginAction'), true),
         ]);
-        $this->checkAutoLogin();
+        $userManage = $this->getService(UserManageServiceInterface::class);
+        $this->response = $userManage->checkAutoLogin($this->request, $this->response);
     }
 
     /**
@@ -198,7 +208,7 @@ class BcAdminAppController extends BcAppController
      */
     public function beforeRender(EventInterface $event): void
     {
-        if(!isset($this->RequestHandler) || !$this->RequestHandler->prefers('json')) {
+        if (!isset($this->RequestHandler) || !$this->RequestHandler->prefers('json')) {
             $this->viewBuilder()->setClassName('BaserCore.BcAdminApp');
         }
         $this->viewBuilder()->setTheme('BcAdminThird');

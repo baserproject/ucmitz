@@ -7,7 +7,7 @@ ucmitz では、[CakePHPのテストの仕組み](https://book.cakephp.org/4/ja/
 事前にコンテナにログインし Composer で、PHPUnit などをインストールしておく必要があります。
 
 ```shell
-composeer install
+composer install
 ```
 
 　
@@ -54,8 +54,7 @@ class BcTestHelperTest extends BaserCore\TestSuite\BcTestCase {
 ### プライベートメソッドに対するテスト
 
 プライベートメソッドに対するテストはパブリックメソッド経由で行うものとします。
-
-　
+ただ、パブリックメソッドで担保できない場合はプライベートメソッドのテストを書くことを推奨します。
 ## テストの実行
 
 テストを実行するには、事前にコンテナにログインし次のコマンドを実行します。

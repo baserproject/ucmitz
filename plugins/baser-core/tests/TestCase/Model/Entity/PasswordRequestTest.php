@@ -51,7 +51,7 @@ class PasswordRequestTest extends BcTestCase
     /**
      * Test setRequestKey
      */
-    public function testRequestKey()
+    public function testSetRequestKey()
     {
         $this->PasswordRequest->setRequestKey();
         $requestKey1 = $this->PasswordRequest->request_key;
@@ -61,6 +61,15 @@ class PasswordRequestTest extends BcTestCase
         $this->assertNotEquals($requestKey1, $requestKey2);
         $this->assertIsString($requestKey1);
         $this->assertGreaterThan(40, strlen($requestKey1));
+    }
+
+    /**
+     * Test makeRequestKey
+     */
+    public function testMakeRequestKey()
+    {
+        $requestKey= $this->execPrivateMethod($this->PasswordRequest, 'makeRequestKey');
+        $this->assertEquals('48', strlen($requestKey));
     }
 
 }

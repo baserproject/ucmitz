@@ -21,15 +21,18 @@ use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Event\EventManager;
+use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Routing\Route\InflectedRoute;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
+use Cake\Utility\Security;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use ReflectionClass;
 
 /**
  * Class plugin
@@ -70,6 +73,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * @param PluginApplicationInterface $application
      * @param string $plugin
      * @return bool
+     * @unitTest
      * @checked
      */
     function loadPlugin(PluginApplicationInterface $application, $plugin, $priority)
@@ -119,12 +123,29 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * @param \Cake\Http\MiddlewareQueue $middlewareQueue The middleware queue to setup.
      * @return \Cake\Http\MiddlewareQueue The updated middleware queue.
      * @checked
+     * @noTodo
+     * @unitTest
      */
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
     {
         $middlewareQueue
             // Authorization (AuthComponent to Authorization)
             ->add(new AuthenticationMiddleware($this));
+
+        // APIへのアクセスの場合、CSRFを強制的に利用しない設定に変更
+        $ref = new ReflectionClass($middlewareQueue);
+        $queue = $ref->getProperty('queue');
+        $queue->setAccessible(true);
+        foreach($queue->getValue($middlewareQueue) as $middleware) {
+            if($middleware instanceof CsrfProtectionMiddleware) {
+                $middleware->skipCheckCallback(function ($request) {
+                    if ($request->getParam('prefix') === 'Api') {
+                        return true;
+                    }
+                    return false;
+                });
+            }
+        }
 
         return $middlewareQueue;
     }
@@ -135,64 +156,94 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * @param \Psr\Http\Message\ServerRequestInterface $request Request
      * @return \Authentication\AuthenticationServiceInterface
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function getAuthenticationService(ServerRequestInterface $request): AuthenticationServiceInterface
     {
         $service = new AuthenticationService();
         $prefix = $request->getParam('prefix');
+        $authSetting = Configure::read('BcPrefixAuth.Admin');
+        if (!$authSetting) {
+            $service->loadAuthenticator('Authentication.Form');
+            return $service;
+        }
 
         switch($prefix) {
 
             case 'Api':
-                $service->setConfig([
-                    'unauthenticatedRedirect' => '/'
-                ]);
-                $service->loadAuthenticator('Authentication.Token', [
-                    'queryParam' => 'token',
-                    'header' => 'Authorization',
-                    'tokenPrefix' => 'Token',
-                ]);
-                $service->loadIdentifier('Authentication.Token', [
+                if (Configure::read('Jwt.algorithm') === 'HS256') {
+                    $secretKey = Security::getSalt();
+                } elseif (Configure::read('Jwt.algorithm') === 'RS256') {
+                    $secretKey = file_get_contents(Configure::read('Jwt.publicKeyPath'));
+                } else {
+                    return $service;
+                }
+                $service->loadAuthenticator('Authentication.Jwt', [
+                    'secretKey' => $secretKey,
+                    'algorithms' => ['RS256'],
+                    'returnPayload' => false,
                     'resolver' => [
-                        'className' => 'BaserCore.Config'
+                        'className' => 'Authentication.Orm',
+                        'userModel' => $authSetting['userModel'],
+                    ],
+                ]);
+                $service->loadIdentifier('Authentication.JwtSubject', [
+                    'resolver' => [
+                        'className' => 'Authentication.Orm',
+                        'userModel' => $authSetting['userModel'],
+                    ],
+                ]);
+                $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
+                    'fields' => [
+                        'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
+                        'password' => $authSetting['password']
                     ]
+                ]);
+                $service->loadIdentifier('Authentication.Password', [
+                    'returnPayload' => false,
+                    'fields' => [
+                        'username' => $authSetting['username'],
+                        'password' => $authSetting['password']
+                    ],
+                    'resolver' => [
+                        'className' => 'Authentication.Orm',
+                        'userModel' => $authSetting['userModel'],
+                        'finder' => 'available'
+                    ],
+                    'contain' => 'UserGroups',
                 ]);
                 break;
 
             default:
-                $authSetting = Configure::read('BcPrefixAuth.' . $prefix);
-                if ($authSetting) {
-                    $service->setConfig([
-                        'unauthenticatedRedirect' => Router::url($authSetting['loginAction'], true),
-                        'queryParam' => 'redirect',
-                        'contain' => 'UserGroups',
-                    ]);
 
-                    $service->loadAuthenticator('Authentication.Session', [
-                        'sessionKey' => $authSetting['sessionKey'],
-                    ]);
-                    $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
-                        'fields' => [
-                            'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
-                            'password' => $authSetting['password']
-                        ],
-                        'loginUrl' => Router::url($authSetting['loginAction']),
-                    ]);
-                    $service->loadIdentifier('Authentication.Password', [
-                        'fields' => [
-                            'username' => $authSetting['username'],
-                            'password' => $authSetting['password']
-                        ],
-                        'resolver' => [
-                            'className' => 'Authentication.Orm',
-                            'userModel' => $authSetting['userModel'],
-                        ],
-                        'contain' => 'UserGroups',
-                    ]);
-                } else {
-                    $service->loadAuthenticator('Authentication.Form');
-                }
+                $service->setConfig([
+                    'unauthenticatedRedirect' => Router::url($authSetting['loginAction'], true),
+                    'queryParam' => 'redirect',
+                    'contain' => 'UserGroups',
+                ]);
+                $service->loadAuthenticator('Authentication.Session', [
+                    'sessionKey' => $authSetting['sessionKey'],
+                ]);
+                $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
+                    'fields' => [
+                        'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
+                        'password' => $authSetting['password']
+                    ],
+                    'loginUrl' => Router::url($authSetting['loginAction']),
+                ]);
+                $service->loadIdentifier('Authentication.Password', [
+                    'fields' => [
+                        'username' => $authSetting['username'],
+                        'password' => $authSetting['password']
+                    ],
+                    'resolver' => [
+                        'className' => 'Authentication.Orm',
+                        'userModel' => $authSetting['userModel'],
+                        'finder' => 'available'
+                    ],
+                    'contain' => 'UserGroups',
+                ]);
                 break;
 
         }
@@ -213,6 +264,23 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             function(RouteBuilder $routes) {
                 $routes->connect('/{controller}/index', [], ['routeClass' => InflectedRoute::class]);
                 $routes->fallbacks(InflectedRoute::class);
+            }
+        );
+
+        // JWTトークン検証用ルーティング
+        // /baser/api/baser-core/.well-known/jwks.json でアクセス
+        $routes->prefix(
+            'Api',
+            ['path' => Configure::read('BcApp.baserCorePrefix') . '/api'],
+            function(RouteBuilder $routes) {
+                $routes->plugin(
+                    'BaserCore',
+                    ['path' => '/baser-core'],
+                    function(RouteBuilder $routes) {
+                        $routes->setExtensions(['json']);
+                        $routes->connect('/.well-known/:controller/*', ['action' => 'index'], ['controller' => '(jwks)']);
+                    }
+                );
             }
         );
         parent::routes($routes);

@@ -10,19 +10,45 @@
  */
 
 namespace BaserCore\View;
+
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\View\Helper\BcAdminPluginHelper;
+use BaserCore\View\Helper\BcAdminUserHelper;
+use BaserCore\View\Helper\BcAdminFormHelper;
+use BaserCore\View\Helper\BcAdminHelper;
+use BaserCore\View\Helper\BcAuthHelper;
+use BaserCore\View\Helper\BcBaserHelper;
+use BaserCore\View\Helper\BcFormHelper;
+use BaserCore\View\Helper\BcFormTableHelper;
+use BaserCore\View\Helper\BcHtmlHelper;
+use BaserCore\View\Helper\BcListTableHelper;
+use BaserCore\View\Helper\BcTextHelper;
+use BaserCore\View\Helper\BcTimeHelper;
 
 /**
  * Class BcAdminAppView
  * @package BaserCore\View
+ * @property BcBaserHelper $BcBaser
+ * @property BcFormHelper $BcForm
+ * @property BcAdminFormHelper $BcAdminForm
+ * @property BcTimeHelper $BcTime
+ * @property BcFormTableHelper $BcFormTable
+ * @property BcAdminHelper $BcAdmin
+ * @property BcTextHelper $BcText
+ * @property BcHtmlHelper $BcHtml
+ * @property BcListTableHelper $BcListTable
+ * @property BcAuthHelper $BcAuth
+ * @property BcAdminUserHelper $BcAdminUser
+ * @property BcAdminPluginHelper $BcAdminPlugin
  */
 class BcAdminAppView extends AppView
 {
     /**
      * initialize
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function initialize(): void
@@ -32,6 +58,7 @@ class BcAdminAppView extends AppView
         $this->loadHelper('BaserCore.BcBaser');
         $this->loadHelper('BaserCore.BcAuth');
         $this->loadHelper('BaserCore.BcAdmin');
+        $this->loadHelper('BaserCore.BcAdminUser');
         if (!$this->get('title')) {
             $this->set('title', 'Undefined');
         }

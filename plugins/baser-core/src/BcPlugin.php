@@ -20,7 +20,6 @@ use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Route\InflectedRoute;
 use Cake\Routing\RouteBuilder;
-use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Migrations\Migrations;
 use BaserCore\Annotation\UnitTest;
@@ -42,6 +41,7 @@ class BcPlugin extends BasePlugin
     /**
      * Initialize
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function initialize(): void
@@ -57,23 +57,23 @@ class BcPlugin extends BasePlugin
      * @param array $options
      *  - `plugin` : プラグイン名
      *  - `connection` : コネクション名
+     * @unitTest
+     * @noTodo
      * @checked
      */
-    public function install($options = []) : bool
+    public function install($options = []): bool
     {
         $options = array_merge([
             'plugin' => $this->getName(),
             'connection' => 'default'
         ], $options);
         $pluginName = $options['plugin'];
-
-        // TODO clearAllCache 未実装
-        // clearAllCache();
+        BcUtil::clearAllCache();
         $pluginPath = BcUtil::getPluginPath($options['plugin']);
         try {
             $plugins = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
             $plugin = $plugins->findByName($pluginName)->first();
-            if(!$plugin || !$plugin->db_init) {
+            if (!$plugin || !$plugin->db_init) {
                 if (is_dir($pluginPath . 'config' . DS . 'Migrations')) {
                     $this->migrations->migrate($options);
                 }
@@ -98,7 +98,7 @@ class BcPlugin extends BasePlugin
      * @noTodo
      * @unitTest
      */
-    public function uninstall($options = []) : bool
+    public function uninstall($options = []): bool
     {
         $options = array_merge([
             'plugin' => $this->getName(),
@@ -110,7 +110,7 @@ class BcPlugin extends BasePlugin
         $this->rollbackDb($options);
 
         $pluginPath = BcUtil::getPluginPath($pluginName);
-        if($pluginPath) {
+        if ($pluginPath) {
             $Folder = new Folder();
             $Folder->delete($pluginPath);
         }
@@ -131,7 +131,7 @@ class BcPlugin extends BasePlugin
      * @noTodo
      * @unitTest
      */
-    public function rollbackDb($options = []) : bool
+    public function rollbackDb($options = []): bool
     {
         $options = array_merge([
             'plugin' => $this->getName(),
@@ -156,18 +156,18 @@ class BcPlugin extends BasePlugin
     /**
      * @param \Cake\Routing\RouteBuilder $routes
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function routes($routes): void
     {
-        $baserCorePrefix = Configure::read('BcApp.baserCorePrefix');
         $plugin = $this->getName();
 
         // プラグインの管理画面用ルーティング
         $routes->prefix(
             'Admin',
-            ['path' => $baserCorePrefix . Configure::read('BcApp.adminPrefix')],
-            function(RouteBuilder $routes)  use ($plugin) {
+            ['path' => BcUtil::getPrefix()],
+            function(RouteBuilder $routes) use ($plugin) {
                 $routes->connect('', ['plugin' => 'BaserCore', 'controller' => 'Dashboard', 'action' => 'index']);
                 $routes->plugin(
                     $plugin,
@@ -182,9 +182,9 @@ class BcPlugin extends BasePlugin
         );
 
         // プラグインのフロントエンド用ルーティング
-        Router::plugin(
+        $routes->plugin(
             $plugin,
-            ['path' => $baserCorePrefix . '/' . Inflector::dasherize($plugin)],
+            ['path' => BcUtil:: getBaserCorePrefix() . '/' . Inflector::dasherize($plugin)],
             function(RouteBuilder $routes) {
                 // AnalyseController で利用
                 $routes->setExtensions(['json']);
@@ -196,8 +196,8 @@ class BcPlugin extends BasePlugin
         // API用ルーティング
         $routes->prefix(
             'Api',
-            ['path' => $baserCorePrefix . '/api'],
-            function(RouteBuilder $routes)  use ($plugin) {
+            ['path' => BcUtil::getBaserCorePrefix() . '/api'],
+            function(RouteBuilder $routes) use ($plugin) {
                 $routes->plugin(
                     $plugin,
                     ['path' => '/' . Inflector::dasherize($plugin)],

@@ -11,10 +11,9 @@
 
 namespace BaserCore\Service;
 
-use BaserCore\Model\Entity\UserGroup;
 use Cake\Datasource\EntityInterface;
-use Cake\Http\ServerRequest;
 use Cake\ORM\Query;
+use BaserCore\Model\Entity\UserGroup;
 
 /**
  * Interface UserGroupsServiceInterface
@@ -30,6 +29,12 @@ interface UserGroupsServiceInterface
     public function get($id): EntityInterface;
 
     /**
+     * ユーザーグループの新規データ用のエンティティを取得する
+     * @return UserGroup
+     */
+    public function getNew(): UserGroup;
+
+    /**
      * ユーザーグループ全件取得する
      * @param array $options
      * @return Query
@@ -38,18 +43,18 @@ interface UserGroupsServiceInterface
 
     /**
      * 新規登録する
-     * @param ServerRequest $request
-     * @return EntityInterface|false
+     * @param array $postData
+     * @return EntityInterface
      */
-    public function create(ServerRequest $request);
+    public function create(array $postData);
 
     /**
      * 編集する
      * @param EntityInterface $target
-     * @param ServerRequest $request
+     * @param array $postData
      * @return mixed
      */
-    public function update(EntityInterface $target, ServerRequest $request);
+    public function update(EntityInterface $target, array $postData);
 
     /**
      * 削除する
@@ -57,4 +62,11 @@ interface UserGroupsServiceInterface
      * @return mixed
      */
     public function delete(int $id);
+
+    /**
+     * リストを取得する
+     * @return array
+     */
+    public function list(): array;
+
 }

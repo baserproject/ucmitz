@@ -165,7 +165,7 @@ class BcValidation extends Validation
      * @noTodo
      * @unitTest
      */
-    public function notInList($value, $list)
+    public static function notInList($value, $list)
     {
         return !in_array($value, $list);
     }
@@ -425,7 +425,7 @@ class BcValidation extends Validation
         }
         $time = '';
         if (strpos($value, ' ') !== false) {
-            list($date, $time) = explode(' ', $value);
+            [$date, $time] = explode(' ', $value);
         } else {
             $date = $value;
         }
@@ -440,7 +440,7 @@ class BcValidation extends Validation
                 }
             }
         }
-        list($Y, $m, $d) = explode('-', $date);
+        [$Y, $m, $d] = explode('-', $date);
         if (checkdate($m, $d, $Y) !== true) {
             return false;
         }
@@ -501,7 +501,7 @@ class BcValidation extends Validation
      */
     public static function checkDateAfterThan($value, $field, $context)
     {
-        $value = (is_array($value)) ? current($value) : $value;
+        $value = (is_array($value))? current($value) : $value;
         if ($value && !empty($context['data'][$field])) {
             if (strtotime($value) <= strtotime($context['data'][$field])) {
                 return false;
@@ -518,7 +518,7 @@ class BcValidation extends Validation
      * @param array $value
      * @return boolean
      */
-    public function containsScript($value)
+    public static function containsScript($value)
     {
         $events = ['onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove',
             'onmouseout', 'onkeypress', 'onkeydown', 'onkeyup', 'onload', 'onunload',
@@ -537,5 +537,4 @@ class BcValidation extends Validation
         }
         return true;
     }
-
 }

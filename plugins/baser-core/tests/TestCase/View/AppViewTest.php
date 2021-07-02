@@ -43,9 +43,14 @@ class AppViewTest extends BcTestCase
         parent::tearDown();
     }
 
-
-    public function testInitialize()
+    /**
+     * メソッドが未実装でwarningが出るためサンプルメソッド配置
+     * @test
+     * @return void
+     */
+    public function sampleTest(): void
     {
-        $this->assertNotEmpty($this->AppView->BcAdminForm);
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
+
 }

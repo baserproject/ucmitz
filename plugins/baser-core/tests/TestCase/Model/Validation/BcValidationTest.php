@@ -397,11 +397,11 @@ class BcValidationTest extends BcTestCase
      */
     public function testCheckDateRenge()
     {
-        $value   = null;
+        $value = null;
         $context = [
             'data' => [
                 'begin' => '2020-01-01 00:00:00',
-                'end'   => '2021-01-01 00:00:00'
+                'end' => '2021-01-01 00:00:00'
             ]
         ];
 
@@ -456,5 +456,4 @@ class BcValidationTest extends BcTestCase
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
-
 }

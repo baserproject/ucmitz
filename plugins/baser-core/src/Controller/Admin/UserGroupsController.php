@@ -12,21 +12,16 @@
 namespace BaserCore\Controller\Admin;
 
 use BaserCore\Model\Entity\UserGroup;
-use BaserCore\Service\UserGroupManageServiceInterface;
-use BaserCore\Service\UserGroupsServiceInterface;
+use BaserCore\Service\Admin\UserGroupManageServiceInterface;
 use BaserCore\Controller\Component\BcMessageComponent;
 use BaserCore\Model\Table\UserGroupsTable;
-use Cake\Controller\ComponentRegistry;
+use BaserCore\Service\Admin\UserManageServiceInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Datasource\ResultSetInterface;
-use Cake\Event\EventInterface;
-use Cake\Event\EventManagerInterface;
 use Cake\Http\Response;
-use Cake\Http\ServerRequest;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use BaserCore\Service\UserGroupManageService;
 
 /**
  * Class UserGroupsController
@@ -37,62 +32,6 @@ use BaserCore\Service\UserGroupManageService;
  */
 class UserGroupsController extends BcAdminAppController
 {
-    public $siteConfigs = [];
-
-    /**
-     * UserGroupsController constructor.
-     *
-     * @param \Cake\Http\ServerRequest|null $request Request object for this controller. Can be null for testing,
-     *   but expect that features that use the request parameters will not work.
-     * @param \Cake\Http\Response|null $response Response object for this controller.
-     * @param string|null $name Override the name useful in testing when using mocks.
-     * @param \Cake\Event\EventManagerInterface|null $eventManager The event manager. Defaults to a new instance.
-     * @param \Cake\Controller\ComponentRegistry|null $components The component registry. Defaults to a new instance.
-     * @checked
-     */
-    public function __construct(
-        ?ServerRequest $request = null,
-        ?Response $response = null,
-        ?string $name = null,
-        ?EventManagerInterface $eventManager = null,
-        ?ComponentRegistry $components = null
-    ) {
-        parent::__construct($request, $response, $name, $eventManager, $components);
-        $this->crumbs = [
-            ['name' => __d('baser', 'システム設定'), 'url' => ['controller' => 'site_configs', 'action' => 'form']],
-            ['name' => __d('baser', 'ユーザーグループ管理'), 'url' => ['controller' => 'user_groups', 'action' => 'index']]
-        ];
-    }
-
-    /**
-     * beforeFilter
-     * @param EventInterface $event
-     * @return Response|void|null
-     * @checked
-     * @unitTest
-     */
-    public function beforeFilter(EventInterface $event)
-    {
-        parent::beforeFilter($event);
-
-        // TODO 取り急ぎ動作させるためのコード
-        // >>>
-        $this->siteConfigs['admin_list_num'] = 30;
-        return;
-        // <<<
-
-        if ($this->request->getParam('prefix') === 'admin') {
-            $this->set('usePermission', $this->UserGroup->checkOtherAdmins());
-        }
-
-        $authPrefixes = [];
-        foreach(Configure::read('BcAuthPrefix') as $key => $authPrefix) {
-            $authPrefixes[$key] = $authPrefix['name'];
-        }
-        if (count($authPrefixes) <= 1) {
-            $this->UserGroup->validator()->remove('auth_prefix');
-        }
-    }
 
     /**
      * ログインユーザーグループリスト
@@ -119,7 +58,7 @@ class UserGroupsController extends BcAdminAppController
     public function index(UserGroupManageServiceInterface $UserGroupManage): void
     {
         $this->setViewConditions('UserGroup', ['default' => ['query' => [
-            'num' => $this->siteConfigs['admin_list_num'],
+            'num' => $UserGroupManage->getSiteConfig('admin_list_num'),
             'sort' => 'id',
             'direction' => 'asc',
         ]]]);
@@ -159,18 +98,17 @@ class UserGroupsController extends BcAdminAppController
         $this->setHelp('user_groups_form');
 
         if ($this->request->is('post')) {
-            if ($userGroup = $UserGroupManage->create($this->request)) {
+            $userGroup = $UserGroupManage->create($this->request->getData());
+            if (!$userGroup->getErrors()) {
                 $this->BcMessage->setSuccess(__d('baser', '新規ユーザーグループ「{0}」を追加しました。', $userGroup->name));
                 return $this->redirect(['action' => 'index']);
             } else {
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
-                return;
             }
         } else {
-            $userGroup = $this->UserGroups->newEmptyEntity();
-            $this->set(compact('userGroup'));
-            return;
+            $userGroup = $UserGroupManage->getNew();
         }
+        $this->set(compact('userGroup'));
     }
 
     /**
@@ -196,9 +134,10 @@ class UserGroupsController extends BcAdminAppController
      * @return Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws RecordNotFoundException When record not found.
      * @checked
+     * @noTodo
      * @unitTest
      */
-    public function edit(UserGroupManageServiceInterface $UserGroupManage, $id = null)
+    public function edit(UserGroupManageServiceInterface $UserGroupManage, UserManageServiceInterface $userManage, $id = null)
     {
 
         if ($id) {
@@ -212,12 +151,10 @@ class UserGroupsController extends BcAdminAppController
         }
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            if($userGroup = $UserGroupManage->update($userGroup, $this->request)) {
+            $userGroup = $UserGroupManage->update($userGroup, $this->request->getData());
+            if (!$userGroup->getErrors()) {
                 $this->BcMessage->setSuccess(__d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroup->name));
-                // TODO 未実装
-                /* >>>
-                $this->BcAuth->relogin();
-                <<< */
+                $userManage->reLogin($this->request, $this->response);
                 return $this->redirect(['action' => 'index']);
             } else {
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
@@ -237,16 +174,11 @@ class UserGroupsController extends BcAdminAppController
      * @return Response|null|void Redirects to index.
      * @throws RecordNotFoundException When record not found.
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function delete(UserGroupManageServiceInterface $UserGroupManage, $id = null)
     {
-        // TODO 未実装
-        /* >>>
-        $this->_checkSubmitToken();
-        <<< */
-
-        /* 除外処理 */
         if ($id) {
             $this->request->allowMethod(['post', 'delete']);
             $userGroup = $UserGroupManage->get($id);

@@ -43,19 +43,21 @@ class UserGroupsControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-
         $this->loadFixtures('UsersUserGroups', 'Users');
         if ($this->getName() == 'testIndex_pagination') {
             $this->loadFixtures('Controller\UserGroupsController\UserGroupsPagination');
         } else {
             $this->loadFixtures('UserGroups');
         }
-
-        $config = $this->getTableLocator()->exists('UserGroups')? [] : ['className' => 'BaserCore\Model\Table\UserGroupsTable'];
-        $UserGroups = $this->getTableLocator()->get('UserGroups', $config);
-        $this->session(['AuthAdmin' => $UserGroups->get(1)]);
-        $this->UserGroupsController = new UserGroupsController($this->getRequest());
+        $this->UserGroupsController = new UserGroupsController($this->loginAdmin($this->getRequest()));
     }
+
+    public function tearDown(): void
+    {
+        unset($this->UserGroupsController);
+        parent::tearDown();
+    }
+
 
     /**
      * Test index method
@@ -161,15 +163,6 @@ class UserGroupsControllerTest extends BcTestCase
         $this->assertEquals(1, $query->count());
     }
 
-    /**
-     * beforeFilter
-     */
-    public function testBeforeFilter()
-    {
-        $event = new Event('Controller.beforeRender', $this->UserGroupsController);
-        $this->UserGroupsController->beforeFilter($event);
-        $this->assertEquals($this->UserGroupsController->siteConfigs['admin_list_num'], 30);
-    }
 
     /**
      * ユーザーグループのよく使う項目の初期値を登録する

@@ -37,8 +37,8 @@ class Permission extends Entity
      *
      * @var array
      */
-    protected $_accessible = [
-        'name' => true,
-    ];
-
+    // protected $_accessible = [
+    //     'name' => true,
+    // ];
 }
+?>

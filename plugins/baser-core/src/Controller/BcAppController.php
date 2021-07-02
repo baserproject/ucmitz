@@ -21,7 +21,9 @@ use BaserCore\Model\Table\LoginStoresTable;
 use Cake\Http\Cookie\Cookie;
 use DateTime;
 use BaserCore\Utility\BcUtil;
+use BaserCore\Service\DblogsServiceInterface;
 use Cake\Core\Configure;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -36,6 +38,11 @@ use BaserCore\Annotation\Checked;
  */
 class BcAppController extends AppController
 {
+
+    /**
+     * BcContainerTrait
+     */
+    use BcContainerTrait;
 
     /**
      * view
@@ -193,16 +200,18 @@ class BcAppController extends AppController
         ?string $name = null,
         ?EventManagerInterface $eventManager = null,
         ?ComponentRegistry $components = null
-    ) {
+    )
+    {
         parent::__construct($request, $response, $name, $eventManager, $components);
-
-        if (BcUtil::isConsole()) {
-            unset($this->components['Session']);
-        }
+        // TODO $componentsが未定義のため一旦コメントアウト
+        // if (BcUtil::isConsole()) {
+        //     unset($this->components['Session']);
+        // }
         // TODO siteConfigs代替措置
         // $config = $this->getTableLocator()->exists('SiteConfigs')? [] : ['className' => 'BaserCore\Model\Table\SiteConfigsTable'];
         // $this->siteConfigs = TableRegistry::getTableLocator()->get('SiteConfigs');
-        $this->siteConfigs['theme'] = 'bc_sample';
+        // テーマがプラグインに含まれるため一旦コメントアウト
+        // $this->siteConfigs['theme'] = 'bc_sample';
         // TODO 未確認のため代替措置
         // >>>
         return;
@@ -1593,67 +1602,26 @@ class BcAppController extends AppController
         }
     }
 
-
     /**
-     * Initialize
-     */
-    public function initialize(): void
-    {
-        parent::initialize();
-    }
-
-    /**
-     * ログイン状態の保存確認
+     * データベースログを記録する
      *
-     * @return void
+     * @param string $message
+     * @return \Cake\Datasource\EntityInterface
+     * @checked
      */
-    protected function checkAutoLogin(): void
+    protected function saveDblog($message)
     {
-        // ログイン状態の保存確認
-        $user = $this->Authentication->getIdentity();
-        if ($user !== null) {
-            return;
+        $DblogsService = $this->getService(DblogsServiceInterface::class);
+        $data = [
+            'message' => $message,
+            'controller' => $this->request->getParam('controller'),
+            'action' => $this->request->getParam('action')
+        ];
+        // TODO フロントでのログイン対応のためBcUtilではなくBcAuthComponentを使用する
+        $user = BcUtil::loginUser();
+        if ($user) {
+            $data['user_id'] = $user->id;
         }
-
-        $autoLoginKey = $this->request->getCookie(LoginStoresTable::KEY_NAME);
-        if ($autoLoginKey === null) {
-            return;
-        }
-
-        $this->loadModel('BaserCore.LoginStores');
-        $loginStore = $this->LoginStores->getEnableLoginStore($autoLoginKey);
-        if ($loginStore === null) {
-            return;
-        }
-
-        $this->loadModel('BaserCore.Users');
-        $user = $this->Users->getLoginFormatData($loginStore->user_id);
-        if ($user === null) {
-            return;
-        }
-
-        $this->Authentication->setIdentity($user);
-        // キーのリフレッシュ
-        $loginStore = $this->LoginStores->refresh('Admin', $loginStore->user_id);
-        $this->setCookieAutoLoginKey($loginStore->store_key);
-    }
-
-    /**
-     * ログイン状態の保存のキー送信
-     *
-     * @return void
-     */
-    public function setCookieAutoLoginKey($key): void
-    {
-        // https://book.cakephp.org/4/ja/controllers/request-response.html#response-cookies
-        $this->response = $this->response->withCookie(Cookie::create(
-            LoginStoresTable::KEY_NAME,
-            $key,
-            [
-                'expires' => new DateTime(LoginStoresTable::EXPIRE),
-                'httponly' => true,
-                'secure' => true,
-            ]
-        ));
+        return $DblogsService->create($data);
     }
 }

@@ -79,7 +79,7 @@ class UsersTableTest extends BcTestCase
         $this->assertEquals('users', $this->Users->getTable());
         $this->assertEquals('name', $this->Users->getDisplayField());
         $this->assertEquals('id', $this->Users->getPrimaryKey());
-        $this->assertIsBool($this->Users->hasBehavior('Timestamp'));
+        $this->assertTrue($this->Users->hasBehavior('Timestamp'));
         $this->assertEquals('UserGroups', $this->Users->getAssociation('UserGroups')->getName());
     }
 
@@ -145,6 +145,42 @@ class UsersTableTest extends BcTestCase
     }
 
     /**
+     * Test validationPasswordUpdate
+     * @param $isValid 妥当でない場合、$validator->validateからエラーが返る
+     * @param $data パスワード文字列
+     * @return void
+     * @dataProvider validationPasswordUpdateDataProvider
+     */
+    public function testValidationPasswordUpdate($isValid, $data)
+    {
+        $validator = $this->Users->validationPasswordUpdate(new Validator());
+        $validator->setProvider('table', $this->Users);
+        if ($isValid) {
+            $this->assertEmpty($validator->validate($data));
+        } else {
+            $this->assertNotEmpty($validator->validate($data));
+        }
+    }
+
+    public function validationPasswordUpdateDataProvider()
+    {
+        $exceedMax = "testtesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttesttest";
+        return [
+            // 妥当な例
+            [true, ['password' => 'testtest', 'password_1' => 'testtest', 'password_2' => 'testtest']],
+            // 文字数が少ない場合
+            [false, ['password' => 'test', 'password_1' => 'test', 'password_2' => 'test']],
+            // 文字数が少ない場合
+            [false, ['password' => $exceedMax, 'password_1' => $exceedMax, 'password_2' => $exceedMax]],
+            // 不適切な文字が入ってる場合
+            [false, ['password' => '^^^^^^^^', 'password_1' => '^^^^^^^^', 'password_2' => '^^^^^^^^']],
+            // パスワードが異なる例
+            [false, ['password' => 'testtest', 'password_1' => 'test', 'password_2' => 'testtest']],
+        ];
+    }
+
+
+    /**
      * Test validationNew
      *
      * @return void
@@ -166,15 +202,6 @@ class UsersTableTest extends BcTestCase
     {
         $list = $this->Users->getControlSource('user_group_id')->toList();
         $this->assertEquals('システム管理', $list[0]);
-    }
-
-    /**
-     * Test getLoginFormatData
-     */
-    public function testGetLoginFormatData()
-    {
-        $user = $this->Users->getLoginFormatData(1)->toArray();
-        $this->assertEquals(1, $user['user_groups'][0]['id']);
     }
 
 }

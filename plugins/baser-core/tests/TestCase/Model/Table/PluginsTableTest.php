@@ -71,29 +71,17 @@ class PluginsTableTest extends BcTestCase
     }
 
     /**
-     * testGetAvailable
+     * testInstall and testUninstall
      */
-    public function testGetAvailable()
+    public function testInstallAndUninstall()
     {
-        $plugins = $this->Plugins->getAvailable();
-        $pluginNames = [];
-        foreach($plugins as $plugin) {
-            $pluginNames[] = $plugin->name;
-        }
-        $this->assertContains('BcBlog', $pluginNames);
-
-        $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
-        $folder = new Folder($pluginPath);
-        $folder->create($pluginPath, 0777);
-
-        $plugins = $this->Plugins->getAvailable();
-        $pluginNames = [];
-        foreach($plugins as $plugin) {
-            $pluginNames[] = $plugin->name;
-        }
-        $this->assertContains('BcTest', $pluginNames);
-
-        $folder->delete($pluginPath);
+        // test Install
+        $this->Plugins->install('BcTest');
+        $plugin = $this->Plugins->find()->where(['name' => 'BcTest'])->first();
+        $this->assertEquals(3, $plugin->priority);
+        // test Uninstall
+        $this->Plugins->uninstall('BcTest');
+        $this->assertEquals(2, $this->Plugins->find()->count());
     }
 
     /**
@@ -103,36 +91,6 @@ class PluginsTableTest extends BcTestCase
     {
         $plugin = $this->Plugins->getPluginConfig('BaserCore');
         $this->assertEquals('BaserCore', $plugin->name);
-    }
-
-    /**
-     * testIsInstallable
-     */
-    public function testIsInstallable()
-    {
-        $this->expectExceptionMessage('既にインストール済のプラグインです。');
-        $this->Plugins->isInstallable('BcBlog');
-        $this->expectExceptionMessage('インストールしようとしているプラグインのフォルダが存在しません。');
-        $this->Plugins->isInstallable('BcTest');
-        $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
-        $folder = new Folder($pluginPath);
-        $folder->create($pluginPath, 0777);
-        $this->assertEquals(true, $this->Plugins->isInstallable('BcTest'));
-        $folder->delete($pluginPath);
-    }
-
-    /**
-     * testInstall and testUninstall
-     */
-    public function testInstallAndUninstall()
-    {
-        // test Install
-        $this->Plugins->install('BcTest');
-        $plugin = $this->Plugins->find()->where(['name' => 'BcTest'])->first();
-        $this->assertEquals(4, $plugin->priority);
-        // test Uninstall
-        $this->Plugins->uninstall('BcTest');
-        $this->assertEquals(3, $this->Plugins->find()->count());
     }
 
     /**
@@ -151,10 +109,10 @@ class PluginsTableTest extends BcTestCase
      */
     public function testChangePriority()
     {
-        $this->Plugins->changePriority(1, 1);
+        $this->Plugins->changePriority(1, 2);
         $this->assertEquals(2, $this->Plugins->get(1)->priority);
-        $this->Plugins->changePriority(3, -1);
-        $this->assertEquals(2, $this->Plugins->get(3)->priority);
+        $this->Plugins->changePriority(2, -1);
+        $this->assertEquals(1, $this->Plugins->get(2)->priority);
     }
 
 }

@@ -161,6 +161,7 @@ class BcBaserHelper extends Helper
      * @param bool $inline コンテンツ内に Javascript を出力するかどうか（初期値 : true）
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function js($url, $inline = true, $options = [])
@@ -292,6 +293,7 @@ class BcBaserHelper extends Helper
      *    ※ パラメータについては、HtmlHelper::image() を参照。
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function img($path, $options = [])
@@ -307,6 +309,7 @@ class BcBaserHelper extends Helper
      * ※ パラメータについては、HtmlHelper::image() を参照。
      * @return string 画像タグ
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function getImg($path, $options = [])
@@ -329,6 +332,7 @@ class BcBaserHelper extends Helper
      *    リンクをクリックした際に確認メッセージが表示され、はいをクリックした場合のみ遷移する
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function link($title, $url = null, $htmlAttributes = [], $confirmMessage = false)
@@ -550,6 +554,7 @@ class BcBaserHelper extends Helper
      * @param bool $sessionId セションIDを付加するかどうか
      * @return void
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function url($url = null, $full = false, $sessionId = true)
@@ -571,18 +576,7 @@ class BcBaserHelper extends Helper
      */
     public function getUserName($user)
     {
-        if (!empty($user->nickname)) {
-            return $user->nickname;
-        }
-        $userName = [];
-        if (!empty($user->real_name_1)) {
-            $userName[] = $user->real_name_1;
-        }
-        if (!empty($user->real_name_2)) {
-            $userName[] = $user->real_name_2;
-        }
-        $userName = implode(' ', $userName);
-        return $userName;
+        return $user->getDisplayName();
     }
 
     /**
@@ -592,6 +586,7 @@ class BcBaserHelper extends Helper
      *
      * @param array $value 値（連想配列）
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function i18nScript($data, $options = [])
@@ -1529,28 +1524,25 @@ class BcBaserHelper extends Helper
      *
      * @param mixed $path CSSファイルのパス（css フォルダからの相対パス）拡張子は省略可
      * @param mixed $options オプション
-     *    （配列の場合）
-     *    - `rel` : rel属性（初期値 : 'stylesheet'）
-     *    - `inline` : コンテンツ内にCSSを出力するかどうか（初期値 : true）
-     *  ※ その他のパラメータについては、HtmlHelper::css() を参照。
-     *    ※ false を指定した場合、inline が false となる。
+     * ※💣inline=false→block=trueに変更になったため注意 @see https://book.cakephp.org/4/ja/views/helpers/html.html#css
+     * ※ その他のパラメータについては、HtmlHelper::css() を参照。
+     *
+     * 下記のbasercms4系引数は残したまま
+     * - 'inline'=trueを指定する (代替:$options['block']にnullが入る)
+     * - 'inline'=falseを指定する (代替:$options['block']にtrueが入る)
      * @return string|void
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function css($path, $options = [])
     {
-        if ($options === false) {
-            $options['inline'] = false;
+        if (isset($options['inline'])) {
+            $options['block'] = $options['inline'] ? null : true;
         }
-        $options = array_merge([
-            'rel' => 'stylesheet',
-            'inline' => true
-        ], $options);
         $result = $this->BcHtml->css($path, $options);
-        if ($options['inline']) {
-            echo $result;
-        }
+
+        echo $result;
     }
 
     /**
@@ -2913,76 +2905,78 @@ END_FLASH;
         if (empty($this->request->getParam('Site'))) {
             return;
         }
- 		$this->setCanonicalUrl();
-		$this->setAlternateUrl();
+        $this->setCanonicalUrl();
+        $this->setAlternateUrl();
     }
 
 
-	/**
-	 * setCanonicalUrl
-	 * PCサイトの場合
-	 *  	- .html付：.htmlなしのカノニカルを出力
-	 *  	- .html無：自身のカノニカルを出力
-	 * スマホサイトの場合
-	 * 		- PCサイトが存在する場合、canonicalを出力
-	 */
-	public function setCanonicalUrl() {
-		$currentSite = BcSite::findCurrent();
-		if (!$currentSite) {
-			return;
-		}
-		if($currentSite->device === 'smartphone') {
-			$mainSite = BcSite::findCurrentMain();
-			$url = $mainSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
-				$this->request->url,
-				$this->request->params['Site']['id']
-			)));
+    /**
+     * setCanonicalUrl
+     * PCサイトの場合
+     *    - .html付：.htmlなしのカノニカルを出力
+     *    - .html無：自身のカノニカルを出力
+     * スマホサイトの場合
+     *        - PCサイトが存在する場合、canonicalを出力
+     */
+    public function setCanonicalUrl()
+    {
+        $currentSite = BcSite::findCurrent();
+        if (!$currentSite) {
+            return;
+        }
+        if ($currentSite->device === 'smartphone') {
+            $mainSite = BcSite::findCurrentMain();
+            $url = $mainSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
+                $this->request->url,
+                $this->request->params['Site']['id']
+            )));
 
-		} else {
-			$url = '/' . $this->request->url;
-		}
-		$url = preg_replace('/\.html$/', '', $url);
-		$url = preg_replace('/\\/index$/', '/', $url);
-		$this->_View->set('meta',
-			$this->BcHtml->meta('canonical',
-				$this->BcHtml->url($url, true),
-				[
-					'rel' => 'canonical',
-					'type' => null,
-					'title' => null,
-					'inline' => false
-				]
-			)
-		);
-	}
+        } else {
+            $url = '/' . $this->request->url;
+        }
+        $url = preg_replace('/\.html$/', '', $url);
+        $url = preg_replace('/\\/index$/', '/', $url);
+        $this->_View->set('meta',
+            $this->BcHtml->meta('canonical',
+                $this->BcHtml->url($url, true),
+                [
+                    'rel' => 'canonical',
+                    'type' => null,
+                    'title' => null,
+                    'inline' => false
+                ]
+            )
+        );
+    }
 
-	/**
-	 * alternate タグ出力
-	 * スマホサイトが存在し、別URLの場合に出力する
-	 * @param $contentUrl
-	 */
-	public function setAlternateUrl() {
-		$subSite = BcSite::findCurrentSub(false, BcAgent::find('smartphone'));
-		if (!$subSite || $subSite->sameMainUrl) {
-			return;
-		}
-		$url = $subSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
-			$this->request->url,
-			$this->request->params['Site']['id']
-		)));
-		$this->_View->set('meta',
-			$this->BcHtml->meta('alternate',
-				$this->BcHtml->url($url, true),
-				[
-					'rel' => 'alternate',
-					'media' => 'only screen and (max-width: 640px)',
-					'type' => null,
-					'title' => null,
-					'inline' => false
-				]
-			)
-		);
-	}
+    /**
+     * alternate タグ出力
+     * スマホサイトが存在し、別URLの場合に出力する
+     * @param $contentUrl
+     */
+    public function setAlternateUrl()
+    {
+        $subSite = BcSite::findCurrentSub(false, BcAgent::find('smartphone'));
+        if (!$subSite || $subSite->sameMainUrl) {
+            return;
+        }
+        $url = $subSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
+            $this->request->url,
+            $this->request->params['Site']['id']
+        )));
+        $this->_View->set('meta',
+            $this->BcHtml->meta('alternate',
+                $this->BcHtml->url($url, true),
+                [
+                    'rel' => 'alternate',
+                    'media' => 'only screen and (max-width: 640px)',
+                    'type' => null,
+                    'title' => null,
+                    'inline' => false
+                ]
+            )
+        );
+    }
 
     /**
      * トップページのタイトルをセットする

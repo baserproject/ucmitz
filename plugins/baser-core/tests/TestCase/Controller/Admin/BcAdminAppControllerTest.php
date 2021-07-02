@@ -18,12 +18,24 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use ReflectionClass;
 use \Cake\Http\Exception\NotFoundException;
+
 /**
  * BaserCore\Controller\BcAdminAppController Test Case
  */
 class BcAdminAppControllerTest extends BcTestCase
 {
-   use IntegrationTestTrait;
+    use IntegrationTestTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
+    ];
 
     /**
      * set up
@@ -31,7 +43,7 @@ class BcAdminAppControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->BcAdminApp = new BcAdminAppController($this->getRequest());
+        $this->BcAdminApp = new BcAdminAppController($this->loginAdmin($this->getRequest()));
         $this->RequestHandler = $this->BcAdminApp->components()->load('RequestHandler');
     }
 
@@ -121,12 +133,8 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetTitle()
     {
-        $ref = new ReflectionClass($this->BcAdminApp);
-        $method = $ref->getMethod('setTitle');
-        $method->setAccessible(true);
-
         $template = 'test';
-        $method->invokeArgs($this->BcAdminApp, [$template]);
+        $this->execPrivateMethod($this->BcAdminApp, 'setTitle', [$template]);
 
         $viewBuilder = new ReflectionClass($this->BcAdminApp->viewBuilder());
         $vars = $viewBuilder->getProperty('_vars');
@@ -142,12 +150,8 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetSearch()
     {
-        $ref = new ReflectionClass($this->BcAdminApp);
-        $method = $ref->getMethod('setSearch');
-        $method->setAccessible(true);
-
         $template = 'test';
-        $method->invokeArgs($this->BcAdminApp, [$template]);
+        $this->execPrivateMethod($this->BcAdminApp, 'setSearch', [$template]);
 
         $viewBuilder = new ReflectionClass($this->BcAdminApp->viewBuilder());
         $vars = $viewBuilder->getProperty('_vars');
@@ -163,12 +167,8 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetHelp()
     {
-        $ref = new ReflectionClass($this->BcAdminApp);
-        $method = $ref->getMethod('setHelp');
-        $method->setAccessible(true);
-
         $template = 'test';
-        $method->invokeArgs($this->BcAdminApp, [$template]);
+        $this->execPrivateMethod($this->BcAdminApp, 'setHelp', [$template]);
 
         $viewBuilder = new ReflectionClass($this->BcAdminApp->viewBuilder());
         $vars = $viewBuilder->getProperty('_vars');
@@ -184,21 +184,18 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testCheckReferer($referer, $expected)
     {
-        Configure::write('BcEnv.host', $referer ? parse_url($referer)['host'] : null);
+        Configure::write('BcEnv.host', $referer? parse_url($referer)['host'] : null);
         $_SERVER['HTTP_REFERER'] = $referer;
-        $ref = new ReflectionClass($this->BcAdminApp);
-        $method = $ref->getMethod('_checkReferer');
-        $method->setAccessible(true);
 
         if ($expected === 'error') {
             Configure::write('BcEnv.host', parse_url('http://www.example2.com/')['host']);
             try {
-                $method->invokeArgs($this->BcAdminApp, []);
+                $this->execPrivateMethod($this->BcAdminApp, '_checkReferer');
             } catch (NotFoundException $e) {
                 $this->assertStringContainsString("Not Found", $e->getMessage());
             }
         } else {
-            $result = $method->invokeArgs($this->BcAdminApp, []);
+            $result = $this->execPrivateMethod($this->BcAdminApp, '_checkReferer');
             $this->assertEquals($result, $expected);
         }
     }

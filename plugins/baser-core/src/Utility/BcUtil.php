@@ -189,6 +189,32 @@ class BcUtil
     }
 
     /**
+     * baserCore用のプレフィックスを取得する
+     *
+     * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public static function getBaserCorePrefix()
+    {
+        return Configure::read('BcApp.baserCorePrefix');
+    }
+
+    /**
+     * プレフィックス全体を取得する
+     *
+     * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public static function getPrefix()
+    {
+        return self::getBaserCorePrefix() . self::getAdminPrefix();
+    }
+
+    /**
      * 利用可能なプラグインのリストを取得する
      *
      * ClassRegistry::removeObject('Plugin'); で一旦 Plugin オブジェクトを削除
@@ -325,7 +351,7 @@ class BcUtil
      * @param string $prefix ログイン認証プレフィックス
      * @return bool|mixed ユーザーグループ情報
      */
-    public static function loginUserGroup($prefix = 'admin')
+    public static function loginUserGroup($prefix = 'Admin')
     {
         $loginUser = self::loginUser($prefix);
         if (!empty($loginUser['UserGroup'])) {
@@ -564,13 +590,13 @@ class BcUtil
      * コンソールから実行されているかチェックする
      *
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public static function isConsole()
     {
-        // TODO isConsoleのCAKEPHP_SHELLが非推奨&&未定義のため代替措置
-        // return defined('CAKEPHP_SHELL') && CAKEPHP_SHELL;
-        return substr(php_sapi_name(), 0, 3) == 'cgi';
-
+        return substr(php_sapi_name(), 0, 3) == 'cli';
     }
 
     /**
@@ -591,13 +617,13 @@ class BcUtil
         }
         $templatePaths = [];
         $templatePath = self::getTemplatePath($plugin);
-        if($templatePath) {
+        if ($templatePath) {
             $templatePaths[] = $templatePath;
         }
 
         if ($theme) {
             $templatePath = self::getTemplatePath($theme);
-            if($templatePath) {
+            if ($templatePath) {
                 $templatePaths[] = $templatePath;
             }
         }
@@ -607,7 +633,7 @@ class BcUtil
             $folder = new Folder($templatePath . $path . DS);
             $files = $folder->read(true, true);
             if ($files[1]) {
-                $_templates = $_templates ? array_merge($_templates, $files[1]) : $files[1];
+                $_templates = $_templates? array_merge($_templates, $files[1]) : $files[1];
             }
         }
         $templates = [];
@@ -619,6 +645,7 @@ class BcUtil
         }
         return $templates;
     }
+
     /**
      * テンプレートのpathを返す
      *
@@ -630,7 +657,7 @@ class BcUtil
      */
     public static function getTemplatePath(string $plugin): string
     {
-        if(Plugin::isLoaded($plugin)) {
+        if (Plugin::isLoaded($plugin)) {
             return Plugin::path($plugin) . 'templates/';
         } else {
             return false;

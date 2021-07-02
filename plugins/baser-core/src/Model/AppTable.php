@@ -11,6 +11,8 @@
 
 namespace BaserCore\Model;
 
+use ArrayObject;
+use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\ORM\Query;
 use Cake\Core\Configure;
@@ -65,8 +67,13 @@ class AppTable extends Table
      *
      * @return void
      */
-    public function __construct($id = false, $table = null, $ds = null)
+    public function __construct(array $config = [])
     {
+        // TODO 暫定措置
+        // >>>
+        parent::__construct($config);
+        return;
+        // <<<
         $db = ConnectionManager::get('default');
         if (Configure::read('BcRequest.asset')) {
             parent::__construct($id, $table, $ds);
@@ -91,13 +98,18 @@ class AppTable extends Table
     }
 
     /**
-     * beforeSave
-     *
-     * @return    boolean
+     * Before Save
+     * @param Event $event
+     * @param EntityInterface $entity
+     * @param ArrayObject $options
+     * @return bool
      */
-    public function beforeSave($options = [])
+    public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)
     {
-        $result = parent::beforeSave($options);
+        // TODO 暫定措置
+        // >>>
+        return true;
+        // <<<
         // 日付フィールドが空の場合、nullを保存する
         foreach($this->_schema as $key => $field) {
             if (('date' == $field['type'] ||
@@ -109,7 +121,7 @@ class AppTable extends Table
                 }
             }
         }
-        return $result;
+        return true;
     }
 
     /**
@@ -349,7 +361,7 @@ class AppTable extends Table
             if ($options['loadCsv']) {
                 $theme = $pattern = null;
                 if ($dbDataPattern) {
-                    list($theme, $pattern) = explode('.', $dbDataPattern);
+                    [$theme, $pattern] = explode('.', $dbDataPattern);
                 }
                 $path = BcUtil::getDefaultDataPath($pluginName, $theme, $pattern);
                 if ($path) {
@@ -508,43 +520,15 @@ class AppTable extends Table
      * @param string $field
      * @param array $conditions
      * @return int
+     * @checked
+     * @unitTest
      */
     public function getMax($field, $conditions = [])
     {
-        if (strpos($field, '.') === false) {
-            $modelName = $this->alias;
-        } else {
-            list($modelName, $field) = explode('\.', $field);
-        }
-
-        $db = ConnectionManager::get($this->useDbConfig);
-        $this->recursive = -1;
-        if ($db->config['datasource'] == 'Database/BcCsv') {
-            // CSVDBの場合はMAX関数が利用できない為、プログラムで処理する
-            // TODO dboでMAX関数の実装できたらここも変更する
-            $this->cacheQueries = false;
-            $dbDatas = $this->find('all', ['conditions' => $conditions, 'fields' => [$modelName . '.' . $field]]);
-            $this->cacheQueries = true;
-            $max = 0;
-            if ($dbDatas) {
-                foreach($dbDatas as $dbData) {
-                    if ($max < $dbData[$modelName][$field]) {
-                        $max = $dbData[$modelName][$field];
-                    }
-                }
-            }
-            return $max;
-        } else {
-            $this->cacheQueries = false;
-            // SQLiteの場合、Max関数にmodel名を含むと、戻り値の添字が崩れる（CakePHPのバグ）
-            $dbData = $this->find('all', ['conditions' => $conditions, 'fields' => ['MAX(' . $modelName . '.' . $field . ') AS max']]);
-            $this->cacheQueries = true;
-            if (isset($dbData[0][0]['max'])) {
-                return $dbData[0][0]['max'];
-            } else {
-                return 0;
-            }
-        }
+        $max = $this->find()->where($conditions)->max($field);
+        // TODO: cacheが必要になり次第実装
+        // $max->cache('recent_max');
+        return $max[$field] ?? 0;
     }
 
     /**
@@ -1007,7 +991,7 @@ class AppTable extends Table
                 if ($val == 'wareki' && !empty($data['wareki'])) {
                     $warekis = ['m' => 1867, 't' => 1911, 's' => 1925, 'h' => 1988, 'r' => 2018];
                     if (!empty($data['year'])) {
-                        list($wareki, $year) = explode('-', $data['year']);
+                        [$wareki, $year] = explode('-', $data['year']);
                         $data['year'] = $year + $warekis[$wareki];
                     }
                 }
@@ -1363,6 +1347,8 @@ class AppTable extends Table
      */
     public function exists($conditions): bool
     {
+        return parent::exists($conditions);
+
         // TODO 未実装の為コメントアウト
         /* >>>
         if ($this->Behaviors->loaded('SoftDelete')) {

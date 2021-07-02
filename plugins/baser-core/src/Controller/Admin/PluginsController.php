@@ -11,9 +11,12 @@
 
 namespace BaserCore\Controller\Admin;
 
+use BaserCore\Service\Admin\PluginManageServiceInterface;
 use BaserCore\Controller\Component\BcMessageComponent;
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\PluginsTable;
+use BaserCore\Service\PluginsServiceInterface;
+use BaserCore\Service\Admin\UserManageServiceInterface;
 use BaserCore\Utility\BcUtil;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
@@ -50,7 +53,7 @@ class PluginsController extends BcAdminAppController
      * @unitTest
      * @noTodo
      */
-    public function initialize():void
+    public function initialize(): void
     {
         parent::initialize();
         $this->loadComponent('RequestHandler');
@@ -71,44 +74,15 @@ class PluginsController extends BcAdminAppController
 
     /**
      * プラグインの一覧を表示する
-     *
+     * @param PluginManageServiceInterface $PluginManage
      * @return void
      * @checked
      * @unitTest
      * @noTodo
      */
-    public function index()
+    public function index(PluginManageServiceInterface $PluginManage)
     {
-        $available = $this->Plugins->getAvailable();
-        $registered = $unregistered = [];
-        foreach($available as $pluginInfo) {
-            if (isset($pluginInfo->priority)) {
-                $registered[] = $pluginInfo;
-            } else {
-                $unregistered[] = $pluginInfo;
-            }
-        }
-
-		if (!empty($this->request->getQuery('sortmode'))) {
-		    //並び替えモードの場合はDBにデータが登録されていないプラグインを表示しない
-			$sortmode = true;
-			$plugins = $registered;
-		} else {
-            $sortmode = false;
-            $plugins = array_merge($registered, $unregistered);
-		}
-
-        $this->set('plugins', $plugins);
-
-        if($this->RequestHandler->prefers('json')) {
-            $this->viewBuilder()->setOption('serialize', ['plugins']);
-            return;
-        }
-
-        $this->set('corePlugins', Configure::read('BcApp.corePlugins'));
-        $this->set('sortmode', $sortmode);
-        $this->setTitle(__d('baser', 'プラグイン一覧'));
-        $this->setHelp('plugins_index');
+        $this->set('plugins', $PluginManage->getIndex($this->request->getQuery('sortmode') ?? '0'));
     }
 
     /**
@@ -117,55 +91,27 @@ class PluginsController extends BcAdminAppController
      * @param string $name プラグイン名
      * @return Response|void
      * @checked
+     * @noTodo
      * @unitTest
      */
-    public function install($name)
+    public function install(PluginManageServiceInterface $PluginManage, $name)
     {
-        $name = urldecode($name);
-        $installMessage = '';
-
-        try {
-            if ($this->Plugins->isInstallable($name)) {
-                $isInstallable = true;
-            }
-        } catch (BcException $e) {
-            $isInstallable = false;
-            $installMessage = $e->getMessage();
-        }
-
-        $pluginEntity = $this->Plugins->getPluginConfig($name);
-        $this->set('installMessage', $installMessage);
-        $this->set('isInstallable', $isInstallable);
-        $this->set('dbInit', $pluginEntity->db_init);
-        $this->set('plugin', $pluginEntity);
-        $this->setTitle(__d('baser', '新規プラグイン登録'));
-        $this->setHelp('plugins_install');
-
-        if (!$isInstallable || !$this->request->is(['put', 'post'])) {
+        $this->set('plugin', $this->Plugins->getPluginConfig($name));
+        if ($PluginManage->getInstallStatusMessage($name) || !$this->request->is(['put', 'post'])) {
             return;
-        }
-
-        // プラグインをインストール
-        BcUtil::includePluginClass($name);
-        $plugins = Plugin::getCollection();
-        $plugin = $plugins->create($name);
-        if(!method_exists($plugin, 'install')) {
-            $this->BcMessage->setError(__d('baser', 'プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してください。'));
-            return;
-        }
-
-        $data = $this->request->getData();
-        unset($data['name'], $data['title'], $data['status'], $data['version'], $data['permission']);
-        // install に $this->request->getData() を引数とするのはユニットテストで connection を test として設定するため
-        if ($plugin->install($data)) {
-            $this->BcMessage->setSuccess(sprintf(__d('baser', '新規プラグイン「%s」を baserCMS に登録しました。'), $name));
-            // TODO: アクセス権限を追加する
-            // $this->_addPermission($this->request->data);
-            return $this->redirect(['action' => 'index']);
         } else {
-            $this->BcMessage->setError(__d('baser', 'プラグインに問題がある為インストールを完了できません。プラグインの開発者に確認してください。'));
+            try {
+                if ($PluginManage->install($name, $this->request->getData('connection'))) {
+                    $PluginManage->allow($this->request->getData());
+                    $this->BcMessage->setSuccess(sprintf(__d('baser', '新規プラグイン「%s」を baserCMS に登録しました。'), $name));
+                    return $this->redirect(['action' => 'index']);
+                } else {
+                    $this->BcMessage->setError(__d('baser', 'プラグインに問題がある為インストールを完了できません。プラグインの開発者に確認してください。'));
+                }
+            } catch (\Exception $e) {
+                $this->BcMessage->setError($e->getMessage());
+            }
         }
-
     }
 
     /**
@@ -176,15 +122,14 @@ class PluginsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function detach($name)
+    public function detach(PluginManageServiceInterface $pluginManage, $name)
     {
-        $name = urldecode($name);
         if (!$this->request->is('post')) {
             $this->BcMessage->setError(__d('baser', '無効な処理です。'));
             return $this->redirect(['action' => 'index']);
         }
-        if ($this->Plugins->detach($name)) {
-            $this->BcMessage->setSuccess(sprintf(__d('baser', 'プラグイン「%s」を無効にしました。'), $name));
+        if ($pluginManage->detach($name)) {
+            $this->BcMessage->setSuccess(sprintf(__d('baser', 'プラグイン「%s」を無効にしました。'), urldecode($name)));
         } else {
             $this->BcMessage->setError(__d('baser', 'プラグインの無効化に失敗しました。'));
         }
@@ -203,26 +148,17 @@ class PluginsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function uninstall($name)
+    public function uninstall(PluginManageServiceInterface $pluginManage, $name)
     {
-        $name = urldecode($name);
         if (!$this->request->is('post')) {
             $this->BcMessage->setError(__d('baser', '無効な処理です。'));
             return $this->redirect(['action' => 'index']);
         }
-
-        BcUtil::includePluginClass($name);
-        $plugins = Plugin::getCollection();
-        $plugin = $plugins->create($name);
-        if(!method_exists($plugin, 'uninstall')) {
-            $this->BcMessage->setError(__d('baser', 'プラグインに Plugin クラスが存在しません。手動で削除してください。'));
-            return;
-        }
-
-        if ($plugin->uninstall($this->request->getData())) {
+        try {
+            $pluginManage->uninstall($name, $this->request->getData('connection'));
             $this->BcMessage->setSuccess(sprintf(__d('baser', 'プラグイン「%s」を削除しました。'), $name));
-        } else {
-            $this->BcMessage->setError(__d('baser', 'プラグインの削除に失敗しました。'));
+        } catch (\Exception $e) {
+            $this->BcMessage->setError(__d('baser', 'プラグインの削除に失敗しました。' . $e->getMessage()));
         }
         return $this->redirect(['action' => 'index']);
     }
@@ -281,11 +217,10 @@ class PluginsController extends BcAdminAppController
     public function add()
     {
         $this->setTitle(__d('baser', 'プラグインアップロード'));
-        $this->subMenuElements = ['plugins'];
 
         //データなし
         if (empty($this->request->getData())) {
-            if ($this->Plugin->isOverPostSize()) {
+            if ($this->Plugins->isOverPostSize()) {
                 $this->BcMessage->setError(__d('baser', '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。', ini_get('post_max_size')));
             }
             return;
@@ -333,36 +268,16 @@ class PluginsController extends BcAdminAppController
 
     /**
      * baserマーケットのプラグインデータを取得する
-     *
      * @return void
+     * @param PluginManageServiceInterface $pluginManage
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function get_market_plugins()
+    public function get_market_plugins(PluginManageServiceInterface $pluginManage)
     {
         $this->viewBuilder()->disableAutoLayout();
-        if (Configure::read('debug') > 0) {
-            Cache::delete('baserMarketPlugins');
-        }
-        if (!($baserPlugins = Cache::read('baserMarketPlugins', '_bc_env_'))) {
-            $Xml = new Xml();
-            try {
-				$client = new Client([
-                    'host' => ''
-                ]);
-				$response = $client->get(Configure::read('BcApp.marketPluginRss'));
-				if ($response->getStatusCode() !== 200) {
-                    return;
-				}
-                $baserPlugins = $Xml->build($response->getBody()->getContents());
-                $baserPlugins = $Xml->toArray($baserPlugins->channel);
-                $baserPlugins = $baserPlugins['channel']['item'];
-            } catch (Exception $e) {
-
-            }
-            Cache::write('baserMarketPlugins', $baserPlugins, '_bc_env_');
-        }
+        $baserPlugins = $pluginManage->getMarketPlugins();
         if ($baserPlugins) {
             $this->set('baserPlugins', $baserPlugins);
         }
@@ -375,7 +290,7 @@ class PluginsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function update_sort()
+    public function update_sort(PluginManageServiceInterface $pluginManage)
     {
         $this->disableAutoRender();
         if (!$this->request->getData()) {
@@ -383,7 +298,7 @@ class PluginsController extends BcAdminAppController
             return;
         }
 
-        if (!$this->Plugins->changePriority($this->request->getData('Sort.id'), $this->request->getData('Sort.offset'))) {
+        if (!$pluginManage->changePriority($this->request->getData('Sort.id'), $this->request->getData('Sort.offset'))) {
             $this->ajaxError(500, __d('baser', '一度リロードしてから再実行してみてください。'));
             return;
         }
@@ -392,99 +307,31 @@ class PluginsController extends BcAdminAppController
         return $this->response->withStringBody('true');
     }
 
-    /**
-     * アクセス制限設定を追加する
-     *
-     * @param array $data リクエストデータ
-     * @return void
-     */
-    public function _addPermission($data)
-    {
-        if (ClassRegistry::isKeySet('Permission')) {
-            $Permission = ClassRegistry::getObject('Permission');
-        } else {
-            $Permission = ClassRegistry::init('Permission');
-        }
-
-        $userGroups = $Permission->UserGroup->find('all', ['conditions' => ['UserGroup.id <>' => Configure::read('BcApp.adminGroupId')], 'recursive' => -1]);
-        if (!$userGroups) {
-            return;
-        }
-
-        foreach($userGroups as $userGroup) {
-            //$permissionAuthPrefix = $Permission->UserGroup->getAuthPrefix($userGroup['UserGroup']['id']);
-            // TODO 現在 admin 固定、今後、mypage 等にも対応する
-            $permissionAuthPrefix = 'admin';
-            $url = '/' . $permissionAuthPrefix . '/' . Inflector::underscore($data['Plugin']['name']) . '/*';
-            $permission = $Permission->find(
-                'first',
-                [
-                    'conditions' => ['Permission.url' => $url],
-                    'recursive' => -1
-                ]
-            );
-            switch($data['Plugin']['permission']) {
-                case 1:
-                    if (!$permission) {
-                        $Permission->create([
-                            'name' => $data['Plugin']['title'] . ' ' . __d('baser', '管理'),
-                            'user_group_id' => $userGroup['UserGroup']['id'],
-                            'auth' => true,
-                            'status' => true,
-                            'url' => $url,
-                            'no' => $Permission->getMax('no', ['user_group_id' => $userGroup['UserGroup']['id']]) + 1,
-                            'sort' => $Permission->getMax('sort', ['user_group_id' => $userGroup['UserGroup']['id']]) + 1
-                        ]);
-                        $Permission->save();
-                    }
-                    break;
-                case 2:
-                    if ($permission) {
-                        $Permission->delete($permission['Permission']['id']);
-                    }
-                    break;
-            }
-        }
-    }
 
     /**
      * データベースをリセットする
      *
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
-    public function reset_db()
+    public function reset_db(PluginManageServiceInterface $plugins, UserManageServiceInterface $userManage)
     {
         if (!$this->request->is('put')) {
             $this->BcMessage->setError(__d('baser', '無効な処理です。'));
             return;
         }
-        $plugin = $this->Plugins->find()
-            ->where(['name' => $this->request->getData('name')])
-            ->first();
-
-        BcUtil::includePluginClass($plugin->name);
-        $plugins = Plugin::getCollection();
-        $pluginClass = $plugins->create($plugin->name);
-        if(!method_exists($pluginClass, 'rollbackDb')) {
-            $this->BcMessage->setError(__d('baser', 'プラグインに Plugin クラスが存在しません。手動で削除してください。'));
-            return;
+        $plugin = $plugins->getByName($this->request->getData('name'));
+        try {
+            $plugins->resetDb($this->request->getData('name'), $this->request->getData('connection'));
+            $userManage->reLogin($this->request, $this->response);
+            $this->BcMessage->setSuccess(
+                sprintf(__d('baser', '%s プラグインのデータを初期化しました。'), $plugin->title)
+            );
+        } catch(\Exception $e) {
+            $this->BcMessage->setError(__d('baser', 'リセット処理中にエラーが発生しました。') . $e->getMessage());
         }
-
-        $plugin->db_init = false;
-        $data = $this->request->getData();
-        unset($data['name'], $data['title'], $data['status'], $data['version'], $data['permission']);
-        if (!$pluginClass->rollbackDb($data) || !$this->Plugins->save($plugin)) {
-            $this->BcMessage->setError(__d('baser', '処理中にエラーが発生しました。プラグインの開発者に確認してください。'));
-            return;
-        }
-        BcUtil::clearAllCache();
-        // TODO
-        // $this->BcAuth->relogin();
-        $this->BcMessage->setSuccess(
-            sprintf(__d('baser', '%s プラグインのデータを初期化しました。'), $plugin->title)
-        );
         $this->redirect(['action' => 'install', $plugin->name]);
     }
 
@@ -500,7 +347,7 @@ class PluginsController extends BcAdminAppController
     public function batch()
     {
         $this->autoRender = false;
-        if($this->request->getData('ListTool.batch') !== 'detach') {
+        if ($this->request->getData('ListTool.batch') !== 'detach') {
             return;
         }
         foreach($this->request->getData('ListTool.batch_targets') as $id) {
