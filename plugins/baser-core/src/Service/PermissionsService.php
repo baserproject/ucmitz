@@ -146,15 +146,15 @@ class PermissionsService implements PermissionsServiceInterface
         return $this->Permissions->delete($Permission);
     }
 
-    // /**
-    //  * 許可・拒否を指定するメソッドのリストを取得
-    //  *
-    //  * @return array
-    //  * @noTodo
-    //  * @checked
-    //  */
-    // public function getMethodList() : array
-    // {
-    //     return $this->Permissions::METHOD_LIST;
-    // }
+    /**
+     * 許可・拒否を指定するメソッドのリストを取得
+     *
+     * @return array
+     * @noTodo
+     * @checked
+     */
+    public function getMethodList() : array
+    {
+        return $this->Permissions::METHOD_LIST;
+    }
 }

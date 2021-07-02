@@ -23,15 +23,15 @@ interface PermissionsServiceInterface
 {
 
     /**
-     * サイトを取得する
+     * ユーザーを取得する
      * @param int $id
      * @return EntityInterface
      */
     public function get($id): EntityInterface;
 
     /**
-     * サイト一覧を取得
-     * @param array $queryParams
+     * ユーザー一覧を取得
+     * @param ServerRequest $request
      * @return Query
      */
     public function getIndex(ServerRequest $request, $userGroupId): Query;
@@ -52,17 +52,22 @@ interface PermissionsServiceInterface
     /**
      * 編集する
      * @param EntityInterface $target
-     * @param array $postData
+     * @param ServerRequest $request
      * @return mixed
      */
-    public function update(EntityInterface $target, array $postData);
-
+    public function update(EntityInterface $target, ServerRequest $request);
     /**
      * 削除する
      * @param int $id
      * @return mixed
      */
     public function delete(int $id);
+
+    /**
+     * 許可・拒否を指定するメソッドのリストを取得
+     * @return array
+     */
+    public function getMethodList(): array;
 
     // /**
     //  * 許可・拒否を指定するメソッドのリストを取得
