@@ -52,7 +52,7 @@ class CreatePermissions extends AbstractMigration
         $table->addColumn('method', 'string', [
             'default' => null,
             'limit' => 10,
-            // 'null' => false,
+            'null' => true,
         ]);
         $table->addColumn('status', 'boolean', [
             'default' => null,
