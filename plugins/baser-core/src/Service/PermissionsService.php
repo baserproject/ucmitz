@@ -19,6 +19,7 @@ use Cake\Http\ServerRequest;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Cake\Datasource\EntityInterface;
+use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -47,13 +48,16 @@ class PermissionsService implements PermissionsServiceInterface
 
     /**
      * パーミッションの新規データ用の初期値を含んだエンティティを取得する
+     * @param int $userGroupId
      * @return Permission
+     * @unitTest
      * @noTodo
      */
-    public function getNew(): EntityInterface
+    public function getNew($userGroupId): EntityInterface
     {
         return $this->Permissions->newEntity([
-            'url' => Configure::read('BcApp.baserCorePrefix') . Configure::read('BcApp.adminPrefix') . DS,
+            'user_group_id' => $userGroupId,
+            'url' => BcUtil::getPrefix() . DS,
             'auth' => 0,
             'status' => 1,
         ]);
@@ -151,6 +155,7 @@ class PermissionsService implements PermissionsServiceInterface
      *
      * @return array
      * @noTodo
+     * @unitTest
      * @checked
      */
     public function getMethodList() : array

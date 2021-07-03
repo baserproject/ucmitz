@@ -12,6 +12,7 @@
 namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Service\PermissionsService;
 
 /**
  * BaserCore\Model\Table\PermissionsTable Test Case
@@ -46,6 +47,7 @@ class PermissionsServiceTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->Permissions = new PermissionsService();
     }
 
     /**
@@ -55,17 +57,89 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function tearDown(): void
     {
+        unset($this->Permissions);
         parent::tearDown();
     }
 
     /**
-     * Test initialize
+     * Test getNew
      *
      * @return void
      */
-    public function testInitialize()
+    public function testGetNew()
+    {
+        $permission = $this->Permissions->getNew(1);
+        $this->assertEquals(1, $permission->user_group_id);
+        $this->assertFalse($permission->hasErrors());
+    }
+    /**
+     * Test get
+     *
+     * @return void
+     */
+    public function testGet()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+    /**
+     * Test getIndex
+     *
+     * @return void
+     */
+    public function testGetIndex()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+    /**
+     * Test set
+     *
+     * @return void
+     */
+    public function testSet()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+    /**
+     * Test create
+     *
+     * @return void
+     */
+    public function testCeate()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+    /**
+     * Test update
+     *
+     * @return void
+     */
+    public function testUpdate()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+    /**
+     * Test delete
+     *
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test delete
+     *
+     * @return void
+     */
+    public function testGetMethodList()
+    {
+        $this->assertEquals(
+            $this->Permissions->getMethodList(),
+            ['*' => 'ALL',
+            'GET' => 'GET',
+            'POST' => 'POST',]
+        );
     }
 
 }

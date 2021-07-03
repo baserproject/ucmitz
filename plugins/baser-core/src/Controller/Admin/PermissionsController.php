@@ -186,7 +186,7 @@ class PermissionsController extends BcAdminAppController
             }
             $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
         } else {
-            $permission = $permissions->getNew();
+            $permission = $permissions->getNew($userGroupId);
         }
 
         $this->set('permission', $permission);

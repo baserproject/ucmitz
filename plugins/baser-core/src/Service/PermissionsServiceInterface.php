@@ -38,9 +38,10 @@ interface PermissionsServiceInterface
 
     /**
      * 新しいデータの初期値を取得する
+     * @param int $userGroupId
      * @return EntityInterface
      */
-    public function getNew(): EntityInterface;
+    public function getNew($userGroupId): EntityInterface;
 
     /**
      * 新規登録する
@@ -68,18 +69,4 @@ interface PermissionsServiceInterface
      * @return array
      */
     public function getMethodList(): array;
-
-    // /**
-    //  * 許可・拒否を指定するメソッドのリストを取得
-    //  * @return array
-    //  */
-    // public function getMethodList(): array;
-
-    // /**
-    //  * URLの権限チェックを行う
-    //  * @param string $url
-    //  * @param array $userGroupId
-    //  * @return bool
-    //  */
-    // public function check($url, $userGroupId): bool;
 }
