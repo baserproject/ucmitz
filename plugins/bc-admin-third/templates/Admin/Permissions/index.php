@@ -28,8 +28,7 @@ $this->BcBaser->js([
   'admin/libs/baser_ajax_batch_config'
 ]);
 $this->BcAdmin->addAdminMainBodyHeaderLinks([
-  'url' => ['action' => 'add', $this->request->params['pass'][0]],
-  // 'url' => ['action' => 'add', $userGroupId], FIXME: #165
+  'url' => ['action' => 'add', $userGroupId],
   'title' => __d('baser', '新規追加'),
 ]);
 ?>
@@ -43,18 +42,18 @@ $this->BcAdmin->addAdminMainBodyHeaderLinks([
   });
 </script>
 
-
+<?php /*
 <div id="AjaxBatchUrl"
     style="display:none"><?php $this->BcBaser->url(['controller' => 'permissions', 'action' => 'ajax_batch']) ?></div>
 <div id="AjaxSorttableUrl"
-    style="display:none"><?php $this->BcBaser->url(['controller' => 'permissions', 'action' => 'ajax_update_sort', $this->request->params['pass'][0]]) ?></div>
+    style="display:none"><?php $this->BcBaser->url(['controller' => 'permissions', 'action' => 'ajax_update_sort', $userGroupId]) ?></div>
 <div id="AlertMessage" class="message" style="display:none"></div>
 <div id="MessageBox" style="display:none">
   <div id="flashMessage" class="notice-message"></div>
 </div>
-<div id="DataList" class="bca-data-list"><?php $this->BcBaser->element('permissions/index_list') ?></div>
-*/ ?>
-
+<div id="DataList" class="bca-data-list"><?php $this->BcBaser->element('Permissions/index_list') ?></div>
+*/
+?>
 <section id="DataList">
     <?php $this->BcBaser->element('Permissions/index_list') ?>
 </section>
