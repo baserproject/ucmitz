@@ -1,33 +1,23 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Model
- * @since           baserCMS v 0.1.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
+
+namespace BcFavorite\Model\Table;
+
+use BaserCore\Model\AppTable;
 
 /**
  * Class Favorite
- *
- * よく使う項目　モデル
- *
- * @package Baser.Model
  */
-class Favorite extends AppModel
+class Favorite extends AppTable
 {
-
-    /**
-     * クラス名
-     *
-     * @var string
-     */
-    public $name = 'Favorite';
 
     /**
      * belongsTo
@@ -39,20 +29,6 @@ class Favorite extends AppModel
             'className' => 'User',
             'foreignKey' => 'user_id'
         ]];
-
-    /**
-     * ビヘイビア
-     *
-     * @var array
-     */
-    public $actsAs = ['BcCache'];
-
-    /**
-     * セッション
-     *
-     * @var Session
-     */
-    public $_Session;
 
     /**
      * Favorite constructor.
@@ -68,16 +44,6 @@ class Favorite extends AppModel
             'url' => [
                 ['rule' => ['isPermitted'], 'message' => __d('baser', 'このURLの登録は許可されていません。')]]
         ];
-    }
-
-    /**
-     * セッションをセットする
-     *
-     * @param SessionComponent $Session
-     */
-    public function setSession(SessionComponent $Session)
-    {
-        $this->_Session = $Session;
     }
 
     /**
