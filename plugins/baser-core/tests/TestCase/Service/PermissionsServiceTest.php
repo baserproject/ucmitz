@@ -90,11 +90,15 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testGetIndex()
     {
-        $request = $this->getRequest('/');
-        $permissions = $this->Permissions->getIndex($request->getQueryParams(), 1);
-        $a = $permissions->first()->name;
-        $b = $permissions->all()->count();
-        // $this->assertEquals($permission);
+        // user_group_idがある場合
+        $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 2]);
+        $permissions = $this->Permissions->getIndex($request->getQueryParams());
+        $this->assertEquals('システム管理', $permissions->first()->name);
+        $this->assertEquals(15, $permissions->count());
+        // user_group_idがない場合
+        $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 1]);
+        $permissions = $this->Permissions->getIndex($request->getQueryParams());
+        $this->assertnull($permissions->first());
     }
     /**
      * Test set

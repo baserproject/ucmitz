@@ -32,10 +32,9 @@ interface PermissionsServiceInterface
     /**
      * ユーザー一覧を取得
      * @param array $queryParams
-     * @param int $userGroupId
      * @return Query
      */
-    public function getIndex(array $queryParams, $userGroupId): Query;
+    public function getIndex(array $queryParams): Query;
 
     /**
      * 新しいデータの初期値を取得する

@@ -80,21 +80,30 @@ class PermissionsService implements PermissionsServiceInterface
     /**
      * パーミッション管理の一覧用のデータを取得
      * @param array $queryParams
-     * @param int $userGroupId
      * @return Query
      * @noTodo
+     * @unitTest
      */
-    public function getIndex(array $queryParams, $userGroupId): Query
+    public function getIndex(array $queryParams): Query
     {
         $options = [];
         if (!empty($queryParams['num'])) {
             $options = ['limit' => $queryParams['num']];
         }
+        if (!empty($queryParams['user_group_id'])) {
+            $options = ['conditions' => ['Permissions.user_group_id' => $queryParams['user_group_id']]];
+        }
         $query = $this->Permissions->find('all', $options)->order('sort', 'ASC');
         return $query;
     }
 
-    public function set($data, $userGroupId)
+    /**
+     * パーミッションを設定する
+     * @param array $data
+     * @return \Cake\Datasource\EntityInterface
+     * @noTodo
+     */
+    public function set($data, $userGroupId): EntityInterface
     {
         $permission = $this->Permissions->newEmptyEntity([
             'user_group_id' => $userGroupId,
