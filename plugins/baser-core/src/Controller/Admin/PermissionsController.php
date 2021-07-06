@@ -176,7 +176,7 @@ class PermissionsController extends BcAdminAppController
 		$userGroup = $userGroups->get($userGroupId);
 
         if ($this->request->is('post')) {
-            $permission = $permissions->set($this->request->getData(), $userGroup->id);
+            $permission = $permissions->set($this->request->withData('user_group_id', $userGroup->id)->getData());
             if (empty($permission->getErrors()) === true) {
                 $permissions->create($permission);
                 $this->BcMessage->setSuccess(sprintf(__d('baser', '新規アクセス制限設定「%s」を追加しました。'), $permission->name));

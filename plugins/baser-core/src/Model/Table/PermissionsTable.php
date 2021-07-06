@@ -107,7 +107,8 @@ class PermissionsTable extends AppTable
         $validator
             ->scalar('name')
             ->maxLength('name', 255,  __d('baser', '設定名は255文字以内で入力してください。'))
-            ->notEmptyString('name', __d('baser', '設定名を入力してください。'));
+            ->notEmptyString('name', __d('baser', '設定名を入力してください。'))
+            ->requirePresence('name', true);
         $validator
             ->integer('user_group_id')
             ->notEmptyString('user_group_id',  __d('baser', 'ユーザーグループを選択してください。'))
@@ -116,6 +117,7 @@ class PermissionsTable extends AppTable
             ->scalar('url')
             ->maxLength('url', 255, __d('baser', '設定URLは255文字以内で入力してください。'))
             ->notEmptyString('url', __d('baser', '設定URLを入力してください。'))
+            ->requirePresence('user_group_id', true)
             ->add('url', 'checkUrl', [
                 'rule' => 'checkUrl',
                 'provider' => 'permission',
@@ -246,6 +248,7 @@ class PermissionsTable extends AppTable
      * @param int $id
      * @param array $data
      * @return mixed $permission | false
+     * TODO: copyをServiceに移行する
      * @checked
      * @noTodo
      * @unitTest

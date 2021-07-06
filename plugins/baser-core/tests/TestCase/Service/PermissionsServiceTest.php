@@ -47,7 +47,7 @@ class PermissionsServiceTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Permissions = new PermissionsService();
+        $this->PermissionsService = new PermissionsService();
     }
 
     /**
@@ -57,7 +57,7 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Permissions);
+        unset($this->PermissionsService);
         parent::tearDown();
     }
 
@@ -68,7 +68,7 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testGetNew()
     {
-        $permission = $this->Permissions->getNew(1);
+        $permission = $this->PermissionsService->getNew(1);
         $this->assertEquals(1, $permission->user_group_id);
         $this->assertFalse($permission->hasErrors());
     }
@@ -79,7 +79,7 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testGet()
     {
-        $permission = $this->Permissions->get(1);
+        $permission = $this->PermissionsService->get(1);
         $this->assertEquals('システム管理', $permission->name);
         $this->assertEquals(2, $permission->user_group->id);
     }
@@ -92,12 +92,12 @@ class PermissionsServiceTest extends BcTestCase
     {
         // user_group_idがある場合
         $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 2]);
-        $permissions = $this->Permissions->getIndex($request->getQueryParams());
+        $permissions = $this->PermissionsService->getIndex($request->getQueryParams());
         $this->assertEquals('システム管理', $permissions->first()->name);
         $this->assertEquals(15, $permissions->count());
         // user_group_idがない場合
         $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 1]);
-        $permissions = $this->Permissions->getIndex($request->getQueryParams());
+        $permissions = $this->PermissionsService->getIndex($request->getQueryParams());
         $this->assertnull($permissions->first());
     }
     /**
@@ -107,17 +107,43 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testSet()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // 正常な場合
+        $data = [
+            'name' => 'testSet',
+            'user_group_id' => '3',
+            'url' => '/baser/admin/*'
+        ];
+        $permission = $this->PermissionsService->set($data);
+        $this->assertEquals("testSet", $permission->name);
+        $this->assertEquals(20, $permission->no);
+        // 異常な場合
+        $data = [
+            'name' => '',
+            'user_group_id' => '',
+            'url' => ''
+        ];
+        $permission = $this->PermissionsService->set($data);
+        $this->assertTrue($permission->hasErrors());
     }
+
     /**
      * Test create
      *
      * @return void
      */
-    public function testCeate()
+    public function testCreate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $data = $this->PermissionsService->set([
+            'name' => 'testCreate',
+            'user_group_id' => '3',
+            'url' => '/baser/admin/*'
+        ]);
+
+        $permission = $this->PermissionsService->create($data);
+        $newRecord = $this->PermissionsService->Permissions->find('all')->all()->last();
+        $this->assertEquals($newRecord->name, $permission->name);
     }
+
     /**
      * Test update
      *
@@ -125,8 +151,17 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testUpdate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $data = [
+            'name' => 'testUpdate',
+            'user_group_id' => '2',
+            'url' => '/baser/admin/*'
+        ];
+        $record = $this->PermissionsService->Permissions->get(1);
+        $permission = $this->PermissionsService->update($record, $data);
+        $this->assertEquals('testUpdate', $permission->name);
+        $this->assertEquals(20, $permission->no);
     }
+
     /**
      * Test delete
      *
@@ -145,7 +180,7 @@ class PermissionsServiceTest extends BcTestCase
     public function testGetMethodList()
     {
         $this->assertEquals(
-            $this->Permissions->getMethodList(),
+            $this->PermissionsService->getMethodList(),
             ['*' => 'ALL',
             'GET' => 'GET',
             'POST' => 'POST',]

@@ -44,6 +44,13 @@ interface PermissionsServiceInterface
     public function getNew($userGroupId): EntityInterface;
 
     /**
+     * パーミッションを設定する
+     * @param array $data
+     * @return \Cake\Datasource\EntityInterface
+     */
+    public function set($data): EntityInterface;
+
+    /**
      * 新規登録する
      * @param EntityInterface $permission
      * @return EntityInterface|false
@@ -53,10 +60,10 @@ interface PermissionsServiceInterface
     /**
      * 編集する
      * @param EntityInterface $target
-     * @param ServerRequest $request
+     * @param array $data
      * @return mixed
      */
-    public function update(EntityInterface $target, ServerRequest $request);
+    public function update(EntityInterface $target, array $data);
     /**
      * 削除する
      * @param int $id

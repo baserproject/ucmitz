@@ -102,13 +102,13 @@ class PermissionsService implements PermissionsServiceInterface
      * @param array $data
      * @return \Cake\Datasource\EntityInterface
      * @noTodo
+     * @unitTest
      */
-    public function set($data, $userGroupId): EntityInterface
+    public function set($data): EntityInterface
     {
-        $permission = $this->Permissions->newEmptyEntity([
-            'user_group_id' => $userGroupId,
-        ]);
-        return $this->Permissions->patchEntity($permission, $data, ['validate' => 'default']);
+        $additionalData = $this->fillRecord($data);
+        $permission = $this->Permissions->newEmptyEntity();
+        return $this->Permissions->patchEntity($permission, $additionalData, ['validate' => 'default']);
     }
 
     /**
@@ -116,6 +116,7 @@ class PermissionsService implements PermissionsServiceInterface
      * @param ServerRequest $request
      * @return \Cake\Datasource\EntityInterface|false
      * @noTodo
+     * @unitTest
      */
     public function create(EntityInterface $permission)
     {
@@ -125,13 +126,15 @@ class PermissionsService implements PermissionsServiceInterface
     /**
      * パーミッション情報を更新する
      * @param EntityInterface $target
-     * @param ServerRequest $request
+     * @param array $data
      * @return EntityInterface|false
      * @noTodo
+     * @unitTest
      */
-    public function update(EntityInterface $target, ServerRequest $request)
+    public function update(EntityInterface $target, array $data)
     {
-        $Permission = $this->Permissions->patchEntity($target, $request->getData());
+        $additionalData = $this->fillRecord($data);
+        $Permission = $this->Permissions->patchEntity($target, $additionalData);
         return $this->Permissions->save($Permission);
     }
 
@@ -171,5 +174,29 @@ class PermissionsService implements PermissionsServiceInterface
     public function getMethodList() : array
     {
         return $this->Permissions::METHOD_LIST;
+    }
+    /**
+     *  レコード作成に必要なデータを代入する
+     * @param array $data
+     * @return array $data
+     * @checked
+     */
+    protected function fillRecord($data): array
+    {
+        // TODO: default値の設定後ほど正確な値に変更する
+        if(empty($data['no']) || empty($data['sort'])) {
+            $data['no'] = $this->Permissions->getMax('no') + 1;
+            $data['sort'] = $this->Permissions->getMax('sort') + 1;
+        }
+        if (empty($data['auth'])) {
+            $data['auth'] = false;
+        }
+        if (empty($data['method'])) {
+            $data['method'] = $this->getMethodList()['*'];
+        }
+        if (empty($data['status'])) {
+            $data['status'] = true;
+        }
+        return $data;
     }
 }
