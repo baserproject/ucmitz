@@ -68,24 +68,25 @@ class PermissionsService implements PermissionsServiceInterface
      * @param int $id
      * @return EntityInterface
      * @noTodo
+     * @unitTest
      */
     public function get($id): EntityInterface
     {
         return $this->Permissions->get($id, [
-            'contain' => ['PermissionGroups'],
+            'contain' => ['UserGroups'],
         ]);
     }
 
     /**
      * パーミッション管理の一覧用のデータを取得
      * @param array $queryParams
-     * @param array $paginateParams
-     * @return array
+     * @param int $userGroupId
+     * @return Query
      * @noTodo
      */
-    public function getIndex(ServerRequest $request, $userGroupId): Query
+    public function getIndex(array $queryParams, $userGroupId): Query
     {
-        $queryParams = $request->getQueryParams();
+        $options = [];
         if (!empty($queryParams['num'])) {
             $options = ['limit' => $queryParams['num']];
         }

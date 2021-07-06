@@ -31,10 +31,11 @@ interface PermissionsServiceInterface
 
     /**
      * ユーザー一覧を取得
-     * @param ServerRequest $request
+     * @param array $queryParams
+     * @param int $userGroupId
      * @return Query
      */
-    public function getIndex(ServerRequest $request, $userGroupId): Query;
+    public function getIndex(array $queryParams, $userGroupId): Query;
 
     /**
      * 新しいデータの初期値を取得する

@@ -58,9 +58,9 @@ $this->BcListTable->setColumnNumber(6);
   </tr>
   </thead>
   <tbody>
-  <?php if (!empty($datas)): ?>
-    <?php foreach($datas as $data): ?>
-      <?php $this->BcBaser->element('permissions/index_row', ['data' => $data]) ?>
+  <?php if (!empty($permissions)): ?>
+    <?php foreach($permissions as $permission): ?>
+      <?php $this->BcBaser->element('Permissions/index_row', ['data' => $permission]) ?>
     <?php endforeach; ?>
   <?php else: ?>
     <tr>

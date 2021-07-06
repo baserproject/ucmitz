@@ -119,9 +119,7 @@ class PermissionsController extends BcAdminAppController
 		// }
 
         // TODO 未実装、取り急ぎ動作させるためのコード
-
-
-
+        $a = $this->request->getQueryParams();
         $userGroup = $userGroups->get($userGroupId);
 
 
@@ -133,7 +131,7 @@ class PermissionsController extends BcAdminAppController
         ]]]);
 
         $this->set('userGroupId', $userGroupId);
-        $this->set('permissions', $this->paginate($permissions->getIndex($this->request, $userGroupId)));
+        $this->set('permissions', $this->paginate($permissions->getIndex($this->request->getQueryParams(), $userGroupId)));
 
 
 

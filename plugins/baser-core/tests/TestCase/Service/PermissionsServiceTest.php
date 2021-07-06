@@ -79,7 +79,9 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testGet()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $permission = $this->Permissions->get(1);
+        $this->assertEquals('システム管理', $permission->name);
+        $this->assertEquals(2, $permission->user_group->id);
     }
     /**
      * Test getIndex
@@ -88,7 +90,11 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testGetIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $request = $this->getRequest('/');
+        $permissions = $this->Permissions->getIndex($request->getQueryParams(), 1);
+        $a = $permissions->first()->name;
+        $b = $permissions->all()->count();
+        // $this->assertEquals($permission);
     }
     /**
      * Test set
