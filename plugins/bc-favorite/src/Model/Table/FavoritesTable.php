@@ -12,6 +12,7 @@
 namespace BcFavorite\Model\Table;
 
 use BaserCore\Model\AppTable;
+use Cake\Validation\Validator;
 
 /**
  * Class Favorite
@@ -19,51 +20,50 @@ use BaserCore\Model\AppTable;
 class Favorite extends AppTable
 {
 
-    /**
-     * belongsTo
-     *
-     * @var array
-     */
-    public $belongsTo = [
-        'User' => [
-            'className' => 'User',
-            'foreignKey' => 'user_id'
-        ]];
 
     /**
-     * Favorite constructor.
+     * Initialize
      *
-     * @param bool $id
-     * @param null $table
-     * @param null $ds
+     * @param array $config テーブル設定
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function __construct($id = false, $table = null, $ds = null)
+    public function initialize(array $config): void
     {
-        parent::__construct($id, $table, $ds);
-        $this->validate = [
-            'url' => [
-                ['rule' => ['isPermitted'], 'message' => __d('baser', 'このURLの登録は許可されていません。')]]
-        ];
+        parent::initialize($config);
+        $this->setTable('favorites');
+        $this->setDisplayField('name');
+        $this->setPrimaryKey('id');
+        $this->addBehavior('Timestamp');
+        $this->belongsTo('Users', [
+            'className' => 'BaserCore.Users',
+            'foreignKey' => 'user_id',
+            'targetForeignKey' => 'id',
+        ]);
     }
 
     /**
-     * アクセス権があるかチェックする
+     * Validation Default
      *
-     * @param array $check
+     * @param Validator $validator
+     * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function isPermitted($check)
+    public function validationDefault(Validator $validator): Validator
     {
-        if (!$this->_Session) {
-            return true;
-        }
-        $url = $check[key($check)];
-        $prefix = BcUtil::authSessionKey('admin');
-        $userGroupId = $this->_Session->read('Auth.' . $prefix . '.user_group_id');
-        if ($userGroupId == Configure::read('BcApp.adminGroupId')) {
-            return true;
-        }
-        $Permission = ClassRegistry::init('Permission');
-        return $Permission->check($url, $userGroupId);
+        $validator->setProvider('favorite', 'BaserCore\Model\Validation\FavoriteValidation');
+        $validator
+            ->scalar('url')
+            ->add('url', 'isPermitted', [
+                'rule' => 'isPermitted',
+                'provider' => 'favorite',
+                'message' => __d('baser', 'このURLの登録は許可されていません。')]);
+
+        return $validator;
     }
 
 }
