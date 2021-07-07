@@ -11,15 +11,16 @@
  */
 namespace BaserCore\Model\Table;
 use ArrayObject;
-use BaserCore\Model\AppTable;
-use Cake\Core\Configure;
-use BaserCore\Utility\BcUtil;
-use Cake\Datasource\EntityInterface;
 use Cake\Event\Event;
+use Cake\Core\Configure;
+use BaserCore\Model\AppTable;
+use BaserCore\Utility\BcUtil;
 use Cake\Validation\Validator;
-use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use Cake\Datasource\EntityInterface;
+use Cake\Datasource\ConnectionManager;
 use BaserCore\Model\Table\Exception\CopyFailedException;
 /**
  * Class PermissionTable
@@ -122,6 +123,34 @@ class PermissionsTable extends AppTable
                 'rule' => 'checkUrl',
                 'provider' => 'permission',
                 'message' => __d('baser', 'アクセス拒否として設定できるのは認証ページだけです。')]);
+        return $validator;
+    }
+
+    /**
+     * 実際には保存しないプレーンな新規データ表示用で使うバリデーション
+     *
+     * @param Validator $validator
+     * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function validationPlain($validator)
+    {
+        $collection = ConnectionManager::get('default')->getSchemaCollection();
+        $columns = $collection->describe('permissions')->columns();
+        $required = ['user_group_id'];
+
+        $validator
+        ->integer('user_group_id')
+        ->notEmptyString('user_group_id',  __d('baser', 'ユーザーグループを選択してください。'))
+        ->requirePresence('user_group_id', true);
+
+        foreach ($columns as $column) {
+            if (!in_array($column, $required)) {
+                $validator->allowEmptyFor($column, Validator::EMPTY_STRING, Validator::WHEN_CREATE);
+            }
+        }
         return $validator;
     }
     /**

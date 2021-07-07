@@ -56,10 +56,7 @@ class PermissionsService implements PermissionsServiceInterface
     {
         return $this->Permissions->newEntity([
             'user_group_id' => $userGroupId,
-            'url' => BcUtil::getPrefix() . DS,
-            'auth' => 0,
-            'status' => 1,
-        ]);
+        ], ['validate' => 'plain']);
     }
 
     /**
