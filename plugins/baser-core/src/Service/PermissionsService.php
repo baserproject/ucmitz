@@ -50,7 +50,6 @@ class PermissionsService implements PermissionsServiceInterface
      * パーミッションの新規データ用の初期値を含んだエンティティを取得する
      * @param int $userGroupId
      * @return Permission
-     * @unitTest
      * @noTodo
      */
     public function getNew($userGroupId): EntityInterface
@@ -106,7 +105,7 @@ class PermissionsService implements PermissionsServiceInterface
      */
     public function set($data): EntityInterface
     {
-        $additionalData = $this->fillRecord($data);
+        $additionalData = $this->autoFillRecord($data);
         $permission = $this->Permissions->newEmptyEntity();
         return $this->Permissions->patchEntity($permission, $additionalData, ['validate' => 'default']);
     }
@@ -133,7 +132,7 @@ class PermissionsService implements PermissionsServiceInterface
      */
     public function update(EntityInterface $target, array $data)
     {
-        $additionalData = $this->fillRecord($data);
+        $additionalData = $this->autoFillRecord($data);
         $Permission = $this->Permissions->patchEntity($target, $additionalData);
         return $this->Permissions->save($Permission);
     }
@@ -144,17 +143,15 @@ class PermissionsService implements PermissionsServiceInterface
      * @param int $id
      * @return bool
      * @noTodo
+     * @unitTest
      */
     public function delete($id)
     {
-        $Permission = $this->Permissions->get($id, ['contain' => ['PermissionGroups']]);
-        if($Permission->isAdmin()) {
+        $Permission = $this->get($id);
+        if(BcUtil::isAdmin($Permission)) {
             $count = $this->Permissions
-                ->find('all', ['conditions' => ['PermissionsPermissionGroups.Permission_group_id' => Configure::read('BcApp.adminGroupId')]])
-                ->join(['table' => 'Permissions_Permission_groups',
-                    'alias' => 'PermissionsPermissionGroups',
-                    'type' => 'inner',
-                    'conditions' => 'PermissionsPermissionGroups.Permission_id = Permissions.id'])
+                ->find('all')
+                ->where(['Permissions.user_group_id' => Configure::read('BcApp.adminGroupId')])
                 ->count();
             if ($count === 1) {
                 throw new Exception(__d('baser', '最後のシステム管理者は削除できません'));
@@ -181,7 +178,7 @@ class PermissionsService implements PermissionsServiceInterface
      * @return array $data
      * @checked
      */
-    protected function fillRecord($data): array
+    protected function autoFillRecord($data): array
     {
         // TODO: default値の設定後ほど正確な値に変更する
         if(empty($data['no']) || empty($data['sort'])) {

@@ -331,8 +331,28 @@ class BcUtil
     }
 
     /**
-     * 管理ユーザーかチェック
-     * @param array|null
+     * 管理ユーザーを持つかチェック
+     * @param Entity $entity
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public static function isAdmin($entity): bool
+    {
+        if ($entity->user_groups) {
+            $group_id = array_column($entity->user_groups, 'id');
+        } elseif ($entity->user_group_id) {
+            $group_id = array($entity->user_group_id);
+        } else {
+            return false;
+        }
+        return in_array(Configure::read('BcApp.adminGroupId'), $group_id);
+    }
+
+    /**
+     * 認証領域含め管理ユーザーかチェック
+     * @param array|null $user
      * @return bool
      * @checked
      * @notodo
@@ -341,9 +361,9 @@ class BcUtil
     public static function isAdminUser($user = null): bool
     {
         $User = $user? $user : self::loginUser('Admin');
-        $group_id = array_column($User->user_groups, 'id');
-        return in_array(Configure::read('BcApp.adminGroupId'), $group_id);
+        return self::isAdmin($User);
     }
+
 
     /**
      * 現在ログインしているユーザーのユーザーグループ情報を取得する

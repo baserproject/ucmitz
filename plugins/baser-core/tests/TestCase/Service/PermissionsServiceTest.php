@@ -169,7 +169,12 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testDelete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // group_idが最後の1の場合
+        // group_idが1出ない場合
+        $this->PermissionsService->delete(1);
+        $permissions = $this->PermissionsService->Permissions->find('all');
+        $this->assertEquals(2, $permissions->first()->id);
+
     }
 
     /**

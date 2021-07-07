@@ -11,14 +11,15 @@
 
 namespace BaserCore\Test\TestCase\Utility;
 
-use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Utility\BcUtil;
 use Cake\Core\App;
-use Cake\Core\Configure;
+use Cake\Cache\Cache;
 use Cake\Core\Plugin;
+use Cake\Core\Configure;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
-use Cake\Cache\Cache;
+use Cake\ORM\TableRegistry;
+use BaserCore\Utility\BcUtil;
+use BaserCore\TestSuite\BcTestCase;
 
 /**
  * TODO: $this->getRequest();などをsetupに統一する
@@ -36,6 +37,7 @@ class BcUtilTest extends BcTestCase
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.Permissions',
         'plugin.BaserCore.Plugins',
     ];
 
@@ -313,9 +315,39 @@ class BcUtilTest extends BcTestCase
             ['hoge/', false],
         ];
     }
-
     /**
-     * 管理ユーザーかチェック
+     * Test isAdmin
+     * @param string $id ユーザーグループに基づいたid
+     * @param bool $expect 期待値
+     * @return void
+     * @dataProvider isAdminDataProvider
+     */
+    public function testIsAdmin($id, $expected)
+    {
+        // user Entityの場合
+        $user = $this->getUser($id);
+        $this->assertEquals($expected,  BcUtil::isAdmin($user));
+        // permission Entityの場合
+        // 今はuser_group_idが2のものしか無いためfalse
+        $permission = TableRegistry::getTableLocator()->get('BaserCore.Permissions')->get($id);
+        $this->assertFalse(BcUtil::isAdmin($permission));
+    }
+    /**
+     * isAdmin用データプロバイダ
+     *
+     * @return array
+     */
+    public function isAdminDataProvider()
+    {
+        return [
+            // 管理ユーザー
+            [1, true],
+            // 運営者ユーザー
+            [2, false],
+        ];
+    }
+    /**
+     * 認証領域含め管理ユーザーかチェック
      *
      * @param string $id ユーザーグループに基づいたid
      * @param bool $expect 期待値
@@ -697,7 +729,7 @@ class BcUtilTest extends BcTestCase
     }
 
     /**
-     * 
+     *
      * baserコア用のプレフィックスを取得する
      */
     public function testGetBaserCorePrefix()
@@ -707,7 +739,7 @@ class BcUtilTest extends BcTestCase
     }
 
     /**
-     * 
+     *
      * プレフィックス全体を取得する
      */
     public function testGetPrefix()
