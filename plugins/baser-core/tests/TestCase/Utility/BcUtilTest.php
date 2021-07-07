@@ -326,11 +326,10 @@ class BcUtilTest extends BcTestCase
     {
         // user Entityの場合
         $user = $this->getUser($id);
-        $this->assertEquals($expected,  BcUtil::isAdmin($user));
+        $this->assertEquals($expected, BcUtil::isAdmin($user));
         // permission Entityの場合
-        // 今はuser_group_idが2のものしか無いためfalse
-        $permission = TableRegistry::getTableLocator()->get('BaserCore.Permissions')->get($id);
-        $this->assertFalse(BcUtil::isAdmin($permission));
+        $permission = TableRegistry::getTableLocator()->get('BaserCore.Permissions')->find('all')->where(['user_group_id' => $id])->first();
+        $this->assertEquals($expected, BcUtil::isAdmin($permission));
     }
     /**
      * isAdmin用データプロバイダ

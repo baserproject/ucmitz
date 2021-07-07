@@ -96,7 +96,7 @@ class PermissionsServiceTest extends BcTestCase
         $this->assertEquals('システム管理', $permissions->first()->name);
         $this->assertEquals(15, $permissions->count());
         // user_group_idがない場合
-        $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 1]);
+        $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 999]);
         $permissions = $this->PermissionsService->getIndex($request->getQueryParams());
         $this->assertnull($permissions->first());
     }
@@ -115,7 +115,7 @@ class PermissionsServiceTest extends BcTestCase
         ];
         $permission = $this->PermissionsService->set($data);
         $this->assertEquals("testSet", $permission->name);
-        $this->assertEquals(20, $permission->no);
+        $this->assertEquals(21, $permission->no);
         // 異常な場合
         $data = [
             'name' => '',
@@ -159,7 +159,7 @@ class PermissionsServiceTest extends BcTestCase
         $record = $this->PermissionsService->Permissions->get(1);
         $permission = $this->PermissionsService->update($record, $data);
         $this->assertEquals('testUpdate', $permission->name);
-        $this->assertEquals(20, $permission->no);
+        $this->assertEquals(21, $permission->no);
     }
 
     /**
@@ -169,12 +169,14 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testDelete()
     {
-        // group_idが最後の1の場合
         // group_idが1出ない場合
         $this->PermissionsService->delete(1);
         $permissions = $this->PermissionsService->Permissions->find('all');
         $this->assertEquals(2, $permissions->first()->id);
-
+        // Adminのgroup_idが最後の1つの場合
+        $this->expectException("Exception");
+        $this->expectExceptionMessage("最後のシステム管理者は削除できません");
+        $this->PermissionsService->delete(20);
     }
 
     /**
