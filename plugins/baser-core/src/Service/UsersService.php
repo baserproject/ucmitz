@@ -143,7 +143,7 @@ class UsersService implements UsersServiceInterface
     public function delete($id)
     {
         $user = $this->Users->get($id, ['contain' => ['UserGroups']]);
-        if (BcUtil::isAdmin($user)) {
+        if (BcUtil::hasAdmin($user)) {
             $count = $this->Users
                 ->find('all', ['conditions' => ['UsersUserGroups.user_group_id' => Configure::read('BcApp.adminGroupId')]])
                 ->join(['table' => 'users_user_groups',

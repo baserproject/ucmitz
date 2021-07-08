@@ -338,7 +338,7 @@ class BcUtil
      * @noTodo
      * @unitTest
      */
-    public static function isAdmin($entity): bool
+    public static function hasAdmin($entity): bool
     {
         if ($entity->user_groups) {
             $group_id = array_column($entity->user_groups, 'id');
@@ -361,7 +361,7 @@ class BcUtil
     public static function isAdminUser($user = null): bool
     {
         $User = $user? $user : self::loginUser('Admin');
-        return self::isAdmin($User);
+        return self::hasAdmin($User);
     }
 
 
