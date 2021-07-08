@@ -70,6 +70,14 @@ class UserTest extends BcTestCase
     }
 
     /**
+     * Test isAdmin
+     */
+    public function testIsAdmin()
+    {
+        $this->assertTrue($this->User->isAdmin());
+    }
+
+    /**
      * ユーザー名を整形して表示する
      * @param string $nickname
      * @param string $realName1

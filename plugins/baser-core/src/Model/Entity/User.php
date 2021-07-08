@@ -76,6 +76,22 @@ class User extends EntityAlias
     }
 
     /**
+     * 管理ユーザーかどうか判定する
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function isAdmin()
+    {
+        if (empty($this->user_groups)) {
+            return false;
+        }
+        $userGroupId = Hash::extract($this->user_groups, '{n}.id');
+        return in_array(Configure::read('BcApp.adminGroupId'), $userGroupId);
+    }
+
+    /**
      * 整形されたユーザー名を取得する
      * @return string
      * @checked

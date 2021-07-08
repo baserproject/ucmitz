@@ -11,15 +11,14 @@
 
 namespace BaserCore\Test\TestCase\Utility;
 
+use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcUtil;
 use Cake\Core\App;
-use Cake\Cache\Cache;
-use Cake\Core\Plugin;
 use Cake\Core\Configure;
+use Cake\Core\Plugin;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
-use Cake\ORM\TableRegistry;
-use BaserCore\Utility\BcUtil;
-use BaserCore\TestSuite\BcTestCase;
+use Cake\Cache\Cache;
 
 /**
  * TODO: $this->getRequest();などをsetupに統一する
@@ -37,7 +36,6 @@ class BcUtilTest extends BcTestCase
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
-        'plugin.BaserCore.Permissions',
         'plugin.BaserCore.Plugins',
     ];
 
@@ -315,38 +313,9 @@ class BcUtilTest extends BcTestCase
             ['hoge/', false],
         ];
     }
+
     /**
-     * Test hasAdmin
-     * @param string $id ユーザーグループに基づいたid
-     * @param bool $expect 期待値
-     * @return void
-     * @dataProvider hasAdminDataProvider
-     */
-    public function testHasAdmin($id, $expected)
-    {
-        // user Entityの場合
-        $user = $this->getUser($id);
-        $this->assertEquals($expected, BcUtil::hasAdmin($user));
-        // permission Entityの場合
-        $permission = TableRegistry::getTableLocator()->get('BaserCore.Permissions')->find('all')->where(['user_group_id' => $id])->first();
-        $this->assertEquals($expected, BcUtil::hasAdmin($permission));
-    }
-    /**
-     * hasAdmin用データプロバイダ
-     *
-     * @return array
-     */
-    public function hasAdminDataProvider()
-    {
-        return [
-            // 管理ユーザー
-            [1, true],
-            // 運営者ユーザー
-            [2, false],
-        ];
-    }
-    /**
-     * 認証領域含め管理ユーザーかチェック
+     * 管理ユーザーかチェック
      *
      * @param string $id ユーザーグループに基づいたid
      * @param bool $expect 期待値

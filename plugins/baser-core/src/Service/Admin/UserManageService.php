@@ -89,7 +89,7 @@ class UserManageService extends UsersService implements UserManageServiceInterfa
         if (empty($id) || empty($user)) {
             return false;
         } else {
-            return ($this->isSelfUpdate($id) || BcUtil::hasAdmin($user));
+            return ($this->isSelfUpdate($id) || $user->isAdmin());
         }
     }
 
@@ -108,7 +108,7 @@ class UserManageService extends UsersService implements UserManageServiceInterfa
         if (empty($id) || empty($user)) {
             return false;
         }
-        return (BcUtil::hasAdmin($user) && !$this->isSelfUpdate($id));
+        return ($user->isAdmin() && !$this->isSelfUpdate($id));
     }
 
     /**
