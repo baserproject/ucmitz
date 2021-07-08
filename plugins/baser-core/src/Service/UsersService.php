@@ -11,17 +11,16 @@
 
 namespace BaserCore\Service;
 
-use Cake\ORM\Query;
-use Cake\Core\Configure;
-use Cake\ORM\TableRegistry;
-use BaserCore\Utility\BcUtil;
-use BaserCore\Annotation\NoTodo;
 use BaserCore\Model\Entity\User;
-use BaserCore\Annotation\Checked;
-use BaserCore\Annotation\UnitTest;
-use Cake\Core\Exception\Exception;
-use Cake\Datasource\EntityInterface;
 use BaserCore\Model\Table\UsersTable;
+use Cake\Core\Configure;
+use Cake\Core\Exception\Exception;
+use Cake\ORM\Query;
+use Cake\ORM\TableRegistry;
+use Cake\Datasource\EntityInterface;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class UsersService
@@ -143,7 +142,7 @@ class UsersService implements UsersServiceInterface
     public function delete($id)
     {
         $user = $this->Users->get($id, ['contain' => ['UserGroups']]);
-        if (BcUtil::hasAdmin($user)) {
+        if ($user->isAdmin()) {
             $count = $this->Users
                 ->find('all', ['conditions' => ['UsersUserGroups.user_group_id' => Configure::read('BcApp.adminGroupId')]])
                 ->join(['table' => 'users_user_groups',

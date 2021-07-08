@@ -145,7 +145,7 @@ class PermissionsService implements PermissionsServiceInterface
     public function delete($id)
     {
         $Permission = $this->get($id);
-        if(BcUtil::hasAdmin($Permission)) {
+        if($Permission->user_group_id === Configure::read('BcApp.adminGroupId')) {
             $count = $this->Permissions
                 ->find('all')
                 ->where(['Permissions.user_group_id' => Configure::read('BcApp.adminGroupId')])
