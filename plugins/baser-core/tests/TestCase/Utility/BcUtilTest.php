@@ -316,27 +316,27 @@ class BcUtilTest extends BcTestCase
         ];
     }
     /**
-     * Test isAdmin
+     * Test hasAdmin
      * @param string $id ユーザーグループに基づいたid
      * @param bool $expect 期待値
      * @return void
-     * @dataProvider isAdminDataProvider
+     * @dataProvider hasAdminDataProvider
      */
-    public function testIsAdmin($id, $expected)
+    public function testHasAdmin($id, $expected)
     {
         // user Entityの場合
         $user = $this->getUser($id);
-        $this->assertEquals($expected, BcUtil::isAdmin($user));
+        $this->assertEquals($expected, BcUtil::hasAdmin($user));
         // permission Entityの場合
         $permission = TableRegistry::getTableLocator()->get('BaserCore.Permissions')->find('all')->where(['user_group_id' => $id])->first();
-        $this->assertEquals($expected, BcUtil::isAdmin($permission));
+        $this->assertEquals($expected, BcUtil::hasAdmin($permission));
     }
     /**
-     * isAdmin用データプロバイダ
+     * hasAdmin用データプロバイダ
      *
      * @return array
      */
-    public function isAdminDataProvider()
+    public function hasAdminDataProvider()
     {
         return [
             // 管理ユーザー
