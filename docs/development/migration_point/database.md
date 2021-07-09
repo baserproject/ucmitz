@@ -25,7 +25,7 @@ bin/cake migrations seed --seed SamplesSeed --plugin BaserCore
 ```
 [参考](https://book.cakephp.org/migrations/2/ja/index.html#seed)
 
-## データベースの初期値をFixtureに反映する場合
+## データベースの初期データをFixtureに反映する場合
 ```
 bin/cake bake fixture -r -f -n 20 -s samples --plugin BaserCore
 ```
