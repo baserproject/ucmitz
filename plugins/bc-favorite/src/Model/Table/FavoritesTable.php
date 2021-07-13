@@ -55,7 +55,7 @@ class Favorite extends AppTable
      */
     public function validationDefault(Validator $validator): Validator
     {
-        $validator->setProvider('favorite', 'BaserCore\Model\Validation\FavoriteValidation');
+        $validator->setProvider('favorite', 'BcFavorite\Model\Validation\FavoriteValidation');
         $validator
             ->scalar('url')
             ->add('url', 'isPermitted', [

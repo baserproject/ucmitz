@@ -9,18 +9,30 @@
  * @license       http://basercms.net/license/index.html MIT License
  */
 
-namespace BaserCore\Test\TestCase\Model\Validation;
+namespace BcFavorite\Test\TestCase\Model\Validation;
 
-use BaserCore\Model\Validation\FavoriteValidation;
+use BcFavorite\Model\Validation\FavoriteValidation;
 use BaserCore\TestSuite\BcTestCase;
 
 /**
  * Class FavoriteValidationTest
- * @package BaserCore\Test\TestCase\Model\Validation
+ * @package BcFavorite\Test\TestCase\Model\Validation
  * @property FavoriteValidation $FavoriteValidation
  */
 class FavoriteValidationTest extends BcTestCase
 {
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    protected $fixtures = [
+         'plugin.BaserCore.Users',
+         'plugin.BaserCore.UsersUserGroups',
+         'plugin.BaserCore.UserGroups',
+         'plugin.BaserCore.Plugins',
+    ];
 
     /**
      * Test subject
@@ -55,9 +67,20 @@ class FavoriteValidationTest extends BcTestCase
      * test isPermitted
      *
      * @return void
+     * @dataProvider isPermittedDataProvider
      */
-    public function isPermittedTest(): void
+    public function testIsPermitted($isLogin, $url, $expected): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        if($isLogin) {
+            $this->loginAdmin($this->getRequest('/'));
+        }
+        $this->assertEquals($expected, $this->FavoriteValidation->isPermitted($url));
+    }
+
+    public function isPermittedDataProvider()
+    {
+        return [
+            [true, '/baser/admin/users/index', true]
+        ];
     }
 }

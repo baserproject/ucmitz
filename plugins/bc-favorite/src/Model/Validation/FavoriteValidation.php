@@ -9,10 +9,9 @@
  * @license       http://basercms.net/license/index.html MIT License
  */
 
-namespace BaserCore\Model\Validation;
+namespace BcFavorite\Model\Validation;
 
-use Cake\Core\Configure;
-use Cake\Routing\Router;
+use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
 use Cake\Validation\Validation;
 use BaserCore\Annotation\NoTodo;
@@ -21,27 +20,24 @@ use BaserCore\Annotation\UnitTest;
 
 /**
  * Class BcValidation
- * @package BaserCore\Model\Validation
+ * @package BcFavorite\Model\Validation
  */
 class FavoriteValidation extends Validation
 {
     /**
      * アクセス権があるかチェックする
      *
+     * 管理者グループは全て true を返却
+     *
      * @param array $check
      */
-    public function isPermitted($check)
+    public function isPermitted($url)
     {
-        if (!$this->_Session) {
+        if (BcUtil::isAdminUser()) {
             return true;
         }
-        $url = $check[key($check)];
-        $prefix = BcUtil::authSessionKey('admin');
-        $userGroupId = $this->_Session->read('Auth.' . $prefix . '.user_group_id');
-        if ($userGroupId == Configure::read('BcApp.adminGroupId')) {
-            return true;
-        }
-        $Permission = ClassRegistry::init('Permission');
-        return $Permission->check($url, $userGroupId);
+        $userGroup = BcUtil::loginUserGroup();
+        $permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
+        return $permissions->check($url, $userGroup->id);
     }
 }
