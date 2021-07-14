@@ -16,6 +16,7 @@ use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\AppTable;
 use BaserCore\Model\Entity\Site;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\ResultSetInterface;
 use Cake\Event\Event;
 use Cake\Validation\Validator;
 use BaserCore\Annotation\UnitTest;
@@ -107,19 +108,14 @@ class SitesTable extends AppTable
     /**
      * 公開されている全てのサイトを取得する
      *
-     * @return array
+     * @return ResultSetInterface
+     * @noTodo
+     * @checked
+     * @unitTest
      */
-    public function getPublishedAll()
+    public function getPublishedAll(): ResultSetInterface
     {
-        $conditions = ['Site.status' => true];
-        $sites = $this->find('all', ['conditions' => $conditions]);
-        $main = $this->getRootMain();
-        if ($sites) {
-            array_unshift($sites, $main);
-        } else {
-            $sites = [$main];
-        }
-        return $sites;
+        return $this->find()->where(['status' => true])->all();
     }
 
     /**

@@ -1,25 +1,25 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Test.Case.Model
- * @since           baserCMS v 4.0.2
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
-App::uses('Site', 'Model');
+
+namespace BaserCore\Test\TestCase\Model\Table;
+
+use BaserCore\Model\Table\SitesTable;
+use BaserCore\TestSuite\BcTestCase;
 
 /**
- * Class SiteTest
- *
- * @property Site $Site
- * @package Baser.Test.Case.Model
+ * Class SitesTableTest
+ * @package BaserCore\Test\TestCase\Model\Table
+ * @property SitesTable $Sites
  */
-class SiteTest extends BaserTestCase
+class SitesTableTest extends BcTestCase
 {
 
     /**
@@ -28,40 +28,25 @@ class SiteTest extends BaserTestCase
      * @var array
      */
     public $fixtures = [
-        'baser.Default.Site',
-        'baser.Default.ContentFolder',
-        'baser.Default.Content',
-        'baser.Default.User',
-        'baser.Default.SiteConfig'
+        'plugin.BaserCore.Sites',
     ];
 
     /**
      * Set Up
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
-        $this->Site = ClassRegistry::init('Site');
+        $this->Sites = $this->getTableLocator()->get('BaserCore.Sites');
     }
 
     /**
      * Tear Down
      */
-    public function tearDown()
+    public function tearDown(): void
     {
-        unset($this->Site);
+        unset($this->Sites);
         parent::tearDown();
-    }
-
-    /**
-     * エイリアスのスラッシュをチェックする
-     *
-     * - 連続してスラッシュは入力できない
-     * - 先頭と末尾にスラッシュは入力できない
-     */
-    public function testGetAliasSlashChecks()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
@@ -69,7 +54,11 @@ class SiteTest extends BaserTestCase
      */
     public function testGetPublishedAll()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertEquals(1, count($this->Sites->getPublishedAll()));
+        $site = $this->Sites->find()->where(['id' => 2])->first();
+        $site->status = true;
+        $this->Sites->save($site);
+        $this->assertEquals(2, count($this->Sites->getPublishedAll()));
     }
 
     /**
@@ -83,7 +72,7 @@ class SiteTest extends BaserTestCase
      */
     public function testGetSiteList($mainSiteId, $options, $expects, $message)
     {
-        $result = $this->Site->getSiteList($mainSiteId, $options);
+        $result = $this->Sites->getSiteList($mainSiteId, $options);
         $this->assertEquals($expects, $result, $message);
     }
 
@@ -210,8 +199,8 @@ class SiteTest extends BaserTestCase
      */
     public function testResetDevice()
     {
-        $this->Site->resetDevice();
-        $sites = $this->Site->find('all', ['recursive' => -1]);
+        $this->Sites->resetDevice();
+        $sites = $this->Sites->find('all', ['recursive' => -1]);
         foreach($sites as $site) {
             $this->assertEquals($site['Site']['device'], '');
             $this->assertFalse($site['Site']['same_main_url']);
@@ -225,8 +214,8 @@ class SiteTest extends BaserTestCase
      */
     public function testResetLang()
     {
-        $this->Site->resetLang();
-        $sites = $this->Site->find('all', ['recursive' => -1]);
+        $this->Sites->resetLang();
+        $sites = $this->Sites->find('all', ['recursive' => -1]);
         foreach($sites as $site) {
             $this->assertEquals($site['Site']['lang'], '');
             $this->assertFalse($site['Site']['same_main_url']);
