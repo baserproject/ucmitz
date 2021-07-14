@@ -15,6 +15,7 @@ use ArrayObject;
 use Cake\Event\Event;
 use BaserCore\Model\AppTable;
 use BaserCore\Utility\BcUtil;
+use Cake\Validation\Validator;
 use Cake\Datasource\EntityInterface;
 
 /**
@@ -114,44 +115,109 @@ class ContentsTable extends AppTable
             'Model.afterDelete' => ['callable' => 'afterDelete'],
         ];
     }
-
     /**
-     * Content constructor.
+     * Validation Default
      *
-     * @param bool $id
-     * @param null $table
-     * @param null $ds
+     * @param Validator $validator
+     * @return Validator
+     * @checked
      */
-    public function __construct($id = false, $table = null, $ds = null)
+    public function validationDefault(Validator $validator): Validator
     {
-        parent::__construct($id, $table, $ds);
-        $this->validate = [
-            'id' => [
-                ['rule' => 'numeric', 'on' => 'update', 'message' => __d('baser', 'IDに不正な値が利用されています。')]],
-            'name' => [
-                ['rule' => ['notBlank'], 'message' => __d('baser', 'URLを入力してください。')],
-                ['rule' => ['bcUtileUrlencodeBlank'], 'message' => __d('baser', 'URLはスペース、全角スペース及び、指定の記号(\\\'|`^"(){}[];/?:@&=+$,%<>#!)だけの名前は付けられません。')],
-                ['rule' => ['notBlank'], 'message' => __d('baser', 'スラッグを入力してください。')],
-                ['rule' => ['maxLength', 2083], 'message' => __d('baser', 'タイトルは230文字以内で入力してください。')],
-                ['rule' => ['duplicateRelatedSiteContent'], 'message' => __d('baser', '連携しているサブサイトでスラッグが重複するコンテンツが存在します。重複するコンテンツのスラッグ名を先に変更してください。')]],
-            'title' => [
-                ['rule' => ['bcUtileUrlencodeBlank'], 'message' => __d('baser', 'タイトルはスペース、全角スペース及び、指定の記号(\\\'|`^"(){}[];/?:@&=+$,%<>#!)だけの名前は付けられません。')],
-                ['rule' => '/\A(?!.*(\t)).*\z/', 'message' => __d('baser', 'タイトルはタブを含む名前は付けられません。')],
-                ['rule' => ['notBlank'], 'message' => __d('baser', 'タイトルを入力してください。')],
-                ['rule' => ['maxLength', 230], 'message' => __d('baser', 'タイトルは230文字以内で入力してください。')]],
-            'eyecatch' => [
-                ['rule' => ['fileCheck', $this->convertSize(ini_get('upload_max_filesize'))], 'message' => __d('baser', 'ファイルのアップロードに失敗しました。')]],
-            'self_publish_begin' => [
-                ['rule' => ['checkDate'], 'allowEmpty' => true, 'message' => __d('baser', '公開開始日に不正な文字列が入っています。')]],
-            'self_publish_end' => [
-                ['rule' => ['checkDate'], 'allowEmpty' => true, 'message' => __d('baser', '公開終了日に不正な文字列が入っています。')],
-                ['rule' => ['checkDateAfterThan', 'self_publish_begin'], 'message' => __d('baser', '公開終了日は、公開開始日より新しい日付で入力してください。')]],
-            'created_date' => [
-                ['rule' => ['checkDate'], 'allowEmpty' => true, 'message' => __d('baser', '作成日に不正な文字列が入っています。')]],
-            'modified_date' => [
-                ['rule' => ['checkDate'], 'allowEmpty' => true, 'message' => __d('baser', '更新日に不正な文字列が入っています。')]],
-        ];
+        $validator
+        ->integer('id')
+        ->allowEmptyString('id', null, 'create')
+        ->numeric('id', __d('baser', 'IDに不正な値が利用されています。'), 'update');
+
+        $validator
+        ->scalar('name')
+        ->notEmptyString('name', __d('baser', 'URLを入力してください。'))
+        ->maxLength('name', 230, __d('baser', '名前は230文字以内で入力してください。'))
+        ->add('name', [
+            'bcUtileUrlencodeBlank' => [
+                'rule' => ['bcUtileUrlencodeBlank'],
+                'provider' => 'bc',
+                'message' => __d('baser', 'URLはスペース、全角スペース及び、指定の記号(\\\'|`^"(){}[];/?:@&=+$,%<>#!)だけの名前は付けられません。')
+            ]
+        ])
+        ->notEmptyString('name', __d('baser', 'スラッグを入力してください。'))
+        // FIXME: 独自プロバイダー必要
+        ->add('name', [
+            'duplicateRelatedSiteContent' => [
+                'rule' => ['duplicateRelatedSiteContent'],
+                'provider' => 'content',
+                'message' => __d('baser', '連携しているサブサイトでスラッグが重複するコンテンツが存在します。重複するコンテンツのスラッグ名を先に変更してください。'),
+            ]
+        ]);
+
+        $validator
+        ->scalar('title')
+        ->notEmptyString('title', __d('baser', 'タイトルを入力してください。'))
+        ->maxLength('title', 230, __d('baser', 'タイトルは230文字以内で入力してください。'))
+        ->regex('title', '/\A(?!.*(\t)).*\z/', __d('baser', 'タイトルはタブを含む名前は付けられません。'))
+        ->add('title', [
+            'bcUtileUrlencodeBlank' => [
+                'rule' => ['bcUtileUrlencodeBlank'],
+                'provider' => 'bc',
+                'message' => __d('baser', 'タイトルはスペース、全角スペース及び、指定の記号(\\\'|`^"(){}[];/?:@&=+$,%<>#!)だけの名前は付けられません。')
+            ]
+        ]);
+
+        $validator
+        ->add('eyecatch', [
+            'fileCheck' => [
+                'rule' => ['fileCheck', $this->convertSize(ini_get('upload_max_filesize'))],
+                'provider' => 'bc',
+                'message' => __d('baser', 'ファイルのアップロードに失敗しました。')
+            ]
+        ]);
+        $validator
+        ->allowEmptyDateTime('self_publish_begin')
+        ->add('self_publish_begin', [
+            'checkDate' => [
+                'rule' => ['checkDate'],
+                'provider' => 'bc',
+                'message' => __d('baser', '公開開始日に不正な文字列が入っています。')
+            ]
+        ]);
+
+        $validator
+        ->allowEmptyDateTime('self_publish_end')
+        ->add('self_publish_end', [
+            'checkDate' => [
+                'rule' => ['checkDate'],
+                'provider' => 'bc',
+                'message' => __d('baser', '公開終了日に不正な文字列が入っています。')
+            ]
+        ])
+        ->add('self_publish_end', [
+            'checkDateAfterThan' => [
+                'rule' => ['checkDateAfterThan'],
+                'provider' => 'bc',
+                'message' => __d('baser', '公開終了日は、公開開始日より新しい日付で入力してください。')
+            ]
+        ]);
+        $validator
+        ->allowEmptyDateTime('created_date')
+        ->add('created_date', [
+            'checkDate' => [
+                'rule' => ['checkDate'],
+                'provider' => 'bc',
+                'message' => __d('baser', '作成日に不正な文字列が入っています。')
+            ]
+        ]);
+        $validator
+        ->allowEmptyDateTime('modified_date')
+        ->add('modified_date', [
+            'checkDate' => [
+                'rule' => ['checkDate'],
+                'provider' => 'bc',
+                'message' => __d('baser', '更新日に不正な文字列が入っています。')
+            ]
+        ]);
+        return $validator;
     }
+
 
     /**
      * サイト設定にて、エイリアスを利用してメインサイトと自動連携するオプションを利用時に、
