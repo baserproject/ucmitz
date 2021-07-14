@@ -11,12 +11,13 @@
 
 namespace BaserCore\Model\Table;
 
-use Cake\ORM\Table;
+use BaserCore\Model\AppTable;
+use BaserCore\Utility\BcUtil;
 
 /**
  * Class ContentsTable
  */
-class ContentsTable extends Table
+class ContentsTable extends AppTable
 {
 
     /**
