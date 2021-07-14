@@ -65,7 +65,7 @@ class SitesServiceTest extends \BaserCore\TestSuite\BcTestCase
     public function testGet()
     {
         $user = $this->Sites->get(1);
-        $this->assertEquals('mobile', $user->name);
+        $this->assertEquals('main', $user->name);
     }
 
     /**
@@ -76,7 +76,7 @@ class SitesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $request = $this->getRequest('/');
 
         $users = $this->Sites->getIndex($request->getQueryParams());
-        $this->assertEquals('mobile', $users->first()->name);
+        $this->assertEquals('main', $users->first()->name);
 
         $request = $this->getRequest('/?name=smart');
         $users = $this->Sites->getIndex($request->getQueryParams());
