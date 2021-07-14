@@ -24,12 +24,15 @@ class ContentsTableTest extends BcTestCase
 {
 
     public $fixtures = [
-        'baser.Model.Content.ContentIsMovable',
-        'baser.Model.Content.ContentStatusCheck',
-        'baser.Routing.Route.BcContentsRoute.SiteBcContentsRoute',
-        'baser.Routing.Route.BcContentsRoute.ContentBcContentsRoute',
-        'baser.Default.SiteConfig',
-        'baser.Default.User',
+        'plugin.BaserCore.Contents',
+        'plugin.BaserCore.Sites',
+        'plugin.BaserCore.Contents',
+        // 'baser.Model.Content.ContentIsMovable',
+        // 'baser.Model.Content.ContentStatusCheck',
+        // 'baser.Routing.Route.BcContentsRoute.SiteBcContentsRoute',
+        // 'baser.Routing.Route.BcContentsRoute.ContentBcContentsRoute',
+        // 'baser.Default.SiteConfig',
+        // 'baser.Default.User',
     ];
 
     /**
@@ -37,11 +40,36 @@ class ContentsTableTest extends BcTestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
-        $this->Content = ClassRegistry::init('Content');
-        BcSite::flash();
+        $config = $this->getTableLocator()->exists('Contents')? [] : ['className' => 'BaserCore\Model\Table\ContentsTable'];
+        $this->Contents = $this->getTableLocator()->get('Contents', $config);
+    }
+
+    /**
+     * Tear Down
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->Contents);
+        // BcSite::flash();
+        parent::tearDown();
+    }
+
+    /**
+     * Test initialize
+     *
+     * @return void
+     */
+    public function testInitialize()
+    {
+        $this->assertEquals('contents', $this->Contents->getTable());
+        $this->assertTrue($this->Contents->hasBehavior('Tree'));
+        $this->assertTrue($this->Contents->hasAssociation('Sites'));
+        $this->assertTrue($this->Contents->hasAssociation('Users'));
     }
 
     /**

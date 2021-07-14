@@ -11,8 +11,11 @@
 
 namespace BaserCore\Model\Table;
 
+use ArrayObject;
+use Cake\Event\Event;
 use BaserCore\Model\AppTable;
 use BaserCore\Utility\BcUtil;
+use Cake\Datasource\EntityInterface;
 
 /**
  * Class ContentsTable
@@ -21,48 +24,44 @@ class ContentsTable extends AppTable
 {
 
     /**
-     * ビヘイビア
+     * Initialize
      *
-     * @var array
+     * @param array $config テーブル設定
+     * @return void
+     * @checked
+     * @unitTest
      */
-    public $actsAs = [
-        'Tree' => ['level' => 'level'],
-        'BcCache',
-        'SoftDelete',
-        'BcUpload' => [
-            'saveDir' => "contents",
-            'fields' => [
-                'eyecatch' => [
-                    'type' => 'image',
-                    'namefield' => 'id',
-                    'nameadd' => true,
-                    'nameformat' => '%08d',
-                    'subdirDateFormat' => 'Y/m',
-                    //'imageresize' => array('width' => '800', 'height' => '800'),
-                    'imagecopy' => [
-                        'thumb' => ['suffix' => '_thumb', 'width' => '300', 'height' => '300'],
-                        'medium' => ['suffix' => '_midium', 'width' => '800', 'height' => '800']
-                    ]
-                ]
-            ]
-        ]
-    ];
-
-    /**
-     * Belongs To
-     *
-     * @var array
-     */
-    public $belongsTo = [
-        'Site' => [
-            'className' => 'Site',
-            'foreignKey' => 'site_id'
-        ],
-        'User' => [
-            'className' => 'User',
-            'foreignKey' => 'author_id'
-        ]
-    ];
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+         /** TODO: soft deleteはTraitで実装する @see https://github.com/salines/cakephp4-soft-delete */
+        $this->addBehavior('Tree', ['level' => 'level']);
+        // TODO: BcUploadBehavior 未追加
+        // $this->addBehavior('BcUpload', [
+        //     'saveDir' => "contents",
+        //     'fields' => [
+        //         'eyecatch' => [
+        //             'type' => 'image',
+        //             'namefield' => 'id',
+        //             'nameadd' => true,
+        //             'nameformat' => '%08d',
+        //             'subdirDateFormat' => 'Y/m',
+        //             //'imageresize' => array('width' => '800', 'height' => '800'),
+        //             'imagecopy' => [
+        //                 'thumb' => ['suffix' => '_thumb', 'width' => '300', 'height' => '300'],
+        //                 'medium' => ['suffix' => '_midium', 'width' => '800', 'height' => '800']
+        //             ]
+        //         ]
+        //     ]]);
+        $this->belongsTo('Sites', [
+            'className' => 'BaserCore.Sites',
+            'foreignKey' => 'site_id',
+        ]);
+        $this->belongsTo('Users', [
+            'className' => 'BaserCore.Users',
+            'foreignKey' => 'author_id',
+        ]);
+    }
 
     /**
      * 関連データを更新する
@@ -337,16 +336,17 @@ class ContentsTable extends AppTable
 
     /**
      * Before Save
-     *
-     * @param array $options
+     * @param Event $event
+     * @param EntityInterface $entity
+     * @param ArrayObject $options
      * @return bool
      */
-    public function beforeSave($options = [])
+    public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!empty($this->data['Content']['id'])) {
             $this->beforeSaveParentId = $this->field('parent_id', ['Content.id' => $this->data['Content']['id']]);
         }
-        return parent::beforeSave($options);
+        return parent::beforeSave($event, $entity, $options);
     }
 
     /**
