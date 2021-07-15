@@ -73,6 +73,22 @@ class ContentsTableTest extends BcTestCase
     }
 
     /**
+     * Test validationDefault
+     *
+     * @return void
+     */
+    public function testValidationDefault()
+    {
+        $validator = $this->Contents->validationDefault(new Validator());
+        $fields = [];
+        foreach($validator->getIterator() as $key => $value) {
+            $fields[] = $key;
+        }
+        $this->assertEquals(['id', 'name', 'title', 'eyecatch', 'self_publish_begin', 'self_publish_end', 'created_date', 'modified_date'], $fields);
+    }
+
+
+    /**
      * Implemented Events
      */
     public function testImplementedEvents()

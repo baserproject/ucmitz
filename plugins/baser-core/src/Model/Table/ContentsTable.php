@@ -121,6 +121,8 @@ class ContentsTable extends AppTable
      * @param Validator $validator
      * @return Validator
      * @checked
+     * @noTodo
+     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -141,11 +143,9 @@ class ContentsTable extends AppTable
             ]
         ])
         ->notEmptyString('name', __d('baser', 'スラッグを入力してください。'))
-        // FIXME: 独自プロバイダー必要
         ->add('name', [
             'duplicateRelatedSiteContent' => [
-                'rule' => ['duplicateRelatedSiteContent'],
-                'provider' => 'content',
+                'rule' => [$this, 'duplicateRelatedSiteContent'],
                 'message' => __d('baser', '連携しているサブサイトでスラッグが重複するコンテンツが存在します。重複するコンテンツのスラッグ名を先に変更してください。'),
             ]
         ]);
@@ -217,7 +217,6 @@ class ContentsTable extends AppTable
         ]);
         return $validator;
     }
-
 
     /**
      * サイト設定にて、エイリアスを利用してメインサイトと自動連携するオプションを利用時に、
