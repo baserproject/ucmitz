@@ -1,7 +1,4 @@
 <?php
-
-// $cakephp2系のschemeをmigration fileのaddColumnに変換する
-// convert.phpを実行し、マイグレーションファイルにコピペする
 $target =
 // 例
 $permissions = [
@@ -28,7 +25,7 @@ if (is_array($target)) {
         $null = json_encode($value['null'] ? true : false);
         $limit = $value['length'] ?? json_encode(null);
         $text .= "->addColumn('{$key}', '{$value['type']}', ['null' => {$null}, 'default' => {$default}, 'limit' => {$limit}])\n";
-        if ($value['key'] === 'primary') {
+        if (isset($value['key']) && $value['key'] === 'primary') {
             $text .= "->addPrimaryKey(['{$key}'])\n";
         }
     }
