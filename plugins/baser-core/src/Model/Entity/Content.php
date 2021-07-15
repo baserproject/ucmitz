@@ -16,19 +16,6 @@ namespace BaserCore\Model\Entity;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Entity;
 
-/**
- * Class Plugin
- * @package BaserCore\Model\Entity
- * @property int $id
- * @property string $name
- * @property string|null $title
- * @property string|null $version
- * @property bool $status
- * @property bool $db_init
- * @property int $priority
- * @property FrozenTime|null $modified
- * @property FrozenTime|null $created
- */
 class Content extends Entity
 {
 
