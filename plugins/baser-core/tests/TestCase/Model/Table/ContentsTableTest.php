@@ -11,9 +11,11 @@
 
 namespace BaserCore\Test\TestCase\Model\Table;
 
-use BaserCore\Model\Table\ContentsTable;
-use BaserCore\TestSuite\BcTestCase;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
+use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Model\Table\ContentsTable;
 /**
  * Class ContentTest
  *
@@ -107,6 +109,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testDuplicateRelatedSiteContent($data, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->Content->set(['Content' => $data]);
         $this->assertEquals($expected, $this->Content->duplicateRelatedSiteContent(['name' => $data['name']]));
     }
@@ -144,6 +147,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetUniqueName($name, $parent_id, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Content->getUniqueName($name, $parent_id);
         $this->assertEquals($expected, $result);
     }
@@ -233,6 +237,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testPureUrl($url, $siteId, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Content->pureUrl($url, $siteId);
         $this->assertEquals($expected, $result);
     }
@@ -252,6 +257,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testCreateContent()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loginAdmin($this->getRequest());
         $content = ['title' => 'hoge', 'parent_id' => ''];
         $type = 'Content';
@@ -270,6 +276,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testCreateUrl($id, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->assertEquals($this->Content->createUrl($id), $expects);
     }
 
@@ -358,6 +365,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testFindByType($type, $entityId, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Content->findByType($type, $entityId);
         if ($result) {
             $result = $result['Content']['id'];
@@ -444,6 +452,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetUrlById($id, $full, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
         $result = $this->Content->getUrlById($id, $full);
@@ -475,6 +484,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetUrl($host, $ua, $url, $full, $useSubDomain, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
         if ($ua) {
@@ -531,6 +541,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetUrlBase($url, $base, $useBase, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         Configure::write('app.baseUrl', $base);
         $request = $this->_getRequest('/');
         $request->base = $base;
@@ -565,6 +576,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testCopy($id, $entityId, $newTitle, $newAuthorId, $newSiteId, $titleExpected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loginAdmin($this->getRequest());
         $result = $this->Content->copy($id, $entityId, $newTitle, $newAuthorId, $newSiteId)['Content'];
         $this->assertEquals($result['site_id'], $newSiteId);
@@ -622,6 +634,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testIsPublish($status, $publishBegin, $publishEnd, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Content->isPublish($status, $publishBegin, $publishEnd);
         $this->assertEquals($expected, $result);
     }
@@ -647,6 +660,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testIsMovable($siteRelated, $currentId, $parentId, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loadFixtures('ContentIsMovable');
         if (!$siteRelated) {
             $site = $this->Content->Site->find('first', [
@@ -690,6 +704,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetSiteRoot($siteId, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Content->getSiteRoot($siteId);
         if ($result) {
             $result = $result['Content']['id'];
@@ -773,6 +788,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetCacheTime($data, $cacheTime)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         // publish_end が viewDuration より早い場合
         if ($cacheTime == 'oneHourlater') {
             Configure::write('BcCache.viewDuration', '+1 hour');
@@ -849,6 +865,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testFindByUrl($expected, $url, $publish = true, $extend = false, $sameUrl = false, $useSubDomain = false)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loadFixtures('ContentStatusCheck');
         $result = (bool)$this->Content->findByUrl($url, $publish, $extend, $sameUrl, $useSubDomain);
         $this->assertEquals($expected, $result);
