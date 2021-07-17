@@ -71,6 +71,28 @@ class SitesFixture extends TestFixture
             'created' => '2021-07-01 21:20:15',
             'modified' => null
         ],
+        [
+            'id' => '3',
+            'main_site_id' => 1,
+            'name' => 'en',
+            'display_name' => '英語サイト',
+            'title' => 'baserCMS inc.｜English',
+            'alias' => 'en',
+            'theme' => '',
+            'status' => true,
+            'keyword' => '',
+            'description' => '',
+            'use_subdomain' => false,
+            'relate_main_site' => false,
+            'device' => 'smartphone',
+            'lang' => '',
+            'same_main_url' => false,
+            'auto_redirect' => true,
+            'auto_link' => false,
+            'domain_type' => null,
+            'created' => '2021-07-01 21:20:15',
+            'modified' => null
+        ],
     ];
 
 }

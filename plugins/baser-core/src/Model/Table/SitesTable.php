@@ -123,13 +123,15 @@ class SitesTable extends AppTable
      *
      * @param bool $mainSiteId メインサイトID
      * @param array $options
-     *    `excludeIds` 除外するID（初期値：なし）
+     *  - `excludeIds` 除外するID（初期値：なし）
+     *  - `status` 有効かどうか（初期値：true）
      * @return array
      */
     public function getSiteList($mainSiteId = null, $options = [])
     {
         $options = array_merge([
-            'excludeIds' => []
+            'excludeIds' => [],
+            'status' => true
         ], $options);
 
         // EVENT Site.beforeGetSiteList
@@ -140,14 +142,13 @@ class SitesTable extends AppTable
             $options = $event->getResult() === true? $event->getData('options') : $event->getResult();
         }
 
-        $conditions = ['Site.status' => true];
-        if (!is_null($mainSiteId)) {
-            $conditions['Site.main_site_id'] = $mainSiteId;
+        if(!is_null($options['status'])) {
+            $conditions = ['status' => $options['status']];
         }
 
-        $rootMain = [];
-        $excludeKey = false;
-        $includeKey = true;
+        if (!is_null($mainSiteId)) {
+            $conditions['main_site_id'] = $mainSiteId;
+        }
 
         if (isset($options['excludeIds'])) {
             if (!is_array($options['excludeIds'])) {
@@ -158,7 +159,7 @@ class SitesTable extends AppTable
                 unset($options['excludeIds'][$excludeKey]);
             }
             if ($options['excludeIds']) {
-                $conditions[]['NOT']['Site.id'] = $options['excludeIds'];
+                $conditions[]['id NOT IN'] = $options['excludeIds'];
             }
         }
 
@@ -171,15 +172,12 @@ class SitesTable extends AppTable
                 unset($options['includeIds'][$includeKey]);
             }
             if ($options['includeIds']) {
-                $conditions[]['Site.id'] = $options['includeIds'];
+                $conditions[]['id IN'] = $options['includeIds'];
             }
         }
 
-        if ($includeKey !== false && $excludeKey === false && is_null($mainSiteId)) {
-            $rootMainTmp = $this->getRootMain();
-            $rootMain = [$rootMainTmp['Site']['id'] => $rootMainTmp['Site']['display_name']];
-        }
-        return $rootMain + $this->find('list', ['fields' => ['id', 'display_name'], 'conditions' => $conditions]);
+        $this->setDisplayField('display_name');
+        return $this->find('list')->where($conditions)->toArray();
     }
 
     /**
