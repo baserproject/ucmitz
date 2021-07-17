@@ -309,6 +309,7 @@ class SitesTable extends AppTable
      * @param Event $event
      * @param EntityInterface $entity
      * @param ArrayObject $options
+     * @checked
      */
     public function afterSave(Event $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -353,6 +354,7 @@ class SitesTable extends AppTable
      * @param Event $event
      * @param EntityInterface $entity
      * @param ArrayObject $options
+     * @checked
      */
     public function afterDelete(Event $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -578,29 +580,31 @@ class SitesTable extends AppTable
      * 言語設定をリセットする
      *
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function resetLang()
     {
-        $sites = $this->find('all', ['recursive' => -1]);
+        $sites = $this->find()->all();
         $result = true;
         if ($sites) {
-            $this->getDataSource()->begin();
+            $this->getConnection()->begin();
             foreach($sites as $site) {
-                $site['Site']['lang'] = '';
-                if (!$site['Site']['device']) {
-                    $site['Site']['same_main_url'] = false;
-                    $site['Site']['auto_redirect'] = false;
+                $site->lang = '';
+                if (!$site->device) {
+                    $site->same_main_url = false;
+                    $site->auto_redirect = false;
                 }
-                $this->set($site);
-                if (!$this->save()) {
+                if (!$this->save($site)) {
                     $result = false;
                 }
             }
         }
         if (!$result) {
-            $this->getDataSource()->rollback();
+            $this->getConnection()->rollback();
         } else {
-            $this->getDataSource()->commit();
+            $this->getConnection()->commit();
         }
         return $result;
     }
@@ -612,6 +616,9 @@ class SitesTable extends AppTable
      * @param EntityInterface $entity
      * @param ArrayObject $options
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)
     {

@@ -11,8 +11,11 @@
 
 namespace BaserCore\Test\TestCase\Model\Table;
 
+use ArrayObject;
 use BaserCore\Model\Table\SitesTable;
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Event\Event;
+use ReflectionClass;
 
 /**
  * Class SitesTableTest
@@ -54,11 +57,11 @@ class SitesTableTest extends BcTestCase
      */
     public function testGetPublishedAll()
     {
-        $this->assertEquals(1, count($this->Sites->getPublishedAll()));
+        $this->assertEquals(2, count($this->Sites->getPublishedAll()));
         $site = $this->Sites->find()->where(['id' => 2])->first();
         $site->status = true;
         $this->Sites->save($site);
-        $this->assertEquals(2, count($this->Sites->getPublishedAll()));
+        $this->assertEquals(3, count($this->Sites->getPublishedAll()));
     }
 
     /**
@@ -231,11 +234,13 @@ class SitesTableTest extends BcTestCase
     public function testResetLang()
     {
         $this->Sites->resetLang();
-        $sites = $this->Sites->find('all', ['recursive' => -1]);
+        $sites = $this->Sites->find()->all();
         foreach($sites as $site) {
-            $this->assertEquals($site['Site']['lang'], '');
-            $this->assertFalse($site['Site']['same_main_url']);
-            $this->assertTrue($site['Site']['auto_redirect']);
+            $this->assertEquals($site->lang, '');
+            if (!$site->device) {
+                $this->assertFalse($site->same_main_url);
+                $this->assertFalse($site->auto_redirect);
+            }
         }
     }
 
@@ -244,7 +249,13 @@ class SitesTableTest extends BcTestCase
      */
     public function testBeforeSave()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $site = $this->Sites->find()->where(['id' => 2])->first();
+        $site->alias = 'm';
+        $this->Sites->beforeSave(new Event('beforeSave'), $site, new ArrayObject());
+        $reflectionClass = new ReflectionClass(get_class($this->Sites));
+        $property = $reflectionClass->getProperty('__changedAlias');
+        $property->setAccessible(true);
+        $this->assertTrue($property->getValue($this->Sites));
     }
 
 }
