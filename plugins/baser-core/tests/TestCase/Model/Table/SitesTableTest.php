@@ -119,7 +119,9 @@ class SitesTableTest extends BcTestCase
      */
     public function testChildren()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertEquals(2, $this->Sites->children(1)->count());
+        $this->assertEquals(0, $this->Sites->children(2)->count());
+        $this->assertEquals(1, $this->Sites->children(1, ['conditions' => ['status' => true]])->count());
     }
 
     /**

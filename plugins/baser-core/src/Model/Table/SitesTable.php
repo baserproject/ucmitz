@@ -287,17 +287,16 @@ class SitesTable extends AppTable
      *
      * @param $id
      * @param array $options
-     * @return array|null
+     * @return ResultSetInterface
      */
     public function children($id, $options = [])
     {
-        $options = array_merge([
+        $options = array_merge_recursive([
             'conditions' => [
-                'Site.main_site_id' => $id
-            ],
-            'recursive' => -1
+                'main_site_id' => $id
+            ]
         ], $options);
-        return $this->find('all', $options);
+        return $this->find()->where($options['conditions'])->all();
     }
 
     /**
