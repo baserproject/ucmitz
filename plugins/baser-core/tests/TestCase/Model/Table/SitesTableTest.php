@@ -111,7 +111,8 @@ class SitesTableTest extends BcTestCase
      */
     public function testIsMain()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertTrue($this->Sites->isMain(1));
+        $this->assertFalse($this->Sites->isMain(2));
     }
 
     /**

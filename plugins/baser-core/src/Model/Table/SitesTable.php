@@ -276,10 +276,7 @@ class SitesTable extends AppTable
      */
     public function isMain($id)
     {
-        if ($id == null) {
-            $id = 0;
-        }
-        return (bool)$this->children($id);
+        return is_null($this->find()->where(['id' => $id])->first()->main_site_id);
     }
 
     /**
