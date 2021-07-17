@@ -203,7 +203,9 @@ class SitesTableTest extends BcTestCase
      */
     public function testGetSelectableLangs()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertEquals(3, count($this->Sites->getSelectableLangs(1, 2)));
+        $this->Sites->delete($this->Sites->get(3));
+        $this->assertEquals(4, count($this->Sites->getSelectableLangs(1, 2)));
     }
 
     /**

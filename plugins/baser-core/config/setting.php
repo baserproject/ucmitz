@@ -295,6 +295,29 @@ return [
                 'webmate'            // Other iPhone browser
             ]
         ]
+    ],
+    /**
+     * 言語設定
+     */
+    'BcLang' => [
+        'english' => [
+            'name' => __d('baser', '英語'),
+            'langs' => [
+                'en'
+            ]
+        ],
+        'chinese' => [
+            'name' => __d('baser', '中国語'),
+            'langs' => [
+                'zh'
+            ]
+        ],
+        'spanish' => [
+            'name' => __d('baser', 'スペイン'),
+            'langs' => [
+                'es'
+            ]
+        ]
     ]
 ];
 

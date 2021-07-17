@@ -300,18 +300,6 @@ $config['BcEmail'] = [
 ];
 
 /**
- * 言語設定
- */
-$config['BcLang'] = [
-    'english' => [
-        'name' => __d('baser', '英語'),
-        'langs' => [
-            'en'
-        ]
-    ]
-];
-
-/**
  * コンテンツ設定
  */
 $config['BcContents'] = [

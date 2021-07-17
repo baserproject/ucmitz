@@ -426,6 +426,9 @@ class SitesTable extends AppTable
      *
      * @param string $url
      * @return array|bool|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function findByUrl($url)
     {
@@ -455,6 +458,9 @@ class SitesTable extends AppTable
      *
      * @param int $id
      * @return array|false
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getMain($id)
     {
@@ -482,6 +488,9 @@ class SitesTable extends AppTable
      * @param int $mainSiteId メインサイトID
      * @param int $currentSiteId 現在のサイトID
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getSelectableDevices($mainSiteId, $currentSiteId)
     {
@@ -508,18 +517,20 @@ class SitesTable extends AppTable
      * @param int $mainSiteId メインサイトID
      * @param int $currentSiteId 現在のサイトID
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getSelectableLangs($mainSiteId, $currentSiteId)
     {
         $langs = Configure::read('BcLang');
         $devices = ['' => __d('baser', '指定しない')];
-        $selected = $this->find('list', [
-            'fields' => ['id', 'lang'],
-            'conditions' => [
-                'Site.main_site_id' => $mainSiteId,
-                'Site.id <>' => $currentSiteId
-            ]
-        ]);
+        $this->setDisplayField('lang');
+        $selected = $this->find('list')
+            ->where([
+                'main_site_id' => $mainSiteId,
+                'id <>' => $currentSiteId
+            ])->toArray();
         foreach($langs as $key => $lang) {
             if (in_array($key, $selected)) {
                 continue;
