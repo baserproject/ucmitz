@@ -189,19 +189,13 @@ class SitesTableTest extends BcTestCase
     }
 
     /**
-     * After Find
-     */
-    public function testAfterFind()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * 選択可能なデバイスの一覧を取得する
      */
     public function testGetSelectableDevices()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertEquals(2, count($this->Sites->getSelectableDevices(1, 3)));
+        $this->Sites->delete($this->Sites->get(2));
+        $this->assertEquals(3, count($this->Sites->getSelectableDevices(1, 3)));
     }
 
     /**

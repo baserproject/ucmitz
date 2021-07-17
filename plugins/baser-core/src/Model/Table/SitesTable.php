@@ -15,6 +15,7 @@ use ArrayObject;
 use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\AppTable;
 use BaserCore\Model\Entity\Site;
+use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\ResultSetInterface;
 use Cake\Event\Event;
@@ -474,25 +475,9 @@ class SitesTable extends AppTable
     }
 
     /**
-     * After Find
-     *
-     * @param mixed $results
-     * @param bool $primary
-     * @return mixed
-     */
-    public function afterFind($results, $primary = false)
-    {
-        $results = parent::afterFind($results, $primary = false);
-        $this->dataIter($results, function(&$entity, &$model) {
-            if (isset($entity['Site']['alias']) && $entity['Site']['alias'] === '' && !empty($entity['Site']['name'])) {
-                $entity['Site']['alias'] = $entity['Site']['name'];
-            }
-        });
-        return $results;
-    }
-
-    /**
      * 選択可能なデバイスの一覧を取得する
+     *
+     * 現在のサイトとすでに利用されいているデバイスは除外する
      *
      * @param int $mainSiteId メインサイトID
      * @param int $currentSiteId 現在のサイトID
@@ -502,13 +487,12 @@ class SitesTable extends AppTable
     {
         $agents = Configure::read('BcAgent');
         $devices = ['' => __d('baser', '指定しない')];
-        $selected = $this->find('list', [
-            'fields' => ['id', 'device'],
-            'conditions' => [
-                'Site.main_site_id' => $mainSiteId,
-                'Site.id <>' => $currentSiteId
-            ]
-        ]);
+        $this->setDisplayField('device');
+        $selected = $this->find('list')
+            ->where([
+                'main_site_id' => $mainSiteId,
+                'id <>' => $currentSiteId
+            ])->toArray();
         foreach($agents as $key => $agent) {
             if (in_array($key, $selected)) {
                 continue;
