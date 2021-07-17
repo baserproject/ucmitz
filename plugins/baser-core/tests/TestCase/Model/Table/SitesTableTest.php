@@ -94,7 +94,8 @@ class SitesTableTest extends BcTestCase
      */
     public function testGetRootMain()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertEquals(1, $this->Sites->getRootMain()['id']);
+        $this->assertEquals(2, count($this->Sites->getRootMain(['fields' => ['name', 'display_name']])));
     }
 
     /**

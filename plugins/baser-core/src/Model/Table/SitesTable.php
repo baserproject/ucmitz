@@ -123,9 +123,12 @@ class SitesTable extends AppTable
      *
      * @param bool $mainSiteId メインサイトID
      * @param array $options
-     *  - `excludeIds` 除外するID（初期値：なし）
-     *  - `status` 有効かどうか（初期値：true）
+     *  - `excludeIds` : 除外するID（初期値：なし）
+     *  - `status` : 有効かどうか（初期値：true）
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getSiteList($mainSiteId = null, $options = [])
     {
@@ -183,54 +186,28 @@ class SitesTable extends AppTable
     /**
      * メインサイトのデータを取得する
      *
-     * @param mixed $options 取得するフィールド
+     * @param mixed $options
+     *  - `fields` : 取得するフィールド
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getRootMain($options = [])
     {
         $options += [
             'fields' => []
         ];
-        // =============================================================
-        // テストの際、Fixture のロード前に、設定 BcSite を、DBから読む為、
-        // テストデータが利用できないので、テストの際には、直接DBより取得させる
-        // =============================================================
-        if ($this->useDbConfig == 'test') {
-            $SiteConfig = ClassRegistry::init('SiteConfig');
-            $siteConfigs = $SiteConfig->findExpanded();
-        } else {
-            loadSiteConfig();
-            $siteConfigs = Configure::read('BcSite');
-        }
-        $site = ['Site' => [
-            'id' => 0,
-            'main_site_id' => null,
-            'name' => null,
-            'display_name' => $siteConfigs['main_site_display_name'],
-            'title' => $siteConfigs['name'],
-            'alias' => null,
-            'theme' => $siteConfigs['theme'],
-            'status' => !$siteConfigs['maintenance'],
-            'use_subdomain' => false,
-            'domain_type' => false,
-            'relate_main_site' => null,
-            'device' => null,
-            'same_main_url' => false,
-            'auto_redirect' => false,
-            'auto_link' => false,
-            'lang' => null,
-            'created' => null,
-            'modified' => null
-        ]];
+        $site = $this->find()->where(['main_site_id IS' => null])->first()->toArray();
         if ($options['fields']) {
             if (!is_array($options['fields'])) {
                 $options['fields'] = [$options['fields']];
             }
             $siteTmp = [];
             foreach($options['fields'] as $field) {
-                $siteTmp[$field] = $site['Site'][$field];
+                $siteTmp[$field] = $site[$field];
             }
-            $site = ['Site' => $siteTmp];
+            $site = $siteTmp;
         }
         return $site;
     }
