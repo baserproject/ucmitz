@@ -73,9 +73,80 @@ class SitesControllerTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testView(): void
     {
-        $this->get('/baser/api/baser-core/sites/view/1.json?token=' . $this->accessToken);
+        $this->get('/baser/api/baser-core/sites/view/2.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('mobile', $result->site->name);
+        $this->assertEquals('smartphone', $result->site->name);
     }
+
+    /**
+     * Test index method
+     *
+     * @return void
+     */
+    public function testIndex()
+    {
+        $this->get('/baser/api/baser-core/sites/index.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('', $result->sites[0]->name);
+    }
+
+    /**
+     * Test add method
+     *
+     * @return void
+     */
+    public function testAdd()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $data = [
+            'name' => 'chinese',
+            'display_name' => '中国語サイト',
+            'title' => '中国語',
+            'alias' => 'zh'
+        ];
+        $this->post('/baser/api/baser-core/sites/add.json?token=' . $this->accessToken, $data);
+        $this->assertResponseSuccess();
+        $sites = $this->getTableLocator()->get('Sites');
+        $query = $sites->find()->where(['name' => $data['name']]);
+        $this->assertEquals(1, $query->count());
+    }
+
+    /**
+     * Test edit method
+     *
+     * @return void
+     */
+    public function testEdit()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $data = [
+            'name' => 'Test_test_Man'
+        ];
+        $this->post('/baser/api/baser-core/sites/edit/1.json?token=' . $this->accessToken, $data);
+        $this->assertResponseSuccess();
+        $sites = $this->getTableLocator()->get('Sites');
+        $query = $sites->find()->where(['name' => $data['name']]);
+        $this->assertEquals(1, $query->count());
+    }
+
+    /**
+     * Test delete method
+     *
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $this->post('/baser/api/baser-core/sites/delete/2.json?token=' . $this->accessToken);
+        $this->assertResponseSuccess();
+        $sites = $this->getTableLocator()->get('Sites');
+        $query = $sites->find()->where(['id' => 2]);
+        $this->assertEquals(0, $query->count());
+    }
+
 }

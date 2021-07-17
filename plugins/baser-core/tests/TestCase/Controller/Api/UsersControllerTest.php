@@ -145,7 +145,7 @@ class UsersControllerTest extends BcTestCase
     {
         $this->enableSecurityToken();
         $this->enableCsrfToken();
-        $this->post('/baser/admin/baser-core/users/delete/1?token=' . $this->accessToken);
+        $this->post('/baser/api/baser-core/users/delete/2.json?token=' . $this->accessToken);
         $this->assertResponseSuccess();
     }
 
