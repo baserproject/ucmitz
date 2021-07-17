@@ -1,36 +1,57 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Test.Case.Controller
- * @since           baserCMS v 4.0.9
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
 
-App::uses('SitesController', 'Controller');
+namespace BaserCore\Test\TestCase\Controller\Admin;
+
+use BaserCore\Controller\Admin\SitesController;
+use BaserCore\Service\Admin\SiteManageServiceInterface;
+use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
+use Cake\Event\Event;
+use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class SitesControllerTest
- *
- * @package Baser.Test.Case.Controller
- * @property  SitesController $SitesController
+ * @package BaserCore\Test\TestCase\Controller\Admin
  */
 class SitesControllerTest extends BcTestCase
 {
+
+    /**
+     * Trait
+     */
+    use IntegrationTestTrait;
+    use BcContainerTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.Sites'
+    ];
 
     /**
      * set up
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
+        $this->loginAdmin($this->getRequest());
     }
 
     /**
@@ -38,55 +59,41 @@ class SitesControllerTest extends BcTestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
     }
 
     /**
-     * Before Filter
+     * サイト一覧
      */
-    public function testBeforeFilter()
+    public function testIndex()
+    {
+        $this->get('/baser/admin/baser-core/sites/');
+        $this->assertResponseOk();
+        // イベントテスト
+        $this->entryControllerEventToMock('Controller.Sites.searchIndex', function(Event $event) {
+            $request = $event->getData('request');
+            return $request->withQueryParams(['num' => 1]);
+        });
+        // アクション実行（requestの変化を判定するため $this->get() ではなくクラスを直接利用）
+        $sitesController = new SitesController($this->getRequest());
+        $sitesController->index($this->getService(SiteManageServiceInterface::class));
+        $this->assertEquals(1, $sitesController->getRequest()->getQuery('num'));
+    }
+
+    /**
+     * サイト追加
+     */
+    public function testAdd()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
-     * サブサイト一覧
+     * サイト情報編集
      */
-    public function testAdmin_index()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * サブサイト追加
-     */
-    public function testAdmin_add()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * サブサイト情報編集
-     */
-    public function testAdmin_edit()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 公開状態にする
-     */
-    public function testAdmin_ajax_unpublish()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 非公開状態にする
-     */
-    public function testAdmin_ajax_publish()
+    public function testEdit()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
@@ -94,15 +101,7 @@ class SitesControllerTest extends BcTestCase
     /**
      * 削除する
      */
-    public function testAdmin_delete()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 選択可能なデバイスと言語の一覧を取得する
-     */
-    public function testAdmin_ajax_get_selectable_devices_and_lang()
+    public function testDelete()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
