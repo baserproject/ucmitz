@@ -453,19 +453,24 @@ class SitesTable extends AppTable
      * メインサイトを取得する
      *
      * @param int $id
-     * @return array|null
+     * @return array|false
      */
     public function getMain($id)
     {
-        $mainSiteId = $this->field('main_site_id', [
-            'Site.id' => $id
-        ]);
-        if ($mainSiteId == 0) {
+        $currentSite = $this->find()->where(['id' => $id])->first();
+        if(!$currentSite) {
+            return false;
+        }
+        if (is_null($currentSite->main_site_id)) {
             return $this->getRootMain();
         }
-        return $this->find('first', ['conditions' => [
-            'Site.main_site_id' => $mainSiteId
-        ], 'recursive' => -1]);
+        $mainSite = $this->find()->where([
+            'id' => $currentSite->main_site_id
+        ])->first();
+        if(!$mainSite) {
+            return false;
+        }
+        return $mainSite->toArray();
     }
 
     /**
