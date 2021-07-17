@@ -544,30 +544,32 @@ class SitesTable extends AppTable
      * デバイス設定をリセットする
      *
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function resetDevice()
     {
-        $sites = $this->find('all', ['recursive' => -1]);
+        $sites = $this->find()->all();
         $result = true;
         if ($sites) {
-            $this->getDataSource()->begin();
+            $this->getConnection()->begin();
             foreach($sites as $site) {
-                $site['Site']['device'] = '';
-                $site['Site']['auto_link'] = false;
-                if (!$site['Site']['lang']) {
-                    $site['Site']['same_main_url'] = false;
-                    $site['Site']['auto_redirect'] = false;
+                $site->device = '';
+                $site->auto_link = false;
+                if (!$site->lang) {
+                    $site->same_main_url = false;
+                    $site->auto_redirect = false;
                 }
-                $this->set($site);
-                if (!$this->save()) {
+                if (!$this->save($site)) {
                     $result = false;
                 }
             }
         }
         if (!$result) {
-            $this->getDataSource()->rollback();
+            $this->getConnection()->rollback();
         } else {
-            $this->getDataSource()->commit();
+            $this->getConnection()->commit();
         }
         return $result;
     }

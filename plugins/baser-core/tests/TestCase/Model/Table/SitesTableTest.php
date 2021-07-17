@@ -214,12 +214,14 @@ class SitesTableTest extends BcTestCase
     public function testResetDevice()
     {
         $this->Sites->resetDevice();
-        $sites = $this->Sites->find('all', ['recursive' => -1]);
+        $sites = $this->Sites->find()->all();
         foreach($sites as $site) {
-            $this->assertEquals($site['Site']['device'], '');
-            $this->assertFalse($site['Site']['same_main_url']);
-            $this->assertFalse($site['Site']['auto_redirect']);
-            $this->assertFalse($site['Site']['auto_link']);
+            $this->assertEquals($site->device, '');
+            $this->assertFalse($site->auto_link);
+            if (!$site->lang) {
+                $this->assertFalse($site->same_main_url);
+                $this->assertFalse($site->auto_redirect);
+            }
         }
     }
 
