@@ -146,7 +146,9 @@ class SitesTableTest extends BcTestCase
      */
     public function testGetPrefix()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertEquals('', $this->Sites->getPrefix(1));
+        $this->assertEquals('s', $this->Sites->getPrefix(2));
+        $this->assertEquals(false, $this->Sites->getPrefix(4));
     }
 
     /**
@@ -159,10 +161,21 @@ class SitesTableTest extends BcTestCase
 
     /**
      * URLよりサイトを取得する
+     * @dataProvider findByUrlDataProvider
      */
-    public function testFindByUrl()
+    public function testFindByUrl($url, $expected)
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $site = $this->Sites->findByUrl($url);
+        $this->assertEquals($expected, $site['id']);
+    }
+
+    public function findByUrlDataProvider() {
+        return [
+            ['', 1],
+            ['/s/index', 2],
+            ['/en/about', 3],
+            ['/test/a', 1]
+        ];
     }
 
     /**

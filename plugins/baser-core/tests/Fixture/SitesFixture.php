@@ -30,7 +30,7 @@ class SitesFixture extends TestFixture
         [
             'id' => '1',
             'main_site_id' => null,
-            'name' => 'main',
+            'name' => '',
             'display_name' => 'メインサイト',
             'title' => 'baserCMS inc.',
             'alias' => '',

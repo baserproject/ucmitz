@@ -273,6 +273,9 @@ class SitesTable extends AppTable
      *
      * @param $id
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isMain($id)
     {
@@ -285,6 +288,9 @@ class SitesTable extends AppTable
      * @param $id
      * @param array $options
      * @return ResultSetInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function children($id, $options = [])
     {
@@ -381,27 +387,20 @@ class SitesTable extends AppTable
      * プレフィックスを取得する
      *
      * @param mixed $id | $data
-     * @return mixed
+     * @return false|string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getPrefix($id)
     {
-        if (!is_array($id)) {
-            $data = $this->find('first', ['fields' => ['name', 'alias'], 'conditions' => ['Site.id' => $id], 'recursive' => -1]);
-        } else {
-            $data = $id;
+        $site = $this->find()->select(['name', 'alias'])->where(['id' => $id])->first();
+        if(!$site) {
+            return false;
         }
-        if (!$data) {
-            return '';
-        }
-        if (isset($data['Site'])) {
-            $data = $data['Site'];
-        }
-        if (empty($data['name'])) {
-            return '';
-        }
-        $prefix = $data['name'];
-        if ($data['alias']) {
-            $prefix = $data['alias'];
+        $prefix = $site->name;
+        if ($site->alias) {
+            $prefix = $site->alias;
         }
         return $prefix;
     }
@@ -432,20 +431,22 @@ class SitesTable extends AppTable
         if ($url === false || $url === "") {
             return $this->getRootMain();
         }
+        $url = preg_replace('/^\//', '', $url);
         $params = explode('/', $url);
         if (empty($params[0])) {
             return false;
         }
-        $site = $this->find('first', ['conditions' => [
+        $site = $this->find()->where([
             'or' => [
-                'Site.name' => $params[0],
-                'Site.alias' => $params[0]
+                'name' => $params[0],
+                'alias' => $params[0]
             ]
-        ], 'recursive' => -1]);
+        ])->first();
         if (!$site) {
-            $site = $this->getRootMain();
+            return $this->getRootMain();
+        } else {
+            return $site->toArray();
         }
-        return $site;
     }
 
     /**
