@@ -97,12 +97,20 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSaveViewConditions()
     {
-        // $ref = new ReflectionClass($this->BcAdminApp);
-        // $method = $ref->getMethod('saveViewConditions');
-        // $method->setAccessible(true);
-        // $method->invokeArgs($this->BcAdminApp, ['User',[]]);
-        $this->markTestIncomplete('Not implemented yet.');
-
+        $named =  [
+            'num' => 30,
+            'site_id' => 0,
+            'list_type' => 1,
+            'sort' => 'id',
+            'direction' => 'asc'
+        ];
+        $this->BcAdminApp->setRequest($this->BcAdminApp->getRequest()->withParam('named', $named));
+        $this->execPrivateMethod($this->BcAdminApp, 'saveViewConditions', ['testModel', ['default' => [$named]]]);
+        $this->assertSession($named, 'BcApp.viewConditions.PagesDisplay.named');
+        $query = ['test' => 'test'];
+        $this->BcAdminApp->setRequest($this->BcAdminApp->getRequest()->withQueryParams($query));
+        $this->execPrivateMethod($this->BcAdminApp, 'saveViewConditions', ['testModel', ['default' => [$query]]]);
+        $this->assertSession($query, 'BcApp.viewConditions.PagesDisplay.query');
     }
 
     /**

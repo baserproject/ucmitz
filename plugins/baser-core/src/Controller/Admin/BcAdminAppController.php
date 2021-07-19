@@ -74,6 +74,9 @@ class BcAdminAppController extends BcAppController
      * @param array $targetModel
      * @param array $options オプション
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     protected function saveViewConditions($targetModel = [], $options = []): void
     {

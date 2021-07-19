@@ -97,7 +97,7 @@ class ContentsController extends BcAdminAppController
 
         $this->setViewConditions('Content', ['default' => [
             'named' => [
-                'num' => $this->siteConfigs['admin_list_num'],
+                'num' => $this->getSiteConfig('admin_list_num'),
                 'site_id' => 0,
                 'list_type' => 1,
                 'sort' => 'id',
