@@ -1,18 +1,23 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Controller
- * @since           baserCMS v 4.0.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
 
-App::uses('BcContentsController', 'Controller');
+namespace BaserCore\Controller\Admin;
+
+use Cake\Event\EventInterface;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Service\SiteConfigsTrait;
+use BaserCore\Controller\Admin\BcAdminAppController;
+
 
 /**
  * Class ContentsController
@@ -29,27 +34,47 @@ App::uses('BcContentsController', 'Controller');
  * @property User $User
  * @property BcContentsComponent $BcContents
  */
-class ContentsController extends AppController
+class ContentsController extends BcAdminAppController
 {
+    /**
+     * SiteConfigsTrait
+     */
+    use SiteConfigsTrait;
 
+    /**
+     * initialize
+     * ログインページ認証除外
+     * @return void
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+    }
     /**
      * モデル
      *
      * @var array
      */
-    public $uses = ['Content', 'Site', 'SiteConfig', 'ContentFolder'];
+    // public $uses = ['Content', 'Site', 'SiteConfig', 'ContentFolder'];
+
 
     /**
      * コンポーネント
      *
      * @var array
      */
-    public $components = ['Cookie', 'BcAuth', 'BcAuthConfigure', 'BcContents' => ['useForm' => true]];
+    // public $components = ['Cookie', 'BcAuth', 'BcAuthConfigure', 'BcContents' => ['useForm' => true]];
 
-    public function beforeFilter()
+    /**
+     * beforeFilter
+     *
+     * @return void
+     * @checked
+     */
+    public function beforeFilter(EventInterface $event)
     {
-        parent::beforeFilter();
-        $this->BcAuth->allow('view');
+        parent::beforeFilter($event);
+        // $this->BcAuth->allow('view');
     }
 
     /**
@@ -58,17 +83,17 @@ class ContentsController extends AppController
      * @param integer $parentId
      * @param void
      */
-    public function admin_index()
+    public function index()
     {
-
-        switch($this->request->action) {
-            case 'admin_index':
+        switch($this->request->getParam('action')) {
+            case 'index':
                 $this->setTitle(__d('baser', 'コンテンツ一覧'));
                 break;
-            case 'admin_trash_index':
+            case 'trash_index':
                 $this->setTitle(__d('baser', 'ゴミ箱'));
                 break;
         }
+        exit;
 
         $this->setViewConditions('Content', ['default' => [
             'named' => [

@@ -271,72 +271,76 @@ class ContentsTable extends AppTable
     }
 
     /**
-     * Before Validate
+     * Before Marshal
      *
-     * @param array $options Options passed from Model::save().
-     * @return bool True if validate operation should continue, false to abort
+     * @param Event $event
+     * @param ArrayObject $data
+     * @param ArrayObject $options
+     * @return void
      */
-    public function beforeValidate($options = [])
+    public function beforeMarshal(Event $event, ArrayObject $data, ArrayObject $options)
     {
         // コンテンツ一覧にて、コンテンツを登録した直後のリネーム処理までは新規追加とみなして処理を行う為、$create で判定させる
         $create = false;
-        if (empty($this->data['Content']['id']) || !empty($options['firstCreate'])) {
+        if (empty($data['id']) || !empty($options['firstCreate'])) {
             $create = true;
         }
         // タイトルは強制的に255文字でカット
-        if (!empty($this->data['Content']['title'])) {
-            $this->data['Content']['title'] = mb_substr($this->data['Content']['title'], 0, 254, 'UTF-8');
+        if (!empty($data['title'])) {
+            $data['title'] = mb_substr($data['title'], 0, 254, 'UTF-8');
         }
         if ($create) {
             // IEのURL制限が2083文字のため、全て全角文字を想定し231文字でカット
-            if (!isset($this->data['Content']['name'])) {
-                $this->data['Content']['name'] = BcUtil::urlencode(mb_substr($this->data['Content']['title'], 0, 230, 'UTF-8'));
+            if (!isset($data['name'])) {
+                $data['name'] = BcUtil::urlencode(mb_substr($data['title'], 0, 230, 'UTF-8'));
             }
-            if (!isset($this->data['Content']['self_status'])) {
-                $this->data['Content']['self_status'] = false;
+            if (!isset($data['self_status'])) {
+                $data['self_status'] = false;
             }
-            if (!isset($this->data['Content']['self_publish_begin'])) {
-                $this->data['Content']['self_publish_begin'] = null;
+            if (!isset($data['self_publish_begin'])) {
+                $data['self_publish_begin'] = null;
             }
-            if (!isset($this->data['Content']['self_publish_end'])) {
-                $this->data['Content']['self_publish_end'] = null;
+            if (!isset($data['self_publish_end'])) {
+                $data['self_publish_end'] = null;
             }
-            if (!isset($this->data['Content']['deleted'])) {
-                $this->data['Content']['deleted'] = false;
+            if (!isset($data['deleted'])) {
+                $data['deleted'] = false;
             }
-            if (!isset($this->data['Content']['created_date'])) {
-                $this->data['Content']['created_date'] = date('Y-m-d H:i:s');
+            if (!isset($data['created_date'])) {
+                $data['created_date'] = date('Y-m-d H:i:s');
             }
-            if (!isset($this->data['Content']['site_root'])) {
-                $this->data['Content']['site_root'] = 0;
+            if (!isset($data['site_root'])) {
+                $data['site_root'] = 0;
             }
-            if (!isset($this->data['Content']['exclude_search'])) {
-                $this->data['Content']['exclude_search'] = 0;
+            if (!isset($data['exclude_search'])) {
+                $data['exclude_search'] = 0;
             }
-            if (!isset($this->data['Content']['author_id'])) {
-                $user = BcUtil::loginUser('admin');
-                $this->data['Content']['author_id'] = $user['id'];
+            if (!isset($data['author_id'])) {
+                $user = BcUtil::loginUser('Admin');
+                $data['author_id'] = $user['id'];
             }
         } else {
-            if (empty($this->data['Content']['modified_date'])) {
-                $this->data['Content']['modified_date'] = date('Y-m-d H:i:s');
+            if (empty($data['modified_date'])) {
+                $data['modified_date'] = date('Y-m-d H:i:s');
             }
-            if (isset($this->data['Content']['name'])) {
-                $this->data['Content']['name'] = BcUtil::urlencode(mb_substr($this->data['Content']['name'], 0, 230, 'UTF-8'));
+            if (isset($data['name'])) {
+                $data['name'] = BcUtil::urlencode(mb_substr($data['name'], 0, 230, 'UTF-8'));
             }
-            if ($this->data['Content']['id'] == 1) {
-                unset($this->validate['name']);
+            if ($data['id'] == 1) {
+                $validator = new Validator();
+                $validator = $this->validationDefault($validator);
+                $validator->remove('name');
+                return $validator;
             }
         }
         // name の 重複チェック＆リネーム
-        if (!empty($this->data['Content']['name'])) {
+        if (!empty($data['name'])) {
             $contentId = null;
-            if (!empty($this->data['Content']['id'])) {
-                $contentId = $this->data['Content']['id'];
+            if (!empty($data['id'])) {
+                $contentId = $data['id'];
             }
-            $this->data['Content']['name'] = $this->getUniqueName($this->data['Content']['name'], $this->data['Content']['parent_id'], $contentId);
+            $data['name'] = $this->getUniqueName($data['name'], $data['parent_id'], $contentId);
         }
-        return true;
     }
 
     /**
