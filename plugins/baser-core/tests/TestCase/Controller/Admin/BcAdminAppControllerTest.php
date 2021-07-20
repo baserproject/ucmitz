@@ -77,7 +77,8 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetViewConditions()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $this->testSaveViewConditions();
+        $this->testLoadViewConditions();
     }
 
     /**
@@ -87,7 +88,16 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testLoadViewConditions()
     {
-        $this->markTestIncomplete('Not implemented yet.');
+        $query = ['test' => 'test'];
+        $named = ['test'];
+        $request = $this->BcAdminApp->getRequest();
+        $session = $request->getSession();
+        $session->write('BcApp.viewConditions.PagesDisplay.named', $named);
+        $session->write('BcApp.viewConditions.PagesDisplay.query', $query);
+        $BcAdminApp = new BcAdminAppController($this->loginAdmin($request));
+        $this->execPrivateMethod($BcAdminApp, 'loadViewConditions');
+        $this->assertEquals($named[0], $BcAdminApp->getRequest()->getParam('pass')[0]);
+        $this->assertEquals($query, $BcAdminApp->getRequest()->getParam('pass')['?']);
     }
 
     /**

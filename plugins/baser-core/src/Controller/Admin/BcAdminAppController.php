@@ -61,6 +61,7 @@ class BcAdminAppController extends BcAppController
      * @param array $options オプション
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function setViewConditions($targetModel = [], $options = []): void
     {
@@ -135,6 +136,9 @@ class BcAdminAppController extends BcAppController
      *
      * @param array $targetModel
      * @param array|string $options オプション
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     protected function loadViewConditions($targetModel = [], $options = []): void
     {
@@ -200,6 +204,7 @@ class BcAdminAppController extends BcAppController
         }
 
         $named['?'] = $query;
+
         $this->request = $this->request->withParam('pass', $named);
     }
 
