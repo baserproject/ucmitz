@@ -108,8 +108,8 @@ class ContentsTable extends AppTable
     public function implementedEvents(): array
     {
         return [
-            'Model.beforeFind' => ['callable' => 'beforeFind', 'passParams' => true],
-            'Model.afterFind' => ['callable' => 'afterFind', 'passParams' => true],
+            // 'Model.beforeFind' => ['callable' => 'beforeFind', 'passParams' => true],
+            // 'Model.afterFind' => ['callable' => 'afterFind', 'passParams' => true],
             'Model.beforeValidate' => ['callable' => 'beforeValidate', 'passParams' => true],
             'Model.afterValidate' => ['callable' => 'afterValidate'],
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
@@ -970,9 +970,10 @@ class ContentsTable extends AppTable
         ], $options);
 
         $conditions = [
-            'type' => 'ContentFolder',
-            'alias_id' => null
+            'type' => 'ContentFolders',
+            'alias_id' => 'IS NULL'
         ];
+
         if (!is_null($siteId)) {
             $conditions['site_id'] = $siteId;
         }
@@ -982,9 +983,14 @@ class ContentsTable extends AppTable
         if (!empty($options['conditions'])) {
             $conditions = array_merge($conditions, $options['conditions']);
         }
-        $folders = $this->generateTreeList($conditions);
+        $folders = $this->find('treeList', [
+            'keyPath' => null,
+            'valuePath' => null,
+            'spacer' => '_'
+            ])->where([$conditions]);
         if ($folders) {
-            return $this->convertTreeList($folders);
+            return $folders;
+            // return $this->convertTreeList($folders->all()->toArray());
         }
         return false;
     }

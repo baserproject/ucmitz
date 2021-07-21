@@ -390,7 +390,9 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetContentFolderList()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $siteId = 1;
+
+        $this->Contents->getContentFolderList();
     }
 
     /**

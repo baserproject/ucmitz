@@ -11,12 +11,15 @@
 
 namespace BaserCore\Controller\Admin;
 
+use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Service\SiteConfigsTrait;
+use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Controller\Admin\BcAdminAppController;
+use BaserCore\Service\Admin\SiteManageServiceInterface;
 
 
 /**
@@ -50,12 +53,6 @@ class ContentsController extends BcAdminAppController
     {
         parent::initialize();
     }
-    /**
-     * モデル
-     *
-     * @var array
-     */
-    // public $uses = ['Content', 'Site', 'SiteConfig', 'ContentFolder'];
 
 
     /**
@@ -74,6 +71,9 @@ class ContentsController extends BcAdminAppController
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
+        $this->loadModel('BaserCore.Sites');
+        $this->loadModel('BaserCore.SiteConfigs');
+        $this->loadModel('BaserCore.ContentFolders');
         // $this->BcAuth->allow('view');
     }
 
@@ -83,7 +83,7 @@ class ContentsController extends BcAdminAppController
      * @param integer $parentId
      * @param void
      */
-    public function index()
+    public function index(SiteManageServiceInterface $siteManage)
     {
         switch($this->request->getParam('action')) {
             case 'index':
@@ -93,7 +93,6 @@ class ContentsController extends BcAdminAppController
                 $this->setTitle(__d('baser', 'ゴミ箱'));
                 break;
         }
-        exit;
 
         $this->setViewConditions('Content', ['default' => [
             'named' => [
@@ -106,23 +105,23 @@ class ContentsController extends BcAdminAppController
         ]]);
 
         if (empty($this->request->getParam('named.sort'))) {
-            $this->request = $this->request->withParam('named.sort', $this->passedArgs['sort']);
+            $this->request = $this->request->withParam('named.sort', $this->request->getParam('pass')['sort']);
         }
-        if (empty($this->request->params['named']['direction'])) {
-            $this->request = $this->request->withParam('named.direction', $this->passedArgs['direction']);
+        if (empty($this->request->getParam('named.direction'))) {
+            $this->request = $this->request->withParam('named.direction', $this->request->getParam('pass')['direction']);
         }
 
-        $sites = $this->Site->getSiteList();
+        $sites = $siteManage->getSiteList();
         if ($sites) {
-            if (!$this->passedArgs['site_id'] || !in_array($this->passedArgs['site_id'], array_keys($sites))) {
+            if (!$this->request->getParam('pass')['site_id'] || !in_array($this->request->getParam('pass')['site_id'], array_keys($sites))) {
                 reset($sites);
-                $this->passedArgs['site_id'] = key($sites);
+                $this->request->getParam('pass')['site_id'] = key($sites);
             }
         } else {
-            $this->passedArgs['site_id'] = null;
+            $this->request->getParam('pass')['site_id'] = null;
         }
-        $currentSiteId = $this->passedArgs['site_id'];
-        $currentListType = $this->passedArgs['list_type'];
+        $currentSiteId = $this->request->getParam('pass')['site_id'];
+        $currentListType = $this->request->getParam('pass')['list_type'];
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
@@ -130,7 +129,7 @@ class ContentsController extends BcAdminAppController
             $template = null;
             $datas = [];
             switch($this->request->getParam('action')) {
-                case 'admin_index':
+                case 'index':
                     switch($currentListType) {
                         case 1:
                             $conditions = $this->_createAdminIndexConditionsByTree($currentSiteId);
@@ -142,9 +141,9 @@ class ContentsController extends BcAdminAppController
                         case 2:
                             $conditions = $this->_createAdminIndexConditionsByTable($currentSiteId, $this->request->data);
                             $options = [
-                                'order' => 'Content.' . $this->passedArgs['sort'] . ' ' . $this->passedArgs['direction'],
+                                'order' => 'Content.' . $this->request->getParam('pass')['sort'] . ' ' . $this->request->getParam('pass')['direction'],
                                 'conditions' => $conditions,
-                                'limit' => $this->passedArgs['num'],
+                                'limit' => $this->request->getParam('pass')['num'],
                                 'recursive' => 2
                             ];
 
@@ -163,7 +162,7 @@ class ContentsController extends BcAdminAppController
                             break;
                     }
                     break;
-                case 'admin_trash_index':
+                case 'trash_index':
                     $this->Content->Behaviors->unload('SoftDelete');
                     $conditions = $this->_createAdminIndexConditionsByTrash();
                     $datas = $this->Content->find('threaded', ['order' => ['Content.site_id', 'Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
@@ -175,11 +174,12 @@ class ContentsController extends BcAdminAppController
             $this->render($template);
             return;
         }
-        $this->ContentFolder->getEventManager()->attach($this->ContentFolder);
+        $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('editInIndexDisabled', false);
-        $this->set('contentTypes', $this->BcContents->getTypes());
-        $this->set('authors', $this->User->getUserList());
-        $this->set('folders', $this->Content->getContentFolderList((int)$currentSiteId, ['conditions' => ['Content.site_root' => false]]));
+        // $this->set('contentTypes', $this->BcContents->getTypes());
+        // $this->set('authors', $this->Users->getUserList());
+        /** @var ContentsTable $this->Contents */
+        $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
         $this->set('listTypes', [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')]);
         $this->set('sites', $sites);
         $this->setSearch('contents_index');
