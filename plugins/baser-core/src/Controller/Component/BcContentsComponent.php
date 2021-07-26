@@ -82,7 +82,7 @@ class BcContentsComponent extends Component
     /**
      * Initialize
      *
-     * @param Controller $controller Controller with components to initialize
+     * @param array $config
      * @return void
      * @checked
      * @unitTest
