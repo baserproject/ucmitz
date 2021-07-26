@@ -11,20 +11,21 @@
 
 namespace BaserCore\Utility;
 
-use Cake\Cache\Cache;
 use Cake\Core\App;
+use BcAuthComponent;
+use Cake\Cache\Cache;
 use Cake\Core\Plugin;
 use Cake\Core\Configure;
-use Cake\Database\Exception;
-use Cake\Datasource\ConnectionManager;
+use Cake\Routing\Router;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\Router;
 use Cake\Utility\Inflector;
-use BaserCore\Annotation\UnitTest;
+use Cake\Database\Exception;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use Cake\Datasource\ConnectionManager;
 
 /**
  * Class BcUtil
@@ -203,7 +204,7 @@ class BcUtil
 
     /**
      * プレフィックス全体を取得する
-     * @param $regex 正規表現時にエスケープするかどうか
+     * @param bool $regex 正規表現時にエスケープするかどうか
      * @return string
      * @checked
      * @noTodo
