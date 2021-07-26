@@ -53,7 +53,7 @@ $deleteDisabled = false;
     if ($data->alias_id) {
       $alias = true;
     }
-    // $status = $this->BcContents->isAllowPublish($data, true);
+    $status = $this->BcContents->isAllowPublish($data, true);
     if ($data->site_root) {
       $open = true;
     }

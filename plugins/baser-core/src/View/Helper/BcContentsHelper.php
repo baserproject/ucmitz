@@ -13,6 +13,8 @@ namespace BaserCore\View\Helper;
 
 use Cake\View\View;
 use Cake\View\Helper;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
 use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Event\BcEventDispatcherTrait;
@@ -22,7 +24,7 @@ use BaserCore\Event\BcEventDispatcherTrait;
  *
  * @package Baser.View.Helper
  * @property Content $_Content
- * @property Permission $_Permission
+ * @property Permission $_Permissions
  */
 class BcContentsHelper extends Helper
 {
@@ -45,7 +47,7 @@ class BcContentsHelper extends Helper
      * @var Content
      */
     protected $_Content = null;
-    protected $_Permission = null;
+    protected $_Permissions = null;
 
     /**
      * Constructor.
@@ -75,7 +77,7 @@ class BcContentsHelper extends Helper
         }
 
         $existsTitles = $this->_getExistsTitles();
-        $user = BcUtil::loginUser('admin');
+        $user = BcUtil::loginUser('Admin');
 
         foreach($settings as $type => $setting) {
 
@@ -127,13 +129,13 @@ class BcContentsHelper extends Helper
             }
             // disabled
 			if(!empty($setting['url']['add'])) {
-				$setting['addDisabled'] = !($this->_Permission->check($setting['url']['add'], $user['user_group_id']));
+				$setting['addDisabled'] = !($this->_Permissions->check($setting['url']['add'], $user->user_groups[0]->id));
 			} else {
 				$setting['addDisabled'] = true;
 			}
             $settings[$type] = $setting;
         }
-        $this->settings = $settings;
+        $this->setConfig('settings', $settings);
     }
 
     /**
@@ -146,11 +148,11 @@ class BcContentsHelper extends Helper
     public function isActionAvailable($type, $action, $entityId)
     {
         $user = BcUtil::loginUser('admin');
-        if (!isset($this->settings[$type]['url'][$action])) {
+        if (!isset($this->getConfig('settings')[$type]['url'][$action])) {
             return false;
         }
-        $url = $this->settings[$type]['url'][$action] . '/' . $entityId;
-        return $this->_Permission->check($url, $user['user_group_id']);
+        $url = $this->getConfig('settings')[$type]['url'][$action] . '/' . $entityId;
+        return $this->_Permissions->check($url, $user['user_group_id']);
     }
 
     /**
@@ -165,20 +167,23 @@ class BcContentsHelper extends Helper
         foreach($items as $name => $settings) {
             foreach($settings as $type => $setting) {
                 if (empty($setting['multiple'])) {
-                    $conditions['or'][] = [
-                        'Content.plugin' => $name,
-                        'Content.type' => $type,
-                        'Content.alias_id' => null
+                    $conditions = [
+                        'OR' => [
+                            'plugin' => $name,
+                            'type' => $type,
+                            'alias_id IS' => null,
+                        ]
                     ];
                 }
             }
         }
-        $this->_Content->Behaviors->unload('SoftDelete');
-        $contents = $this->_Content->find('all', ['fields' => ['plugin', 'type', 'title'], 'conditions' => $conditions, 'recursive' => -1]);
-        $this->_Content->Behaviors->load('SoftDelete');
+         // TODO: SoftDelete未実装
+        // $this->_Contents->Behaviors->unload('SoftDelete');
+        $contents = $this->_Contents->find('all')->select(['plugin', 'type', 'title'])->where([$conditions]);
+        // $this->_Contents->Behaviors->load('SoftDelete');
         $existContents = [];
         foreach($contents as $content) {
-            $existContents[$content['Content']['plugin'] . '.' . $content['Content']['type']] = $content['Content']['title'];
+            $existContents[$content->plugin . '.' . $content->type] = $content->title;
         }
         return $existContents;
     }
@@ -230,7 +235,7 @@ class BcContentsHelper extends Helper
      */
     public function getJsonSettings()
     {
-        return json_encode($this->settings);
+        return json_encode($this->getConfig('settings'));
     }
 
     /**
@@ -242,7 +247,7 @@ class BcContentsHelper extends Helper
      */
     public function isAllowPublish($data, $self = false)
     {
-        return $this->_Content->isAllowPublish($data, $self);
+        return $this->_Contents->isAllowPublish($data, $self);
     }
 
     /**
@@ -253,7 +258,7 @@ class BcContentsHelper extends Helper
      */
     public function getUrlById($id, $full = false)
     {
-        return $this->_Content->getUrlById($id, $full);
+        return $this->_Contents->getUrlById($id, $full);
     }
 
     /**
@@ -269,7 +274,7 @@ class BcContentsHelper extends Helper
     {
         // TODO 未実装のため代替措置
         // >>>
-//        return $this->_Content->getUrl($url, $full, $useSubDomain, $base);
+//        return $this->_Contents->getUrl($url, $full, $useSubDomain, $base);
         // ---
         return '';
         // <<<
@@ -284,7 +289,7 @@ class BcContentsHelper extends Helper
      */
     public function getPureUrl($url, $siteId)
     {
-        return $this->_Content->pureUrl($url, $siteId);
+        return $this->_Contents->pureUrl($url, $siteId);
     }
 
     /**
@@ -325,12 +330,12 @@ class BcContentsHelper extends Helper
             'type' => '',
             'order' => ['Content.site_id', 'Content.lft']
         ], $options);
-        $conditions = array_merge($this->_Content->getConditionAllowPublish(), ['Content.id' => $id]);
-        $content = $this->_Content->find('first', ['conditions' => $conditions, 'cache' => false]);
+        $conditions = array_merge($this->_Contents->getConditionAllowPublish(), ['Content.id' => $id]);
+        $content = $this->_Contents->find('first', ['conditions' => $conditions, 'cache' => false]);
         if (!$content) {
             return [];
         }
-        $conditions = array_merge($this->_Content->getConditionAllowPublish(), [
+        $conditions = array_merge($this->_Contents->getConditionAllowPublish(), [
             'Content.site_root' => false,
             'rght <' => $content['Content']['rght'],
             'lft >' => $content['Content']['lft']
@@ -346,7 +351,7 @@ class BcContentsHelper extends Helper
             $conditions = array_merge($conditions, $options['conditions']);
         }
         // CAUTION CakePHP2系では、fields を指定すると正常なデータが取得できない
-        return $this->_Content->find('threaded', [
+        return $this->_Contents->find('threaded', [
             'order' => $options['order'],
             'conditions' => $conditions,
             'recursive' => 0,
@@ -372,16 +377,16 @@ class BcContentsHelper extends Helper
         if (!$id) {
             return false;
         }
-        $siteId = $this->_Content->field('site_id', ['Content.id' => $id]);
+        $siteId = $this->_Contents->field('site_id', ['Content.id' => $id]);
         if ($direct) {
-            $parent = $this->_Content->getParentNode($id);
+            $parent = $this->_Contents->getParentNode($id);
             if ($parent && $parent['Content']['site_id'] == $siteId) {
                 return $parent;
             } else {
                 return false;
             }
         } else {
-            $parents = $this->_Content->getPath($id);
+            $parents = $this->_Contents->getPath($id);
             if ($parents) {
                 $result = [];
                 foreach($parents as $parent) {
@@ -427,7 +432,7 @@ class BcContentsHelper extends Helper
         $options = array_merge([
             'excludeIds' => []
         ], $options);
-        $this->_Content->unbindModel(['belongsTo' => ['User']]);
+        $this->_Contents->unbindModel(['belongsTo' => ['User']]);
         if (!$id) {
             if (!empty($this->request->getParam('Content'))) {
                 $content = $this->request->getParam('Content');
@@ -440,7 +445,7 @@ class BcContentsHelper extends Helper
                 return false;
             }
         }
-        return $this->_Content->getRelatedSiteContents($id, $options);
+        return $this->_Contents->getRelatedSiteContents($id, $options);
     }
 
     /**
@@ -477,7 +482,7 @@ class BcContentsHelper extends Helper
      */
     public function getContentFolderList($siteId = null, $options = [])
     {
-        return $this->_Content->getContentFolderList($siteId, $options);
+        return $this->_Contents->getContentFolderList($siteId, $options);
     }
 
     /**
@@ -488,7 +493,7 @@ class BcContentsHelper extends Helper
      */
     public function getSiteRoot($siteId)
     {
-        return $this->_Content->getSiteRoot($siteId);
+        return $this->_Contents->getSiteRoot($siteId);
     }
 
     /**
@@ -564,7 +569,7 @@ class BcContentsHelper extends Helper
      */
     public function getContentByEntityId($id, $contentType, $field = null)
     {
-        $conditions = array_merge($this->_Content->getConditionAllowPublish(), ['type' => $contentType, 'entity_id' => $id]);
+        $conditions = array_merge($this->_Contents->getConditionAllowPublish(), ['type' => $contentType, 'entity_id' => $id]);
         return $this->_getContent($conditions, $field);
     }
 
@@ -581,13 +586,13 @@ class BcContentsHelper extends Helper
      */
     public function getContentByUrl($url, $contentType, $field = null)
     {
-        $conditions = array_merge($this->_Content->getConditionAllowPublish(), ['type' => $contentType, 'url' => $url]);
+        $conditions = array_merge($this->_Contents->getConditionAllowPublish(), ['type' => $contentType, 'url' => $url]);
         return $this->_getContent($conditions, $field);
     }
 
     private function _getContent($conditions, $field)
     {
-        $content = $this->_Content->find('first', ['conditions' => $conditions, 'order' => ['Content.id'], 'cache' => false]);
+        $content = $this->_Contents->find('first', ['conditions' => $conditions, 'order' => ['Content.id'], 'cache' => false]);
         if (!empty($content)) {
             if ($field) {
                 return $content ['Content'][$field];
@@ -609,7 +614,7 @@ class BcContentsHelper extends Helper
      */
     public function isParentId($id, $parentId)
     {
-        $parentIds = $this->_Content->getPath($id, ['id'], -1);
+        $parentIds = $this->_Contents->getPath($id, ['id'], -1);
         if (!$parentIds) {
             return false;
         }

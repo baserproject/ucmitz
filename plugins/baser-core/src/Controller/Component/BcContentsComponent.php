@@ -11,6 +11,7 @@
 
 namespace BaserCore\Controller\Component;
 use Cake\Core\Configure;
+use Cake\Routing\Router;
 use BaserCore\Utility\BcUtil;
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
@@ -86,12 +87,12 @@ class BcContentsComponent extends Component
         if (!$this->type) {
             $this->type = $controller->getPlugin() . '.' . $controller->getName();
         }
-        if (!BcUtil::isAdminSystem()) {
-            // フロントエンド設定
-            $this->setupFront();
-        } else {
+        if (BcUtil::isAdminSystem(Router::url(null, false))) {
             // 管理システム設定
             $this->setupAdmin();
+        } else {
+            // フロントエンド設定
+            $this->setupFront();
         }
     }
 
@@ -110,7 +111,6 @@ class BcContentsComponent extends Component
             }
         }
         $this->setConfig('items', $createdSettings);
-        $a = $this->getConfig('items');
     }
 
     /**
@@ -122,15 +122,15 @@ class BcContentsComponent extends Component
         // プレビュー時のデータセット
         if (!empty($controller->request->query['preview'])) {
             $this->preview = $this->_Controller->request->query['preview'];
-            if (!empty($controller->request->getData('Content'))) {
-                $controller->request = $controller->request->withParam('Content', $controller->request->getData('Content'));
+            if (!empty($controller->request->getData())) {
+                $controller->request = $controller->request->withParam('Contents', $controller->request->getData());
                 $controller->Security->validatePost = false;
                 $controller->Security->csrfCheck = false;
             }
         }
 
         // 表示設定
-        if (!empty($controller->request->getParam('Content'))) {
+        if (!empty($controller->request->getParam())) {
             // レイアウトテンプレート設定
             $controller->layout = $controller->request->params['Content']['layout_template'];
             if (!$controller->layout) {

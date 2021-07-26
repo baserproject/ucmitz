@@ -203,15 +203,16 @@ class BcUtil
 
     /**
      * プレフィックス全体を取得する
-     *
+     * @param $regex 正規表現時にエスケープするかどうか
      * @return string
      * @checked
      * @noTodo
      * @unitTest
      */
-    public static function getPrefix()
+    public static function getPrefix($regex = false)
     {
-        return self::getBaserCorePrefix() . self::getAdminPrefix();
+        $prefix = self::getBaserCorePrefix() . self::getAdminPrefix();
+        return $regex ? str_replace('/', '\/',  substr($prefix, 1)) : $prefix;
     }
 
     /**
@@ -326,7 +327,8 @@ class BcUtil
                 return false;
             }
         }
-        $adminPrefix = Configure::read('Routing.prefixes.0');
+
+        $adminPrefix = BcUtil::getPrefix(true);
         return (boolean)(preg_match('/^(|\/)' . $adminPrefix . '\//', $url) || preg_match('/^(|\/)' . $adminPrefix . '$/', $url));
     }
 

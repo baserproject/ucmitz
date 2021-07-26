@@ -49,21 +49,21 @@ $this->BcBaser->i18nScript([
   'bcTreeNewTitle' => __d('baser', '新しい %s'),
 
 ]);
-// $this->BcBaser->js('admin/contents/index', false, [
-//   'id' => 'AdminContentsIndexScript',
-//   'data-isAdmin' => BcUtil::isAdminUser(),
-//   'data-isUseMoveContents' => (bool)$currentUser['UserGroup']['use_move_contents'],
-//   'data-adminPrefix' => BcUtil::getAdminPrefix(),
-//   'data-editInIndexDisabled' => (bool)$editInIndexDisabled
-// ]);
-// $this->BcBaser->js('admin/libs/jquery.bcTree', false);
-// $this->BcBaser->js([
-//   'admin/libs/jquery.baser_ajax_data_list',
-//   'admin/libs/jquery.baser_ajax_batch',
-//   'admin/libs/baser_ajax_data_list_config',
-//   'admin/libs/baser_ajax_batch_config'
-// ]);
-// echo $this->BcAdminForm->control('BcManageContent', ['type' => 'hidden', 'value' => $this->BcContents->getJsonSettings()]);
+$this->BcBaser->js('admin/contents/index', false, [
+  'id' => 'AdminContentsIndexScript',
+  'data-isAdmin' => BcUtil::isAdminUser(),
+  'data-isUseMoveContents' => (bool)$currentUser['UserGroup']['use_move_contents'],
+  'data-adminPrefix' => BcUtil::getAdminPrefix(),
+  'data-editInIndexDisabled' => (bool)$editInIndexDisabled
+]);
+$this->BcBaser->js('admin/libs/jquery.bcTree', false);
+$this->BcBaser->js([
+  'admin/libs/jquery.baser_ajax_data_list',
+  'admin/libs/jquery.baser_ajax_batch',
+  'admin/libs/baser_ajax_data_list_config',
+  'admin/libs/baser_ajax_batch_config'
+]);
+echo $this->BcAdminForm->control('BcManageContent', ['type' => 'hidden', 'value' => $this->BcContents->getJsonSettings()]);
 ?>
 
 
@@ -78,4 +78,4 @@ $this->BcBaser->i18nScript([
 
 <?php # $this->BcBaser->element('contents/index_view_setting') ?>
 
-<!-- <div id="DataList" class="bca-data-list">&nbsp;</div> -->
+<div id="DataList" class="bca-data-list">&nbsp;</div>
