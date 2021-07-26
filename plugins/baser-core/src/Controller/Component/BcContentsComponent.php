@@ -10,8 +10,11 @@
  */
 
 namespace BaserCore\Controller\Component;
+use BcSite;
+use Cake\Utility\Hash;
 use Cake\Core\Configure;
 use Cake\Routing\Router;
+use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
@@ -23,7 +26,7 @@ use Cake\Controller\Controller;
  * 《役割》
  * - コンテンツ一覧へのパンくずを自動追加
  * - フロントエンドでコンテンツデータを設定
- *        Controller / View にて、$this->request->getParam('Content') で参照できる
+ *        Controller / View にて、$this->request->getParam('Contents.Content') で参照できる
  * - コンテンツ保存フォームを自動表示
  * - コンテンツ保存フォームのデータソースを設定
  * - コンテンツ保存フォームの初期値を設定
@@ -81,11 +84,11 @@ class BcContentsComponent extends Component
     public function initialize(array $config): void
     {
         parent::initialize($config);
-        $controller = $this->getController();
-        $this->_Controller = $controller;
+        $this->_Controller = $this->getController();
+        $this->ControllerRequest = $this->_Controller->getRequest();
         // $controller->uses[] = 'Content';
         if (!$this->type) {
-            $this->type = $controller->getPlugin() . '.' . $controller->getName();
+            $this->type = $this->_Controller->getPlugin() . '.' . $this->_Controller->getName();
         }
         if (BcUtil::isAdminSystem(Router::url(null, false))) {
             // 管理システム設定
@@ -120,28 +123,28 @@ class BcContentsComponent extends Component
     {
         $controller = $this->_Controller;
         // プレビュー時のデータセット
-        if (!empty($controller->request->query['preview'])) {
-            $this->preview = $this->_Controller->request->query['preview'];
-            if (!empty($controller->request->getData())) {
-                $controller->request = $controller->request->withParam('Contents', $controller->request->getData());
+        if (!empty($this->ControllerRequest->getQuery('preview'))) {
+            $this->preview = $this->ControllerRequest->getQuery('preview');
+            if (!empty($this->ControllerRequest->getData())) {
+                $this->ControllerRequest = $this->ControllerRequest->withParam('Contents', $this->ControllerRequest->getData());
                 $controller->Security->validatePost = false;
                 $controller->Security->csrfCheck = false;
             }
         }
 
         // 表示設定
-        if (!empty($controller->request->getParam())) {
+        if (!empty($this->ControllerRequest->getAttributes())) {
             // レイアウトテンプレート設定
-            $controller->layout = $controller->request->params['Content']['layout_template'];
+            $controller->layout = $this->ControllerRequest->getParam('Contents.layout_template');
             if (!$controller->layout) {
-                $controller->layout = $this->getParentLayoutTemplate($controller->request->params['Content']['id']);
+                $controller->layout = $this->getParentLayoutTemplate($this->ControllerRequest->getParam('Contents.id'));
             }
             // パンくず
-            $controller->crumbs = $this->getCrumbs($controller->request->params['Content']['id']);
+            $controller->crumbs = $this->getCrumbs($this->ControllerRequest->getParam('Contents.id'));
             // 説明文
-            $controller->set('description', $controller->request->params['Content']['description']);
+            $controller->set('description', $this->ControllerRequest->getParam('Contents.description'));
             // タイトル
-            $controller->pageTitle = $controller->request->params['Content']['title'];
+            $controller->pageTitle = $this->ControllerRequest->getParam('Contents.title');
         }
 
     }
@@ -161,7 +164,9 @@ class BcContentsComponent extends Component
         // そのため、ビヘイビアのメソッドを直接実行して対処した。
         // CakePHPも、PHP自体のエラーも発生せず、ただ止まる。PHP7のバグ？PHP側のメモリーを256Mにしても変わらず。
         // ===========================================================================================
-        $contents = $this->_Controller->Content->Behaviors->Tree->getPath($this->_Controller->Content, $id, [], -1);
+        // $contents = $this->_Controller->Contents->getBehavior('Tree')->getPath($this->_Controller->Contents, $id, [], -1); TODO: 結果を見るため元のものも残す
+        // $contents = $this->_Controller->Contents->find('path', ['for' => $id]);
+        $contents = []; //TODO: 代替手段
         unset($contents[count($contents) - 1]);
         $crumbs = [];
         foreach($contents as $content) {
@@ -184,7 +189,7 @@ class BcContentsComponent extends Component
      */
     public function getContent($entityId = null)
     {
-        return $this->_Controller->Content->findByType($this->type, $entityId);
+        return $this->_Controller->Contents->findByType($this->type, $entityId);
     }
 
     /**
@@ -205,9 +210,9 @@ class BcContentsComponent extends Component
             } else {
                 $controller->subMenuElements = ['contents'];
             }
-            if ($this->useForm && in_array($controller->request->action, [$this->editAction, 'admin_edit_alias']) && !empty($controller->request->getData('Content'))) {
+            if ($this->useForm && in_array($this->ControllerRequest->action, [$this->editAction, 'admin_edit_alias']) && !empty($this->ControllerRequest->getData('Content'))) {
                 // フォームをセット
-                $this->settingForm($controller, $controller->request->getData('Content.site_id'), $controller->request->getData('Content.id'));
+                $this->settingForm($controller, $this->ControllerRequest->getData('Content.site_id'), $this->ControllerRequest->getData('Content.id'));
                 // フォームを読み込む為のイベントを設定
                 // 内部で useForm を参照できない為、ここに記述。
                 // フォームの設定しかできないイベントになってしまっている。
@@ -233,7 +238,7 @@ class BcContentsComponent extends Component
         if ($controller->name == 'ContentFolders') {
             $options['excludeId'] = $currentContentId;
         }
-        $data = $controller->request->data;
+        $data = $this->ControllerRequest->getData();
 
         $theme = $this->_Controller->siteConfigs['theme'];
         $site = BcSite::findById($data['Content']['site_id']);
@@ -258,7 +263,7 @@ class BcContentsComponent extends Component
         $controller->set('layoutTemplates', $templates);
         $controller->set('parentContents', $controller->Content->getContentFolderList($currentSiteId, $options));
         $controller->set('authors', $controller->User->getUserList());
-        $Site = ClassRegistry::init('Site');
+        $Sites = TableRegistry::getTableLocator()->get('Sites');
         $site = $controller->Content->find('first', ['conditions' => ['Content.id' => $data['Content']['id']]]);
         if (!is_null($site['Site']['main_site_id'])) {
             $mainSiteId = $site['Site']['main_site_id'];
@@ -270,19 +275,19 @@ class BcContentsComponent extends Component
         $controller->set('mainSiteDisplayName', $controller->siteConfigs['main_site_display_name']);
         $data['Site'] = $site['Site'];
         $controller->set('mainSiteId', $mainSiteId);
-        $controller->set('relatedContents', $Site->getRelatedContents($data['Content']['id']));
+        $controller->set('relatedContents', $Sites->getRelatedContents($data['Content']['id']));
         $related = false;
         if (($data['Site']['relate_main_site'] && $data['Content']['main_site_content_id'] && $data['Content']['alias_id']) ||
             $data['Site']['relate_main_site'] && $data['Content']['main_site_content_id'] && $data['Content']['type'] == 'ContentFolder') {
             $related = true;
         }
         $disableEditContent = false;
-        $controller->request->data = $data;
-        if (!BcUtil::isAdminUser() || ($controller->request->getData('Site.relate_main_site') && $controller->request->getData('Content.main_site_content_id') &&
-                ($controller->request->getData('Content.alias_id') || $controller->request->getData('Content.type') == 'ContentFolder'))) {
+        $this->ControllerRequest = $this->ControllerRequest->withData($data);;
+        if (!BcUtil::isAdminUser() || ($this->ControllerRequest->getData('Sites.relate_main_site') && $this->ControllerRequest->getData('Contents.main_site_content_id') &&
+                ($this->ControllerRequest->getData('Contents.alias_id') || $this->ControllerRequest->getData('Contents.type') == 'ContentFolder'))) {
             $disableEditContent = true;
         }
-        $currentSiteId = $siteId = $controller->request->getData('Site.id');
+        $currentSiteId = $siteId = $this->ControllerRequest->getData('Sites.id');
         if (is_null($currentSiteId)) {
             $currentSiteId = 0;
         }
@@ -309,7 +314,7 @@ class BcContentsComponent extends Component
         // そのため、ビヘイビアのメソッドを直接実行して対処した。
         // CakePHPも、PHP自体のエラーも発生せず、ただ止まる。PHP7のバグ？PHP側のメモリーを256Mにしても変わらず。
         // ===========================================================================================
-        $contents = $this->_Controller->Content->Behaviors->Tree->getPath($this->_Controller->Content, $id);
+        $contents = $this->_Controller->Contents->find('path', ['for' => $id]);
         $contents = array_reverse($contents);
         unset($contents[0]);
         if (!$contents) {

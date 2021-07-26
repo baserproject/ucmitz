@@ -28,7 +28,8 @@ class BcContentsTestController extends Controller
     public function initialize(): void
     {
         parent::initialize();
-        $this->loadComponent('Flash');
+        $this->loadModel('BaserCore.Contents');
+        $this->Contents->addBehavior('Tree', ['level' => 'level']);
     }
 }
 
@@ -40,7 +41,17 @@ class BcContentsTestController extends Controller
 class BcContentsComponentTest extends BcTestCase
 {
     /**
+     * Fixtures
+     *
+     * @var array
+     */
+    protected $fixtures = [
+        'plugin.BaserCore.Contents',
+    ];
+
+    /**
      * set up
+     * @return void
      */
     public function setUp(): void
     {
