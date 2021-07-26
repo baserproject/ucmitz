@@ -53,6 +53,7 @@ class ContentsController extends BcAdminAppController
     public function initialize(): void
     {
         parent::initialize();
+        $this->loadComponent('BaserCore.BcContents');
     }
 
 
@@ -130,7 +131,7 @@ class ContentsController extends BcAdminAppController
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
-        if ($this->request->is('ajax')) {
+        if ($this->request->is('ajax') || true) { // TODO: 一時的にajaxをoff
             $template = null;
             $datas = [];
             switch($this->request->getParam('action')) {
@@ -138,9 +139,9 @@ class ContentsController extends BcAdminAppController
                     switch($currentListType) {
                         case 1:
                             $conditions = $this->_createAdminIndexConditionsByTree($currentSiteId);
-                            $datas = $this->Content->find('threaded', ['order' => ['Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
+                            $datas = $this->Contents->find('threaded')->where([$conditions])->order(['lft']);
                             // 並び替え最終更新時刻をリセット
-                            $this->SiteConfig->resetContentsSortLastModified();
+                            // $this->SiteConfigs->resetContentsSortLastModified();
                             $template = 'ajax_index_tree';
                             break;
                         case 2:
@@ -180,16 +181,16 @@ class ContentsController extends BcAdminAppController
             return;
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
-        $this->set('editInIndexDisabled', false);
+        // $this->set('editInIndexDisabled', false);
         // $this->set('contentTypes', $this->BcContents->getTypes());
         // $this->set('authors', $this->Users->getUserList());
         /** @var ContentsTable $this->Contents */
-        $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
-        $this->set('listTypes', [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')]);
-        $this->set('sites', $sites);
-        $this->setSearch('contents_index');
-        $this->subMenuElements = ['contents'];
-        $this->setHelp('contents_index');
+        // $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
+        // $this->set('listTypes', [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')]);
+        // $this->set('sites', $sites);
+        // $this->setSearch('contents_index');
+        // $this->subMenuElements = ['contents'];
+        // $this->setHelp('contents_index');
 
     }
 
@@ -206,7 +207,7 @@ class ContentsController extends BcAdminAppController
                 ['Content.site_id' => 0]
             ]];
         } else {
-            $conditions = ['Content.site_id' => $currentSiteId];
+            $conditions = ['Contents.site_id' => $currentSiteId];
         }
         return $conditions;
     }

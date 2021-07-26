@@ -11,9 +11,11 @@
 
 namespace BaserCore\View\Helper;
 
-use BaserCore\Event\BcEventDispatcherTrait;
-use Cake\View\Helper;
 use Cake\View\View;
+use Cake\View\Helper;
+use Cake\ORM\TableRegistry;
+use BaserCore\Utility\BcUtil;
+use BaserCore\Event\BcEventDispatcherTrait;
 
 /**
  * コンテンツヘルパ
@@ -54,14 +56,11 @@ class BcContentsHelper extends Helper
     public function __construct(View $view, array $config = [])
     {
         parent::__construct($view, $config);
-        // TODO 未実装のため代替措置
-        // >>>
-//        $this->_Content = ClassRegistry::init('Content');
-//        $this->_Permission = ClassRegistry::init('Permission');
-//        if (BcUtil::isAdminSystem()) {
-//            $this->setup();
-//        }
-        // <<<
+       $this->_Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+       $this->_Permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
+       if (BcUtil::isAdminSystem()) {
+           $this->setup();
+       }
     }
 
     /**
