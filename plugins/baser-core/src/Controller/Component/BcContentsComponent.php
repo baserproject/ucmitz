@@ -18,6 +18,10 @@ use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
+use BaserCore\Controller\Admin\ContentsController;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 /**
  * Class BcContentsComponent
  *
@@ -80,13 +84,17 @@ class BcContentsComponent extends Component
      *
      * @param Controller $controller Controller with components to initialize
      * @return void
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function initialize(array $config): void
     {
         parent::initialize($config);
         $this->_Controller = $this->getController();
         $this->ControllerRequest = $this->_Controller->getRequest();
-        // $controller->uses[] = 'Content';
+        // $controller->uses[] = 'Contents';↓
+        // $this->_Controller->Contents = new ContentsController();
         if (!$this->type) {
             $this->type = $this->_Controller->getPlugin() . '.' . $this->_Controller->getName();
         }

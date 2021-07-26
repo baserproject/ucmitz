@@ -11,9 +11,10 @@
 
 namespace BaserCore\Test\TestCase\Controller\Component;
 
+use Cake\Routing\Router;
 use BaserCore\TestSuite\BcTestCase;
-use Cake\Controller\Controller;
 use Cake\Controller\ComponentRegistry;
+use BaserCore\Controller\BcAppController;
 use BaserCore\Controller\Component\BcContentsComponent;
 
 
@@ -23,7 +24,7 @@ use BaserCore\Controller\Component\BcContentsComponent;
  * @package BaserCore\Test\TestCase\Controller\Component
  * @property BcMessageComponent $BcMessage
  */
-class BcContentsTestController extends Controller
+class BcContentsTestController extends BcAppController
 {
     public function initialize(): void
     {
@@ -56,7 +57,7 @@ class BcContentsComponentTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->getRequest();
+        $this->getRequest('baser/admin/contents');
         $this->Controller = new BcContentsTestController();
         $this->ComponentRegistry = new ComponentRegistry($this->Controller);
         $this->BcContents = new BcContentsComponent($this->ComponentRegistry);
@@ -70,12 +71,17 @@ class BcContentsComponentTest extends BcTestCase
     public function tearDown(): void
     {
         unset($_SESSION);
+        Router::reload();
         parent::tearDown();
     }
 
     public function testInitialize()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertEquals('BcContentsTest', $this->BcContents->_Controller->getName());
+        $this->assertEquals($this->BcContents->_Controller->getPlugin() . '.' . $this->BcContents->_Controller->getName(), $this->BcContents->type);
+        $this->assertInstanceOf('Cake\Http\ServerRequest', $this->BcContents->ControllerRequest);
+        // baser/admin/contents 管理システム設定の場合
+        $this->assertNotEmpty($this->BcContents->getConfig('items'));
     }
 
     public function testSetupAdmin()
