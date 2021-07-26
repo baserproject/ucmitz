@@ -1,18 +1,36 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Test.Case.Controller.Component
- * @since           baserCMS v 3.0.0-beta
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
-App::uses('BcContentsComponent', 'Controller/Component');
-App::uses('Controller', 'Controller');
+
+namespace BaserCore\Test\TestCase\Controller\Component;
+
+use BaserCore\TestSuite\BcTestCase;
+use Cake\Controller\Controller;
+use Cake\Controller\ComponentRegistry;
+use BaserCore\Controller\Component\BcContentsComponent;
+
+
+/**
+ * Class BcMessageTestController
+ *
+ * @package BaserCore\Test\TestCase\Controller\Component
+ * @property BcMessageComponent $BcMessage
+ */
+class BcContentsTestController extends Controller
+{
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->loadComponent('Flash');
+    }
+}
 
 /**
  * Class BcContentsComponentTest
@@ -21,13 +39,26 @@ App::uses('Controller', 'Controller');
  */
 class BcContentsComponentTest extends BcTestCase
 {
-    public function setUp()
+    /**
+     * set up
+     */
+    public function setUp(): void
     {
         parent::setUp();
+        $this->getRequest();
+        $this->Controller = new BcContentsTestController();
+        $this->ComponentRegistry = new ComponentRegistry($this->Controller);
+        $this->BcContents = new BcContentsComponent($this->ComponentRegistry);
     }
 
-    public function tearDown()
+    /**
+     * Tear Down
+     *
+     * @return void
+     */
+    public function tearDown(): void
     {
+        unset($_SESSION);
         parent::tearDown();
     }
 
