@@ -1,17 +1,19 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Controller.Component
- * @since           baserCMS v 4.0.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
 
+namespace BaserCore\Controller\Component;
+use Cake\Core\Configure;
+use BaserCore\Utility\BcUtil;
+use Cake\Controller\Component;
+use Cake\Controller\Controller;
 /**
  * Class BcContentsComponent
  *
@@ -75,16 +77,14 @@ class BcContentsComponent extends Component
      * @param Controller $controller Controller with components to initialize
      * @return void
      */
-    public function initialize(Controller $controller)
+    public function initialize(array $config): void
     {
+        parent::initialize($config);
+        $controller = $this->getController();
         $this->_Controller = $controller;
-        $controller->uses[] = 'Content';
+        // $controller->uses[] = 'Content';
         if (!$this->type) {
-            if ($controller->plugin) {
-                $this->type = $controller->plugin . '.' . $controller->modelClass;
-            } else {
-                $this->type = $controller->modelClass;
-            }
+            $this->type = $controller->getPlugin() . '.' . $controller->getName();
         }
         if (!BcUtil::isAdminSystem()) {
             // フロントエンド設定
@@ -109,7 +109,8 @@ class BcContentsComponent extends Component
                 $createdSettings[$type] = $setting;
             }
         }
-        $this->settings['items'] = $createdSettings;
+        $this->setConfig('items', $createdSettings);
+        $a = $this->getConfig('items');
     }
 
     /**
@@ -192,11 +193,11 @@ class BcContentsComponent extends Component
      * @param Controller $controller
      * @return void
      */
-    public function beforeRender(Controller $controller)
+    public function beforeRender()
     {
-        parent::beforeRender($controller);
+        $controller = $this->getController();
         if (BcUtil::isAdminSystem()) {
-            $controller->set('contentsSettings', $this->settings['items']);
+            $controller->set('contentsSettings', $this->getConfig('items'));
             // パンくずをセット
             array_unshift($controller->crumbs, ['name' => __d('baser', 'コンテンツ一覧'), 'url' => ['plugin' => null, 'controller' => 'contents', 'action' => 'index']]);
             if ($controller->subMenuElements && !in_array('contents', $controller->subMenuElements)) {
@@ -211,8 +212,8 @@ class BcContentsComponent extends Component
                 // 内部で useForm を参照できない為、ここに記述。
                 // フォームの設定しかできないイベントになってしまっている。
                 // TODO 改善要
-                App::uses('BcContentsEventListener', 'Event');
-                CakeEventManager::instance()->attach(new BcContentsEventListener());
+                // App::uses('BcContentsEventListener', 'Event');
+                // CakeEventManager::instance()->attach(new BcContentsEventListener());
             }
         }
 
@@ -331,7 +332,7 @@ class BcContentsComponent extends Component
     public function getTypes()
     {
         $types = [];
-        foreach($this->settings['items'] as $key => $value) {
+        foreach($this->getConfig('items') as $key => $value) {
             $types[$key] = $value['title'];
         }
         return $types;
