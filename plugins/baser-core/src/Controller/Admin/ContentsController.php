@@ -49,11 +49,14 @@ class ContentsController extends BcAdminAppController
      * initialize
      * ログインページ認証除外
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
         parent::initialize();
-        // $this->loadComponent('BaserCore.BcContents', ['useForm' => true]);
+        $this->loadComponent('BaserCore.BcContents');
     }
 
     /**

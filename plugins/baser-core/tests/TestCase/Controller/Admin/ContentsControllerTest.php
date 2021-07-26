@@ -43,6 +43,16 @@ class ContentsControllerTest extends BcTestCase
     }
 
     /**
+     * test initialize
+     *
+     * @return void
+     */
+    public function testInitialize(): void
+    {
+        $this->assertNotEmpty($this->ContentsController->BcContents);
+    }
+
+    /**
      * beforeFilter
      */
     public function testBeforeFilter()
