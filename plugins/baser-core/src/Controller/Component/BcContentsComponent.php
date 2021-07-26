@@ -109,6 +109,11 @@ class BcContentsComponent extends Component
 
     /**
      * 管理システム設定
+     *
+     * @return void
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function setupAdmin()
     {

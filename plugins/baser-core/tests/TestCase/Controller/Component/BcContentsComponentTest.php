@@ -74,7 +74,11 @@ class BcContentsComponentTest extends BcTestCase
         Router::reload();
         parent::tearDown();
     }
-
+    /**
+     * test initialize
+     *
+     * @return void
+     */
     public function testInitialize()
     {
         $this->assertEquals('BcContentsTest', $this->BcContents->_Controller->getName());
@@ -83,10 +87,15 @@ class BcContentsComponentTest extends BcTestCase
         // baser/admin/contents 管理システム設定の場合
         $this->assertNotEmpty($this->BcContents->getConfig('items'));
     }
-
+    /**
+     * test setupAdmin
+     *
+     * @return void
+     */
     public function testSetupAdmin()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->BcContents->setupAdmin();
+        $this->assertNotEmpty($this->BcContents->getConfig('items'));
     }
 
     public function testSetupFront()

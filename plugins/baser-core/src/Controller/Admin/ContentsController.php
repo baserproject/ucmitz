@@ -175,16 +175,15 @@ class ContentsController extends BcAdminAppController
             return;
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
-        // $this->set('editInIndexDisabled', false);
-        // $this->set('contentTypes', $this->BcContents->getTypes());
-        // $this->set('authors', $this->Users->getUserList());
-        /** @var ContentsTable $this->Contents */
-        // $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
-        // $this->set('listTypes', [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')]);
-        // $this->set('sites', $sites);
-        // $this->setSearch('contents_index');
-        // $this->subMenuElements = ['contents'];
-        // $this->setHelp('contents_index');
+        $this->set('editInIndexDisabled', false);
+        $this->set('contentTypes', $this->BcContents->getTypes());
+        $this->set('authors', $this->Users->getUserList());
+        $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
+        $this->set('listTypes', [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')]);
+        $this->set('sites', $sites);
+        $this->setSearch('contents_index');
+        $this->subMenuElements = ['contents'];
+        $this->setHelp('contents_index');
 
     }
 
