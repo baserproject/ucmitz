@@ -937,6 +937,9 @@ class ContentsTable extends AppTable
      * @param string $type 例）Blog.BlogContent
      * @param int $entityId
      * @return array
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function findByType($type, $entityId = null)
     {
