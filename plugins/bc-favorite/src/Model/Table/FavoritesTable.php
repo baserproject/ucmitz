@@ -17,7 +17,7 @@ use Cake\Validation\Validator;
 /**
  * Class Favorite
  */
-class Favorite extends AppTable
+class FavoritesTable extends AppTable
 {
 
 
