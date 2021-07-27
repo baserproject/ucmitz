@@ -945,14 +945,14 @@ class ContentsTable extends AppTable
             $plugin = 'Core';
         }
         $conditions = [
-            'Content.plugin' => $plugin,
-            'Content.type' => $type,
-            'Content.alias_id' => null
+            'Contents.plugin' => $plugin,
+            'Contents.type' => $type,
+            'Contents.alias_id IS NULL',
         ];
         if ($entityId) {
-            $conditions['Content.entity_id'] = $entityId;
+            $conditions['Contents.entity_id'] = $entityId;
         }
-        return $this->find('first', ['conditions' => $conditions, 'order' => ['Content.id']]);
+        return $this->find('all')->where([$conditions])->order(['Contents.id'])->first();
     }
 
     /**
