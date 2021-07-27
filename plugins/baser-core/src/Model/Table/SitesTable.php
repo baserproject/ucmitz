@@ -502,7 +502,7 @@ class SitesTable extends AppTable
         $selected = $this->find('list')
             ->where([
                 'main_site_id' => $mainSiteId,
-                'id <>' => $currentSiteId
+                'id IS NOT' => $currentSiteId
             ])->toArray();
         foreach($agents as $key => $agent) {
             if (in_array($key, $selected)) {
@@ -531,7 +531,7 @@ class SitesTable extends AppTable
         $selected = $this->find('list')
             ->where([
                 'main_site_id' => $mainSiteId,
-                'id <>' => $currentSiteId
+                'id IS NOT' => $currentSiteId
             ])->toArray();
         foreach($langs as $key => $lang) {
             if (in_array($key, $selected)) {

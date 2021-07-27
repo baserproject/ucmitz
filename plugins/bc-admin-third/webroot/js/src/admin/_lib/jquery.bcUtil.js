@@ -22,6 +22,11 @@
         baseUrl: null,
 
         /**
+         * BaserCoreプレフィックス
+         */
+        baserCorePrefix: null,
+
+        /**
          * 管理画面用URLプレフィックス
          */
         adminPrefix: null,
@@ -34,6 +39,7 @@
         init: function (config) {
             var adminScript = $("#AdminScript");
             $.bcUtil.baseUrl = adminScript.attr('data-baseUrl');
+            $.bcUtil.baserCorePrefix = adminScript.attr('data-baserCorePrefix');
             $.bcUtil.adminPrefix = adminScript.attr('data-adminPrefix');
             if (config.baseUrl !== undefined) {
                 $.bcUtil.baseUrl = config.baseUrl;
