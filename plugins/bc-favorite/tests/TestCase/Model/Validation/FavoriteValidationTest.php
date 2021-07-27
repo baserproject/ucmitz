@@ -32,6 +32,7 @@ class FavoriteValidationTest extends BcTestCase
          'plugin.BaserCore.UsersUserGroups',
          'plugin.BaserCore.UserGroups',
          'plugin.BaserCore.Plugins',
+         'plugin.BaserCore.Permissions',
     ];
 
     /**
@@ -69,10 +70,10 @@ class FavoriteValidationTest extends BcTestCase
      * @return void
      * @dataProvider isPermittedDataProvider
      */
-    public function testIsPermitted($isLogin, $url, $expected): void
+    public function testIsPermitted($isAdmin, $id, $url, $expected): void
     {
-        if($isLogin) {
-            $this->loginAdmin($this->getRequest('/'));
+        if($isAdmin) {
+            $this->loginAdmin($this->getRequest('/'), $id);
         }
         $this->assertEquals($expected, $this->FavoriteValidation->isPermitted($url));
     }
@@ -80,7 +81,10 @@ class FavoriteValidationTest extends BcTestCase
     public function isPermittedDataProvider()
     {
         return [
-            [true, '/baser/admin/users/index', true]
+            [true, 1, '/baser/admin/users/index', true],
+            [true, 2, '/baser/admin/users/index', false],
+            [true, 2, '/baser/admin/pages/index', true],
+            [false, null, '/baser/admin/users/index', false],
         ];
     }
 }

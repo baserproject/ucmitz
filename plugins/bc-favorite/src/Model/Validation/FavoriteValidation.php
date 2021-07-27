@@ -17,6 +17,7 @@ use Cake\Validation\Validation;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Model\Table\PermissionsTable;
 
 /**
  * Class BcValidation
@@ -30,14 +31,27 @@ class FavoriteValidation extends Validation
      * 管理者グループは全て true を返却
      *
      * @param array $check
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isPermitted($url)
     {
         if (BcUtil::isAdminUser()) {
             return true;
         }
-        $userGroup = BcUtil::loginUserGroup();
+        $userGroups = BcUtil::loginUserGroup();
+
+        if (!$userGroups) {
+            return false;
+        }
+        /** @var PermissionsTable $permissions */
         $permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
-        return $permissions->check($url, $userGroup->id);
+        foreach($userGroups as $userGroup) {
+            if ($permissions->check($url, $userGroup->id)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
