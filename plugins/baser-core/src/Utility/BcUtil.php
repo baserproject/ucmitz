@@ -315,7 +315,7 @@ class BcUtil
      * 処理の内容にCakeRequest や、Router::parse() を使おうとしたが、
      * Router::parse() を利用すると、Routing情報が書き換えられてしまうので利用できない。
      * Router::reload() や、Router::setRequestInfo() で調整しようとしたがうまくいかなかった。
-     *
+     * @todo Testable humuhimi
      * @return boolean
      */
     public static function isAdminSystem($url = null)

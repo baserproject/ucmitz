@@ -189,7 +189,7 @@ class ContentsController extends BcAdminAppController
 
     /**
      * ツリー表示用の検索条件を生成する
-     *
+     * @todo Testable humuhimi
      * @return array
      */
     protected function _createAdminIndexConditionsByTree($currentSiteId)

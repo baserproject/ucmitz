@@ -51,21 +51,22 @@ class BcContentsHelper extends Helper
 
     /**
      * Constructor.
-     *
+     * @todo Testable humuhimi
      * @return    void
      * @access    public
      */
     public function __construct(View $view, array $config = [])
     {
         parent::__construct($view, $config);
-       $this->_Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
-       $this->_Permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
-       if (BcUtil::isAdminSystem()) {
-           $this->setup();
-       }
+        $this->_Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+        $this->_Permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
+        if (BcUtil::isAdminSystem()) {
+            $this->setup();
+        }
     }
 
     /**
+     * @todo Testable humuhimi
      * セットアップ
      */
     public function setup()
@@ -157,6 +158,7 @@ class BcContentsHelper extends Helper
 
     /**
      * シングルコンテンツで既に登録済のタイトルを取得する
+     * @todo Testable humuhimi
      * @return array
      */
     protected function _getExistsTitles()

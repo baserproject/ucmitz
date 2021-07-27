@@ -196,7 +196,7 @@ class BcContentsComponent extends Component
 
     /**
      * Content データを取得する
-     *
+     * @todo Testable humuhimi
      * @param int $entityId
      * @return array
      */
