@@ -57,6 +57,7 @@ nbproject/*
 !/plugins/bc-blog
 !/plugins/bc-mail
 !/plugins/bc-uploader
+!/plugins/bc-favorite
 !/plugins/BcSample
 /plugins/*/vendor
 /plugins/*/composer.lock
