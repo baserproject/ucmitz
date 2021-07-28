@@ -15,15 +15,15 @@
  * @var array $sites
  */
 
-if ($this->request->getParam('action') == 'admin_index') {
+if ($this->request->getParam('action') == 'index') {
   echo $this->BcForm->hidden('ViewSetting.mode', ['value' => 'index']);
-} elseif ($this->request->getParam('action') == 'admin_trash_index') {
+} elseif ($this->request->getParam('action') == 'trash_index') {
   echo $this->BcForm->hidden('ViewSetting.mode', ['value' => 'trash']);
 }
 ?>
 
 
-<?php if ($this->request->getParam('action') == 'admin_index'): ?>
+<?php if ($this->request->getParam('action') == 'index'): ?>
   <div class="panel-box bca-panel-box" id="ViewSetting">
     <div class="bca-panel-box__inline-fields">
       <?php if (count($sites) >= 2): ?>
