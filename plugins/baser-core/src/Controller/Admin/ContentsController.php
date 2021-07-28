@@ -84,7 +84,7 @@ class ContentsController extends BcAdminAppController
      * @param integer $parentId
      * @param void
      */
-    public function index(SiteManageServiceInterface $siteManage)
+    public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
         switch($this->request->getParam('action')) {
             case 'index':
@@ -127,7 +127,7 @@ class ContentsController extends BcAdminAppController
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
         if ($this->request->is('ajax')) {
-            Configure::write('SideBar.Duplicate', true);
+            $this->viewBuilder()->disableAutoLayout();
             $template = null;
             $datas = [];
             switch($this->request->getParam('action')) {
@@ -178,7 +178,6 @@ class ContentsController extends BcAdminAppController
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('editInIndexDisabled', false);
-        $this->set('pluginName', $this->getPlugin());
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
         $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
@@ -866,7 +865,7 @@ class ContentsController extends BcAdminAppController
      */
     public function ajax_contents_info(ContentManageServiceInterface $contentManage)
     {
-        $this->autoLayout = false;
+        $this->viewBuilder()->disableAutoLayout();
         $this->set('sites', $contentManage->getContensInfo());
     }
 

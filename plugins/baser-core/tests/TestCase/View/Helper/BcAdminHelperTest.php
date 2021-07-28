@@ -75,13 +75,6 @@ class BcAdminHelperTest extends BcTestCase
         $session->write('AuthAdmin', true);
         $results = $this->BcAdmin->isAvailableSideBar();
         $this->assertEquals(true, $results);
-        // ログイン済み且つすでにサイドバーが出力されてる場合
-        $this->BcAdmin->getView()->setRequest($this->getRequest('/baser/admin'));
-        $session = $this->BcAdmin->getView()->getRequest()->getSession();
-        $session->write('AuthAdmin', true);
-        Configure::write('SideBar.Duplicate', true);
-        $results = $this->BcAdmin->isAvailableSideBar();
-        $this->assertEquals(false, $results);
         // ログイン画面
         $this->BcAdmin->getView()->setRequest($this->getRequest('/baser/admin/users/login'));
         $results = $this->BcAdmin->isAvailableSideBar();

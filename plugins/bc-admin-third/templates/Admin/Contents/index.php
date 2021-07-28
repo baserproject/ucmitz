@@ -59,7 +59,7 @@ $this->BcBaser->js('admin/contents/index', false, [
   'data-isAdmin' => BcUtil::isAdminUser(),
   'data-isUseMoveContents' => $isUseMoveContents,
   'data-adminPrefix' => BcUtil::getPrefix(),
-  'data-pluginName' => Inflector::dasherize($pluginName),
+  'data-pluginName' => Inflector::dasherize($this->request->getParam('plugin')),
   'data-editInIndexDisabled' => $editInIndexDisabled
 ]);
 $this->BcBaser->js([

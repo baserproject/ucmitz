@@ -16,7 +16,7 @@ use BaserCore\Service\ContentsService;
 /**
  * ContentManageService
  */
-class ContentManageService extends ContentsService
+class ContentManageService extends ContentsService implements ContentManageServiceInterface
 {
 
     /**

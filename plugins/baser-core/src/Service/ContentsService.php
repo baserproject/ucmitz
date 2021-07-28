@@ -12,10 +12,25 @@
 namespace BaserCore\Service;
 
 use Cake\ORM\TableRegistry;
+use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Model\Table\SitesTable;
 
 class ContentsService implements ContentsServiceInterface
 {
+
+    /**
+     * Contents
+     *
+     * @var ContentsTable
+     */
     public $Contents;
+
+    /**
+     * Sites
+     *
+     * @var SitesTable
+     */
+    public $Sites;
 
     public function __construct()
     {
