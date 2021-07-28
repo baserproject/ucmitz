@@ -101,7 +101,7 @@ class SiteManageService extends SitesService implements SiteManageServiceInterfa
      */
     public function isUseSiteDeviceSetting(): bool
     {
-        return $this->getSiteConfig('use_site_device_setting');
+        return (bool) $this->getSiteConfig('use_site_device_setting');
     }
 
     /**
@@ -110,7 +110,7 @@ class SiteManageService extends SitesService implements SiteManageServiceInterfa
      */
     public function isUseSiteLangSetting(): bool
     {
-        return $this->getSiteConfig('use_site_lang_setting');
+        return (bool) $this->getSiteConfig('use_site_lang_setting');
     }
 
 }

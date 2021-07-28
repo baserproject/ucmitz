@@ -47,6 +47,24 @@ class SitesTable extends AppTable
     private $__changedAlias = false;
 
     /**
+     * Initialize
+     *
+     * @param array $config テーブル設定
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+        $this->setTable('sites');
+        $this->setDisplayField('title');
+        $this->setPrimaryKey('id');
+        $this->addBehavior('Timestamp');
+    }
+
+    /**
      * Validation Default
      *
      * @param Validator $validator
@@ -58,7 +76,7 @@ class SitesTable extends AppTable
     public function validationDefault(Validator $validator): Validator
     {
         $validator->setProvider('site', 'BaserCore\Model\Validation\SiteValidation');
-        $validator->requirePresence(['name', 'display_name', 'alias', 'title'], 'create');
+        $validator->requirePresence(['name', 'display_name', 'alias', 'title'], 'update');
 
         $validator
             ->integer('id')
@@ -81,7 +99,7 @@ class SitesTable extends AppTable
                 ]]);
         $validator
             ->scalar('display_name')
-            ->maxLength('display_name', 50, __d('baser', 'サブサイト名は50文字以内で入力してください。'))
+            ->maxLength('display_name', 50, __d('baser', 'サイト名は50文字以内で入力してください。'))
             ->notEmptyString('display_name', __d('baser', 'サイト名を入力してください。'));
         $validator
             ->scalar('alias')
@@ -284,7 +302,7 @@ class SitesTable extends AppTable
     }
 
     /**
-     * サブサイトを取得する
+     * サイトを取得する
      *
      * @param $id
      * @param array $options

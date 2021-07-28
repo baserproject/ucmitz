@@ -25,7 +25,7 @@ $this->BcBaser->js('admin/sites/form.bundle', false);
 ?>
 
 
-<?php echo $this->BcAdminForm->create($site) ?>
+<?php echo $this->BcAdminForm->create($site, ['novalidate' => true]) ?>
 
 <?php echo $this->BcFormTable->dispatchBefore() ?>
 
