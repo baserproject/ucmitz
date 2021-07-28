@@ -21,7 +21,15 @@ use BaserCore\TestSuite\BcTestCase;
  */
 class ContentsControllerTest extends BcTestCase
 {
-
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    protected $fixtures = [
+        'plugin.BaserCore.Contents',
+        'plugin.BaserCore.Sites',
+    ];
     /**
      * set up
      * @return void

@@ -23,6 +23,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Database\Exception;
 use BaserCore\Annotation\NoTodo;
+use BaserCore\Model\Entity\User;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use Cake\Datasource\ConnectionManager;
@@ -343,6 +344,7 @@ class BcUtil
      */
     public static function isAdminUser($user = null): bool
     {
+        /** @var User $User */
         $User = $user? $user : self::loginUser('Admin');
         return $User->isAdmin();
     }

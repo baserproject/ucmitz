@@ -71,6 +71,7 @@ class ContentsController extends BcAdminAppController
         $this->loadModel('BaserCore.Sites');
         $this->loadModel('BaserCore.SiteConfigs');
         $this->loadModel('BaserCore.ContentFolders');
+        $this->loadModel('BaserCore.Users');
         // TODO 未実装のためコメントアウト
         /* >>>
         // $this->BcAuth->allow('view');
@@ -125,7 +126,7 @@ class ContentsController extends BcAdminAppController
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
-        if ($this->request->is('ajax') || true) { // TODO: 一時的にajaxをoff
+        if ($this->request->is('ajax')) { // TODO: 一時的にajaxをoff
             $template = null;
             $datas = [];
             switch($this->request->getParam('action')) {
@@ -133,7 +134,7 @@ class ContentsController extends BcAdminAppController
                     switch($currentListType) {
                         case 1:
                             $conditions = $this->_createAdminIndexConditionsByTree($currentSiteId);
-                            $datas = $this->Contents->find('threaded')->where([$conditions])->order(['lft']);
+                            $datas = $this->Contents->find('threaded')->where([$conditions])->order(['lft'])->contain(['Sites']);
                             // 並び替え最終更新時刻をリセット
                             // $this->SiteConfigs->resetContentsSortLastModified();
                             $template = 'ajax_index_tree';
@@ -157,7 +158,7 @@ class ContentsController extends BcAdminAppController
 
                             $this->paginate = $options;
                             $datas = $this->paginate('Content');
-                            $this->set('authors', $this->User->getUserList());
+                            $this->set('authors', $this->Users->getUserList());
                             $template = 'ajax_index_table';
                             break;
                     }

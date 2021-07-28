@@ -27,8 +27,6 @@ $deleteDisabled = false;
 //   $deleteDisabled = true;
 // }
 ?>
-
-
 <ul>
   <?php foreach($datas as $data): ?>
     <?php

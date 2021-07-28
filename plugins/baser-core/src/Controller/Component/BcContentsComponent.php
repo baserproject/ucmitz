@@ -86,13 +86,13 @@ class BcContentsComponent extends Component
      * @return void
      * @checked
      * @unitTest
-     * @noTodo
      */
     public function initialize(array $config): void
     {
         parent::initialize($config);
         $this->_Controller = $this->getController();
         $this->ControllerRequest = $this->_Controller->getRequest();
+        // TODO:
         // $controller->uses[] = 'Contents';↓
         // $this->_Controller->Contents = new ContentsController();
         if (!$this->type) {

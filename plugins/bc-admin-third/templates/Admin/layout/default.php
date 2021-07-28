@@ -80,7 +80,7 @@ $base = $attributes['base'];
   <?php $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
     'data-baseUrl' => h($base),
-    'data-adminPrefix' => BcUtil::getAdminPrefix()
+    'data-adminPrefix' => BcUtil::getPrefix()
   ]) ?>
   <?php $this->BcBaser->js([
     'admin/startup.bundle'
