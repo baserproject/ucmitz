@@ -16,9 +16,9 @@
  */
 
 if ($this->request->getParam('action') == 'index') {
-  echo $this->BcForm->hidden('ViewSetting.mode', ['value' => 'index']);
+  echo $this->BcAdminForm->control('ViewSetting.mode', ['type' => 'hidden', 'value' => 'index']);
 } elseif ($this->request->getParam('action') == 'trash_index') {
-  echo $this->BcForm->hidden('ViewSetting.mode', ['value' => 'trash']);
+  echo $this->BcAdminForm->control('ViewSetting.mode', ['type' => 'hidden', 'value' => 'trash']);
 }
 ?>
 
