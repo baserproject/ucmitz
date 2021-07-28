@@ -126,7 +126,8 @@ class ContentsController extends BcAdminAppController
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
-        if ($this->request->is('ajax')) { // TODO: 一時的にajaxをoff
+        if ($this->request->is('ajax')) {
+            Configure::write('SideBar.Duplicate', true);
             $template = null;
             $datas = [];
             switch($this->request->getParam('action')) {
@@ -177,6 +178,7 @@ class ContentsController extends BcAdminAppController
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('editInIndexDisabled', false);
+        $this->set('pluginName', $this->getPlugin());
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
         $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));

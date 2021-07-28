@@ -10,6 +10,7 @@
  * @license         https://basercms.net/license/index.html
  */
 
+use Cake\Utility\Inflector;
 use BaserCore\Utility\BcUtil;
 /**
  * [ADMIN] 統合コンテンツ一覧
@@ -58,6 +59,7 @@ $this->BcBaser->js('admin/contents/index', false, [
   'data-isAdmin' => BcUtil::isAdminUser(),
   'data-isUseMoveContents' => $isUseMoveContents,
   'data-adminPrefix' => BcUtil::getPrefix(),
+  'data-pluginName' => Inflector::dasherize($pluginName),
   'data-editInIndexDisabled' => $editInIndexDisabled
 ]);
 $this->BcBaser->js([

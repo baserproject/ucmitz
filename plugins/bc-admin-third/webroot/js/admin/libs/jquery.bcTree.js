@@ -77,6 +77,7 @@
             isAdmin: false,
             isUseMoveContents: false,
             adminPrefix: 'admin',
+            pluginName: 'baser-core',
             editInIndexDisabled: false
         },
 
@@ -110,7 +111,7 @@
                 if (siteId == undefined) {
                     siteId = 0;
                 }
-                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/contents/index/site_id:' + siteId + '/list_type:1';
+                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index/site_id:' + siteId + '/list_type:1';
             } else if (mode == 'trash') {
                 url = $.baseUrl() + $.bcTree.config.adminPrefix + '/contents/trash_index';
             }
@@ -121,12 +122,11 @@
                     $.bcUtil.showLoader();
                 },
                 success: function (result) {
-                    console.log(result);
                     if (result) {
                         $.bcTree.listDisplayed = getNowDateTime();
                         $.bcTree.destroy();
                         $("#DataList").html(result);
-                        $.bcTree._init();
+                        // $.bcTree._init();
                         $($.bcTree).trigger('loaded');
                     }
                 },

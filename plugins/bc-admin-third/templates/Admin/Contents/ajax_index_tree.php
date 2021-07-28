@@ -14,7 +14,8 @@
 
 
 <?php if ($datas): ?>
-  <div id="ContentsTreeList" style="display:none">
+  <div id="ContentsTreeList">
+  <!-- <div id="ContentsTreeList" style="display:none"> -->
     <?php $this->BcBaser->element('Contents/index_list_tree'); ?>
   </div>
 <?php else: ?>

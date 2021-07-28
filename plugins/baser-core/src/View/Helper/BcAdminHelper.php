@@ -286,11 +286,12 @@ class BcAdminHelper extends Helper
      */
     public function isAvailableSideBar()
     {
+
         $prefix = $this->_View->getRequest()->getParam('prefix');
         $loginAction = Router::url(Configure::read('BcPrefixAuth.' . $prefix . '.loginAction'));
         $name = $this->_View->getName();
         $url = $this->_View->getRequest()->getPath();
-        if (!in_array($name, ['Installations', 'Updaters']) && ($loginAction !== $url && !empty(BcUtil::loginUser()))) {
+        if (!in_array($name, ['Installations', 'Updaters']) && ($loginAction !== $url && !empty(BcUtil::loginUser())) && !Configure::check('SideBar.Duplicate')) {
             return true;
         } else {
             return false;

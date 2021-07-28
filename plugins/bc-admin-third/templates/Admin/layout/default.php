@@ -76,12 +76,13 @@ $base = $attributes['base'];
     'vendor/jquery-ui-1.11.4.min.js',
     'vendor/i18n/ui.datepicker-ja',
     'vendor/jquery.timepicker',
+    'admin/functions',
   ]) ?>
   <?php $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
     'data-baseUrl' => h($base),
-    'data-adminPrefix' => BcUtil::getPrefix(),
-    // 'data-adminPrefix' => BcUtil::getAdminPrefix(),
+    // 'data-adminPrefix' => BcUtil::getPrefix(),
+    'data-adminPrefix' => BcUtil::getAdminPrefix(),
     'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix())
   ]) ?>
   <?php $this->BcBaser->js([
@@ -106,7 +107,6 @@ $base = $attributes['base'];
   <?php $this->BcBaser->element('header') ?>
 
   <div id="Wrap" class="bca-container">
-
     <?php if ($this->BcAdmin->isAvailableSideBar()): ?>
       <?php $this->BcBaser->element('sidebar') ?>
     <?php endif ?>
