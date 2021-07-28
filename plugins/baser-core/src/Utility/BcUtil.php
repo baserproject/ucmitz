@@ -322,7 +322,7 @@ class BcUtil
     public static function isAdminSystem($url = null)
     {
         if (!$url) {
-            $request = Router::getRequest(true);
+            $request = Router::getRequest();
             if ($request) {
                 $url = $request->getUri();
             } else {

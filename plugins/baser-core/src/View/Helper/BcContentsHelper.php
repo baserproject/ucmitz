@@ -18,6 +18,10 @@ use Cake\Routing\Router;
 use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Event\BcEventDispatcherTrait;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+
 
 /**
  * コンテンツヘルパ
@@ -44,20 +48,23 @@ class BcContentsHelper extends Helper
     /**
      * Content Model
      *
-     * @var Content
+     * @var Contents
      */
-    protected $_Content = null;
+    protected $_Contents = null;
     protected $_Permissions = null;
 
     /**
-     * Constructor.
-     * @todo Testable humuhimi
-     * @return    void
-     * @access    public
+     * initialize
+     * @param array $config
+     * @return void
+     * @access public
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function __construct(View $view, array $config = [])
+    public function initialize(array $config): void
     {
-        parent::__construct($view, $config);
+        parent::initialize($config);
         $this->_Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
         $this->_Permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
         if (BcUtil::isAdminSystem()) {
@@ -412,6 +419,7 @@ class BcContentsHelper extends Helper
      *
      * @param array $data コンテンツデータ
      * @return bool
+     * @unitTest
      */
     public function isSiteRelated($data)
     {
