@@ -76,7 +76,6 @@ class SitesTable extends AppTable
     public function validationDefault(Validator $validator): Validator
     {
         $validator->setProvider('site', 'BaserCore\Model\Validation\SiteValidation');
-        $validator->requirePresence(['name', 'display_name', 'alias', 'title'], 'update');
 
         $validator
             ->integer('id')
