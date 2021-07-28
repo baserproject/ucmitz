@@ -11,7 +11,7 @@
 
 use BaserCore\Utility\BcUtil;
 use BaserCore\View\AppView;
-
+use Cake\Utility\Inflector;
 /**
  * @var AppView $this
  * @var string $title
@@ -80,7 +80,9 @@ $base = $attributes['base'];
   <?php $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
     'data-baseUrl' => h($base),
-    'data-adminPrefix' => BcUtil::getPrefix()
+    'data-adminPrefix' => BcUtil::getPrefix(),
+    // 'data-adminPrefix' => BcUtil::getAdminPrefix(),
+    'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix())
   ]) ?>
   <?php $this->BcBaser->js([
     'admin/startup.bundle'

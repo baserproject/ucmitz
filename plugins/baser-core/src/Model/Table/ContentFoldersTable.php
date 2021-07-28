@@ -12,9 +12,10 @@
 namespace BaserCore\Model\Table;
 
 use ArrayObject;
-use Cake\Event\Event;
+
 use BaserCore\Model\AppTable;
 use Cake\Datasource\EntityInterface;
+use Cake\Event\Event;
 
 /**
  * Class ContentFoldersTable
