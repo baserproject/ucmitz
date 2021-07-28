@@ -126,7 +126,7 @@
                         $.bcTree.listDisplayed = getNowDateTime();
                         $.bcTree.destroy();
                         $("#DataList").html(result);
-                        // $.bcTree._init();
+                        $.bcTree._init();
                         $($.bcTree).trigger('loaded');
                     }
                 },
@@ -143,7 +143,7 @@
             if (!$('#ContentsTreeList').length) {
                 return false;
             }
-            $.bcTree.settings = $.parseJSON($("#BcManageContent").val());
+            $.bcTree.settings = $.parseJSON($("#bcmanagecontent").val());
             $.bcTree.treeDom = $('#ContentsTreeList');
             $.bcTree.createTree();
             $.bcTree.jsTree = $.bcTree.treeDom.jstree(true);
@@ -284,7 +284,7 @@
                     "folder": {}
                 },
                 "state": {
-                    "key": 'jstree-' + $("#ViewSettingSiteId").val(),
+                    "key": 'jstree-' + $("#viewsetting-siteid").val(),
                     "events": "open_all.jstree close_all.jstree changed.jstree open_node.jstree close_node.jstree check_node.jstree uncheck_node.jstree"
                 },
                 "contextmenu": {
