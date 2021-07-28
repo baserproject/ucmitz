@@ -36,11 +36,11 @@ echo $this->Form->hidden('id');
 例: cakephp4
 
 echo $this->Form->hidden('id');
-出力結果:
+出力結果: idがなくなる
 
 <input name="id" value="10" type="hidden" />
 
-例:　代替案
+例:　idを使用したい場合の代替案
 echo $this->Form->control('id', ['type' => 'hidden']);
 
 <input name="id" id="id" type="hidden" />
