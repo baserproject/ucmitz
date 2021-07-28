@@ -19,25 +19,25 @@ use BaserCore\Service\ContentsService;
 class ContentManageService extends ContentsService
 {
 
-     /**
+    /**
       * コンテンツ情報を取得する
       * @return array
       */
-     public function getContensInfo ()
-     {
-          $sites = $this->Sites->getPublishedAll();
-          $contentsInfo = [];
-          foreach($sites as $key => $site) {
-               $contentsInfo[$key]['published'] = $this->Contents->find()
+    public function getContensInfo ()
+    {
+        $sites = $this->Sites->getPublishedAll();
+        $contentsInfo = [];
+        foreach($sites as $key => $site) {
+            $contentsInfo[$key]['published'] = $this->Contents->find()
                     ->where(['site_id' => $site->id, 'status' => true])
                     ->count();
-               $contentsInfo[$key]['unpublished'] = $this->Contents->find()
+            $contentsInfo[$key]['unpublished'] = $this->Contents->find()
                     ->where(['site_id' => $site->id, 'status' => false])
                     ->count();
-               $contentsInfo[$key]['total'] = $contentsInfo[$key]['published'] + $contentsInfo[$key]['unpublished'];
-          }
-          return $contentsInfo;
-     }
+            $contentsInfo[$key]['total'] = $contentsInfo[$key]['published'] + $contentsInfo[$key]['unpublished'];
+        }
+        return $contentsInfo;
+    }
 
 }
 
