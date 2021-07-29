@@ -32,6 +32,26 @@
         adminPrefix: null,
 
         /**
+         * 管理画面用のベースURL
+         */
+        adminBaseUrl: null,
+
+        /**
+         * API用のベースURL
+         */
+        apiBaseUrl: null,
+
+        /**
+         * Ajaxローダーのパス
+         */
+        ajaxLoaderPath: null,
+
+        /**
+         * Ajaxローダー（小）のパス
+         */
+        ajaxLoaderSmallPath: null,
+
+        /**
          * 初期化
          *
          * @param config
@@ -42,12 +62,25 @@
             $.bcUtil.baserCorePrefix = adminScript.attr('data-baserCorePrefix');
             $.bcUtil.pluginName = adminScript.attr('data-pluginName');
             $.bcUtil.adminPrefix = adminScript.attr('data-adminPrefix');
+            $.bcUtil.ajaxLoaderPath = adminScript.attr('data-ajaxLoaderPath');
+            $.bcUtil.ajaxLoaderSmallPath = adminScript.attr('data-ajaxLoaderSmallPath');
             if (config.baseUrl !== undefined) {
                 $.bcUtil.baseUrl = config.baseUrl;
+            }
+            if (config.baserCorePrefix !== undefined) {
+                $.bcUtil.baserCorePrefix = config.baserCorePrefix;
             }
             if (config.adminPrefix !== undefined) {
                 $.bcUtil.adminPrefix = config.adminPrefix;
             }
+            if (config.ajaxLoaderPath !== undefined) {
+                $.bcUtil.ajaxLoaderPath = config.ajaxLoaderPath;
+            }
+            if (config.ajaxLoaderSmallPath !== undefined) {
+                $.bcUtil.ajaxLoaderSmallPath = config.ajaxLoaderSmallPath;
+            }
+            $.bcUtil.adminBaseUrl = $.bcUtil.baseUrl + $.bcUtil.baserCorePrefix + $.bcUtil.adminPrefix + '/';
+            $.bcUtil.apiBaseUrl = $.bcUtil.baseUrl + $.bcUtil.baserCorePrefix + 'api/';
         },
         /**
          * アラートメッセージを表示
@@ -101,12 +134,12 @@
                     break;
                 case 'inner':
                     var div = $('<div>').css({'text-align': 'center'}).attr('id', key);
-                    var img = $('<img>').attr('src', $.baseUrl() + '/img/admin/ajax-loader.gif');
+                    var img = $('<img>').attr('src', $.bcUtil.ajaxLoaderPath);
                     div.html(img);
                     $(selector).html(div);
                     break;
                 case 'after':
-                    var img = $('<img>').attr('src', $.baseUrl() + '/img/admin/ajax-loader-s.gif').attr('id', key);
+                    var img = $('<img>').attr('src', $.bcUtil.ajaxLoaderSmallPath).attr('id', key);
                     $(selector).after(img);
                     break;
                 case 'target':

@@ -83,10 +83,10 @@ $base = $attributes['base'];
   $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
     'data-baseUrl' => h($base),
-    'data-adminPrefix' => BcUtil::getPrefix(),
-    'data-pluginName' => Inflector::dasherize($this->request->getParam('plugin')),
-    // 'data-adminPrefix' => BcUtil::getAdminPrefix(),
-    // 'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix())
+    'data-adminPrefix' => BcUtil::getAdminPrefix(),
+    'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix()),
+    'data-ajaxLoaderPath' => $this->Html->Url->image('admin/ajax-loader.gif'),
+    'data-ajaxLoaderSmallPath' => $this->Html->Url->image('admin/ajax-loader-s.gif'),
   ]) ?>
   <?php $this->BcBaser->js([
     'admin/startup.bundle'
