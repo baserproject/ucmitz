@@ -27,9 +27,9 @@ $(function () {
     $(window).bind("mousedown", $.bcTree.updateShiftAndCtrlOnAnchor);
 
     // サイト変更時
-    $("#ViewSettingSiteId").change(function () {
+    $("#viewsetting-siteid").change(function () {
         $.bcUtil.showLoader();
-        var siteId = $("#ViewSettingSiteId").val();
+        var siteId = $("#viewsetting-siteid").val();
         if (siteId == undefined) {
             siteId = 0;
         }
@@ -129,7 +129,7 @@ $(function () {
                 }
             });
         }
-        var mode = $("#ViewSettingMode").val();
+        var mode = $("#viewsetting-mode").val();
         var listType = $("input[name='data[ViewSetting][list_type]']:checked").val();
         if (listType == undefined || mode == 'trash') {
             listType = "1";
@@ -163,7 +163,7 @@ $(function () {
      * 表形式のリストをロードする
      */
     function loadTable() {
-        url = $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/index/site_id:' + $("#ViewSettingSiteId").val() + '/list_type:2';
+        url = $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/index/site_id:' + $("#viewsetting-siteid").val() + '/list_type:2';
         $("#ContentIndexForm").attr('action', url);
         $.baserAjaxDataList.search();
     }

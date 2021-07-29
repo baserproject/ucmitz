@@ -84,7 +84,7 @@ class ContentsController extends BcAdminAppController
      * @param integer $parentId
      * @param void
      */
-    public function index(SiteManageServiceInterface $siteManage)
+    public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
         switch($this->request->getParam('action')) {
             case 'index':
@@ -127,6 +127,7 @@ class ContentsController extends BcAdminAppController
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
         if ($this->request->is('ajax')) {
+            $this->viewBuilder()->disableAutoLayout();
             $template = null;
             $datas = [];
             switch($this->request->getParam('action')) {
@@ -134,9 +135,9 @@ class ContentsController extends BcAdminAppController
                     switch($currentListType) {
                         case 1:
                             $conditions = $this->_createAdminIndexConditionsByTree($currentSiteId);
-                            $datas = $this->Content->find('threaded', ['order' => ['Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
+                            $datas = $this->Contents->find('threaded')->where([$conditions])->order(['lft'])->contain(['Sites']);
                             // 並び替え最終更新時刻をリセット
-                            $this->SiteConfig->resetContentsSortLastModified();
+                            // $this->SiteConfigs->resetContentsSortLastModified();
                             $template = 'ajax_index_tree';
                             break;
                         case 2:
@@ -158,7 +159,7 @@ class ContentsController extends BcAdminAppController
 
                             $this->paginate = $options;
                             $datas = $this->paginate('Content');
-                            $this->set('authors', $this->User->getUserList());
+                            $this->set('authors', $this->Users->getUserList());
                             $template = 'ajax_index_table';
                             break;
                     }
@@ -177,9 +178,8 @@ class ContentsController extends BcAdminAppController
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('editInIndexDisabled', false);
-        // $this->set('contentTypes', $this->BcContents->getTypes());
-        // $this->set('authors', $this->Users->getUserList());
-        /** @var ContentsTable $this->Contents */
+        $this->set('contentTypes', $this->BcContents->getTypes());
+        $this->set('authors', $this->Users->getUserList());
         $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
         $this->set('listTypes', [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')]);
         $this->set('sites', $sites);
@@ -191,7 +191,7 @@ class ContentsController extends BcAdminAppController
 
     /**
      * ツリー表示用の検索条件を生成する
-     *
+     * @todo Testable humuhimi
      * @return array
      */
     protected function _createAdminIndexConditionsByTree($currentSiteId)
@@ -202,7 +202,7 @@ class ContentsController extends BcAdminAppController
                 ['Content.site_id' => 0]
             ]];
         } else {
-            $conditions = ['Content.site_id' => $currentSiteId];
+            $conditions = ['Contents.site_id' => $currentSiteId];
         }
         return $conditions;
     }
