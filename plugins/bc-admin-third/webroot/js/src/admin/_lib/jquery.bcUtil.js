@@ -40,6 +40,7 @@
             var adminScript = $("#AdminScript");
             $.bcUtil.baseUrl = adminScript.attr('data-baseUrl');
             $.bcUtil.baserCorePrefix = adminScript.attr('data-baserCorePrefix');
+            $.bcUtil.pluginName = adminScript.attr('data-pluginName');
             $.bcUtil.adminPrefix = adminScript.attr('data-adminPrefix');
             if (config.baseUrl !== undefined) {
                 $.bcUtil.baseUrl = config.baseUrl;

@@ -76,12 +76,17 @@ $base = $attributes['base'];
     'vendor/jquery-ui-1.11.4.min.js',
     'vendor/i18n/ui.datepicker-ja',
     'vendor/jquery.timepicker',
+    'admin/functions',
   ]) ?>
-  <?php $this->BcBaser->js('admin/common.bundle', true, [
+
+  <?php
+  $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
     'data-baseUrl' => h($base),
-    'data-adminPrefix' => BcUtil::getAdminPrefix(),
-    'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix())
+    'data-adminPrefix' => BcUtil::getPrefix(),
+    'data-pluginName' => Inflector::dasherize($this->request->getParam('plugin')),
+    // 'data-adminPrefix' => BcUtil::getAdminPrefix(),
+    // 'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix())
   ]) ?>
   <?php $this->BcBaser->js([
     'admin/startup.bundle'

@@ -49,20 +49,15 @@ class ContentsController extends BcAdminAppController
      * initialize
      * ログインページ認証除外
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
         parent::initialize();
+        $this->loadComponent('BaserCore.BcContents');
     }
-
-
-    /**
-     * コンポーネント
-     *
-     * @var array
-     *
-     */
-    public $components = ['BcContents' => ['useForm' => true]];
 
     /**
      * beforeFilter
@@ -76,6 +71,7 @@ class ContentsController extends BcAdminAppController
         $this->loadModel('BaserCore.Sites');
         $this->loadModel('BaserCore.SiteConfigs');
         $this->loadModel('BaserCore.ContentFolders');
+        $this->loadModel('BaserCore.Users');
         // TODO 未実装のためコメントアウト
         /* >>>
         // $this->BcAuth->allow('view');
@@ -866,10 +862,13 @@ class ContentsController extends BcAdminAppController
 
     /**
      * コンテンツ情報を取得する
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function ajax_contents_info(ContentManageServiceInterface $contentManage)
     {
-        $this->autoLayout = false;
+        $this->viewBuilder()->disableAutoLayout();
         $this->set('sites', $contentManage->getContensInfo());
     }
 
