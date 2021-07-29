@@ -134,9 +134,9 @@ class ContentsController extends BcAdminAppController
                     switch($currentListType) {
                         case 1:
                             $conditions = $this->_createAdminIndexConditionsByTree($currentSiteId);
-                            $datas = $this->Content->find('threaded', ['order' => ['Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
+                            $datas = $this->Contents->find('threaded', ['order' => ['Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
                             // 並び替え最終更新時刻をリセット
-                            $this->SiteConfig->resetContentsSortLastModified();
+                            // $this->SiteConfig->resetContentsSortLastModified();
                             $template = 'ajax_index_tree';
                             break;
                         case 2:
@@ -164,9 +164,9 @@ class ContentsController extends BcAdminAppController
                     }
                     break;
                 case 'trash_index':
-                    $this->Content->Behaviors->unload('SoftDelete');
+                    $this->Contents->Behaviors->unload('SoftDelete');
                     $conditions = $this->_createAdminIndexConditionsByTrash();
-                    $datas = $this->Content->find('threaded', ['order' => ['Content.site_id', 'Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
+                    $datas = $this->Contents->find('threaded', ['order' => ['Content.site_id', 'Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
                     $template = 'ajax_index_trash';
                     break;
             }
@@ -230,7 +230,7 @@ class ContentsController extends BcAdminAppController
             ];
         }
         if ($data['Content']['folder_id']) {
-            $content = $this->Content->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Content.id' => $data['Content']['folder_id']], 'recursive' => -1]);
+            $content = $this->Contents->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Content.id' => $data['Content']['folder_id']], 'recursive' => -1]);
             $conditions['Content.rght <'] = $content['Content']['rght'];
             $conditions['Content.lft >'] = $content['Content']['lft'];
         }
@@ -286,7 +286,7 @@ class ContentsController extends BcAdminAppController
             'data' => $this->request->getData('id')
         ]);
 
-        $siteId = $this->Content->trashReturn($this->request->getData('id'));
+        $siteId = $this->Contents->trashReturn($this->request->getData('id'));
 
         // EVENT Contents.afterTrashReturn
         $this->dispatchLayerEvent('afterTrashReturn', [
@@ -318,22 +318,22 @@ class ContentsController extends BcAdminAppController
                     'type' => $this->request->getData('Content.type')
                 ];
             }
-            $srcContent = $this->Content->find('first', ['conditions' => $conditions, 'recursive' => -1]);
+            $srcContent = $this->Contents->find('first', ['conditions' => $conditions, 'recursive' => -1]);
             if ($srcContent) {
                 $this->request = $this->request->withData('Content.alias_id', $srcContent['Content']['id']);
                 $srcContent = $srcContent['Content'];
             }
 
             if (empty($this->request->getData('Content.parent_id')) && !empty($this->request->getData('Content.url'))) {
-                $this->request = $this->request->withData('Content.parent_id', $this->Content->copyContentFolderPath($this->request->getData('Content.url'), $this->request->getData('Content.site_id')));
+                $this->request = $this->request->withData('Content.parent_id', $this->Contents->copyContentFolderPath($this->request->getData('Content.url'), $this->request->getData('Content.site_id')));
             }
 
         }
 
         $user = $this->BcAuth->user();
         $this->request = $this->request->withData('Content.author_id', $user['id']);
-        $this->Content->create(false);
-        $data = $this->Content->save($this->request->data);
+        $this->Contents->create(false);
+        $data = $this->Contents->save($this->request->data);
         if (!$data) {
             $this->ajaxError(500, __d('baser', '保存中にエラーが発生しました。'));
             exit;
@@ -358,13 +358,13 @@ class ContentsController extends BcAdminAppController
     {
         $this->setTitle(__d('baser', 'コンテンツ編集'));
         if (!$this->request->data) {
-            $this->request->data = $this->Content->find('first', ['conditions' => ['Content.id' => $this->request->params['named']['content_id']]]);
+            $this->request->data = $this->Contents->find('first', ['conditions' => ['Content.id' => $this->request->params['named']['content_id']]]);
             if (!$this->request->data) {
                 $this->BcMessage->setError(__d('baser', '無効な処理です。'));
                 $this->redirect(['plugin' => false, 'admin' => true, 'controller' => 'contents', 'action' => 'index']);
             }
         } else {
-            if ($this->Content->save($this->request->data)) {
+            if ($this->Contents->save($this->request->data)) {
                 $message = Configure::read('BcContents.items.' . $this->request->getData('Content.plugin') . '.' . $this->request->getData('Content.type') . '.title') .
                     sprintf(__d('baser', '「%s」を更新しました。'), $this->request->getData('Content.title'));
                 $this->BcMessage->setSuccess($message);
@@ -380,7 +380,7 @@ class ContentsController extends BcAdminAppController
             }
         }
         $site = BcSite::findById($this->request->getData('Content.site_id'));
-        $this->set('publishLink', $this->Content->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
+        $this->set('publishLink', $this->Contents->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
     }
 
     /**
@@ -394,12 +394,12 @@ class ContentsController extends BcAdminAppController
 
         $this->setTitle(__d('baser', 'エイリアス編集'));
         if ($this->request->is(['post', 'put'])) {
-            if ($this->Content->isOverPostSize()) {
+            if ($this->Contents->isOverPostSize()) {
                 $this->BcMessage->setError(__d('baser', '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。', ini_get('post_max_size')));
                 $this->redirect(['action' => 'edit_alias', $id]);
             }
-            if ($this->Content->save($this->request->data)) {
-                $srcContent = $this->Content->find('first', ['conditions' => ['Content.id' => $this->request->getData('Content.alias_id')], 'recursive' => -1]);
+            if ($this->Contents->save($this->request->data)) {
+                $srcContent = $this->Contents->find('first', ['conditions' => ['Content.id' => $this->request->getData('Content.alias_id')], 'recursive' => -1]);
                 $srcContent = $srcContent['Content'];
                 $message = Configure::read('BcContents.items.' . $srcContent['plugin'] . '.' . $srcContent['type'] . '.title') .
                     sprintf(__d('baser', '「%s」のエイリアス「%s」を編集しました。'), $srcContent['title'], $this->request->getData('Content.title'));
@@ -414,19 +414,19 @@ class ContentsController extends BcAdminAppController
                 $this->BcMessage->setError('保存中にエラーが発生しました。入力内容を確認してください。');
             }
         } else {
-            $this->request->data = $this->Content->find('first', ['conditions' => ['Content.id' => $id]]);
+            $this->request->data = $this->Contents->find('first', ['conditions' => ['Content.id' => $id]]);
             if (!$this->request->data) {
                 $this->BcMessage->setError(__d('baser', '無効な処理です。'));
                 $this->redirect(['plugin' => false, 'admin' => true, 'controller' => 'contents', 'action' => 'index']);
             }
-            $srcContent = $this->Content->find('first', ['conditions' => ['Content.id' => $this->request->getData('Content.alias_id')], 'recursive' => -1]);
+            $srcContent = $this->Contents->find('first', ['conditions' => ['Content.id' => $this->request->getData('Content.alias_id')], 'recursive' => -1]);
             $srcContent = $srcContent['Content'];
         }
 
         $this->set('srcContent', $srcContent);
         $this->BcContents->settingForm($this, $this->request->getData('Content.site_id'), $this->request->getData('Content.id'));
         $site = BcSite::findById($this->request->getData('Content.site_id'));
-        $this->set('publishLink', $this->Content->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
+        $this->set('publishLink', $this->Contents->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
 
     }
 
@@ -475,7 +475,7 @@ class ContentsController extends BcAdminAppController
      */
     protected function _delete($id, $useFlashMessage = false)
     {
-        $content = $this->Content->find('first', ['conditions' => ['Content.id' => $id], 'recursive' => -1]);
+        $content = $this->Contents->find('first', ['conditions' => ['Content.id' => $id], 'recursive' => -1]);
         if (!$content) {
             return false;
         }
@@ -488,13 +488,13 @@ class ContentsController extends BcAdminAppController
         ]);
 
         if (!$content['alias_id']) {
-            $result = $this->Content->softDeleteFromTree($id);
+            $result = $this->Contents->softDeleteFromTree($id);
             $message = $typeName . sprintf(__d('baser', '「%s」をゴミ箱に移動しました。'), $content['title']);
         } else {
-            $softDelete = $this->Content->softDelete(null);
-            $this->Content->softDelete(false);
-            $result = $this->Content->removeFromTree($id, true);
-            $this->Content->softDelete($softDelete);
+            $softDelete = $this->Contents->softDelete(null);
+            $this->Contents->softDelete(false);
+            $result = $this->Contents->removeFromTree($id, true);
+            $this->Contents->softDelete($softDelete);
             $message = sprintf(__d('baser', '%s のエイリアス「%s」を削除しました。'), $typeName, $content['title']);
         }
         if ($result) {
@@ -594,7 +594,7 @@ class ContentsController extends BcAdminAppController
         // EVENT Contents.beforeChangeStatus
         $this->dispatchLayerEvent('beforeChangeStatus', ['id' => $id, 'status' => $status]);
 
-        $content = $this->Content->find('first', ['conditions' => ['Content.id' => $id], 'recursive' => -1]);
+        $content = $this->Contents->find('first', ['conditions' => ['Content.id' => $id], 'recursive' => -1]);
         if (!$content) {
             return false;
         }
@@ -603,7 +603,7 @@ class ContentsController extends BcAdminAppController
         $content['Content']['self_publish_begin'] = '';
         $content['Content']['self_publish_end'] = '';
         $content['Content']['self_status'] = $status;
-        $result = (bool)$this->Content->save($content, false);
+        $result = (bool)$this->Contents->save($content, false);
 
         // EVENT Contents.afterChangeStatus
         $this->dispatchLayerEvent('afterChangeStatus', ['id' => $id, 'result' => $result]);
@@ -622,8 +622,8 @@ class ContentsController extends BcAdminAppController
             $this->notFound();
         }
         $this->autoRender = false;
-        $this->Content->softDelete(false);
-        $contents = $this->Content->find('all', ['conditions' => ['Content.deleted'], 'order' => ['Content.plugin', 'Content.type'], 'recursive' => -1]);
+        $this->Contents->softDelete(false);
+        $contents = $this->Contents->find('all', ['conditions' => ['Content.deleted'], 'order' => ['Content.plugin', 'Content.type'], 'recursive' => -1]);
         $result = true;
 
         // EVENT Contents.beforeTrashEmpty
@@ -695,7 +695,7 @@ class ContentsController extends BcAdminAppController
                 'site_id' => $this->request->getData('siteId')
             ]
         ];
-        if (!$this->Content->save($data, ['firstCreate' => !empty($this->request->getData('first'))])) {
+        if (!$this->Contents->save($data, ['firstCreate' => !empty($this->request->getData('first'))])) {
             $this->ajaxError(500, __d('baser', '名称変更中にエラーが発生しました。'));
             return false;
         }
@@ -720,7 +720,7 @@ class ContentsController extends BcAdminAppController
             false
         );
         Configure::write('debug', 0);
-        return $this->Content->getUrlById($this->Content->id);
+        return $this->Contents->getUrlById($this->Contents->id);
     }
 
     /**
@@ -733,8 +733,8 @@ class ContentsController extends BcAdminAppController
         if (!$this->request->data) {
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
-        $this->Content->id = $this->request->getData('currentId');
-        if (!$this->Content->exists()) {
+        $this->Contents->id = $this->request->getData('currentId');
+        if (!$this->Contents->exists()) {
             $this->ajaxError(500, __d('baser', 'データが存在しません。'));
         }
 
@@ -742,7 +742,7 @@ class ContentsController extends BcAdminAppController
             $this->ajaxError(500, __d('baser', 'コンテンツ一覧を表示後、他のログインユーザーがコンテンツの並び順を更新しました。<br>一度リロードしてから並び替えてください。'));
         }
 
-        if (!$this->Content->isMovable($this->request->getData('currentId'), $this->request->getData('targetParentId'))) {
+        if (!$this->Contents->isMovable($this->request->getData('currentId'), $this->request->getData('targetParentId'))) {
             $this->ajaxError(500, __d('baser', '同一URLのコンテンツが存在するため処理に失敗しました。（現在のサイトに存在しない場合は、関連サイトに存在します）'));
         }
 
@@ -756,9 +756,9 @@ class ContentsController extends BcAdminAppController
 
         $data = $this->request->data;
 
-        $beforeUrl = $this->Content->field('url', ['Content.id' => $data['currentId']]);
+        $beforeUrl = $this->Contents->field('url', ['Content.id' => $data['currentId']]);
 
-        $result = $this->Content->move(
+        $result = $this->Contents->move(
             $data['currentId'],
             $data['currentParentId'],
             $data['targetSiteId'],
@@ -791,7 +791,7 @@ class ContentsController extends BcAdminAppController
             false
         );
 
-        return json_encode($this->Content->getUrlById($result['Content']['id'], true));
+        return json_encode($this->Contents->getUrlById($result['Content']['id'], true));
 
     }
 
@@ -807,7 +807,7 @@ class ContentsController extends BcAdminAppController
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
         Configure::write('debug', 0);
-        return $this->Content->existsContentByUrl($this->request->getData('url'));
+        return $this->Contents->existsContentByUrl($this->request->getData('url'));
     }
 
     /**
@@ -820,7 +820,7 @@ class ContentsController extends BcAdminAppController
     {
         $this->autoRender = false;
         Configure::write('debug', 0);
-        return $this->Content->exists($id);
+        return $this->Contents->exists($id);
     }
 
     /**
@@ -834,10 +834,10 @@ class ContentsController extends BcAdminAppController
         if (empty($this->request->getData('contentId'))) {
             return false;
         }
-        $softDelete = $this->Content->softDelete(null);
-        $this->Content->softDelete(false);
-        $result = $this->Content->removeFromTree($this->request->getData('contentId'), true);
-        $this->Content->softDelete($softDelete);
+        $softDelete = $this->Contents->softDelete(null);
+        $this->Contents->softDelete(false);
+        $result = $this->Contents->removeFromTree($this->request->getData('contentId'), true);
+        $this->Contents->softDelete($softDelete);
         return $result;
     }
 
@@ -851,7 +851,7 @@ class ContentsController extends BcAdminAppController
         $this->autoRender = false;
         Configure::write('debug', 0);
         return json_encode(
-            $this->Content->getContentFolderList(
+            $this->Contents->getContentFolderList(
                 (int)$siteId,
                 [
                     'conditions' => ['Content.site_root' => false]
@@ -876,6 +876,6 @@ class ContentsController extends BcAdminAppController
     {
         $this->autoRender = false;
         Configure::write('debug', 0);
-        return $this->Content->getUrlById($id, true);
+        return $this->Contents->getUrlById($id, true);
     }
 }
