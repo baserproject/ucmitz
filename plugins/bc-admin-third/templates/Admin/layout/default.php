@@ -80,7 +80,6 @@ $base = $attributes['base'];
   ]) ?>
 
   <?php
-  $a = $this->request->getParam('plugin');
   $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
     'data-baseUrl' => h($base),

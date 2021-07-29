@@ -35,6 +35,7 @@ class ContentManageService extends ContentsService implements ContentManageServi
                     ->where(['site_id' => $site->id, 'status' => false])
                     ->count();
             $contentsInfo[$key]['total'] = $contentsInfo[$key]['published'] + $contentsInfo[$key]['unpublished'];
+            $contentsInfo[$key]['display_name'] = $site->display_name;
         }
         return $contentsInfo;
     }

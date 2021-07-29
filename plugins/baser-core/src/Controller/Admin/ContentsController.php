@@ -862,6 +862,9 @@ class ContentsController extends BcAdminAppController
 
     /**
      * コンテンツ情報を取得する
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function ajax_contents_info(ContentManageServiceInterface $contentManage)
     {

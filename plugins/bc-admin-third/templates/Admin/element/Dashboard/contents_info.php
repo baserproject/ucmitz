@@ -13,7 +13,6 @@
 
 <script>
 	$(function () {
-    console.log($.bcUtil.adminPrefix + '/' + $.bcUtil.pluginName + '/contents/ajax_contents_info', '#ContentInfo');
 		$.bcDashboard.ajax($.bcUtil.adminPrefix + '/' + $.bcUtil.pluginName + '/contents/ajax_contents_info', '#ContentInfo');
 	});
 </script>
