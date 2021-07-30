@@ -19,8 +19,10 @@ class ClassName extends Cake\View\Helper {
 }    
 ```
 
-## BcFormHelperの変更点
-### $this->BcForm->hidden変更点
+# BcFormHelperは、BcAdminFormHelperに変更
+
+管理画面において、BcFormHelperは使わず、BcAdminFormHelper を利用するようにしてください。
+フロントエンドにおいては、BcFormHelper を利用します。
 
 hiddenメソッドではcakephp4系からIDが付与されなくなった
 なので代わりに、BcAdminForm->control('name', ['type' => 'hidden']);を使うようにする
