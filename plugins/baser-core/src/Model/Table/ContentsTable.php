@@ -973,8 +973,8 @@ class ContentsTable extends AppTable
         ], $options);
 
         $conditions = [
-            'type' => 'ContentFolders',
-            'alias_id' => 'IS NULL'
+            'type' => 'ContentFolder',
+            'alias_id IS NULL'
         ];
 
         if (!is_null($siteId)) {
@@ -986,14 +986,9 @@ class ContentsTable extends AppTable
         if (!empty($options['conditions'])) {
             $conditions = array_merge($conditions, $options['conditions']);
         }
-        $folders = $this->find('treeList', [
-            'keyPath' => null,
-            'valuePath' => null,
-            'spacer' => '_'
-            ])->where([$conditions]);
+        $folders = $this->find('treeList')->where([$conditions]);
         if ($folders) {
-            return $folders;
-            // return $this->convertTreeList($folders->all()->toArray());
+            return $this->convertTreeList($folders->all()->toArray());
         }
         return false;
     }

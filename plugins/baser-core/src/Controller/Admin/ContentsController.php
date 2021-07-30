@@ -94,8 +94,7 @@ class ContentsController extends BcAdminAppController
                 $this->setTitle(__d('baser', 'ゴミ箱'));
                 break;
         }
-
-        $this->setViewConditions('Content', ['default' => [
+        $this->setViewConditions('Contents', ['default' => [
             'named' => [
                 'num' => $this->getSiteConfig('admin_list_num'),
                 'site_id' => 0,
@@ -104,7 +103,6 @@ class ContentsController extends BcAdminAppController
                 'direction' => 'asc'
             ]
         ]]);
-
         if (empty($this->request->getParam('named.sort'))) {
             $this->request = $this->request->withParam('named.sort', $this->request->getParam('pass')['sort']);
         }
@@ -146,7 +144,6 @@ class ContentsController extends BcAdminAppController
                                 'order' => 'Content.' . $this->request->getParam('pass')['sort'] . ' ' . $this->request->getParam('pass')['direction'],
                                 'conditions' => $conditions,
                                 'limit' => $this->request->getParam('pass')['num'],
-                                'recursive' => 2
                             ];
 
                             // EVENT Contents.searchIndex
@@ -156,7 +153,6 @@ class ContentsController extends BcAdminAppController
                             if ($event !== false) {
                                 $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
                             }
-
                             $this->paginate = $options;
                             $datas = $this->paginate('Content');
                             $this->set('authors', $this->Users->getUserList());
