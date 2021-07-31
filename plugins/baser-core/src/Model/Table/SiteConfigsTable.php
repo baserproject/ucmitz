@@ -12,9 +12,8 @@
 namespace BaserCore\Model\Table;
 
 use BaserCore\Event\BcEventDispatcherTrait;
-use Cake\ORM\Query;
 use BaserCore\Model\AppTable;
-use Cake\ORM\TableRegistry;
+use BaserCore\Model\Behavior\BcKeyValueBehavior;
 use Cake\Validation\Validator;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -29,29 +28,15 @@ use Cake\Filesystem\Folder;
  * システム設定モデル
  *
  * @package Baser.Model
+ * @mixin BcKeyValueBehavior
  */
 class SiteConfigsTable extends AppTable
 {
+
     /**
      * Trait
      */
     use BcEventDispatcherTrait;
-
-    /**
-     * ビヘイビア
-     * // TODO 暫定措置
-     * @var array
-     */
-    // public $actsAs = ['BcCache'];
-
-    /**
-     * SiteConfig constructor.
-     * @param array $config
-     */
-    public function __construct($config)
-    {
-        parent::__construct($config);
-    }
 
     /**
      * Initialize
@@ -62,6 +47,7 @@ class SiteConfigsTable extends AppTable
     public function initialize(array $config): void
     {
         parent::initialize($config);
+        $this->addBehavior('BaserCore.BcKeyValue');
     }
 
     /**
@@ -73,37 +59,50 @@ class SiteConfigsTable extends AppTable
     public function validationDefault(Validator $validator): Validator
     {
         $validator
-            ->integer('id')
-            ->allowEmptyString('id', null, 'create');
-
-        $validator
             ->scalar('name')
             ->maxLength('name', 255, __d('baser', '255文字以内で入力してください。'))
-            ->notEmptyString('name', __d('baser', 'を入力してください。'))
-            // __constructから移動
-            ->add('name', [
-                'formal_name' => [
-                    'rule' => ['notBlank'], 'message' => __d('baser', 'Webサイト名を入力してください。'), 'required' => true],
-                'name' => [
-                    'rule' => ['notBlank'], 'message' => __d('baser', 'Webサイトタイトルを入力してください。'), 'required' => true],
-                'email' => [
-                    ['rule' => ['emails'], 'message' => __d('baser', '管理者メールアドレスの形式が不正です。')],
-                    ['rule' => ['notBlank'], 'message' => __d('baser', '管理者メールアドレスを入力してください。')]],
-                'mail_encode' => [
-                    'rule' => ['notBlank'], 'message' => __d('baser', 'メール送信文字コードを入力してください。初期値は「ISO-2022-JP」です。'), 'required' => true],
-                'site_url' => [
-                    'rule' => ['notBlank'], 'message' => __d('baser', 'WebサイトURLを入力してください。'), 'required' => true],
-                'admin_ssl' => [
-                    'rule' => ['sslUrlExists'], 'message' => __d('baser', '管理画面をSSLで利用するには、SSL用のWebサイトURLを入力してください。')],
-                'main_site_display_name' => [
-                    'rule' => ['notBlank'], 'message' => __d('baser', 'メインサイト表示名を入力してください。'), 'required' => false]
-            ]);
-
+            ->notEmptyString('name', __d('baser', '設定名を入力してください。'));
         $validator
-            ->scalar('text')
-            ->maxLength('name', 65535, __d('baser', '65535文字以内で入力してください。'))
-            ->notEmptyString('text', __d('baser', 'テキストを入力してください。'));
+            ->scalar('value')
+            ->maxLength('value', 65535, __d('baser', '65535文字以内で入力してください。'))
+            ->notEmptyString('value', __d('baser', '設定値を入力してください。'));
+        return $validator;
+    }
 
+    /**
+     * Validation Default
+     *
+     * @param Validator $validator
+     * @return Validator
+     */
+    public function validationKeyValue(Validator $validator): Validator
+    {
+        $validator->setProvider('siteConfig', 'BaserCore\Model\Validation\SiteConfigValidation');
+        $validator
+            ->scalar('formal_name')
+            ->maxLength('formal_name', 255, __d('baser', 'Webサイト名は255文字以内で入力してください。'))
+            ->notEmptyString('formal_name', __d('baser', 'Webサイト名を入力してください。'));
+        $validator
+            ->scalar('email')
+            ->email('email', 255, __d('baser', '管理者メールアドレスの形式が不正です。'))
+            ->notEmptyString('email', __d('baser', '管理者メールアドレスを入力してください。'));
+        $validator
+            ->scalar('mail_encode')
+            ->notEmptyString('mail_encode', __d('baser', 'メール送信文字コードを入力してください。初期値は「ISO-2022-JP」です。'));
+        $validator
+            ->scalar('main_site_display_name')
+            ->notEmptyString('main_site_display_name', __d('baser', 'メインサイト表示名を入力してください。'));
+        $validator
+            ->scalar('site_url')
+            ->notEmptyString('site_url', __d('baser', 'WebサイトURLを入力してください。'));
+        $validator
+            ->scalar('admin_ssl')
+            ->add('admin_ssl', [
+                'adminSSlSslUrlExists' => [
+                    'rule' => 'sslUrlExists',
+                    'provider' => 'siteConfig',
+                    'message' => __d('baser', '管理画面をSSLで利用するには、SSL用のWebサイトURLを入力してください。')
+                ]]);
         return $validator;
     }
 
@@ -143,27 +142,13 @@ class SiteConfigsTable extends AppTable
     }
 
     /**
-     * SSL用のURLが設定されているかチェックする
-     * @param mixed $check
-     * @return boolean
-     */
-    public function sslUrlExists($check)
-    {
-        $sslOn = $check[key($check)];
-        if ($sslOn && empty($this->data['SiteConfig']['ssl_url'])) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * コンテンツ一覧を表示してから、コンテンツの並び順が変更されていないかどうか
      * @param $listDisplayed
      * @return bool
      */
     public function isChangedContentsSortLastModified($listDisplayed)
     {
-        $siteConfigs = $this->findExpanded();
+        $siteConfigs = $this->getKeyValue();
         $changed = false;
         if (!empty($siteConfigs['contents_sort_last_modified'])) {
             $user = BcUtil::loginUser();
@@ -186,7 +171,7 @@ class SiteConfigsTable extends AppTable
      */
     public function updateContentsSortLastModified()
     {
-        $siteConfigs = $this->findExpanded();
+        $siteConfigs = $this->getKeyValue();
         $user = BcUtil::loginUser();
         $siteConfigs['contents_sort_last_modified'] = date('Y-m-d H:i:s') . '|' . $user['id'];
         $this->saveKeyValue($siteConfigs);
@@ -210,7 +195,7 @@ class SiteConfigsTable extends AppTable
      */
     public function isChange($field, $value)
     {
-        $siteConfig = $this->findExpanded();
+        $siteConfig = $this->getKeyValue();
         if (isset($siteConfig[$field])) {
             return !($siteConfig[$field] === $value);
         } else {
