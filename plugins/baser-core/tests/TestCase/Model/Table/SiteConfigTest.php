@@ -1,134 +1,124 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Test.Case.Model
- * @since           baserCMS v 3.0.0-beta
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
-App::uses('SiteConfig', 'Model');
+
+namespace BaserCore\Test\TestCase\Model\Table;
+
+use BaserCore\Model\Table\SiteConfigsTable;
+use BaserCore\TestSuite\BcTestCase;
 
 /**
  * Class SiteConfigTest
- *
- * @property SiteConfig $SiteConfig
- *
- * class NonAssosiationSiteConfig extends SiteConfig {
- *  public $name = 'SiteConfig';
- *  public $belongsTo = [];
- *  public $hasMany = [];
- * }
- *
- * @package Baser.Test.Case.Model
+ * @package BaserCore\Test\TestCase\Model\Table
+ * @property SiteConfigsTable $SiteConfigs
  */
-class SiteConfigTest extends BaserTestCase
+class SiteConfigTest extends BcTestCase
 {
 
+    /**
+     * Fixtures
+     * @var string[]
+     */
     public $fixtures = [
-        'baser.Default.SiteConfig',
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.SiteConfigs',
     ];
 
-    public function setUp()
+    /**
+     * setUp
+     */
+    public function setUp(): void
     {
         parent::setUp();
-        $this->SiteConfig = ClassRegistry::init('SiteConfig');
+        $this->SiteConfigs = $this->getTableLocator()->get('BaserCore.SiteConfigs');
     }
 
-    public function tearDown()
+    /**
+     * tearDown
+     */
+    public function tearDown(): void
     {
-        unset($this->SiteConfig);
+        unset($this->SiteConfigs);
         parent::tearDown();
     }
 
     /**
-     * validate
+     * test initialize
      */
-    public function test必須チェック異常系()
+    public function testInitialize()
     {
-        $this->SiteConfig->create([
-            'SiteConfig' => [
-                'email' => ''
-            ]
-        ]);
-        $this->assertFalse($this->SiteConfig->validates());
-        $this->assertArrayHasKey('formal_name', $this->SiteConfig->validationErrors);
-        $this->assertEquals('Webサイト名を入力してください。', current($this->SiteConfig->validationErrors['formal_name']));
-        $this->assertArrayHasKey('name', $this->SiteConfig->validationErrors);
-        $this->assertEquals('Webサイトタイトルを入力してください。', current($this->SiteConfig->validationErrors['name']));
-        $this->assertArrayHasKey('email', $this->SiteConfig->validationErrors);
-        $this->assertEquals('管理者メールアドレスの形式が不正です。', current($this->SiteConfig->validationErrors['email']));
-        $this->assertArrayHasKey('mail_encode', $this->SiteConfig->validationErrors);
-        $this->assertEquals('メール送信文字コードを入力してください。初期値は「ISO-2022-JP」です。', current($this->SiteConfig->validationErrors['mail_encode']));
-        $this->assertArrayHasKey('site_url', $this->SiteConfig->validationErrors);
-        $this->assertEquals('WebサイトURLを入力してください。', current($this->SiteConfig->validationErrors['site_url']));
-    }
-
-    public function test必須チェック正常系()
-    {
-        $this->SiteConfig->create([
-            'SiteConfig' => [
-                'formal_name' => 'hoge',
-                'name' => 'hoge',
-                'email' => 'hoge@ho.ge',
-                'mail_encode' => 'ISO-2022-JP',
-                'site_url' => 'hoge',
-            ]
-        ]);
-        $this->assertTrue($this->SiteConfig->validates());
-    }
-
-    public function testSSLチェック異常系()
-    {
-        $this->SiteConfig->create([
-            'SiteConfig' => [
-                'formal_name' => 'hoge',
-                'name' => 'hoge',
-                'email' => 'hoge@ho.ge',
-                'mail_encode' => 'ISO-2022-JP',
-                'site_url' => 'hoge',
-                'admin_ssl' => 'hoge',
-                'ssl_url' => '',
-            ]
-        ]);
-        $this->assertFalse($this->SiteConfig->validates());
-        $this->assertArrayHasKey('admin_ssl', $this->SiteConfig->validationErrors);
-        $this->assertEquals('管理画面をSSLで利用するには、SSL用のWebサイトURLを入力してください。', current($this->SiteConfig->validationErrors['admin_ssl']));
-    }
-
-    public function testSSLチェック正常系()
-    {
-        $this->SiteConfig->create([
-            'SiteConfig' => [
-                'formal_name' => 'hoge',
-                'name' => 'hoge',
-                'email' => 'hoge@ho.ge',
-                'mail_encode' => 'ISO-2022-JP',
-                'site_url' => 'hoge',
-                'admin_ssl' => 'hoge',
-                'ssl_url' => 'hoge'
-            ]
-        ]);
-        $this->assertTrue($this->SiteConfig->validates());
+        $this->assertTrue($this->SiteConfigs->hasBehavior('BcKeyValue'));
     }
 
     /**
-     * テーマの一覧を取得する
+     * test validationDefault
      */
-    public function testGetTheme()
+    public function testValidationDefault()
     {
-        $results = $this->SiteConfig->getThemes();
-        $Folder = new Folder(BASER_CONFIGS . 'theme');
-        $files = $Folder->read(true, true, false);
-        $expected = [];
-        foreach($files[0] as $file) {
-            $this->assertContains(Inflector::camelize($file), $results);
-            $this->assertArrayHasKey($file, $results);
-        }
+        $validator = $this->SiteConfigs->getValidator('default');
+        $errors = $validator->validate([
+            'name' => ''
+        ]);
+        $this->assertArrayHasKey('name', $errors);
+        $this->assertEquals('設定名を入力してください。', current($errors['name']));
+        $errors = $validator->validate([
+            'name' => str_repeat('a', 256),
+            'value' => str_repeat('a', 65536)
+        ]);
+        $this->assertArrayHasKey('name', $errors);
+        $this->assertEquals('255文字以内で入力してください。', current($errors['name']));
+        $this->assertArrayHasKey('value', $errors);
+        $this->assertEquals('65535文字以内で入力してください。', current($errors['value']));
+    }
+
+    /**
+     * test validationKeyValue Irregular
+     */
+    public function testValidationKeyValueIrregular()
+    {
+        $validator = $this->SiteConfigs->getValidator('keyValue');
+        $errors = $validator->validate([
+            'name' => '',
+            'email' => '',
+            'formal_name' => '',
+            'mail_encode' => '',
+            'site_url' => ''
+        ]);
+        $this->assertArrayHasKey('name', $errors);
+        $this->assertEquals('Webサイトタイトルを入力してください。', current($errors['name']));
+        $this->assertArrayHasKey('formal_name', $errors);
+        $this->assertEquals('Webサイト名を入力してください。', current($errors['formal_name']));
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertEquals('管理者メールアドレスを入力してください。', current($errors['email']));
+        $this->assertArrayHasKey('mail_encode', $errors);
+        $this->assertEquals('メール送信文字コードを入力してください。初期値は「ISO-2022-JP」です。', current($errors['mail_encode']));
+        $this->assertArrayHasKey('site_url', $errors);
+        $this->assertEquals('WebサイトURLを入力してください。', current($errors['site_url']));
+    }
+
+    /**
+     * test validationKeyValue Regular
+     */
+    public function testValidationKeyValueRegular()
+    {
+        $validator = $this->SiteConfigs->getValidator('keyValue');
+        $errors = $validator->validate([
+                'formal_name' => 'hoge',
+                'name' => 'hoge',
+                'email' => 'hoge@basercms.net',
+                'mail_encode' => 'ISO-2022-JP',
+                'site_url' => 'hoge',
+        ]);
+        $this->assertEmpty($errors);
     }
 
     /**
@@ -141,7 +131,7 @@ class SiteConfigTest extends BaserTestCase
      */
     public function testGetControlSource($field, $expected, $message = null)
     {
-        $result = $this->SiteConfig->getControlSource($field);
+        $result = $this->SiteConfigs->getControlSource($field);
         $this->assertEquals($expected, $result, $message);
     }
 
@@ -151,27 +141,37 @@ class SiteConfigTest extends BaserTestCase
             ['mode', [
                 -1 => 'インストールモード',
                 0 => 'ノーマルモード',
-                1 => 'デバッグモード１',
-                2 => 'デバッグモード２',
+                1 => 'デバッグモード',
             ], 'コントロールソースを取得できません'],
             ['hoge', false, '存在しないキーです'],
         ];
     }
 
     /**
-     * SSL用のURLが設定されているかチェックする
+     * コンテンツ一覧を表示してから、コンテンツの並び順が変更されていないかどうか
+     * @param bool $isLogin ログインしているかどうか
+     * @param string $saveValue 保存値
+     * @param string $listDisplayed 表示した時間
+     * @param bool $expected 期待値
+     * @dataProvider isChangedContentsSortLastModifiedDataProvider
      */
-    public function testSslUrlExists()
+    public function testIsChangedContentsSortLastModified($isLogin, $saveValue, $listDisplayed, $expected)
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        if($isLogin) $this->loginAdmin($this->getRequest());
+        $this->SiteConfigs->saveValue('contents_sort_last_modified', $saveValue);
+        $result = $this->SiteConfigs->isChangedContentsSortLastModified($listDisplayed);
+        $this->assertEquals($expected, $result);
     }
 
-    /**
-     * コンテンツ一覧を表示してから、コンテンツの並び順が変更されていないかどうか
-     */
-    public function testIsChangedContentsSortLastModified()
+    public function isChangedContentsSortLastModifiedDataProvider()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        return [
+            [false, '', '2021/08/01', false], // 保存値なし
+            [false, '2021/08/01|1', '2021/08/01', false], // 未ログイン
+            [true, '2021/08/01|1', '2021/08/01', false], // 同じユーザーの変更
+            [true, '2021/08/01 10:00:00|2', '2021/08/01 10:00:30', true], // バッファ内
+            [true, '2021/08/01 10:00:00|2', '2021/08/01 10:01:01', false],  // バッファ外
+        ];
     }
 
     /**
@@ -179,7 +179,17 @@ class SiteConfigTest extends BaserTestCase
      */
     public function testUpdateContentsSortLastModified()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // 未ログイン
+        $this->SiteConfigs->saveValue('contents_sort_last_modified', '');
+        $this->SiteConfigs->updateContentsSortLastModified();
+        $this->assertEquals('', $this->SiteConfigs->getValue('contents_sort_last_modified'));
+        // ログイン
+        $this->loginAdmin($this->getRequest());
+        $this->SiteConfigs->updateContentsSortLastModified();
+        $lastModified = $this->SiteConfigs->getValue('contents_sort_last_modified');
+        [$lastModified, $userId] = explode('|', $lastModified);
+        $this->assertEquals(1, $userId);
+        $this->assertNotEmpty($lastModified);
     }
 
     /**
@@ -187,7 +197,10 @@ class SiteConfigTest extends BaserTestCase
      */
     public function testResetContentsSortLastModified()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loginAdmin($this->getRequest());
+        $this->SiteConfigs->updateContentsSortLastModified();
+        $this->SiteConfigs->resetContentsSortLastModified();
+        $this->assertEmpty($this->SiteConfigs->getValue('contents_sort_last_modified'));
     }
 
     /**
@@ -200,7 +213,7 @@ class SiteConfigTest extends BaserTestCase
      */
     public function testIsChange($field, $value, $expected)
     {
-        $result = $this->SiteConfig->isChange($field, $value);
+        $result = $this->SiteConfigs->isChange($field, $value);
         $this->assertEquals($expected, $result);
     }
 

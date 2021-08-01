@@ -64,8 +64,7 @@ class SiteConfigsTable extends AppTable
             ->notEmptyString('name', __d('baser', '設定名を入力してください。'));
         $validator
             ->scalar('value')
-            ->maxLength('value', 65535, __d('baser', '65535文字以内で入力してください。'))
-            ->notEmptyString('value', __d('baser', '設定値を入力してください。'));
+            ->maxLength('value', 65535, __d('baser', '65535文字以内で入力してください。'));
         return $validator;
     }
 
@@ -74,10 +73,17 @@ class SiteConfigsTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function validationKeyValue(Validator $validator): Validator
     {
         $validator->setProvider('siteConfig', 'BaserCore\Model\Validation\SiteConfigValidation');
+
+        $validator
+            ->scalar('name')
+            ->notEmptyString('name', __d('baser', 'Webサイトタイトルを入力してください。'));
         $validator
             ->scalar('formal_name')
             ->maxLength('formal_name', 255, __d('baser', 'Webサイト名は255文字以内で入力してください。'))
@@ -107,33 +113,21 @@ class SiteConfigsTable extends AppTable
     }
 
     /**
-     * テーマの一覧を取得する
-     * @return array
-     */
-    public function getThemes()
-    {
-        $themes = [];
-        $themeFolder = new Folder(APP . 'View' . DS . 'theme' . DS);
-        $_themes = $themeFolder->read(true, true);
-        foreach($_themes[0] as $theme) {
-            $themes[$theme] = Inflector::camelize($theme);
-        }
-        $themeFolder = new Folder(WWW_ROOT . 'theme' . DS);
-        $_themes = array_merge($themes, $themeFolder->read(true, true));
-        foreach($_themes[0] as $theme) {
-            $themes[$theme] = Inflector::camelize($theme);
-        }
-        return $themes;
-    }
-
-    /**
      * コントロールソースを取得する
      * @param string $field
-     * @return mixed array | false
+     * @return mixed array|false
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function getControlSource($field = null)
+    public function getControlSource($field)
     {
-        $controlSources['mode'] = [-1 => __d('baser', 'インストールモード'), 0 => __d('baser', 'ノーマルモード'), 1 => __d('baser', 'デバッグモード１'), 2 => __d('baser', 'デバッグモード２')];
+        $controlSources = [
+            'mode' => [
+                -1 => __d('baser', 'インストールモード'),
+                0 => __d('baser', 'ノーマルモード'),
+                1 => __d('baser', 'デバッグモード')
+        ]];
         if (isset($controlSources[$field])) {
             return $controlSources[$field];
         } else {
@@ -143,21 +137,26 @@ class SiteConfigsTable extends AppTable
 
     /**
      * コンテンツ一覧を表示してから、コンテンツの並び順が変更されていないかどうか
+     * 60秒をブラウザのロード時間を加味したバッファとする
      * @param $listDisplayed
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isChangedContentsSortLastModified($listDisplayed)
     {
-        $siteConfigs = $this->getKeyValue();
+        $lastModified = $this->getValue('contents_sort_last_modified');
         $changed = false;
-        if (!empty($siteConfigs['contents_sort_last_modified'])) {
+        if ($lastModified) {
             $user = BcUtil::loginUser();
-            $lastModified = $siteConfigs['contents_sort_last_modified'];
+            if(!$user) {
+                return false;
+            }
             [$lastModified, $userId] = explode('|', $lastModified);
             $lastModified = strtotime($lastModified);
-            if ($user['id'] != $userId) {
+            if ($user->id !== (int) $userId) {
                 $listDisplayed = strtotime($listDisplayed);
-                // 60秒はブラウザのロード時間を加味したバッファ
                 if ($lastModified >= ($listDisplayed - 60)) {
                     $changed = true;
                 }
@@ -168,22 +167,33 @@ class SiteConfigsTable extends AppTable
 
     /**
      * コンテンツ並び順変更時間を更新する
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function updateContentsSortLastModified()
     {
-        $siteConfigs = $this->getKeyValue();
         $user = BcUtil::loginUser();
-        $siteConfigs['contents_sort_last_modified'] = date('Y-m-d H:i:s') . '|' . $user['id'];
-        $this->saveKeyValue($siteConfigs);
+        if(!$user) {
+            return false;
+        }
+        return $this->saveValue(
+            'contents_sort_last_modified',
+            date('Y-m-d H:i:s') . '|' . $user->id
+        );
     }
 
     /**
      * コンテンツ並び替え順変更時間をリセットする
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function resetContentsSortLastModified()
     {
-        $siteConfigs['contents_sort_last_modified'] = '';
-        $this->saveKeyValue($siteConfigs);
+        return $this->saveValue('contents_sort_last_modified', '');
     }
 
     /**
@@ -192,6 +202,9 @@ class SiteConfigsTable extends AppTable
      * @param string $field フィールド名
      * @param string $value 値
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function isChange($field, $value)
     {
