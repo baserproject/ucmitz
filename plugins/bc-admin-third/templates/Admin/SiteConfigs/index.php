@@ -11,23 +11,22 @@
  */
 
 /**
- * [管理画面] サイト設定 フォーム
+ * システム基本設定 フォーム
  *
  * @var \BaserCore\View\BcAdminAppView $this
  * @var \BaserCore\Model\Entity\SiteConfig $siteConfig
  */
-$this->BcAdmin->setTitle(__d('baser', 'サイト基本設定'));
+$this->BcAdmin->setTitle(__d('baser', 'システム基本設定'));
 $this->BcAdmin->setHelp('site_configs_form');
 $this->BcBaser->i18nScript([
   'alertMessage1' => __d('baser', '管理システムをSSLに切り替える場合には、SSL用のURLを登録してください。'),
-  'alertMessage2' => __d('baser', "機能制限のセーフモードで動作しています。テーマの切り替えを行う場合、あらかじめ切り替え対象のテーマ内に、データベースに登録されているページカテゴリ用のフォルダを作成しておき、書込権限を与えておく必要があります。\nページカテゴリ用のフォルダが存在しない状態でテーマの切り替えを実行すると、対象ページカテゴリ内のWebページは正常に表示できなくなりますのでご注意ください。"),
-  'alertMessage3' => __d('baser', 'テストメールを送信に失敗しました。'),
+  'alertMessage2' => __d('baser', 'テストメールを送信に失敗しました。'),
   'confirmMessage1' => __d('baser', '管理システムをSSLに切り替えようとしています。よろしいですか？<br><br>サーバがSSLに対応していない場合、管理システムを表示する事ができなくなってしまいますのでご注意ください。<br><br>もし、表示する事ができなくなってしまった場合は、 /app/Config/install.php の、 BcEnv.sslUrl の値を調整するか、BcApp.adminSsl の値を false に書き換えて復旧してください。'),
   'confirmMessage2' => __d('baser', 'テストメールを送信します。いいですか？'),
   'infoMessage1' => __d('baser', 'テストメールを送信しました。'),
   'confirmTitle1' => __d('baser', '管理システムSSL設定確認')
 ], ['escape' => false]);
-$this->BcBaser->js('admin/site_configs/form', false, ['id' => 'AdminSiteConfigsFormScript',
+$this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSiteConfigsFormScript',
   'data-isAdminSsl' => (string)$siteConfig->admin_ssl
 ]);
 $isWritableEnv = $this->BcAdminSiteConfig->isWritableEnv();
@@ -36,81 +35,10 @@ $isWritableEnv = $this->BcAdminSiteConfig->isWritableEnv();
 
 <section class="bca-section" data-bca-section-type='form-group'>
   <h2 class="bca-main__heading" data-bca-heading-size="lg"><?php echo __d('baser', '基本項目') ?></h2>
-  <?php echo $this->BcAdminForm->create($siteConfig, ['context' => ['table' => 'BaserCore.SiteConfigs']]) ?>
+  <?php echo $this->BcAdminForm->create($siteConfig, ['id' => 'SiteConfigFormForm']) ?>
   <?php echo $this->BcFormTable->dispatchBefore() ?>
 
   <table class="form-table bca-form-table section" data-bca-table-type="type2">
-    <tr>
-      <th class="col-head bca-form-table__label">
-        <?php echo $this->BcAdminForm->label('formal_name', __d('baser', 'Webサイト名')) ?>
-        &nbsp;<span class="required bca-label" data-bca-label-type="required"><?php echo __d('baser', '必須') ?></span>
-      </th>
-      <td class="col-input bca-form-table__input">
-        <?php echo $this->BcAdminForm->control('formal_name', ['type' => 'text', 'size' => 55, 'maxlength' => 255, 'autofocus' => true]) ?>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <?php echo $this->BcAdminForm->error('formal_name') ?>
-        <div id="helptextFormalName" class="helptext">
-          <ul>
-            <li><?php echo __d('baser', '正式なWebサイト名を指定します。') ?></li>
-            <li><?php echo __d('baser', 'メールの送信元等で利用します。') ?></li>
-          </ul>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <th class="col-head bca-form-table__label">
-        <?php echo $this->BcAdminForm->label('name', __d('baser', 'Webサイトタイトル')) ?>
-        &nbsp;<span class="required bca-label" data-bca-label-type="required"><?php echo __d('baser', '必須') ?></span>
-      </th>
-      <td class="col-input bca-form-table__input">
-        <?php echo $this->BcAdminForm->control('name', [
-          'type' => 'text',
-          'size' => 55,
-          'maxlength' => 255,
-          'counter' => true
-        ]) ?>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <?php echo $this->BcAdminForm->error('name') ?>
-        <div id="helptextName" class="helptext">
-          <ul>
-            <li><?php echo __d('baser', 'Webサイトの基本タイトルとして利用されます。（タイトルタグに影響します）') ?></li>
-            <li><?php echo __d('baser', 'テンプレートで利用する場合は、<br>&lt;?php $this->BcBaser->title() ?&gt; で出力します。') ?></li>
-          </ul>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <th class="col-head bca-form-table__label">
-        <?php echo $this->BcAdminForm->label('keyword', __d('baser', 'サイト基本キーワード')) ?>
-      </th>
-      <td class="col-input bca-form-table__input">
-        <?php echo $this->BcAdminForm->control('keyword', ['type' => 'text', 'size' => 55, 'maxlength' => 255, 'counter' => true]) ?>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <?php echo $this->BcAdminForm->error('keyword') ?>
-        <div id="helptextKeyword" class="helptext">
-          <?php echo __d('baser', 'テンプレートで利用する場合は、<br>&lt;?php $this->BcBaser->metaKeywords() ?&gt; で出力します。') ?>
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <th class="col-head bca-form-table__label">
-        <?php echo $this->BcAdminForm->label('description', __d('baser', 'サイト基本説明文')) ?>
-      </th>
-      <td class="col-input bca-form-table__input">
-        <?php echo $this->BcAdminForm->control('description', [
-          'type' => 'textarea',
-          'cols' => 36,
-          'rows' => 5,
-          'counter' => true,
-          'data-input-text-size' => 'full-counter'
-        ]) ?>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <?php echo $this->BcAdminForm->error('description') ?>
-        <div id="helptextDescription" class="helptext">
-          <?php echo __d('baser', 'テンプレートで利用する場合は、<br />&lt;?php $this->BcBaser->metaDescription() ?&gt; で出力します') ?>
-        </div>
-      </td>
-    </tr>
     <tr>
       <th class="col-head bca-form-table__label">
         <?php echo $this->BcAdminForm->label('email', __d('baser', '管理者メールアドレス')) ?>

@@ -15,11 +15,11 @@ use BaserCore\Model\Table\SiteConfigsTable;
 use BaserCore\TestSuite\BcTestCase;
 
 /**
- * Class SiteConfigTest
+ * Class SiteConfigsTableTest
  * @package BaserCore\Test\TestCase\Model\Table
  * @property SiteConfigsTable $SiteConfigs
  */
-class SiteConfigTest extends BcTestCase
+class SiteConfigsTableTest extends BcTestCase
 {
 
     /**
@@ -87,16 +87,10 @@ class SiteConfigTest extends BcTestCase
     {
         $validator = $this->SiteConfigs->getValidator('keyValue');
         $errors = $validator->validate([
-            'name' => '',
             'email' => '',
-            'formal_name' => '',
             'mail_encode' => '',
             'site_url' => ''
         ]);
-        $this->assertArrayHasKey('name', $errors);
-        $this->assertEquals('Webサイトタイトルを入力してください。', current($errors['name']));
-        $this->assertArrayHasKey('formal_name', $errors);
-        $this->assertEquals('Webサイト名を入力してください。', current($errors['formal_name']));
         $this->assertArrayHasKey('email', $errors);
         $this->assertEquals('管理者メールアドレスを入力してください。', current($errors['email']));
         $this->assertArrayHasKey('mail_encode', $errors);
@@ -139,7 +133,6 @@ class SiteConfigTest extends BcTestCase
     {
         return [
             ['mode', [
-                -1 => 'インストールモード',
                 0 => 'ノーマルモード',
                 1 => 'デバッグモード',
             ], 'コントロールソースを取得できません'],

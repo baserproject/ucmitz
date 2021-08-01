@@ -109,11 +109,11 @@ return [
                 ],
             ],
             'Systems' => [
-                //			'SiteConfigs' => [
-                //				'title' => __d('baser', 'サイト基本設定'),
-                //				'type' => 'system',
-                //				'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'site_configs', 'action' => 'form'],
-                //			],
+                'SiteConfigs' => [
+                    'title' => __d('baser', 'システム基本設定'),
+                    'type' => 'system',
+                    'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'site_configs', 'action' => 'index']
+                ],
                 'Users' => [
                     'title' => __d('baser', 'ユーザー管理'),
                     'type' => 'system',

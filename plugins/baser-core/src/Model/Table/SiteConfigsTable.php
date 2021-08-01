@@ -88,13 +88,6 @@ class SiteConfigsTable extends AppTable
         $validator->setProvider('siteConfig', 'BaserCore\Model\Validation\SiteConfigValidation');
 
         $validator
-            ->scalar('name')
-            ->notEmptyString('name', __d('baser', 'Webサイトタイトルを入力してください。'));
-        $validator
-            ->scalar('formal_name')
-            ->maxLength('formal_name', 255, __d('baser', 'Webサイト名は255文字以内で入力してください。'))
-            ->notEmptyString('formal_name', __d('baser', 'Webサイト名を入力してください。'));
-        $validator
             ->scalar('email')
             ->email('email', 255, __d('baser', '管理者メールアドレスの形式が不正です。'))
             ->notEmptyString('email', __d('baser', '管理者メールアドレスを入力してください。'));

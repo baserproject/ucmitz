@@ -10,6 +10,7 @@
  */
 
 namespace BaserCore\Test\TestCase\Service;
+
 use BaserCore\Service\SiteConfigsService;
 use josegonzalez\Dotenv\Loader;
 
@@ -53,9 +54,45 @@ class SiteConfigsServiceTest extends \BaserCore\TestSuite\BcTestCase
     }
 
     /**
+     * test get
+     */
+    public function testGet()
+    {
+        $result = $this->SiteConfigs->get();
+        $this->assertArrayHasKey('mode', $result);
+        $this->assertArrayHasKey('site_url', $result);
+        $this->assertArrayHasKey('ssl_url', $result);
+        $this->assertArrayHasKey('admin_ssl', $result);
+    }
+
+    /**
+     * test update
+     */
+    public function testUpdate()
+    {
+        $this->SiteConfigs->update([
+            'admin_theme' => 'admin_second'
+        ]);
+        $this->assertEquals('admin_second', $this->SiteConfigs->getValue('admin_theme'));
+        $path = ROOT . DS . 'config' . DS . '.env';
+        copy($path, $path . '.bak');
+        $this->SiteConfigs->update([
+            'site_url' => 'http://hoge'
+        ]);
+        $dotenv = new \josegonzalez\Dotenv\Loader([CONFIG . '.env']);
+        $dotenv->parse()
+            ->putenv(true)
+            ->toEnv(true)
+            ->toServer(true);
+        $this->assertEquals('http://hoge/', env('SITE_URL'));
+        unlink($path);
+        rename($path . '.bak', $path);
+    }
+
+    /**
      * test isWritableEnv
      */
-    public function testIsWritableEnv():void
+    public function testIsWritableEnv(): void
     {
         $this->assertTrue($this->SiteConfigs->isWritableEnv());
     }
@@ -82,6 +119,17 @@ class SiteConfigsServiceTest extends \BaserCore\TestSuite\BcTestCase
         $this->assertEquals('BASERCMS', filter_var(env('BASERCMS')));
         unlink($path);
         rename($path . '.bak', $path);
+    }
+
+    /**
+     * test getModeList
+     */
+    public function testGetModeList()
+    {
+        $this->assertEquals([
+            0 => 'ノーマルモード',
+            1 => 'デバッグモード',
+        ], $this->SiteConfigs->getModeList());
     }
 
 }

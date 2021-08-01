@@ -48,19 +48,26 @@ class SiteConfigsService implements SiteConfigsServiceInterface
      * フィールドの値を取得する
      * @param string $fieldName
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getValue($fieldName): string
     {
-        return $this->SiteConfigs->getValue($fieldName);
+        $siteConfig = $this->get();
+        return $siteConfig->{$fieldName};
     }
 
     /**
      * データを取得する
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function get(): SiteConfig
     {
-        return new SiteConfig(array_merge($this->SiteConfigs->getKeyValue(), [
+        return $this->SiteConfigs->newEntity(array_merge($this->SiteConfigs->getKeyValue(), [
             'mode' => Configure::read('debug'),
             'site_url' => Configure::read('BcEnv.siteUrl'),
             'ssl_url' => Configure::read('BcEnv.sslUrl'),
@@ -72,7 +79,9 @@ class SiteConfigsService implements SiteConfigsServiceInterface
      * データを更新する
      * @param array $postData
      * @return SiteConfig
-     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function update(array $postData): SiteConfig
     {
