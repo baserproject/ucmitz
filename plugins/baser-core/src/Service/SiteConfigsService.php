@@ -17,6 +17,9 @@ use BaserCore\Utility\BcContainerTrait;
 use Cake\Core\Configure;
 use Cake\Filesystem\File;
 use Cake\ORM\TableRegistry;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class SiteConfigsMockService
@@ -116,10 +119,10 @@ class SiteConfigsService implements SiteConfigsServiceInterface
         }
 
         if($this->isWritableEnv()) {
-            $this->putEnv('DEBUG', ($siteConfig->mode)? 'true' : 'false');
-            $this->putEnv('SITE_URL', $siteConfig->site_url);
-            $this->putEnv('SSL_URL', $siteConfig->ssl_url);
-            $this->putEnv('ADMIN_SSL', ($siteConfig->admin_ssl)? 'true' : 'false');
+            if(isset($siteConfig->mode)) $this->putEnv('DEBUG', ($siteConfig->mode)? 'true' : 'false');
+            if(isset($siteConfig->site_url)) $this->putEnv('SITE_URL', $siteConfig->site_url);
+            if(isset($siteConfig->ssl_url)) $this->putEnv('SSL_URL', $siteConfig->ssl_url);
+            if(isset($siteConfig->admin_ssl)) $this->putEnv('ADMIN_SSL', ($siteConfig->admin_ssl)? 'true' : 'false');
         }
 
         $siteConfigArray = $siteConfig->toArray();
