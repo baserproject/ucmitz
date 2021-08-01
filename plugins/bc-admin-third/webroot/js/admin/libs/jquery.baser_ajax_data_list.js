@@ -262,12 +262,11 @@
             var config = $.baserAjaxDataList.config;
             $.bcToken.check(function () {
                 var form = $(config.searchBox + " form");
-                form.append($.bcToken.getHiddenToken());
                 var data = form.serialize();
                 return $.ajax({
                     type: "POST",
                     url: $(config.searchBox + " form").attr('action'),
-                    data: data,
+                    data: JSON.stringify(data),
                     dataType: "html",
                     beforeSend: function () {
                         $(config.loader).show();
@@ -275,6 +274,7 @@
                     success: function (data) {
                         $.bcToken.key = null;
                         $(config.loader).hide();
+                        console.log("success");
                         if (data) {
                             $(config.dataList).html(data);
                             $.baserAjaxDataList.initList();
@@ -285,7 +285,10 @@
                         }
                         $($.baserAjaxDataList).trigger('searchLoaded');
                     },
-                    error: function () {
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        console.log(jqXHR.responseText.substr(50, 300));
+                        console.log(textStatus);
+                        console.log(errorThrown);
                         $.bcToken.key = null;
                         $(config.loader).hide();
                         $(config.alertBox).html(bcI18n.commonExecFailedMessage);

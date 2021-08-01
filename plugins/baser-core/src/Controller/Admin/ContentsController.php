@@ -86,6 +86,7 @@ class ContentsController extends BcAdminAppController
      */
     public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
+
         switch($this->request->getParam('action')) {
             case 'index':
                 $this->setTitle(__d('baser', 'コンテンツ一覧'));
@@ -120,7 +121,8 @@ class ContentsController extends BcAdminAppController
             $this->request->getParam('pass')['site_id'] = null;
         }
         $currentSiteId = $this->request->getParam('pass')['site_id'];
-        $currentListType = $this->request->getParam('pass')['list_type'];
+        $currentListType = 2; // HACK:　一時措置
+        // $currentListType = $this->request->getParam('pass')['list_type'];
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
@@ -139,9 +141,9 @@ class ContentsController extends BcAdminAppController
                             $template = 'ajax_index_tree';
                             break;
                         case 2:
-                            $conditions = $this->_createAdminIndexConditionsByTable($currentSiteId, $this->request->data);
+                            $conditions = $this->_createAdminIndexConditionsByTable($currentSiteId, $this->request->getData());
                             $options = [
-                                'order' => 'Content.' . $this->request->getParam('pass')['sort'] . ' ' . $this->request->getParam('pass')['direction'],
+                                'order' => 'Contents.' . $this->request->getParam('pass')['sort'] . ' ' . $this->request->getParam('pass')['direction'],
                                 'conditions' => $conditions,
                                 'limit' => $this->request->getParam('pass')['num'],
                             ];
@@ -153,8 +155,8 @@ class ContentsController extends BcAdminAppController
                             if ($event !== false) {
                                 $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
                             }
-                            $this->paginate = $options;
-                            $datas = $this->paginate('Content');
+                            // TODO: optionを混ぜる
+                            $datas = $this->paginate($this->Contents->find('all')->where($conditions));
                             $this->set('authors', $this->Users->getUserList());
                             $template = 'ajax_index_table';
                             break;
@@ -210,35 +212,39 @@ class ContentsController extends BcAdminAppController
      */
     protected function _createAdminIndexConditionsByTable($currentSiteId, $data)
     {
-        $data['Content'] = array_merge([
-            'name' => '',
-            'folder_id' => '',
-            'author_id' => '',
-            'self_status' => '',
-            'type' => ''
-        ], $data['Content']);
+        // TODO: 一時措置
+        $conditions = [
+            'site_id' => $currentSiteId,
+        ];
+        // $data['Contents'] = array_merge([
+        //     'name' => '',
+        //     'folder_id' => '',
+        //     'author_id' => '',
+        //     'self_status' => '',
+        //     'type' => ''
+        // ], $data['Contents']);
 
-        $conditions = ['Content.site_id' => $currentSiteId];
-        if ($data['Content']['name']) {
-            $conditions['or'] = [
-                'Content.name LIKE' => '%' . $data['Content']['name'] . '%',
-                'Content.title LIKE' => '%' . $data['Content']['name'] . '%'
-            ];
-        }
-        if ($data['Content']['folder_id']) {
-            $content = $this->Content->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Content.id' => $data['Content']['folder_id']], 'recursive' => -1]);
-            $conditions['Content.rght <'] = $content['Content']['rght'];
-            $conditions['Content.lft >'] = $content['Content']['lft'];
-        }
-        if ($data['Content']['author_id']) {
-            $conditions['Content.author_id'] = $data['Content']['author_id'];
-        }
-        if ($data['Content']['self_status'] !== '') {
-            $conditions['Content.self_status'] = $data['Content']['self_status'];
-        }
-        if ($data['Content']['type']) {
-            $conditions['Content.type'] = $data['Content']['type'];
-        }
+        // $conditions = ['Contents.site_id' => $currentSiteId];
+        // if ($data['Contents']['name']) {
+        //     $conditions['or'] = [
+        //         'Contents.name LIKE' => '%' . $data['Contents']['name'] . '%',
+        //         'Contents.title LIKE' => '%' . $data['Contents']['name'] . '%'
+        //     ];
+        // }
+        // if ($data['Contents']['folder_id']) {
+        //     $Contents = $this->Contents->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Contents.id' => $data['Contents']['folder_id']], 'recursive' => -1]);
+        //     $conditions['Contents.rght <'] = $Contents['Contents']['rght'];
+        //     $conditions['Contents.lft >'] = $Contents['Contents']['lft'];
+        // }
+        // if ($data['Contents']['author_id']) {
+        //     $conditions['Contents.author_id'] = $data['Contents']['author_id'];
+        // }
+        // if ($data['Contents']['self_status'] !== '') {
+        //     $conditions['Contents.self_status'] = $data['Contents']['self_status'];
+        // }
+        // if ($data['Contents']['type']) {
+        //     $conditions['Contents.type'] = $data['Contents']['type'];
+        // }
         return $conditions;
     }
 

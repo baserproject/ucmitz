@@ -19,7 +19,7 @@
  * @var array $authors
  */
 ?>
-<?= $this->BcAdminForm->create(null, ['url' => ['action' => 'index']]) ?>
+<?= $this->BcAdminForm->create(null, ['url' => ['action' => 'index'], 'id' => 'ContentIndexForm'], ) ?>
 <?= $this->BcAdminForm->control('Contents.open', ['type' => 'hidden', 'value' => true]) ?>
 <p class="bca-search__input-list">
 	<span class="bca-search__input-item">

@@ -107,7 +107,7 @@
             var mode = $("#viewsetting-mode").val();
             var url;
             if (mode == 'index') {
-                var siteId = $("#viewsetting-siteid").val();
+                var siteId = $("#viewsetting-site-id").val();
                 if (siteId == undefined) {
                     siteId = 0;
                 }
@@ -284,7 +284,7 @@
                     "folder": {}
                 },
                 "state": {
-                    "key": 'jstree-' + $("#viewsetting-siteid").val(),
+                    "key": 'jstree-' + $("#viewsetting-site-id").val(),
                     "events": "open_all.jstree close_all.jstree changed.jstree open_node.jstree close_node.jstree check_node.jstree uncheck_node.jstree"
                 },
                 "contextmenu": {
