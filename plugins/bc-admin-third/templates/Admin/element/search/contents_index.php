@@ -42,7 +42,7 @@
 		<?= $this->BcAdminForm->label('Contents.author_id', __d('baser', '作成者'), ['class' => 'bca-search__input-item-label']) ?>
     <?= $this->BcAdminForm->control('Contents.author_id', ['type' => 'select', 'options' => $authors, 'empty' => __d('baser', '指定なし')]) ?>
 	</span>
-  <?php #echo $this->BcSearchBox->dispatchShowField() ?>
+  <?= $this->BcSearchBox->dispatchShowField($this->request); ?>
 </p>
 <div class="button bca-search__btns">
   <div
