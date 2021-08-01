@@ -280,7 +280,21 @@ class SiteConfigsSeed extends AbstractSeed
                 'value' => '0',
                 'created' => '2015-01-27 12:58:10',
                 'modified' => '2015-01-27 12:58:25'
-            ]
+            ],
+            [
+                'id' => '34',
+                'name' => 'contents_sort_last_modified',
+                'value' => '',
+                'created' => '2021-01-27 12:58:10',
+                'modified' => '2021-01-27 12:58:25'
+            ],
+            [
+                'id' => '35',
+                'name' => 'editor',
+                'value' => 'BcCkeditor',
+                'created' => '2021-01-27 12:58:10',
+                'modified' => '2021-01-27 12:58:25'
+            ],
         ];
         $table = $this->table('site_configs');
         $table->insert($data)->save();

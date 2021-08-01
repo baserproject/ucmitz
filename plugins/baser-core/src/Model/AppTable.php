@@ -12,6 +12,7 @@
 namespace BaserCore\Model;
 
 use ArrayObject;
+use BaserCore\Utility\BcUtil;
 use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\ORM\Query;
@@ -446,7 +447,7 @@ class AppTable extends Table
         }
         ClassRegistry::flush();
         BcSite::flash();
-        clearAllCache();
+        BcUtil::clearAllCache();
         return $result;
         <<< */
     }
@@ -492,7 +493,7 @@ class AppTable extends Table
         }
         ClassRegistry::flush();
         BcSite::flash();
-        clearAllCache();
+        BcUtil::clearAllCache();
         return $result;
         <<< */
     }

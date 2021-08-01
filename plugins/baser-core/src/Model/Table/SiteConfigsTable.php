@@ -14,13 +14,12 @@ namespace BaserCore\Model\Table;
 use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\AppTable;
 use BaserCore\Model\Behavior\BcKeyValueBehavior;
+use BaserCore\Model\Entity\SiteConfig;
 use Cake\Validation\Validator;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Utility\BcUtil;
-use Cake\Utility\Inflector;
-use Cake\Filesystem\Folder;
 
 /**
  * Class SiteConfig
@@ -29,6 +28,7 @@ use Cake\Filesystem\Folder;
  *
  * @package Baser.Model
  * @mixin BcKeyValueBehavior
+ * @method SiteConfig newEntity($data = null, array $options = [])
  */
 class SiteConfigsTable extends AppTable
 {
@@ -43,6 +43,9 @@ class SiteConfigsTable extends AppTable
      *
      * @param array $config テーブル設定
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function initialize(array $config): void
     {
@@ -55,6 +58,9 @@ class SiteConfigsTable extends AppTable
      *
      * @param Validator $validator
      * @return Validator
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
@@ -124,7 +130,6 @@ class SiteConfigsTable extends AppTable
     {
         $controlSources = [
             'mode' => [
-                -1 => __d('baser', 'インストールモード'),
                 0 => __d('baser', 'ノーマルモード'),
                 1 => __d('baser', 'デバッグモード')
         ]];

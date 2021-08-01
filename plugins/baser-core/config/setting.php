@@ -21,6 +21,16 @@ use BaserCore\Annotation\Checked;
 $baserCorePrefix = '/baser';
 $adminPrefix = '/admin';
 return [
+    'BcEnv' => [
+        /**
+         * サイトURL
+         */
+        'siteUrl' => env('SITE_URL', 'https://localhost/'),
+        /**
+         * SSL URL
+         */
+        'sslUrl' => env('SSL_URL', 'https://localhost/')
+    ],
     'BcApp' => [
         /**
          * baserコアのプレフィックス
@@ -55,6 +65,17 @@ return [
          */
         'marketPluginRss' => 'https://market.basercms.net/plugins.php',
         /**
+         * 管理画面のSSL
+         */
+        'adminSsl' => filter_var(env('ADMIN_SSL'), FILTER_VALIDATE_BOOLEAN),
+        /**
+         * エディタ
+         */
+        'editors' => [
+            'none' => __d('baser', 'なし'),
+            'BcCkeditor' => 'CKEditor'
+        ],
+        /**
          * システムナビ
          *
          * 初期状態で表示するメニューは、`Contents` キー配下に定義し、「設定」内に格納する場合は、`Systems` キー配下に定義する
@@ -78,14 +99,14 @@ return [
                     'type' => 'dashboard',
                     'url' => $baserCorePrefix . $adminPrefix,
                 ],
-                            'Contents' => [
-                                'title' => __d('baser', 'コンテンツ管理'),
-                                'type' => 'contents',
-                                'menus' => [
-                                    'Contents' => ['title' => __d('baser', 'コンテンツ'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'index']],
-                                    'ContentsTrash' => ['title' => __d('baser', 'ゴミ箱'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'trash_index']],
-                                ]
-                            ],
+                'Contents' => [
+                    'title' => __d('baser', 'コンテンツ管理'),
+                    'type' => 'contents',
+                    'menus' => [
+                        'Contents' => ['title' => __d('baser', 'コンテンツ'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'index']],
+                        'ContentsTrash' => ['title' => __d('baser', 'ゴミ箱'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'trash_index']],
+                    ]
+                ],
             ],
             'Systems' => [
                 //			'SiteConfigs' => [
@@ -257,9 +278,9 @@ return [
         ],
     ],
 
-/**
- * エージェント設定
- */
+    /**
+     * エージェント設定
+     */
     'BcAgent' => [
         'mobile' => [
             'name' => __d('baser', 'ケータイ'),
@@ -317,6 +338,17 @@ return [
             'langs' => [
                 'es'
             ]
+        ]
+    ],
+    /**
+     * 文字コード設定
+     */
+    'BcEncode' => [
+        // 文字コードの検出順
+        'detectOrder' => 'ASCII,JIS,UTF-8,SJIS-win,EUC-JP',
+        'mail' => [
+            'UTF-8' => 'UTF-8',
+            'ISO-2022-JP' => 'ISO-2022-JP'
         ]
     ],
     /**

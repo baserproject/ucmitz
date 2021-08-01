@@ -1,5 +1,7 @@
 <?php
 // TODO : コード確認要
+use BaserCore\Utility\BcUtil;
+
 return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
@@ -130,7 +132,7 @@ class ToolsController extends AppController
                         $this->BcMessage->setInfo(implode("\n", $messages));
                     }
                 }
-                clearAllCache();
+                BcUtil::clearAllCache();
                 $this->redirect(['action' => 'maintenance']);
                 break;
         }
@@ -180,7 +182,7 @@ class ToolsController extends AppController
             $db->rollback();
         }
         $this->_resetTmpSchemaFolder();
-        clearAllCache();
+        BcUtil::clearAllCache();
 
         return $result;
     }
@@ -260,7 +262,7 @@ class ToolsController extends AppController
         $tmpDir = TMP . 'schemas' . DS;
         $version = str_replace(' ', '_', $this->getBaserVersion());
         $this->_resetTmpSchemaFolder();
-        clearAllCache();
+        BcUtil::clearAllCache();
         $this->_writeBackup($tmpDir . 'core' . DS, '', $encoding);
         $Plugin = ClassRegistry::init('Plugin');
         $plugins = $Plugin->find('all');
