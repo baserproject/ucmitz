@@ -750,7 +750,7 @@ function loadSiteConfig($force = false)
     } catch (Exception $ex) {
         return false;
     }
-    Configure::write('BcSite', $SiteConfig->findExpanded());
+    Configure::write('BcSite', $SiteConfig->getKeyValue());
     ClassRegistry::removeObject('SiteConfig');
     return true;
 }
@@ -944,31 +944,6 @@ function loadPlugin($plugin, $priority)
         try {
             Configure::load($plugin . '.setting');
         } catch (Exception $ex) {
-        }
-    }
-    // プラグインイベント登録
-    $eventTargets = ['Controller', 'Model', 'View', 'Helper'];
-    foreach($eventTargets as $eventTarget) {
-        $eventClass = $plugin . $eventTarget . 'EventListener';
-        if (file_exists($pluginPath . 'Event' . DS . $eventClass . '.php')) {
-            App::uses($eventClass, $plugin . '.Event');
-            App::uses('CakeEventManager', 'Event');
-            $CakeEvent = CakeEventManager::instance();
-            $EventClass = new $eventClass();
-
-            foreach($EventClass->events as $key => $options) {
-                // プラグイン側で priority の設定がされてない場合に設定
-                if (is_array($options)) {
-                    if (empty($options['priority'])) {
-                        $options['priority'] = $priority;
-                        $EventClass->events[$key] = $options;
-                    }
-                } else {
-                    unset($EventClass->events[$key]);
-                    $EventClass->events[$options] = ['priority' => $priority];
-                }
-            }
-            $CakeEvent->attach($EventClass, null);
         }
     }
     return true;

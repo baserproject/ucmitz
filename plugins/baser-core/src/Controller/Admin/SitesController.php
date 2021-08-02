@@ -12,9 +12,7 @@
 namespace BaserCore\Controller\Admin;
 
 use BaserCore\Service\Admin\SiteManageServiceInterface;
-use BaserCore\Utility\BcUtil;
 use Cake\Core\Exception\Exception;
-use Cake\Event\Event;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -42,9 +40,9 @@ class SitesController extends BcAdminAppController
         ]]]);
 
         // EVENT Sites.searchIndex
-        $event = $this->getEventManager()->dispatch(new Event('Controller.Sites.searchIndex', $this, [
+        $event = $this->dispatchLayerEvent('searchIndex', [
             'request' => $this->request
-        ]));
+        ]);
         if ($event !== false) {
             $this->request = ($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult();
         }
@@ -64,9 +62,9 @@ class SitesController extends BcAdminAppController
         if ($this->request->is('post')) {
 
             /*** Sites.beforeAdd ** */
-            $event = $this->getEventManager()->dispatch(new Event('Controller.Sites.beforeAdd', $this, [
+            $event = $this->dispatchLayerEvent('beforeAdd', [
                 'data' => $this->request->getData()
-            ]));
+            ]);
             if ($event !== false) {
                 $this->request = $this->request->withParsedBody(($event->getResult() === null || $event->getResult() === true)? $event->getData('data') : $event->getResult());
             }
@@ -74,9 +72,9 @@ class SitesController extends BcAdminAppController
             $site = $siteManage->create($this->request->getData());
             if (!$site->getErrors()) {
                 /*** Sites.afterAdd ***/
-                $this->getEventManager()->dispatch(new Event('Controller.Sites.afterAdd', $this, [
+                $this->dispatchLayerEvent('afterAdd', [
                     'site' => $site
-                ]));
+                ]);
 
                 // TODO 未実装のためコメントアウト
                 /* >>>
@@ -111,9 +109,9 @@ class SitesController extends BcAdminAppController
         if ($this->request->is(['patch', 'post', 'put'])) {
 
             /*** Sites.beforeEdit ** */
-            $event = $this->getEventManager()->dispatch(new Event('Controller.Sites.beforeEdit', $this, [
+            $event = $this->dispatchLayerEvent('beforeEdit', [
                 'data' => $this->request->getData()
-            ]));
+            ]);
             if ($event !== false) {
                 $this->request = $this->request->withParsedBody(($event->getResult() === null || $event->getResult() === true)? $event->getData('data') : $event->getResult());
             }
@@ -123,9 +121,9 @@ class SitesController extends BcAdminAppController
             if (!$site->getErrors()) {
 
                 /*** Sites.afterEdit ***/
-                $this->getEventManager()->dispatch(new Event('Controller.Sites.afterEdit', $this, [
+                $this->dispatchLayerEvent('afterEdit', [
                     'site' => $site
-                ]));
+                ]);
 
                 // TODO 未実装のためコメントアウト
                 /* >>>
