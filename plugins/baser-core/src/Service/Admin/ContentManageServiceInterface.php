@@ -57,4 +57,21 @@ interface ContentManageServiceInterface
      * @return array
      */
     public function getAdminTableConditions($searchData): array;
+
+    /**
+     * コンテンツフォルダーのリストを取得
+     * コンボボックス用
+     *
+     * @param int $siteId
+     * @param array $options
+     * @return array|bool
+     */
+    public function getContentFolderList($siteId = null, $options = []);
+
+    /**
+     * ツリー構造のデータを コンボボックスのデータ用に変換する
+     * @param $nodes
+     * @return array
+     */
+    public function convertTreeList($nodes);
 }

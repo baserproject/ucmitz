@@ -83,4 +83,24 @@ class ContentsServiceTest extends BcTestCase
         $result = $this->ContentsService->getTrashIndex();
         $this->assertTrue($result->isEmpty());
     }
+
+    /**
+     * コンテンツフォルダーのリストを取得
+     * コンボボックス用
+     */
+    public function testGetContentFolderList()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $siteId = 1;
+
+        $this->ContentsService->getContentFolderList();
+    }
+
+    /**
+     * ツリー構造のデータを コンボボックスのデータ用に変換する
+     */
+    public function testConvertTreeList()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
 }

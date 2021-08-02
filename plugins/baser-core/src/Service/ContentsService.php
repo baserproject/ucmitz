@@ -104,5 +104,61 @@ class ContentsService implements ContentsServiceInterface
         // $this->Contents->Behaviors->unload('SoftDelete');
         return $this->Contents->find('threaded')->where(['deleted' => true])->order(['site_id', 'lft']);
     }
+
+    /**
+     * コンテンツフォルダーのリストを取得
+     * コンボボックス用
+     *
+     * @param int $siteId
+     * @param array $options
+     * @return array|bool
+     */
+    public function getContentFolderList($siteId = null, $options = [])
+    {
+        $options = array_merge([
+            'excludeId' => null
+        ], $options);
+
+        $conditions = [
+            'type' => 'ContentFolder',
+            'alias_id IS NULL'
+        ];
+
+        if (!is_null($siteId)) {
+            $conditions['site_id'] = $siteId;
+        }
+        if ($options['excludeId']) {
+            $conditions['id <>'] = $options['excludeId'];
+        }
+        if (!empty($options['conditions'])) {
+            $conditions = array_merge($conditions, $options['conditions']);
+        }
+        $folders = $this->Contents->find('treeList')->where([$conditions]);
+        if ($folders) {
+            return $this->convertTreeList($folders->all()->toArray());
+        }
+        return false;
+    }
+
+    /**
+     * ツリー構造のデータを コンボボックスのデータ用に変換する
+     * @param $nodes
+     * @return array
+     */
+    public function convertTreeList($nodes)
+    {
+        if (!$nodes) {
+            return [];
+        }
+        foreach($nodes as $key => $value) {
+            if (preg_match("/^([_]+)/i", $value, $matches)) {
+                $value = preg_replace("/^[_]+/i", '', $value);
+                $prefix = str_replace('_', '　　　', $matches[1]);
+                $value = $prefix . '└' . $value;
+            }
+            $nodes[$key] = $value;
+        }
+        return $nodes;
+    }
 }
 

@@ -60,6 +60,24 @@ interface ContentsServiceInterface
      */
     public function getTrashIndex(): Query;
 
+    /**
+     * コンテンツフォルダーのリストを取得
+     * コンボボックス用
+     *
+     * @param int $siteId
+     * @param array $options
+     * @return array|bool
+     */
+    public function getContentFolderList($siteId = null, $options = []);
+
+    /**
+     * ツリー構造のデータを コンボボックスのデータ用に変換する
+     * @param $nodes
+     * @return array
+     */
+    public function convertTreeList($nodes);
+
+
 
 
 }

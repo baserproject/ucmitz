@@ -165,7 +165,7 @@ class ContentsController extends BcAdminAppController
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
-        $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
+        $this->set('folders', $contentManage->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
         $this->set('sites', $sites);
         $this->subMenuElements = ['contents'];
     }
@@ -755,15 +755,15 @@ class ContentsController extends BcAdminAppController
 
     /**
      * サイトに紐付いたフォルダリストを取得
-     *
+     * @param ContentManageServiceInterface $contentManage
      * @param $siteId
      */
-    public function admin_ajax_get_content_folder_list($siteId)
+    public function admin_ajax_get_content_folder_list(ContentManageServiceInterface $contentManage, $siteId)
     {
         $this->autoRender = false;
         Configure::write('debug', 0);
         return json_encode(
-            $this->Content->getContentFolderList(
+            $contentManage->getContentFolderList(
                 (int)$siteId,
                 [
                     'conditions' => ['Content.site_root' => false]
