@@ -14,6 +14,7 @@ namespace BaserCore\Model\Table;
 use BaserCore\Event\BcEventDispatcherTrait;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\Table;
+use Cake\ORM\TableRegistry;
 
 /**
  * Class PagesTable
@@ -240,7 +241,8 @@ class PagesTable extends Table
 
         $host = '';
         $url = $content['url'];
-        $site = BcSite::findById($content['site_id']);
+        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $site = $sites->findById($content['site_id'])->first();
         if ($site->useSubDomain) {
             $host = $site->alias;
             if ($site->domainType == 1) {

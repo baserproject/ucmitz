@@ -315,34 +315,6 @@ class BcSite
         return self::$_sites;
     }
 
-    public static function findById($id)
-    {
-        $sites = self::findAll();
-        foreach($sites as $site) {
-            if ($id == $site->id) {
-                return $site;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * エイリアスからサイトを検索する
-     *
-     * @param $alias
-     * @return BcSite|null
-     */
-    public static function findByAlias($alias)
-    {
-        $sites = self::findAll();
-        foreach($sites as $site) {
-            if ($alias == $site->alias) {
-                return $site;
-            }
-        }
-        return null;
-    }
-
     public static function findByUrl($url)
     {
         $sites = self::findAll();

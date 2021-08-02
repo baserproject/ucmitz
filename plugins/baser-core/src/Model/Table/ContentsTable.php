@@ -15,6 +15,7 @@ use ArrayObject;
 use Cake\Event\Event;
 use BaserCore\Model\AppTable;
 use BaserCore\Utility\BcUtil;
+use Cake\ORM\TableRegistry;
 use Cake\Validation\Validator;
 use Cake\Datasource\EntityInterface;
 use BaserCore\Annotation\UnitTest;
@@ -722,7 +723,8 @@ class ContentsTable extends AppTable
      */
     public function pureUrl($url, $siteId)
     {
-        $site = BcSite::findById($siteId);
+        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $site = $sites->findById($siteId)->first();
         return $site->getPureUrl($url);
     }
 
@@ -1214,6 +1216,7 @@ class ContentsTable extends AppTable
      */
     public function getUrl($url, $full = false, $useSubDomain = false, $base = false)
     {
+        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
         if ($useSubDomain && !is_array($url)) {
             $subDomain = '';
             $site = BcSite::findByUrl($url);
@@ -1236,7 +1239,7 @@ class ContentsTable extends AppTable
                         $urlArray = explode('/', $fullUrlArray[1]);
                         unset($urlArray[0]);
                         if ($site->sameMainUrl) {
-                            $mainSite = BcSite::findById($site->mainSiteId);
+                            $mainSite = $sites->findById($site->mainSiteId)->first();
                             $subDomain = $mainSite->alias;
                         }
                         $url = $fullUrlArray[0] . '//' . $subDomain . '/' . implode('/', $urlArray);
@@ -1252,7 +1255,7 @@ class ContentsTable extends AppTable
                 if (!is_array($url)) {
                     $site = BcSite::findByUrl($url);
                     if ($site && $site->sameMainUrl) {
-                        $mainSite = BcSite::findById($site->mainSiteId);
+                        $mainSite = $sites->findById($site->mainSiteId)->first();
                         $alias = $mainSite->alias;
                         if ($alias) {
                             $alias = '/' . $alias;
@@ -1523,8 +1526,9 @@ class ContentsTable extends AppTable
         ]);
         if ($childrenSite) {
             $pureUrl = $this->pureUrl($parentCuntent['Content']['url'], $parentCuntent['Content']['site_id']);
+            $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
             foreach($childrenSite as $site) {
-                $site = BcSite::findById($site['Site']['id']);
+                $site = $sites->findById($site['Site']['id'])->first();
                 $url = $site->makeUrl(new CakeRequest($pureUrl));
                 $id = $this->field('id', ['url' => $url]);
                 if ($id) {

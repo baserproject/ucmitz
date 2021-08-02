@@ -21,6 +21,7 @@ use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Controller\Admin\BcAdminAppController;
 use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\Admin\ContentManageServiceInterface;
+use Cake\ORM\TableRegistry;
 
 /**
  * Class ContentsController
@@ -379,7 +380,8 @@ class ContentsController extends BcAdminAppController
                 $this->BcMessage->setError('保存中にエラーが発生しました。入力内容を確認してください。');
             }
         }
-        $site = BcSite::findById($this->request->getData('Content.site_id'));
+        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $site = $sites->findById($this->request->getData('Content.site_id'))->first();
         $this->set('publishLink', $this->Content->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
     }
 
@@ -425,7 +427,8 @@ class ContentsController extends BcAdminAppController
 
         $this->set('srcContent', $srcContent);
         $this->BcContents->settingForm($this, $this->request->getData('Content.site_id'), $this->request->getData('Content.id'));
-        $site = BcSite::findById($this->request->getData('Content.site_id'));
+        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $site = $sites->findById($this->request->getData('Content.site_id'))->first();
         $this->set('publishLink', $this->Content->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
 
     }

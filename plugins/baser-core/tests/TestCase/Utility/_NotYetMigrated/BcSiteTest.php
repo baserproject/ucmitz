@@ -95,14 +95,6 @@ class BcSiteTest extends BcTestCase
     }
 
     /**
-     * findById
-     */
-    public function testFindById()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * エイリアスからサイトを検索する
      */
     public function testFindByAlias()

@@ -649,4 +649,14 @@ class SitesTable extends AppTable
         return true;
     }
 
+    /**
+     * エイリアスからサイトを取得
+     * @param $alias
+     * @return array|EntityInterface|null
+     */
+//    public function findByAlias($alias)
+//    {
+//        return $this->find()->where(['alias' => $alias])->first();
+//    }
+
 }
