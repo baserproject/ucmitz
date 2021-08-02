@@ -14,36 +14,13 @@ namespace BaserCore\Service\Admin;
 use Cake\ORM\Query;
 
 use BaserCore\Service\ContentsService;
+use BaserCore\Service\ContentsServiceInterface;
 /**
  * Interface PluginManageServiceInterface
  * @package BaserCore\Service
  */
-interface ContentManageServiceInterface
+interface ContentManageServiceInterface extends ContentsServiceInterface
 {
-    /**
-     * getTreeIndex
-     *
-     * @param  int $siteId
-     * @return Query
-     */
-    public function getTreeIndex($siteId): Query;
-
-    /**
-     * getTableIndex
-     *
-     * @param  int $siteId
-     * @param  array $searchData
-     * @return Query
-     */
-    public function getTableIndex($siteId, $conditions): Query;
-
-    /**
-     * getTrashIndex
-     *
-     * @return Query
-     */
-    public function getTrashIndex(): Query;
-
     /**
       * コンテンツ情報を取得する
       * @return array
@@ -57,21 +34,4 @@ interface ContentManageServiceInterface
      * @return array
      */
     public function getAdminTableConditions($searchData): array;
-
-    /**
-     * コンテンツフォルダーのリストを取得
-     * コンボボックス用
-     *
-     * @param int $siteId
-     * @param array $options
-     * @return array|bool
-     */
-    public function getContentFolderList($siteId = null, $options = []);
-
-    /**
-     * ツリー構造のデータを コンボボックスのデータ用に変換する
-     * @param $nodes
-     * @return array
-     */
-    public function convertTreeList($nodes);
 }
