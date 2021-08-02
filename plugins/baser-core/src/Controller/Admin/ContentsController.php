@@ -86,7 +86,6 @@ class ContentsController extends BcAdminAppController
      */
     public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
-
         switch($this->request->getParam('action')) {
             case 'index':
                 $this->setTitle(__d('baser', 'コンテンツ一覧'));
@@ -121,7 +120,7 @@ class ContentsController extends BcAdminAppController
             $this->request->getParam('pass')['site_id'] = null;
         }
         $currentSiteId = $this->request->getParam('pass')['site_id'];
-        $currentListType = 2; // HACK:　一時措置
+        $currentListType = 1; // HACK:　一時措置
         // $currentListType = $this->request->getParam('pass')['list_type'];
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
@@ -134,14 +133,13 @@ class ContentsController extends BcAdminAppController
                 case 'index':
                     switch($currentListType) {
                         case 1:
-                            $conditions = $this->_createAdminIndexConditionsByTree($currentSiteId);
-                            $datas = $this->Contents->find('threaded')->where([$conditions])->order(['lft'])->contain(['Sites']);
                             // 並び替え最終更新時刻をリセット
                             // $this->SiteConfigs->resetContentsSortLastModified();
+                            $datas = $contentManage->getTreeIndex($currentSiteId);
                             $template = 'ajax_index_tree';
                             break;
                         case 2:
-                            $conditions = $this->_createAdminIndexConditionsByTable($currentSiteId, $this->request->getData());
+                            $conditions = $contentManage->getAdminTableConditions($this->request->getData('Contents'));
                             $options = [
                                 'order' => 'Contents.' . $this->request->getParam('pass')['sort'] . ' ' . $this->request->getParam('pass')['direction'],
                                 'conditions' => $conditions,
@@ -156,16 +154,14 @@ class ContentsController extends BcAdminAppController
                                 $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
                             }
                             // TODO: optionを混ぜる
-                            $datas = $this->paginate($this->Contents->find('all')->where($conditions));
+                            $datas = $this->paginate($contentManage->getTableIndex($currentSiteId, $conditions));
                             $this->set('authors', $this->Users->getUserList());
                             $template = 'ajax_index_table';
                             break;
                     }
                     break;
                 case 'trash_index':
-                    $this->Content->Behaviors->unload('SoftDelete');
-                    $conditions = $this->_createAdminIndexConditionsByTrash();
-                    $datas = $this->Content->find('threaded', ['order' => ['Content.site_id', 'Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
+                    $datas = $contentManage->getTrashIndex();
                     $template = 'ajax_index_trash';
                     break;
             }
@@ -184,89 +180,15 @@ class ContentsController extends BcAdminAppController
         $this->setSearch('contents_index');
         $this->subMenuElements = ['contents'];
         $this->setHelp('contents_index');
-
-    }
-
-    /**
-     * ツリー表示用の検索条件を生成する
-     * @todo Testable humuhimi
-     * @return array
-     */
-    protected function _createAdminIndexConditionsByTree($currentSiteId)
-    {
-        if ($currentSiteId === 'all') {
-            $conditions = ['or' => [
-                ['Site.use_subdomain' => false],
-                ['Content.site_id' => 0]
-            ]];
-        } else {
-            $conditions = ['Contents.site_id' => $currentSiteId];
-        }
-        return $conditions;
-    }
-
-    /**
-     * テーブル表示用の検索条件を生成する
-     *
-     * @return array
-     */
-    protected function _createAdminIndexConditionsByTable($currentSiteId, $data)
-    {
-        // TODO: 一時措置
-        $conditions = [
-            'site_id' => $currentSiteId,
-        ];
-        // $data['Contents'] = array_merge([
-        //     'name' => '',
-        //     'folder_id' => '',
-        //     'author_id' => '',
-        //     'self_status' => '',
-        //     'type' => ''
-        // ], $data['Contents']);
-
-        // $conditions = ['Contents.site_id' => $currentSiteId];
-        // if ($data['Contents']['name']) {
-        //     $conditions['or'] = [
-        //         'Contents.name LIKE' => '%' . $data['Contents']['name'] . '%',
-        //         'Contents.title LIKE' => '%' . $data['Contents']['name'] . '%'
-        //     ];
-        // }
-        // if ($data['Contents']['folder_id']) {
-        //     $Contents = $this->Contents->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Contents.id' => $data['Contents']['folder_id']], 'recursive' => -1]);
-        //     $conditions['Contents.rght <'] = $Contents['Contents']['rght'];
-        //     $conditions['Contents.lft >'] = $Contents['Contents']['lft'];
-        // }
-        // if ($data['Contents']['author_id']) {
-        //     $conditions['Contents.author_id'] = $data['Contents']['author_id'];
-        // }
-        // if ($data['Contents']['self_status'] !== '') {
-        //     $conditions['Contents.self_status'] = $data['Contents']['self_status'];
-        // }
-        // if ($data['Contents']['type']) {
-        //     $conditions['Contents.type'] = $data['Contents']['type'];
-        // }
-        return $conditions;
-    }
-
-    /**
-     * ゴミ箱用の検索条件を生成する
-     *
-     * @return array
-     */
-    protected function _createAdminIndexConditionsByTrash()
-    {
-        return [
-            'Content.deleted' => true
-        ];
     }
 
     /**
      * ゴミ箱内のコンテンツ一覧を表示する
      */
-    public function admin_trash_index()
+    public function trash_index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
-        $this->setAction('admin_index');
-        if (empty($this->request->isAjax)) {
+        $this->setAction('index', $contentManage, $siteManage);
+        if (!$this->request->is('ajax')) {
             $this->render('index');
         }
     }

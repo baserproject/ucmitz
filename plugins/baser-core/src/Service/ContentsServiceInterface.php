@@ -22,5 +22,44 @@ use Cake\ORM\Query;
  */
 interface ContentsServiceInterface
 {
+    /**
+     * コンテンツを取得する
+     * @param int $id
+     * @return EntityInterface
+     */
+    public function get($id): EntityInterface;
+
+    // /**
+    //  * getIndex
+    //  *
+    //  * @return array
+    //  */
+    // public function getIndex(): array;
+
+    /**
+     * getTreeIndex
+     *
+     * @param  int $siteId
+     * @return Query
+     */
+    public function getTreeIndex($siteId): Query;
+
+    /**
+     * getTableIndex
+     *
+     * @param  int $siteId
+     * @param  array $searchData
+     * @return Query
+     */
+    public function getTableIndex($siteId, $searchData): Query;
+
+    /**
+     * getTrashIndex
+     *
+     * @return Query
+     */
+    public function getTrashIndex(): Query;
+
+
 
 }

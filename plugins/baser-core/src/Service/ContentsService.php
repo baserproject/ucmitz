@@ -16,6 +16,9 @@ use Cake\ORM\TableRegistry;
 use Cake\Datasource\EntityInterface;
 use BaserCore\Model\Table\SitesTable;
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 class ContentsService implements ContentsServiceInterface
 {
@@ -53,123 +56,53 @@ class ContentsService implements ContentsServiceInterface
     }
 
     /**
-     * コンテンツ管理一覧用のデータを取得
-     * @param array $queryParams
+     * getTreeIndex
+     *
+     * @param  int $siteId
      * @return Query
+     * @checked
+     * @unitTest
      */
-    public function getIndex(array $queryParams): Query
+    public function getTreeIndex($siteId): Query
     {
-        switch($this->request->getParam('action')) {
-            case 'index':
-                switch($currentListType) {
-                    case 1:
-                        //
-                        $conditions = $this->_createAdminIndexConditionsByTree($currentSiteId);
-                        $datas = $this->Contents->find('threaded')->where([$conditions])->order(['lft'])->contain(['Sites']);
-                        // 並び替え最終更新時刻をリセット
-                        // $this->SiteConfigs->resetContentsSortLastModified();
-                        $template = 'ajax_index_tree';
-                        break;
-                    case 2:
-                        $conditions = $this->_createAdminIndexConditionsByTable($currentSiteId, $this->request->data);
-                        $options = [
-                            'order' => 'Content.' . $this->request->getParam('pass')['sort'] . ' ' . $this->request->getParam('pass')['direction'],
-                            'conditions' => $conditions,
-                            'limit' => $this->request->getParam('pass')['num'],
-                            'recursive' => 2
-                        ];
-
-                        // EVENT Contents.searchIndex
-                        $event = $this->dispatchLayerEvent('searchIndex', [
-                            'options' => $options
-                        ]);
-                        if ($event !== false) {
-                            $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
-                        }
-
-                        $this->paginate = $options;
-                        $datas = $this->paginate('Content');
-                        $this->set('authors', $this->Users->getUserList());
-                        $template = 'ajax_index_table';
-                        break;
-                }
-                break;
-            case 'trash_index':
-                $this->Content->Behaviors->unload('SoftDelete');
-                $conditions = $this->_createAdminIndexConditionsByTrash();
-                $datas = $this->Content->find('threaded', ['order' => ['Content.site_id', 'Content.lft'], 'conditions' => $conditions, 'recursive' => 0]);
-                $template = 'ajax_index_trash';
-                break;
-        }
-    }
-
-    /**
-     * ツリー表示用の検索条件を生成する
-     * @todo Testable humuhimi
-     * @return array
-     */
-    protected function _createAdminIndexConditionsByTree($currentSiteId)
-    {
-        if ($currentSiteId === 'all') {
+        if ($siteId === 'all') {
             $conditions = ['or' => [
-                ['Site.use_subdomain' => false],
-                ['Content.site_id' => 0]
+                ['Sites.use_subdomain' => false],
+                ['Contents.site_id' => 0]
             ]];
         } else {
-            $conditions = ['Contents.site_id' => $currentSiteId];
+            $conditions = ['Contents.site_id' => $siteId];
         }
-        return $conditions;
+        // TODO: contain(['Sites'])動かない
+        return $this->Contents->find('threaded')->where([$conditions])->order(['lft'])->contain(['Sites']);
     }
 
     /**
-     * テーブル表示用の検索条件を生成する
+     * getTableIndex
      *
-     * @return array
+     * @param  int $siteId
+     * @param  array $searchData
+     * @return Query
      */
-    protected function _createAdminIndexConditionsByTable($currentSiteId, $data)
+    public function getTableIndex($siteId, $conditions): Query
     {
-        $data['Content'] = array_merge([
-            'name' => '',
-            'folder_id' => '',
-            'author_id' => '',
-            'self_status' => '',
-            'type' => ''
-        ], $data['Content']);
+        $conditions = array_merge(['site_id' => $siteId], $conditions);
 
-        $conditions = ['Content.site_id' => $currentSiteId];
-        if ($data['Content']['name']) {
-            $conditions['or'] = [
-                'Content.name LIKE' => '%' . $data['Content']['name'] . '%',
-                'Content.title LIKE' => '%' . $data['Content']['name'] . '%'
-            ];
-        }
-        if ($data['Content']['folder_id']) {
-            $content = $this->Content->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Content.id' => $data['Content']['folder_id']], 'recursive' => -1]);
-            $conditions['Content.rght <'] = $content['Content']['rght'];
-            $conditions['Content.lft >'] = $content['Content']['lft'];
-        }
-        if ($data['Content']['author_id']) {
-            $conditions['Content.author_id'] = $data['Content']['author_id'];
-        }
-        if ($data['Content']['self_status'] !== '') {
-            $conditions['Content.self_status'] = $data['Content']['self_status'];
-        }
-        if ($data['Content']['type']) {
-            $conditions['Content.type'] = $data['Content']['type'];
-        }
-        return $conditions;
+        return $this->Contents->find('all')->where($conditions);
     }
 
     /**
-     * ゴミ箱用の検索条件を生成する
+     * getTrashIndex
      *
-     * @return array
+     * @return Query
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    protected function _createAdminIndexConditionsByTrash()
+    public function getTrashIndex(): Query
     {
-        return [
-            'Content.deleted' => true
-        ];
+        // $this->Contents->Behaviors->unload('SoftDelete');
+        return $this->Contents->find('threaded')->where(['deleted' => true])->order(['site_id', 'lft']);
     }
 }
 

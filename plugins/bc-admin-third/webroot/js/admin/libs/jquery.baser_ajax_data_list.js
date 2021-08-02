@@ -262,6 +262,7 @@
             var config = $.baserAjaxDataList.config;
             $.bcToken.check(function () {
                 var form = $(config.searchBox + " form");
+                form.append($.bcToken.getHiddenToken());
                 var data = form.serialize();
                 return $.ajax({
                     type: "POST",

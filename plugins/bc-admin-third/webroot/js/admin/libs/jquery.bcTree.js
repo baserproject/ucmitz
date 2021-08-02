@@ -113,7 +113,7 @@
                 }
                 url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index/site_id:' + siteId + '/list_type:1';
             } else if (mode == 'trash') {
-                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/contents/trash_index';
+                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/trash_index';
             }
             $.ajax({
                 type: "GET",
@@ -543,7 +543,7 @@
                                         if (confirm(bcI18n.bcTreeConfirmMessage1)) {
                                             $.bcToken.check(function () {
                                                 return $.ajax({
-                                                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_trash_empty',
+                                                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix  + '/' + $.bcTree.config.pluginName +  '/contents/ajax_trash_empty',
                                                     type: 'POST',
                                                     dataType: 'json',
                                                     data: {
@@ -762,7 +762,7 @@
         returnContent: function (node) {
             $.bcToken.check(function () {
                 $.ajax({
-                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_trash_return',
+                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix  + '/' + $.bcTree.config.pluginName + '/contents/ajax_trash_return',
                     type: 'POST',
                     data: {
                         id: node.data.jstree.contentId,

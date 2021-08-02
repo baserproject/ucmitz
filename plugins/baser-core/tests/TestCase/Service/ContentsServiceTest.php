@@ -61,12 +61,26 @@ class ContentsServiceTest extends BcTestCase
         parent::tearDown();
     }
 
+    /**
+     * testGetTreeIndex
+     *
+     * @return void
+     */
     public function testGetTreeIndex(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        // $site_id = 0;
-        // $result = $this->ContentsService->getTreeIndex($site_id);
-        // $a = $result->first();
-        // $this->assertEquals($result,"");
+        $site_id = 0;
+        $result = $this->ContentsService->getTreeIndex($site_id);
+        $this->assertEquals($result->first()->title,"baserCMSサンプル");
+    }
+
+    /**
+     * testGetTrashIndex
+     *
+     * @return void
+     */
+    public function testGetTrashIndex(): void
+    {
+        $result = $this->ContentsService->getTrashIndex();
+        $this->assertTrue($result->isEmpty());
     }
 }

@@ -11,7 +11,9 @@
 
 namespace BaserCore\Service\Admin;
 
+use Cake\ORM\Query;
 
+use BaserCore\Service\ContentsService;
 /**
  * Interface PluginManageServiceInterface
  * @package BaserCore\Service
@@ -19,8 +21,40 @@ namespace BaserCore\Service\Admin;
 interface ContentManageServiceInterface
 {
     /**
+     * getTreeIndex
+     *
+     * @param  int $siteId
+     * @return Query
+     */
+    public function getTreeIndex($siteId): Query;
+
+    /**
+     * getTableIndex
+     *
+     * @param  int $siteId
+     * @param  array $searchData
+     * @return Query
+     */
+    public function getTableIndex($siteId, $conditions): Query;
+
+    /**
+     * getTrashIndex
+     *
+     * @return Query
+     */
+    public function getTrashIndex(): Query;
+
+    /**
       * コンテンツ情報を取得する
       * @return array
       */
     public function getContensInfo ();
+
+    /**
+     * getAdminTableConditions
+     *
+     * @param  array $searchData
+     * @return array
+     */
+    public function getAdminTableConditions($searchData): array;
 }
