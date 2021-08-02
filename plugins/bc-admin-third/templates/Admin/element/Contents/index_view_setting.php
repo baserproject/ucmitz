@@ -15,6 +15,8 @@
  * @var array $sites
  */
 
+$listTypes = [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')];
+
 if ($this->request->getParam('action') == 'index') {
   echo $this->BcAdminForm->control('ViewSetting.mode', ['type' => 'hidden', 'value' => 'index']);
 } elseif ($this->request->getParam('action') == 'trash_index') {

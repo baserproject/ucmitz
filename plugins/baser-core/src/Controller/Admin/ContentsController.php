@@ -86,14 +86,6 @@ class ContentsController extends BcAdminAppController
      */
     public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
-        switch($this->request->getParam('action')) {
-            case 'index':
-                $this->setTitle(__d('baser', 'コンテンツ一覧'));
-                break;
-            case 'trash_index':
-                $this->setTitle(__d('baser', 'ゴミ箱'));
-                break;
-        }
         $this->setViewConditions('Contents', ['default' => [
             'named' => [
                 'num' => $this->getSiteConfig('admin_list_num'),
@@ -103,6 +95,7 @@ class ContentsController extends BcAdminAppController
                 'direction' => 'asc'
             ]
         ]]);
+
         if (empty($this->request->getParam('named.sort'))) {
             $this->request = $this->request->withParam('named.sort', $this->request->getParam('pass')['sort']);
         }
@@ -120,8 +113,7 @@ class ContentsController extends BcAdminAppController
             $this->request->getParam('pass')['site_id'] = null;
         }
         $currentSiteId = $this->request->getParam('pass')['site_id'];
-        $currentListType = 1; // HACK:　一時措置
-        // $currentListType = $this->request->getParam('pass')['list_type'];
+        $currentListType = $this->request->getParam('pass')['list_type'];
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
@@ -171,15 +163,11 @@ class ContentsController extends BcAdminAppController
             return;
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
-        $this->set('editInIndexDisabled', false);
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
         $this->set('folders', $this->Contents->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
-        $this->set('listTypes', [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')]);
         $this->set('sites', $sites);
-        $this->setSearch('contents_index');
         $this->subMenuElements = ['contents'];
-        $this->setHelp('contents_index');
     }
 
     /**

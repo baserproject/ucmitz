@@ -17,11 +17,27 @@ use BaserCore\Utility\BcUtil;
  * @var BcAppView $this
  * @var bool $editInIndexDisabled
  */
+
+switch($this->request->getParam('action')) {
+  case 'index':
+      $this->BcAdmin->setTitle(__d('baser', 'コンテンツ一覧'));
+      break;
+  case 'trash_index':
+      $this->BcAdmin->setTitle(__d('baser', 'ゴミ箱'));
+      break;
+}
+
+$this->BcAdmin->setSearch('contents_index');
+$this->BcAdmin->setHelp('contents_index');
+
+$editInIndexDisabled = false;
 $currentUser = BcUtil::loginUser('Admin');
 $isUseMoveContents = false;
+
 foreach ($currentUser->user_groups as $group) {
   if ($isUseMoveContents = $group->use_move_contents) break;
 }
+
 $this->BcBaser->js('admin/vendors/jquery.jstree-3.3.8/jstree.min', false);
 $this->BcBaser->i18nScript([
   'confirmMessage1' => __d('baser', 'コンテンツをゴミ箱に移動してもよろしいですか？'),
