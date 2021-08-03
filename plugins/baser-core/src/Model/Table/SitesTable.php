@@ -451,24 +451,18 @@ class SitesTable extends AppTable
      */
     public function findByUrl($url)
     {
-        if ($url === false || $url === "") {
-            return $this->getRootMain();
+        $url = preg_replace('/(^\/|\/$)/', '', $url);
+        $urlAry = explode('/', $url);
+        $where = [];
+        for($i = count($urlAry); $i > 0; $i--) {
+            $where['or'][] = ['alias' => implode('/', $urlAry)];
+            unset($urlAry[$i - 1]);
         }
-        $url = preg_replace('/^\//', '', $url);
-        $params = explode('/', $url);
-        if (empty($params[0])) {
-            return false;
-        }
-        $site = $this->find()->where([
-            'or' => [
-                'name' => $params[0],
-                'alias' => $params[0]
-            ]
-        ])->first();
-        if (!$site) {
-            return $this->getRootMain();
+        $result = $this->find()->where($where)->order(['alias DESC']);
+        if($result->count()) {
+            return $result->first()->toArray();
         } else {
-            return $site->toArray();
+            return $this->getRootMain();
         }
     }
 
@@ -648,15 +642,5 @@ class SitesTable extends AppTable
         }
         return true;
     }
-
-    /**
-     * エイリアスからサイトを取得
-     * @param $alias
-     * @return array|EntityInterface|null
-     */
-//    public function findByAlias($alias)
-//    {
-//        return $this->find()->where(['alias' => $alias])->first();
-//    }
 
 }

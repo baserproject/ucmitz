@@ -258,16 +258,4 @@ class SitesTableTest extends BcTestCase
         $this->assertTrue($property->getValue($this->Sites));
     }
 
-    /**
-     * test findByAlias
-     */
-    public function testFindByAlias()
-    {
-        $site = $this->Sites->findByAlias(1);
-        $site = $this->Sites->findByAlias('en');
-        $this->assertEquals('en', $site->alias);
-        $site = $this->Sites->findByAlias('jpn');
-        $this->assertEquals(false, $site);
-    }
-
 }
