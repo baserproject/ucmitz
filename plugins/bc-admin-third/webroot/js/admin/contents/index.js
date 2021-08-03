@@ -164,7 +164,7 @@ $(function () {
      * 表形式のリストをロードする
      */
     function loadTable() {
-        url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index/site_id:' + $("#viewsetting-site-id").val() + '/list_type:2';
+        url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index?site_id=' + $("#viewsetting-site-id").val() + '\&list_type=2';
         $("#ContentIndexForm").attr('action', url);
         $.baserAjaxDataList.search();
     }

@@ -66,6 +66,7 @@ class ContentManageService extends ContentsService implements ContentManageServi
      */
     public function getAdminTableConditions($searchData): array
     {
+        $conditions = [];
         if ($searchData['name']) {
             $conditions['OR'] = [
                 'name LIKE' => '%' . $searchData['name'] . '%',

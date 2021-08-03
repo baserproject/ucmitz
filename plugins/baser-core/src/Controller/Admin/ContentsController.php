@@ -76,6 +76,7 @@ class ContentsController extends BcAdminAppController
         /* >>>
         // $this->BcAuth->allow('view');
         <<< */
+        $this->Security->setConfig('unlockedActions', ['index']);
     }
 
     /**
