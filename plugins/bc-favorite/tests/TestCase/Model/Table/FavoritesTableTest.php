@@ -13,6 +13,7 @@ namespace BcFavorite\Test\TestCase\Model\Table;
 
 use BaserCore\TestSuite\BcTestCase;
 use BcFavorite\Model\Table\FavoritesTable;
+use BaserCore\Utility\BcUtil;
 
 /**
  * Class FavoriteTableTest
@@ -47,6 +48,12 @@ class FavoritesTableTest extends BcTestCase
         parent::setUp();
         $config = $this->getTableLocator()->exists('Favorites')? [] : ['className' => 'BcFavorite\Model\Table\FavoritesTable'];
         $this->Favorites = $this->getTableLocator()->get('Favorites', $config);
+    }
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        BcUtil::includePluginClass('BcFavorite');
     }
 
     /**
