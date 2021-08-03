@@ -35,7 +35,7 @@ $(function () {
             siteId = 0;
         }
         // メニューを再構築する必要があるため、ajax ではなく遷移させる
-        location.href = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index/site_id:' + siteId + '/list_type:1';
+        location.href = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index?site_id=' + siteId + '\&list_type=1';
     });
 
     // 表示変更時

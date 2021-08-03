@@ -270,8 +270,6 @@
                     data: data,
                     dataType: "html",
                     beforeSend: function () {
-                        console.log($('meta[name="csrfToken"]').attr('content'));
-                        console.log(data);
                         $(config.loader).show();
                     },
                     success: function (data) {

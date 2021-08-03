@@ -113,8 +113,10 @@ class ContentsController extends BcAdminAppController
         } else {
             $this->request->getParam('pass')['site_id'] = null;
         }
-        $currentSiteId = $this->request->getParam('pass')['site_id'];
-        $currentListType = $this->request->getParam('pass')['list_type'];
+        // TODO: コンテンツはsite ID=0にしかないので一時措置
+        $currentSiteId = 0;
+        // $currentSiteId = $this->request->getQuery('site_id');
+        $currentListType = $this->request->getQuery('list_type');
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 

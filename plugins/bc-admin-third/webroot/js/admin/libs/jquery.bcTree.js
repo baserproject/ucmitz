@@ -111,7 +111,7 @@
                 if (siteId == undefined) {
                     siteId = 0;
                 }
-                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index/site_id:' + siteId + '/list_type:1';
+                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index?site_id=' + siteId + '&list_type=1';
             } else if (mode == 'trash') {
                 url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/trash_index';
             }
