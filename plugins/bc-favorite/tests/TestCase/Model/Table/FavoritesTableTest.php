@@ -83,7 +83,9 @@ class FavoritesTableTest extends BcTestCase
     {
         return [
             [
-                'url' => 1,
+                [
+                    'url' => 1,
+                ]
             ],
         ];
     }
