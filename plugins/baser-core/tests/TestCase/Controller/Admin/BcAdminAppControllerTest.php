@@ -109,18 +109,32 @@ class BcAdminAppControllerTest extends BcTestCase
     public function testSaveViewConditions()
     {
         $named =  [
-            'num' => 30,
-            'site_id' => 0,
-            'list_type' => 1,
-            'sort' => 'id',
-            'direction' => 'asc'
+            'named' => [
+                'num' => 30,
+                'site_id' => 0,
+                'list_type' => 1,
+                'sort' => 'id',
+                'direction' => 'asc'
+            ]
         ];
-        $this->BcAdminApp->setRequest($this->BcAdminApp->getRequest()->withParam('named', $named));
-        $this->execPrivateMethod($this->BcAdminApp, 'saveViewConditions', ['testModel', ['default' => [$named]]]);
+        $request = $this->BcAdminApp->getRequest();
+        $BcAdminApp = new BcAdminAppController($this->loginAdmin($request));
+        $BcAdminApp->setRequest($request->withParam('named', $named));
+        $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => $named]]);
         $this->assertSession($named, 'BcApp.viewConditions.PagesDisplay.named');
+
+        // // // 実際のクエリパラメータ
+        // $initialQuery = [
+        //     'site_id' => 0,
+        //     'list_type' => 1,
+        // ];
+        // // 追加設定されたクエリパラメータ
+        // $savedQuery = ['query' => [
+        //     'queryStatus' => 'overriden',
+        // ]];
         $query = ['test' => 'test'];
-        $this->BcAdminApp->setRequest($this->BcAdminApp->getRequest()->withQueryParams($query));
-        $this->execPrivateMethod($this->BcAdminApp, 'saveViewConditions', ['testModel', ['default' => [$query]]]);
+        $BcAdminApp->setRequest($request->withQueryParams($query));
+        $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => [$query]]]);
         $this->assertSession($query, 'BcApp.viewConditions.PagesDisplay.query');
     }
 

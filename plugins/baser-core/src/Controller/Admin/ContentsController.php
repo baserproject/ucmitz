@@ -72,11 +72,11 @@ class ContentsController extends BcAdminAppController
         $this->loadModel('BaserCore.SiteConfigs');
         $this->loadModel('BaserCore.ContentFolders');
         $this->loadModel('BaserCore.Users');
+        $this->Security->setConfig('unlockedActions', ['index']);
         // TODO 未実装のためコメントアウト
         /* >>>
         // $this->BcAuth->allow('view');
         <<< */
-        $this->Security->setConfig('unlockedActions', ['index']);
     }
 
     /**
@@ -87,36 +87,28 @@ class ContentsController extends BcAdminAppController
      */
     public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
+        // TODO: コンテンツはsite ID=0にしかないので一時措置
+        // $currentSiteId = $this->request->getQuery('site_id') ?? 0;
+        $currentSiteId = 0;
+        $currentListType = $this->request->getQuery('list_type') ?? 1;
         $this->setViewConditions('Contents', ['default' => [
             'named' => [
                 'num' => $this->getSiteConfig('admin_list_num'),
-                'site_id' => 0,
-                'list_type' => 1,
+                'site_id' => $currentSiteId,
+                'list_type' => $currentListType,
                 'sort' => 'id',
                 'direction' => 'asc'
             ]
         ]]);
-
-        if (empty($this->request->getParam('named.sort'))) {
-            $this->request = $this->request->withParam('named.sort', $this->request->getParam('pass')['sort']);
-        }
-        if (empty($this->request->getParam('named.direction'))) {
-            $this->request = $this->request->withParam('named.direction', $this->request->getParam('pass')['direction']);
-        }
-
-        $sites = $siteManage->getSiteList();
-        if ($sites) {
-            if (!$this->request->getParam('pass')['site_id'] || !in_array($this->request->getParam('pass')['site_id'], array_keys($sites))) {
-                reset($sites);
-                $this->request->getParam('pass')['site_id'] = key($sites);
-            }
-        } else {
-            $this->request->getParam('pass')['site_id'] = null;
-        }
-        // TODO: コンテンツはsite ID=0にしかないので一時措置
-        $currentSiteId = 0;
-        // $currentSiteId = $this->request->getQuery('site_id');
-        $currentListType = $this->request->getQuery('list_type');
+        // $sites = $siteManage->getSiteList();
+        // if ($sites) {
+        //     if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {
+        //         reset($sites);
+        //         $this->request = $this->request->withQueryParams(['site_id' =>key($sites)]);
+        //     }
+        // } else {
+        //     $this->request = $this->request->withQueryParams(['site_id' => null]);
+        // }
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
@@ -136,9 +128,9 @@ class ContentsController extends BcAdminAppController
                         case 2:
                             $conditions = $contentManage->getAdminTableConditions($this->request->getData('Contents'));
                             $options = [
-                                'order' => 'Contents.' . $this->request->getParam('pass')['sort'] . ' ' . $this->request->getParam('pass')['direction'],
+                                'order' => 'Contents.' . $this->request->getQuery('sort') . ' ' . $this->request->getQuery('direction'),
                                 'conditions' => $conditions,
-                                'limit' => $this->request->getParam('pass')['num'],
+                                'limit' => $this->request->getQuery('num'),
                             ];
 
                             // EVENT Contents.searchIndex
@@ -148,7 +140,7 @@ class ContentsController extends BcAdminAppController
                             if ($event !== false) {
                                 $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
                             }
-                            // TODO: optionを混ぜる
+
                             $datas = $this->paginate($contentManage->getTableIndex($currentSiteId, $conditions));
                             $this->set('authors', $this->Users->getUserList());
                             $template = 'ajax_index_table';
