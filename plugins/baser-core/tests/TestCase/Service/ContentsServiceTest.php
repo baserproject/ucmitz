@@ -70,9 +70,27 @@ class ContentsServiceTest extends BcTestCase
     {
         $site_id = 0;
         $result = $this->ContentsService->getTreeIndex($site_id);
-        $this->assertEquals($result->first()->title,"baserCMSサンプル");
+        $this->assertEquals("baserCMSサンプル", $result->first()->title);
     }
 
+    /**
+     * testGetTableIndex
+     *
+     * @return void
+     * @dataProvider getTableIndexDataProvider
+     */
+    public function testGetTableIndex($site_id, $conditions, $expected): void
+    {
+        $result = $this->ContentsService->getTableIndex($site_id, $conditions);
+        $this->assertEquals($expected, $result->count());
+    }
+    public function getTableIndexDataProvider()
+    {
+        return [
+            [0, [], 10],
+            [0, ['level' => 1], 6],
+        ];
+    }
     /**
      * testGetTrashIndex
      *

@@ -83,6 +83,9 @@ class ContentsService implements ContentsServiceInterface
      * @param  int $siteId
      * @param  array $searchData
      * @return Query
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getTableIndex($siteId, $conditions): Query
     {
