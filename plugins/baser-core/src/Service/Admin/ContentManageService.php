@@ -47,22 +47,13 @@ class ContentManageService extends ContentsService implements ContentManageServi
     }
 
     /**
-     * getTableIndex
-     *
-     * @param  int $siteId
-     * @param  array $searchData
-     * @return Query
-     */
-    public function getTableIndex($siteId, $conditions): Query
-    {
-        return parent::getTableIndex($siteId, $conditions);
-    }
-
-    /**
      * getAdminTableConditions
      *
      * @param  array $searchData
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getAdminTableConditions($searchData): array
     {

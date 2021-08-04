@@ -133,6 +133,7 @@ class ContentsController extends BcAdminAppController
                             break;
                         case 2:
                             $conditions = $contentManage->getAdminTableConditions($this->request->getData('Contents'));
+                            debug($this->request->getData('Contents'));
                             $options = [
                                 'order' => 'Contents.' . $this->request->getQuery('sort') . ' ' . $this->request->getQuery('direction'),
                                 'conditions' => $conditions,
