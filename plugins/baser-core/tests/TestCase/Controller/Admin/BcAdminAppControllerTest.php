@@ -80,10 +80,15 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetViewConditions()
     {
+        // Sessionテスト
+        $this->testSaveViewConditions();
+        $this->testLoadViewConditions();
+
+        // Requestテスト
         $request = $this->BcAdminApp->getRequest();
         $BcAdminApp = new BcAdminAppController($this->loginAdmin($request));
 
-        // namedオプション
+            // namedオプションの場合
         $named =  [
             'named' => [
                 'num' => 30,
@@ -93,11 +98,21 @@ class BcAdminAppControllerTest extends BcTestCase
         $this->execPrivateMethod($BcAdminApp, 'loadViewConditions', ['testModel', ['default' => $named]]);
         $this->assertEquals($named['named']['num'], $BcAdminApp->getRequest()->getParam('pass.num'));
 
-        // 実際のクエリパラメータ
-        // $query = [
-        //     'list_type' => 1,
-        // ];
+            // クエリパラメータの場合
 
+                // 設定のパラメータ
+        $savedQuery = [
+            'query' => [
+                'list_type' => 1,
+        ]];
+                // 実際のクエリパラメータ
+        $query = [
+            'list_type' => 2,
+        ];
+        $BcAdminApp->setRequest($request->withQueryParams($query));
+        $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => $savedQuery]]);
+        $this->execPrivateMethod($BcAdminApp, 'loadViewConditions', ['testModel', ['default' => $savedQuery]]);
+        $this->assertEquals($query, $BcAdminApp->getRequest()->getQueryParams());
     }
 
     /**
@@ -147,9 +162,11 @@ class BcAdminAppControllerTest extends BcTestCase
             'list_type' => 1,
         ];
         // 追加設定されたクエリパラメータ
-        $savedQuery = ['query' => [
-            'queryStatus' => 'overriden',
-        ]];
+        $savedQuery = [
+            'query' => [
+                'queryStatus' => 'overriden',
+            ]
+        ];
         $BcAdminApp->setRequest($request->withQueryParams($query));
         $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => $savedQuery]]);
         $this->assertSession(array_merge($savedQuery['query'], $query), 'BcApp.viewConditions.PagesDisplay.query');
