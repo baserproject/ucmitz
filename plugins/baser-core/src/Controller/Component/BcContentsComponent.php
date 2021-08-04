@@ -96,7 +96,11 @@ class BcContentsComponent extends Component
         // $controller->uses[] = 'Contents';↓
         // $this->_Controller->Contents = new ContentsController();
         if (!$this->type) {
-            $this->type = $this->_Controller->getPlugin() . '.' . $this->_Controller->getName();
+            if($this->_Controller->getPlugin()) {
+                $this->type = $this->_Controller->getPlugin() . '.' . $this->_Controller->getName();
+            } else {
+                $this->type = $this->_Controller->getName();
+            }
         }
         if (BcUtil::isAdminSystem(Router::url(null, false))) {
             // 管理システム設定

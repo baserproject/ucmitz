@@ -385,6 +385,14 @@ class ContentsFixture extends TestFixture
                 'created' => '2016-07-31 16:47:04',
                 'modified' => '2016-08-12 00:59:06',
             ],
+            // BcContentsComponentTest
+            [
+                'id' => 14,
+                'plugin' => 'Core',
+                'name' => 'BcContentsテスト',
+                'type' => "BcContentsTest",
+                'entity_id' => 1,
+            ],
         ];
         parent::init();
     }
