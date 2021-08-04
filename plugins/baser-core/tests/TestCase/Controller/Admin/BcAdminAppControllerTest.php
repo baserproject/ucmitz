@@ -11,13 +11,14 @@
 
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
-use Cake\TestSuite\IntegrationTestTrait;
-use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Controller\Admin\BcAdminAppController;
-use Cake\Core\Configure;
-use Cake\Event\Event;
 use ReflectionClass;
+use Cake\Event\Event;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+use BaserCore\TestSuite\BcTestCase;
+use Cake\TestSuite\IntegrationTestTrait;
 use \Cake\Http\Exception\NotFoundException;
+use BaserCore\Controller\Admin\BcAdminAppController;
 
 /**
  * BaserCore\Controller\BcAdminAppController Test Case
@@ -54,8 +55,9 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        unset($this->BcAdminApp);
         parent::tearDown();
+        Router::reload();
+        unset($this->BcAdminApp, $this->RequestHandler);
     }
 
     /**
@@ -78,8 +80,24 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSetViewConditions()
     {
-        $this->testSaveViewConditions();
-        $this->testLoadViewConditions();
+        $request = $this->BcAdminApp->getRequest();
+        $BcAdminApp = new BcAdminAppController($this->loginAdmin($request));
+
+        // namedオプション
+        $named =  [
+            'named' => [
+                'num' => 30,
+            ]
+        ];
+        $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => $named]]);
+        $this->execPrivateMethod($BcAdminApp, 'loadViewConditions', ['testModel', ['default' => $named]]);
+        $this->assertEquals($named['named']['num'], $BcAdminApp->getRequest()->getParam('pass.num'));
+
+        // 実際のクエリパラメータ
+        // $query = [
+        //     'list_type' => 1,
+        // ];
+
     }
 
     /**
@@ -108,6 +126,7 @@ class BcAdminAppControllerTest extends BcTestCase
      */
     public function testSaveViewConditions()
     {
+        // namedオプション
         $named =  [
             'named' => [
                 'num' => 30,
@@ -123,19 +142,17 @@ class BcAdminAppControllerTest extends BcTestCase
         $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => $named]]);
         $this->assertSession($named, 'BcApp.viewConditions.PagesDisplay.named');
 
-        // // // 実際のクエリパラメータ
-        // $initialQuery = [
-        //     'site_id' => 0,
-        //     'list_type' => 1,
-        // ];
-        // // 追加設定されたクエリパラメータ
-        // $savedQuery = ['query' => [
-        //     'queryStatus' => 'overriden',
-        // ]];
-        $query = ['test' => 'test'];
+        // 実際のクエリパラメータ
+        $query = [
+            'list_type' => 1,
+        ];
+        // 追加設定されたクエリパラメータ
+        $savedQuery = ['query' => [
+            'queryStatus' => 'overriden',
+        ]];
         $BcAdminApp->setRequest($request->withQueryParams($query));
-        $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => [$query]]]);
-        $this->assertSession($query, 'BcApp.viewConditions.PagesDisplay.query');
+        $this->execPrivateMethod($BcAdminApp, 'saveViewConditions', ['testModel', ['default' => $savedQuery]]);
+        $this->assertSession(array_merge($savedQuery['query'], $query), 'BcApp.viewConditions.PagesDisplay.query');
     }
 
     /**

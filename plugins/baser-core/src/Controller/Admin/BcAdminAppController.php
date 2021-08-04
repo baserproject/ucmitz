@@ -140,7 +140,7 @@ class BcAdminAppController extends BcAppController
                 if ($session->check("BcApp.viewConditions.{$contentsName}.query")) {
                     $query = array_merge($options['default']['query'], $this->request->getQueryParams());
                 } else {
-                    $options['default']['query'];
+                    $query = $options['default']['query'];
                 }
             } else {
                 $query = $this->request->getQueryParams();
