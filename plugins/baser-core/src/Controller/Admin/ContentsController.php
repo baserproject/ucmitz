@@ -19,9 +19,13 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Service\SiteConfigsTrait;
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Controller\Admin\BcAdminAppController;
+use BaserCore\Model\Table\UsersTable;
 use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\Admin\ContentManageServiceInterface;
-
+use BaserCore\Model\Table\SiteConfigsTable;
+use BaserCore\Model\Table\SitesTable;
+use BaserCore\Model\Table\ContentFoldersTable;
+use BaserCore\Controller\Component\BcContentsComponent;
 /**
  * Class ContentsController
  *
@@ -29,12 +33,13 @@ use BaserCore\Service\Admin\ContentManageServiceInterface;
  *
  * baserCMS内のコンテンツを統合的に管理する
  *
- * @package Baser.Controller
- * @property Content $Content
+ * @package BaserCore.Controller
+ * @property ContentsTable $Contents
  * @property BcAuthComponent $BcAuth
- * @property SiteConfig $SiteConfig
- * @property Site $Site
- * @property User $User
+ * @property SiteConfigsTable $SiteConfigs
+ * @property SitesTable $Sites
+ * @property UsersTable $Users
+ * @property ContentFoldersTable $ContentFolders
  * @property BcContentsComponent $BcContents
  */
 
@@ -81,7 +86,6 @@ class ContentsController extends BcAdminAppController
 
     /**
      * コンテンツ一覧
-     *
      * @param integer $parentId
      * @param void
      */
@@ -90,6 +94,16 @@ class ContentsController extends BcAdminAppController
         // TODO: コンテンツはsite ID=0にしかないので一時措置
         // $currentSiteId = $this->request->getQuery('site_id') ?? 0;
         $currentSiteId = 0;
+        $sites = $siteManage->getSiteList();
+        // if ($sites) {
+        //     if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {
+        //         reset($sites);
+        //         $this->request = $this->request->withQueryParams(['site_id' =>key($sites)]);
+        //     }
+        // } else {
+        //     $this->request = $this->request->withQueryParams(['site_id' => null]);
+        // }
+
         $currentListType = $this->request->getQuery('list_type') ?? 1;
         $this->setViewConditions('Contents', ['default' => [
             'named' => [
@@ -100,15 +114,7 @@ class ContentsController extends BcAdminAppController
                 'direction' => 'asc'
             ]
         ]]);
-        // $sites = $siteManage->getSiteList();
-        // if ($sites) {
-        //     if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {
-        //         reset($sites);
-        //         $this->request = $this->request->withQueryParams(['site_id' =>key($sites)]);
-        //     }
-        // } else {
-        //     $this->request = $this->request->withQueryParams(['site_id' => null]);
-        // }
+
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
 
