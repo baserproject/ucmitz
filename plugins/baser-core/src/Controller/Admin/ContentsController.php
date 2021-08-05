@@ -69,6 +69,8 @@ class ContentsController extends BcAdminAppController
      *
      * @return void
      * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeFilter(EventInterface $event)
     {

@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
+use Cake\Event\Event;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Service\SiteConfigsTrait;
 use BaserCore\Service\Admin\SiteManageService;
@@ -77,7 +78,13 @@ class ContentsControllerTest extends BcTestCase
      */
     public function testBeforeFilter()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $event = new Event('Controller.beforeFilter', $this->ContentsController);
+        $this->ContentsController->beforeFilter($event);
+        $this->assertNotEmpty($this->ContentsController->Sites);
+        $this->assertNotEmpty($this->ContentsController->SiteConfigs);
+        $this->assertNotEmpty($this->ContentsController->ContentFolders);
+        $this->assertNotEmpty($this->ContentsController->Users);
+        $this->assertEquals($this->ContentsController->Security->getConfig('unlockedActions'), ['index']);
     }
 
     /**
