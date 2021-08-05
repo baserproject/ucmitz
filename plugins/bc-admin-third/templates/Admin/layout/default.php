@@ -34,6 +34,7 @@ $base = $attributes['base'];
     'vendor/jquery-ui/jquery-ui.min',
     'vendor/jquery.timepicker',
     'admin/style',
+    '../js/admin/vendors/jquery.jstree-3.3.8/themes/proton/style.min',
   ]) ?>
   <?= $this->fetch('css') ?>
   <?= $this->BcBaser->declarationI18n() ?>
