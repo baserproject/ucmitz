@@ -10,15 +10,17 @@
  * @license         https://basercms.net/license/index.html
  */
 
-/**
- * [ADMIN] 統合コンテンツ一覧
- *
- * @var BcAppView $this
- * @var array $datas
- */
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
+use BaserCore\View\BcAdminAppView;
+
+/**
+ * [ADMIN] 統合コンテンツ一覧
+ *
+ * @var BcAdminAppView $this
+ * @var array $datas
+ */
 
 $PermissionModel = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
 $deleteDisabled = false;

@@ -212,7 +212,7 @@ class BcContentsComponent extends Component
     public function beforeRender()
     {
         $controller = $this->getController();
-        if (BcUtil::isAdminSystem()) {
+        if (BcUtil::isAdminSystem(Router::url())) {
             $controller->set('contentsSettings', $this->getConfig('items'));
             // パンくずをセット
             array_unshift($controller->crumbs, ['name' => __d('baser', 'コンテンツ一覧'), 'url' => ['plugin' => null, 'controller' => 'contents', 'action' => 'index']]);
