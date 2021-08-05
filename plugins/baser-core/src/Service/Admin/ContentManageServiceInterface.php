@@ -34,4 +34,12 @@ interface ContentManageServiceInterface extends ContentsServiceInterface
      * @return array
      */
     public function getAdminTableConditions($searchData): array;
+
+    /**
+     * getAdminAjaxIndex
+     *
+     * @param  array $searchData
+     * @return array
+     */
+    public function getAdminAjaxIndex(array $searchData): array;
 }

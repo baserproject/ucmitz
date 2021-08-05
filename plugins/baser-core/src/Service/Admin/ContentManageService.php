@@ -81,5 +81,40 @@ class ContentManageService extends ContentsService implements ContentManageServi
 
         return $conditions;
     }
+
+    /**
+     * getAdminAjaxIndex
+     *
+     * @param  array $searchData
+     * @param  int $listType
+     * @return array
+     */
+    public function getAdminAjaxIndex(array $searchData): array
+    {
+        $dataset = [];
+
+        $action = $searchData['action'];
+        $listType = $searchData['listType'];
+        $siteId = $searchData['site_id'];
+        unset($searchData['action'], $searchData['listType'], $searchData['site_id']);
+
+        switch($action) {
+            case 'index':
+                switch($listType) {
+                    case 1:
+                        $dataset = ['ajax_index_tree' => $this->getTreeIndex($siteId)];
+                        break;
+                    case 2:
+                        $conditions = $this->getAdminTableConditions($searchData('Contents'));
+                        $dataset = ['ajax_index_table' => $this->getTableIndex($siteId, $conditions)];
+                        break;
+                }
+                break;
+            case 'trash_index':
+                $dataset = ['ajax_index_trash' => $this->getTrashIndex()];
+                break;
+        }
+        return $dataset;
+    }
 }
 

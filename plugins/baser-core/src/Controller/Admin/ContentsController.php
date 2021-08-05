@@ -16,16 +16,17 @@ use Cake\Event\EventInterface;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Model\Table\SitesTable;
+use BaserCore\Model\Table\UsersTable;
 use BaserCore\Service\SiteConfigsTrait;
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Model\Table\SiteConfigsTable;
+use BaserCore\Model\Table\ContentFoldersTable;
+use BaserCore\Service\Admin\ContentManageService;
 use BaserCore\Controller\Admin\BcAdminAppController;
-use BaserCore\Model\Table\UsersTable;
+use BaserCore\Controller\Component\BcContentsComponent;
 use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\Admin\ContentManageServiceInterface;
-use BaserCore\Model\Table\SiteConfigsTable;
-use BaserCore\Model\Table\SitesTable;
-use BaserCore\Model\Table\ContentFoldersTable;
-use BaserCore\Controller\Component\BcContentsComponent;
 /**
  * Class ContentsController
  *
@@ -117,54 +118,12 @@ class ContentsController extends BcAdminAppController
             ]
         ]]);
 
+        if ($this->request->is('ajax')) {
+            $this->ajax_index($contentManage, $currentListType, $currentSiteId);
+        }
+
         $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
         $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
-
-        if ($this->request->is('ajax')) {
-            $this->viewBuilder()->disableAutoLayout();
-            $template = null;
-            $datas = [];
-            switch($this->request->getParam('action')) {
-                case 'index':
-                    switch($currentListType) {
-                        case 1:
-                            // 並び替え最終更新時刻をリセット
-                            // $this->SiteConfigs->resetContentsSortLastModified();
-                            $datas = $contentManage->getTreeIndex($currentSiteId);
-                            $template = 'ajax_index_tree';
-                            break;
-                        case 2:
-                            $conditions = $contentManage->getAdminTableConditions($this->request->getData('Contents'));
-                            $options = [
-                                'order' => 'Contents.' . $this->request->getQuery('sort') . ' ' . $this->request->getQuery('direction'),
-                                'conditions' => $conditions,
-                                'limit' => $this->request->getQuery('num'),
-                            ];
-
-                            // EVENT Contents.searchIndex
-                            $event = $this->dispatchLayerEvent('searchIndex', [
-                                'options' => $options
-                            ]);
-                            if ($event !== false) {
-                                $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
-                            }
-
-                            $datas = $this->paginate($contentManage->getTableIndex($currentSiteId, $conditions));
-                            $this->set('authors', $this->Users->getUserList());
-                            $template = 'ajax_index_table';
-                            break;
-                    }
-                    break;
-                case 'trash_index':
-                    $datas = $contentManage->getTrashIndex();
-                    $template = 'ajax_index_trash';
-                    break;
-            }
-            $this->set('datas', $datas);
-            Configure::write('debug', 0);
-            $this->render($template);
-            return;
-        }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
@@ -173,6 +132,50 @@ class ContentsController extends BcAdminAppController
         $this->subMenuElements = ['contents'];
     }
 
+    /**
+     * ajax_index
+     *
+     * @param  ContentManageService $contentManage
+     * @param  int $currentListType
+     * @return void
+     */
+    protected function ajax_index($contentManage, $currentListType, $currentSiteId): void
+    {
+            $this->viewBuilder()->disableAutoLayout();
+            if($this->request->getParam('action') == "index") {
+                    switch($currentListType) {
+                        case 1:
+                            // 並び替え最終更新時刻をリセット
+                            // $this->SiteConfigs->resetContentsSortLastModified();
+                            break;
+                        case 2:
+                            $conditions = $contentManage->getAdminTableConditions($this->request->getData('Contents'));
+                            $options = [
+                                'order' => 'Contents.' . $this->request->getQuery('sort') . ' ' . $this->request->getQuery('direction'),
+                                'conditions' => $conditions,
+                                'limit' => $this->request->getQuery('num'),
+                            ];
+                            // EVENT Contents.searchIndex
+                            $event = $this->dispatchLayerEvent('searchIndex', [
+                                'options' => $options
+                            ]);
+                            if ($event !== false) {
+                                $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
+                            }
+                            break;
+                    }
+            }
+            $this->request = $this->request
+                ->withData('action', $this->request->getParam('action'))
+                ->withData('site_id', $currentSiteId)
+                ->withData('listType', $currentListType);
+            $dataset = $contentManage->getAdminAjaxIndex($this->request->getData());
+            $template = key($dataset);
+            $this->set('datas', array_values($dataset)[0]);
+            Configure::write('debug', 0);
+            $this->render($template);
+            return;
+    }
     /**
      * ゴミ箱内のコンテンツ一覧を表示する
      */
