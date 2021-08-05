@@ -111,9 +111,9 @@
                 if (siteId == undefined) {
                     siteId = 0;
                 }
-                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index?site_id=' + siteId + '&list_type=1';
+                url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/index?site_id=' + siteId + '&list_type=1';
             } else if (mode == 'trash') {
-                url = $.baseUrl() + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/trash_index';
+                url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + $.bcTree.config.pluginName + '/contents/trash_index';
             }
             $.ajax({
                 type: "GET",
@@ -168,7 +168,7 @@
                     if ($.bcTree.settings[data.contentType] == undefined || !$.bcTree.settings[data.contentType].editDisabled) {
                         if (!data.alias) {
                             if ($.bcTree.settings[data.contentType] == undefined) {
-                                $.bcTree.openUrl($.bcTree.createLink($.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/edit', data.contentId, data.contentParentId, data.contentEntityId));
+                                $.bcTree.openUrl($.bcTree.createLink($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/edit', data.contentId, data.contentParentId, data.contentEntityId));
                             } else {
                                 if ($.bcTree.settings[data.contentType]['url']['dblclick'] !== undefined) {
                                     $.bcTree.openUrl($.bcTree.createLink($.bcTree.settings[data.contentType]['url']['dblclick'], data.contentId, data.contentParentId, data.contentEntityId));
@@ -177,7 +177,7 @@
                                 }
                             }
                         } else {
-                            $.bcTree.openUrl($.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/edit_alias/' + data.contentId);
+                            $.bcTree.openUrl($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/edit_alias/' + data.contentId);
                         }
                     }
                 }
@@ -340,7 +340,7 @@
                                         "action": function (obj) {
                                             $.bcToken.check(function () {
                                                 return $.ajax({
-                                                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_change_status',
+                                                    url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_change_status',
                                                     type: 'POST',
                                                     data: {
                                                         contentId: data.contentId,
@@ -379,7 +379,7 @@
                                         "action": function (obj) {
                                             $.bcToken.check(function () {
                                                 return $.ajax({
-                                                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_change_status',
+                                                    url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_change_status',
                                                     type: 'POST',
                                                     data: {
                                                         contentId: data.contentId,
@@ -456,7 +456,7 @@
                                         if (!node.data.jstree.alias) {
                                             $.bcTree.openUrl($.bcTree.createLink($.bcTree.settings[data.contentType]['url']['edit'], data.contentId, data.contentParentId, data.contentEntityId));
                                         } else {
-                                            $.bcTree.openUrl($.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/edit_alias/' + data.contentId);
+                                            $.bcTree.openUrl($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/edit_alias/' + data.contentId);
                                         }
                                     }
                                 }
@@ -514,7 +514,7 @@
                                     "action": function (obj) {
                                         if (data.alias) {
                                             $.ajax({
-                                                url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_exists/' + data.contentAliasId,
+                                                url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_exists/' + data.contentAliasId,
                                                 type: 'GET',
                                                 beforeSend: function () {
                                                     $.bcUtil.hideMessage();
@@ -543,7 +543,7 @@
                                         if (confirm(bcI18n.bcTreeConfirmMessage1)) {
                                             $.bcToken.check(function () {
                                                 return $.ajax({
-                                                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix  + '/' + $.bcTree.config.pluginName +  '/contents/ajax_trash_empty',
+                                                    url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix  + '/' + $.bcTree.config.pluginName +  '/contents/ajax_trash_empty',
                                                     type: 'POST',
                                                     dataType: 'json',
                                                     data: {
@@ -762,7 +762,7 @@
         returnContent: function (node) {
             $.bcToken.check(function () {
                 $.ajax({
-                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix  + '/' + $.bcTree.config.pluginName + '/contents/ajax_trash_return',
+                    url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix  + '/' + $.bcTree.config.pluginName + '/contents/ajax_trash_return',
                     type: 'POST',
                     data: {
                         id: node.data.jstree.contentId,
@@ -781,7 +781,7 @@
                         if ($.bcTree.jsTree.get_json('#', {flat: true}).length == 0) {
                             $("#DataList").html('<div class="tree-empty">' + bcI18n.bcTreeInfoMessage1 + '</div>');
                         }
-                        $.bcTree.openUrl($.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/index/site_id:' + result);
+                        $.bcTree.openUrl($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/index/site_id:' + result);
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         $.bcUtil.showAjaxError(bcI18n.bcTreeAlertMessage3, XMLHttpRequest, errorThrown);
@@ -895,7 +895,7 @@
             var url = '';
             // シングルコンテンツでデータが既に存在する場合
             if ((!$.bcTree.settings[data.contentType]['multiple'] && $.bcTree.settings[data.contentType]['exists']) || data.contentAliasId) {
-                url = $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/add/1';
+                url = $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/add/1';
                 data.alias = true;
             } else {
                 url = $.bcTree.settings[data.contentType]['url']['add']
@@ -946,7 +946,7 @@
                             $.bcUtil.hideLoader();
                         }
                     }).then(function () {
-                        return $.bcUtil.ajax($.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_get_full_url/' + data.contentId, {}, {type: 'GET'}).done(function (result) {
+                        return $.bcUtil.ajax($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_get_full_url/' + data.contentId, {}, {type: 'GET'}).done(function (result) {
                             data.contentFullUrl = result;
                             node.data.jstree = data;
                             if (data.contentType == 'ContentFolder') {
@@ -968,7 +968,7 @@
             var data = node.data.jstree;
             $.bcToken.check(function () {
                 return $.ajax({
-                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_delete',
+                    url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_delete',
                     type: 'POST',
                     data: {
                         contentId: data.contentId,
@@ -1045,7 +1045,7 @@
                             .replace(/'/g, '&#039;')
                             .replace(/</g, '&lt;')
                             .replace(/>/g, '&gt;');
-                        $.ajax($.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_get_full_url/' + data.contentId, {type: 'GET'}).done(function (result) {
+                        $.ajax($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_get_full_url/' + data.contentId, {type: 'GET'}).done(function (result) {
                             data.contentFullUrl = result;
                             var nodeId = $.bcTree.jsTree.create_node(parent, {
                                 text: data.contentTitle,
@@ -1089,7 +1089,7 @@
                 }
                 $.bcToken.check(function () {
                     return $.ajax({
-                        url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_rename',
+                        url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_rename',
                         type: 'POST',
                         data: {
                             id: node.data.jstree.contentId,
@@ -1203,7 +1203,7 @@
             }
             $.bcToken.check(function () {
                 return $.ajax({
-                    url: $.baseUrl() + '/' + $.bcTree.config.adminPrefix + '/contents/ajax_move',
+                    url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_move',
                     type: 'POST',
                     data: {
                         currentId: node.data.jstree.contentId,

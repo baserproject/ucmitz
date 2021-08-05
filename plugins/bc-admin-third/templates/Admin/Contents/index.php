@@ -74,7 +74,8 @@ $this->BcBaser->js('admin/contents/index', false, [
   'id' => 'AdminContentsIndexScript',
   'data-isAdmin' => BcUtil::isAdminUser(),
   'data-isUseMoveContents' => $isUseMoveContents,
-  'data-adminPrefix' => BcUtil::getPrefix(),
+  'data-adminPrefix' => BcUtil::getAdminPrefix(),
+  'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix()),
   'data-pluginName' => Inflector::dasherize($this->request->getParam('plugin')),
   'data-editInIndexDisabled' => $editInIndexDisabled
 ]);
