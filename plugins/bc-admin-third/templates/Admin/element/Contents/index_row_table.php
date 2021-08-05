@@ -60,7 +60,7 @@ if ($data->self_status) {
 <tr id="Row<?= $count + 1 ?>"<?php $this->BcListTable->rowClass($isPublish, $data) ?>>
   <td class="bca-table-listup__tbody-td bca-table-listup__tbody-td--select"><?php // 選択 ?>
     <?php if ($this->BcBaser->isAdminUser() && empty($data->site_root)): ?>
-      <?= $this->BcAdminForm->control('ListTool.batch_targets.' . $data->id, ['type' => 'checkbox', 'label' => '<span class="bca-visually-hidden">チェックする</span>', 'class' => 'batch-targets bca-checkbox__input', 'value' => $data->id]) ?>
+      <?= $this->BcAdminForm->control('ListTool.batch_targets.' . $data->id, ['type' => 'checkbox', 'label' => '<span class="bca-visually-hidden">チェックする</span>', 'class' => 'batch-targets bca-checkbox__input', 'value' => $data->id, 'escape' => false]) ?>
     <?php endif ?>
   </td>
   <td class="bca-table-listup__tbody-td" style="width:5%"><?= $data->id; ?></td>
