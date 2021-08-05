@@ -75,7 +75,6 @@ class BcContentsHelper extends Helper
     }
 
     /**
-     * @todo Testable humuhimi
      * セットアップ
      */
     public function setup()

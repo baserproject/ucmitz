@@ -121,15 +121,7 @@ class BcContentsComponent extends Component
      */
     public function setupAdmin()
     {
-        $items = Configure::read('BcContents.items');
-        $createdSettings = [];
-        foreach($items as $name => $settings) {
-            foreach($settings as $type => $setting) {
-                $setting['plugin'] = $name;
-                $setting['type'] = $type;
-                $createdSettings[$type] = $setting;
-            }
-        }
+        $createdSettings = BcUtil::getContentsItem();
         $this->setConfig('items', $createdSettings);
     }
 
