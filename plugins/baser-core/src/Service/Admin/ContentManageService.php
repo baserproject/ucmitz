@@ -88,6 +88,9 @@ class ContentManageService extends ContentsService implements ContentManageServi
      * @param  array $requestData
      * @param  int $listType
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getAdminAjaxIndex(array $requestData): array
     {

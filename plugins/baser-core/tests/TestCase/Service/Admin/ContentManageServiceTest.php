@@ -96,6 +96,56 @@ class ContentManageServiceTest extends BcTestCase
             'type' => 'ContentFolder',
             ], $result);
     }
+
+    /**
+     * testGetAdminAjaxIndex
+     * @dataProvider getAdminAjaxIndexDataProvider
+     * @param  string $action
+     * @param  string $listType
+     * @param  string $siteId
+     * @param  array $content
+     * @param  string $template
+     * @return void
+     */
+    public function testGetAdminAjaxIndex($action, $listType, $siteId, $content, $template): void
+    {
+        $requestData = [
+            'Param' => [
+                'action' => $action,
+            ],
+            'ViewSetting' => [
+                'list_type' => $listType,
+                'site_id' => $siteId,
+            ],
+            'Contents' => $content
+        ];
+        $result = $this->ContentManage->getAdminAjaxIndex($requestData);
+        $this->assertEquals($template, key($result));
+        $data = array_shift($result);
+        $this->assertInstanceOf('Cake\ORM\Query', $data);
+    }
+
+    public function getAdminAjaxIndexDataProvider()
+    {
+        return [
+            // tree形式の場合
+            ['index', '1', '0', [], "ajax_index_tree"],
+            // Table形式の場合(content条件なし)
+            ['index', '2', '0',
+            [
+                'open' => '1',
+                'folder_id' => '',
+                'name' => '',
+                'type' => '',
+                'self_status' => '',
+                'author_id' => '',
+            ]
+            , "ajax_index_table"],
+            // trash形式の場合
+            ['trash_index', '1', '0', [], "ajax_index_trash"],
+        ];
+    }
+
     /**
      * testGetContentsInfo
      *
