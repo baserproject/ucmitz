@@ -384,26 +384,6 @@ class ContentsTableTest extends BcTestCase
     }
 
     /**
-     * コンテンツフォルダーのリストを取得
-     * コンボボックス用
-     */
-    public function testGetContentFolderList()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        $siteId = 1;
-
-        $this->Contents->getContentFolderList();
-    }
-
-    /**
-     * ツリー構造のデータを コンボボックスのデータ用に変換する
-     */
-    public function testConvertTreeList()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * ツリー構造より論理削除する
      */
     public function testSoftDeleteFromTree()

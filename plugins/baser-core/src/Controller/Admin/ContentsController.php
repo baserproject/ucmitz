@@ -70,7 +70,6 @@ class ContentsController extends BcAdminAppController
      *
      * @return void
      * @checked
-     * @noTodo
      * @unitTest
      */
     public function beforeFilter(EventInterface $event)
@@ -126,7 +125,6 @@ class ContentsController extends BcAdminAppController
         if ($this->request->is('ajax')) {
             $this->ajax_index($contentManage);
         }
-
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
