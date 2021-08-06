@@ -36,7 +36,7 @@ interface ContentManageServiceInterface extends ContentsServiceInterface
     public function getAdminTableConditions($searchData): array;
 
     /**
-     * getAdminAjaxIndex
+     * リクエストに応じてajax処理時に必要なIndexとテンプレートを取得する
      *
      * @param  array $searchData
      * @return array

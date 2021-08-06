@@ -83,20 +83,19 @@ class ContentManageService extends ContentsService implements ContentManageServi
     }
 
     /**
-     * getAdminAjaxIndex
+     * リクエストに応じてajax処理時に必要なIndexとテンプレートを取得する
      *
-     * @param  array $searchData
+     * @param  array $requestData
      * @param  int $listType
      * @return array
      */
-    public function getAdminAjaxIndex(array $searchData): array
+    public function getAdminAjaxIndex(array $requestData): array
     {
         $dataset = [];
 
-        $action = $searchData['action'];
-        $listType = $searchData['listType'];
-        $siteId = $searchData['site_id'];
-        unset($searchData['action'], $searchData['listType'], $searchData['site_id']);
+        $action = $requestData['Param']['action'];
+        $listType = $requestData['ViewSetting']['list_type'];
+        $siteId = $requestData['ViewSetting']['site_id'];
 
         switch($action) {
             case 'index':
@@ -105,7 +104,7 @@ class ContentManageService extends ContentsService implements ContentManageServi
                         $dataset = ['ajax_index_tree' => $this->getTreeIndex($siteId)];
                         break;
                     case 2:
-                        $conditions = $this->getAdminTableConditions($searchData('Contents'));
+                        $conditions = $this->getAdminTableConditions($requestData['Contents']);
                         $dataset = ['ajax_index_table' => $this->getTableIndex($siteId, $conditions)];
                         break;
                 }

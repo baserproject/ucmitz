@@ -118,12 +118,15 @@ class ContentsController extends BcAdminAppController
             ]
         ]]);
 
+        $this->request = $this->request
+            ->withData('ViewSetting.site_id', $currentSiteId)
+            ->withData('ViewSetting.list_type', $currentListType)
+            ->withData('Param.action', $this->request->getParam('action'));
+
         if ($this->request->is('ajax')) {
-            $this->ajax_index($contentManage, $currentListType, $currentSiteId);
+            $this->ajax_index($contentManage);
         }
 
-        $this->request = $this->request->withData('ViewSetting.site_id', $currentSiteId);
-        $this->request = $this->request->withData('ViewSetting.list_type', $currentListType);
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
@@ -136,42 +139,34 @@ class ContentsController extends BcAdminAppController
      * ajax_index
      *
      * @param  ContentManageService $contentManage
-     * @param  int $currentListType
      * @return void
      */
-    protected function ajax_index($contentManage, $currentListType, $currentSiteId): void
+    protected function ajax_index($contentManage): void
     {
             $this->viewBuilder()->disableAutoLayout();
+            $dataset = $contentManage->getAdminAjaxIndex($this->request->getData());
+            $template = key($dataset);
+            $datas = array_shift($dataset);
             if($this->request->getParam('action') == "index") {
-                    switch($currentListType) {
+                    switch($this->request->getData('ViewSetting.list_type')) {
                         case 1:
                             // 並び替え最終更新時刻をリセット
                             // $this->SiteConfigs->resetContentsSortLastModified();
                             break;
                         case 2:
-                            $conditions = $contentManage->getAdminTableConditions($this->request->getData('Contents'));
-                            $options = [
-                                'order' => 'Contents.' . $this->request->getQuery('sort') . ' ' . $this->request->getQuery('direction'),
-                                'conditions' => $conditions,
-                                'limit' => $this->request->getQuery('num'),
-                            ];
+                            $datas = $this->paginate($datas);
+                            $this->request = $this->request->withQueryParams(['conditions' => $contentManage->getAdminTableConditions($this->request->getData('Contents'))]);
                             // EVENT Contents.searchIndex
                             $event = $this->dispatchLayerEvent('searchIndex', [
-                                'options' => $options
+                                'request' => $this->request
                             ]);
                             if ($event !== false) {
-                                $options = ($event->getResult() === null || $event->getResult() === true)? $event->getData('options') : $event->getResult();
+                                $this->request = ($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult();
                             }
                             break;
                     }
             }
-            $this->request = $this->request
-                ->withData('action', $this->request->getParam('action'))
-                ->withData('site_id', $currentSiteId)
-                ->withData('listType', $currentListType);
-            $dataset = $contentManage->getAdminAjaxIndex($this->request->getData());
-            $template = key($dataset);
-            $this->set('datas', array_values($dataset)[0]);
+            $this->set('datas', $datas);
             Configure::write('debug', 0);
             $this->render($template);
             return;
