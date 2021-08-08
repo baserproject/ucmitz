@@ -12,6 +12,7 @@
 namespace BaserCore\View\Helper;
 
 use BaserCore\Event\BcEventDispatcherTrait;
+use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\Front\SiteFrontServiceInterface;
 use BaserCore\Utility\BcAgent;
 use BaserCore\Utility\BcContainerTrait;
@@ -837,8 +838,8 @@ class BcBaserHelper extends Helper
     public function publishLink()
     {
         if ($this->existsPublishLink()) {
-            $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
-            $site = $sites->findByUrl($this->_View->viewVars['publishLink']);
+            $siteManage = $this->getService(SiteManageServiceInterface::class);
+            $site = $siteManage->findByUrl($this->_View->viewVars['publishLink']);
             $useSubdomain = $fullUrl = false;
             if ($site && $site->name) {
                 $useSubdomain = $site->use_subdomain;
@@ -2967,7 +2968,7 @@ END_FLASH;
     {
         $siteFront = $this->getService(SiteFrontServiceInterface::class);
         $subSite = $siteFront->findCurrentSub(false, BcAgent::find('smartphone'));
-        if (!$subSite || $subSite->sameMainUrl) {
+        if (!$subSite || $subSite->same_main_url) {
             return;
         }
         $url = $subSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
