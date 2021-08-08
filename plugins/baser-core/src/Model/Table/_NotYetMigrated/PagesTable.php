@@ -363,7 +363,8 @@ class PagesTable extends Table
         }
         if ($url != '/') {
             if ($data['Content']['site_id'] != 0) {
-                $site = BcSite::findByUrl($url);
+                $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+                $site = $sites->findByUrl($url);
                 if ($site) {
                     $url = preg_replace('/^\/' . preg_quote($site->alias, '/') . '\//', '/' . $site->name . '/', $url);
                 }
@@ -964,7 +965,8 @@ class PagesTable extends Table
         }
         if ($url != '/') {
             if ($content['Content']['site_id'] != 0) {
-                $site = BcSite::findByUrl($url);
+                $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+                $site = $sites->findByUrl($url);
                 if ($site) {
                     $url = preg_replace('/^\/' . preg_quote($site->alias, '/') . '\//', '/' . $site->name . '/', $url);
                 }

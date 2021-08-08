@@ -1215,7 +1215,7 @@ class ContentsTable extends AppTable
         $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
         if ($useSubDomain && !is_array($url)) {
             $subDomain = '';
-            $site = BcSite::findByUrl($url);
+            $site = $this->Sites->findByUrl($url);
             $originUrl = $url;
             if ($site) {
                 $subDomain = $site->alias;
@@ -1224,18 +1224,18 @@ class ContentsTable extends AppTable
             if ($full) {
                 if ($site) {
                     $fullUrl = topLevelUrl(false) . $originUrl;
-                    if ($site->domainType == 1) {
+                    if ($site->domain_type == 1) {
                         $mainDomain = BcUtil::getMainDomain();
                         $fullUrlArray = explode('//', $fullUrl);
                         $fullPassArray = explode('/', $fullUrlArray[1]);
                         unset($fullPassArray[0]);
                         $url = $fullUrlArray[0] . '//' . $subDomain . '.' . $mainDomain . '/' . implode('/', $fullPassArray);
-                    } elseif ($site->domainType == 2) {
+                    } elseif ($site->domain_type == 2) {
                         $fullUrlArray = explode('//', $fullUrl);
                         $urlArray = explode('/', $fullUrlArray[1]);
                         unset($urlArray[0]);
-                        if ($site->sameMainUrl) {
-                            $mainSite = $sites->findById($site->mainSiteId)->first();
+                        if ($site->same_main_url) {
+                            $mainSite = $sites->findById($site->main_site_id)->first();
                             $subDomain = $mainSite->alias;
                         }
                         $url = $fullUrlArray[0] . '//' . $subDomain . '/' . implode('/', $urlArray);
@@ -1249,9 +1249,9 @@ class ContentsTable extends AppTable
         } else {
             if (BC_INSTALLED) {
                 if (!is_array($url)) {
-                    $site = BcSite::findByUrl($url);
-                    if ($site && $site->sameMainUrl) {
-                        $mainSite = $sites->findById($site->mainSiteId)->first();
+                    $site = $this->Sites->findByUrl($url);
+                    if ($site && $site->same_main_url) {
+                        $mainSite = $sites->findById($site->main_site_id)->first();
                         $alias = $mainSite->alias;
                         if ($alias) {
                             $alias = '/' . $alias;

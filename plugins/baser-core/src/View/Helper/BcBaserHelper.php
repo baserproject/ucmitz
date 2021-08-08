@@ -15,6 +15,7 @@ use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
+use Cake\ORM\TableRegistry;
 use Cake\View\Helper;
 use Cake\View\Helper\FlashHelper;
 use Cake\View\Helper\UrlHelper;
@@ -832,10 +833,11 @@ class BcBaserHelper extends Helper
     public function publishLink()
     {
         if ($this->existsPublishLink()) {
-            $site = BcSite::findByUrl($this->_View->viewVars['publishLink']);
+            $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+            $site = $sites->findByUrl($this->_View->viewVars['publishLink']);
             $useSubdomain = $fullUrl = false;
             if ($site && $site->name) {
-                $useSubdomain = $site->useSubDomain;
+                $useSubdomain = $site->use_subdomain;
                 $fullUrl = true;
             }
             $url = $this->BcContents->getUrl($this->_View->viewVars['publishLink'], $fullUrl, $useSubdomain, false);

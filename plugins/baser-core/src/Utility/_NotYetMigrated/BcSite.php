@@ -315,22 +315,6 @@ class BcSite
         return self::$_sites;
     }
 
-    public static function findByUrl($url)
-    {
-        $sites = self::findAll();
-        $url = preg_replace('/(^\/|\/$)/', '', $url);
-        $urlAry = explode('/', $url);
-        for($i = count($urlAry); $i > 0; $i--) {
-            foreach($sites as $site) {
-                if (implode('/', $urlAry) == $site->alias) {
-                    return $site;
-                }
-            }
-            unset($urlAry[$i - 1]);
-        }
-        return null;
-    }
-
     /**
      * 設定が有効かどうかを判定
      *

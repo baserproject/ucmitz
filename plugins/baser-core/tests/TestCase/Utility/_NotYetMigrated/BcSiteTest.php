@@ -103,14 +103,6 @@ class BcSiteTest extends BcTestCase
     }
 
     /**
-     * findByUrl
-     */
-    public function testFindByUrl()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * 設定が有効かどうかを判定
      */
     public function testIsEnabled()

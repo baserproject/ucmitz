@@ -295,7 +295,8 @@ class PagesController extends AppController
         }
 
         if ($this->request->getParam('Site.alias')) {
-            $site = BcSite::findByUrl($urlTmp);
+            $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+            $site = $sites->findByUrl($urlTmp);
             if ($site && ($site->alias == $this->request->getParam('Site.alias'))) {
                 $urlTmp = preg_replace('/^\/' . preg_quote($site->alias, '/') . '\//', '/' . $this->request->getParam('Site.name') . '/', $urlTmp);
             }

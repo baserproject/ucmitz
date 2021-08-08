@@ -1,5 +1,7 @@
 <?php
 // TODO : コード確認要
+use Cake\ORM\TableRegistry;
+
 return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
@@ -55,7 +57,7 @@ class BcContentsRoute extends CakeRoute
                 Configure::write('BcEnv.host', '');
             }
         }
-
+        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
         $sameUrl = false;
         $site = BcSite::findCurrentSub(true);
         if ($site) {
@@ -78,7 +80,7 @@ class BcContentsRoute extends CakeRoute
                     // 別ドメインの際に、固定ページのプレビューで、正しくサイト情報を取得できない。
                     // そのため、文字列でリクエストアクションを送信し、URLでホストを判定する。
                     // =================================================================================================
-                    $tmpSite = BcSite::findByUrl($url);
+                    $tmpSite = $sites->findByUrl($url);
                     if (!is_null($tmpSite)) {
                         $site = $tmpSite;
                     }
@@ -88,9 +90,9 @@ class BcContentsRoute extends CakeRoute
         }
 
         $Content = ClassRegistry::init('Content');
-        $content = $Content->findByUrl($checkUrl, $publish, false, $sameUrl, $site->useSubDomain);
+        $content = $Content->findByUrl($checkUrl, $publish, false, $sameUrl, $site->use_subdomain);
         if (!$content) {
-            $content = $Content->findByUrl($checkUrl, $publish, true, $sameUrl, $site->useSubDomain);
+            $content = $Content->findByUrl($checkUrl, $publish, true, $sameUrl, $site->use_subdomain);
         }
 
         if (!$content) {
@@ -282,8 +284,9 @@ class BcContentsRoute extends CakeRoute
         }
 
         // URL生成
-        $site = BcSite::findByUrl($strUrl);
-        if ($site && $site->useSubDomain) {
+        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $site = $sites->findByUrl($strUrl);
+        if ($site && $site->use_subdomain) {
             $strUrl = preg_replace('/^\/' . preg_quote($site->alias, '/') . '\//', '/', $strUrl);
         }
         $pass = [];
