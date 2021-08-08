@@ -12,7 +12,6 @@
 
 use BaserCore\Model\Entity\Content;
 use BaserCore\View\BcAdminAppView;
-use Cake\ORM\TableRegistry;
 
 /**
  * [ADMIN] 統合コンテンツフォーム

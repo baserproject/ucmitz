@@ -14,7 +14,6 @@ namespace BaserCore\Test\TestCase\Model\Table;
 use ArrayObject;
 use BaserCore\Model\Table\SitesTable;
 use BaserCore\TestSuite\BcTestCase;
-use Cake\Core\Configure;
 use Cake\Event\Event;
 use ReflectionClass;
 

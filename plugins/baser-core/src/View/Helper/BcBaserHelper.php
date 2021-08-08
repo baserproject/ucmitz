@@ -19,7 +19,6 @@ use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
-use Cake\ORM\TableRegistry;
 use Cake\View\Helper;
 use Cake\View\Helper\FlashHelper;
 use Cake\View\Helper\UrlHelper;
