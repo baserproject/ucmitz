@@ -15,6 +15,8 @@ use BaserCore\Service\Admin\SiteConfigManageService;
 use BaserCore\Service\Admin\SiteConfigManageServiceInterface;
 use BaserCore\Service\Front\SiteFrontService;
 use BaserCore\Service\Front\SiteFrontServiceInterface;
+use BcFavorite\Service\FavoritesService;
+use BcFavorite\Service\FavoritesServiceInterface;
 use Cake\Core\ServiceProvider;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -76,6 +78,7 @@ class BcServiceProvider extends ServiceProvider
         DblogsServiceInterface::class,
         ContentManageServiceInterface::class,
         ContentsServiceInterface::class,
+        FavoritesServiceInterface::class
     ];
 
     /**
@@ -111,6 +114,8 @@ class BcServiceProvider extends ServiceProvider
         // Contentsサービス
         $container->add(ContentManageServiceInterface::class, ContentManageService::class, true);
         $container->add(ContentsServiceInterface::class, ContentsService::class, true);
+        // Favoriteサービス
+        $container->add(FavoritesServiceInterface::class, FavoritesService::class, true);
 
     }
 
