@@ -35,6 +35,7 @@ class UsersControllerTest extends BcTestCase
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.LoginStores',
+        'plugin.BaserCore.Dblogs',
         'plugin.BaserCore.Controller/UsersController/UsersPagination',
     ];
 
@@ -52,13 +53,13 @@ class UsersControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->loadFixtures('UsersUserGroups', 'UserGroups');
+        $this->loadFixtures('UsersUserGroups', 'UserGroups', 'Dblogs');
         if ($this->getName() == 'testIndex_pagination') {
             $this->loadFixtures('Controller\UsersController\UsersPagination');
         } else {
             $this->loadFixtures('Users', 'LoginStores');
         }
-        $request = $this->getRequest();
+        $request = $this->getRequest('/baser/admin/baser-core/users/');
         $request = $this->loginAdmin($request);
         $this->UsersController = new UsersController($request);
         $this->UsersController->loadModel('BaserCore.Users');
@@ -97,7 +98,7 @@ class UsersControllerTest extends BcTestCase
         $this->assertResponseOk();
 
         // イベントテスト
-        $this->entryControllerEventToMock('Controller.Users.searchIndex', function(Event $event) {
+        $this->entryControllerEventToMock('Controller.BaserCore.Users.searchIndex', function(Event $event) {
             $request = $event->getData('request');
             return $request->withQueryParams(['num' => 1]);
         });
@@ -143,7 +144,7 @@ class UsersControllerTest extends BcTestCase
         $this->assertEquals(1, $query->count());
 
         // イベントテスト
-        $this->entryControllerEventToMock('Controller.Users.afterAdd', function(Event $event) {
+        $this->entryControllerEventToMock('Controller.BaserCore.Users.afterAdd', function(Event $event) {
             $user = $event->getData('user');
             $users = TableRegistry::getTableLocator()->get('Users');
             $user->name = 'etc';
@@ -179,7 +180,7 @@ class UsersControllerTest extends BcTestCase
         $this->assertResponseSuccess();
 
         // イベントテスト
-        $this->entryControllerEventToMock('Controller.Users.afterEdit', function(Event $event) {
+        $this->entryControllerEventToMock('Controller.BaserCore.Users.afterEdit', function(Event $event) {
             $user = $event->getData('user');
             $users = TableRegistry::getTableLocator()->get('Users');
             $user->name = 'etc';

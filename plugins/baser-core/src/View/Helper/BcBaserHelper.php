@@ -12,6 +12,10 @@
 namespace BaserCore\View\Helper;
 
 use BaserCore\Event\BcEventDispatcherTrait;
+use BaserCore\Service\Admin\SiteManageServiceInterface;
+use BaserCore\Service\Front\SiteFrontServiceInterface;
+use BaserCore\Utility\BcAgent;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\ORM\Entity;
@@ -36,6 +40,7 @@ class BcBaserHelper extends Helper
      * Trait
      */
     use BcEventDispatcherTrait;
+    use BcContainerTrait;
 
     /**
      * ヘルパー
@@ -832,10 +837,11 @@ class BcBaserHelper extends Helper
     public function publishLink()
     {
         if ($this->existsPublishLink()) {
-            $site = BcSite::findByUrl($this->_View->viewVars['publishLink']);
+            $siteManage = $this->getService(SiteManageServiceInterface::class);
+            $site = $siteManage->findByUrl($this->_View->viewVars['publishLink']);
             $useSubdomain = $fullUrl = false;
             if ($site && $site->name) {
-                $useSubdomain = $site->useSubDomain;
+                $useSubdomain = $site->use_subdomain;
                 $fullUrl = true;
             }
             $url = $this->BcContents->getUrl($this->_View->viewVars['publishLink'], $fullUrl, $useSubdomain, false);
@@ -1189,8 +1195,9 @@ class BcBaserHelper extends Helper
         if (empty($this->request->getParam('Site'))) {
             return false;
         }
-        $site = BcSite::findCurrent(true);
-        if (!$site->alias || $site->sameMainUrl || $site->useSubDomain) {
+        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $site = $siteFront->findCurrent();
+        if (!$site->alias || $site->same_main_url || $site->use_subdomain) {
             return (
                 $this->request->url == false ||
                 $this->request->url == 'index'
@@ -2394,7 +2401,7 @@ END_FLASH;
     public function getThemeImage($name, $options = [])
     {
         $ThemeConfig = ClassRegistry::init('ThemeConfig');
-        $data = $ThemeConfig->findExpanded();
+        $data = $ThemeConfig->getKeyValue();
 
         $url = $imgPath = $uploadUrl = $uploadThumbUrl = $originUrl = '';
         $thumbSuffix = '_thumb';
@@ -2920,12 +2927,14 @@ END_FLASH;
      */
     public function setCanonicalUrl()
     {
-        $currentSite = BcSite::findCurrent();
+        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $currentSite = $siteFront->findCurrent();
         if (!$currentSite) {
             return;
         }
         if ($currentSite->device === 'smartphone') {
-            $mainSite = BcSite::findCurrentMain();
+            $siteFront = $this->getService(SiteFrontServiceInterface::class);
+            $mainSite = $siteFront->findCurrentMain();
             $url = $mainSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
                 $this->request->url,
                 $this->request->params['Site']['id']
@@ -2956,8 +2965,9 @@ END_FLASH;
      */
     public function setAlternateUrl()
     {
-        $subSite = BcSite::findCurrentSub(false, BcAgent::find('smartphone'));
-        if (!$subSite || $subSite->sameMainUrl) {
+        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $subSite = $siteFront->findCurrentSub(false, BcAgent::find('smartphone'));
+        if (!$subSite || $subSite->same_main_url) {
             return;
         }
         $url = $subSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
@@ -3033,8 +3043,9 @@ END_FLASH;
             }
         }
         if (is_null($useSubDomain)) {
-            $site = BcSite::findCurrent();
-            $useSubDomain = $site->useSubDomain;
+            $siteFront = $this->getService(SiteFrontServiceInterface::class);
+            $site = $siteFront->findCurrent();
+            $useSubDomain = $site->use_subdomain;
         }
         return $this->BcContents->getUrl($url, $full, $useSubDomain, $base);
     }

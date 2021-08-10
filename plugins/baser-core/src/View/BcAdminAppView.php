@@ -14,8 +14,10 @@ namespace BaserCore\View;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\View\Helper\BcAdminContentHelper;
 use BaserCore\View\Helper\BcAdminPermissionHelper;
 use BaserCore\View\Helper\BcAdminPluginHelper;
+use BaserCore\View\Helper\BcAdminSiteConfigHelper;
 use BaserCore\View\Helper\BcAdminSiteHelper;
 use BaserCore\View\Helper\BcAdminUserHelper;
 use BaserCore\View\Helper\BcAdminFormHelper;
@@ -28,6 +30,7 @@ use BaserCore\View\Helper\BcHtmlHelper;
 use BaserCore\View\Helper\BcListTableHelper;
 use BaserCore\View\Helper\BcTextHelper;
 use BaserCore\View\Helper\BcTimeHelper;
+use BaserCore\View\Helper\BcContentsHelper;
 
 /**
  * Class BcAdminAppView
@@ -46,6 +49,8 @@ use BaserCore\View\Helper\BcTimeHelper;
  * @property BcAdminPluginHelper $BcAdminPlugin
  * @property BcAdminSiteHelper $BcAdminSite
  * @property BcAdminPermissionHelper $BcAdminPermission
+ * @property BcAdminSiteConfigHelper $BcAdminSiteConfig
+ * @property BcContentsHelper $BcContents
  */
 class BcAdminAppView extends AppView
 {
@@ -63,6 +68,8 @@ class BcAdminAppView extends AppView
         $this->loadHelper('BaserCore.BcAuth');
         $this->loadHelper('BaserCore.BcAdmin');
         $this->loadHelper('BaserCore.BcAdminUser');
+        $this->loadHelper('BaserCore.BcAdminSiteConfig');
+        $this->loadHelper('BaserCore.BcContents');
         if (!$this->get('title')) {
             $this->set('title', 'Undefined');
         }

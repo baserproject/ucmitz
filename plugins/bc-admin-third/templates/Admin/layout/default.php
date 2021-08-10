@@ -11,7 +11,7 @@
 
 use BaserCore\Utility\BcUtil;
 use BaserCore\View\AppView;
-
+use Cake\Utility\Inflector;
 /**
  * @var AppView $this
  * @var string $title
@@ -34,6 +34,7 @@ $base = $attributes['base'];
     'vendor/jquery-ui/jquery-ui.min',
     'vendor/jquery.timepicker',
     'admin/style',
+    '../js/admin/vendors/jquery.jstree-3.3.8/themes/proton/style.min',
   ]) ?>
   <?= $this->fetch('css') ?>
   <?= $this->BcBaser->declarationI18n() ?>
@@ -76,11 +77,15 @@ $base = $attributes['base'];
     'vendor/jquery-ui-1.11.4.min.js',
     'vendor/i18n/ui.datepicker-ja',
     'vendor/jquery.timepicker',
+    'admin/functions',
   ]) ?>
   <?php $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
     'data-baseUrl' => h($base),
-    'data-adminPrefix' => BcUtil::getAdminPrefix()
+    'data-adminPrefix' => BcUtil::getAdminPrefix(),
+    'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix()),
+    'data-ajaxLoaderPath' => $this->Html->Url->image('admin/ajax-loader.gif'),
+    'data-ajaxLoaderSmallPath' => $this->Html->Url->image('admin/ajax-loader-s.gif'),
   ]) ?>
   <?php $this->BcBaser->js([
     'admin/startup.bundle'

@@ -11,8 +11,10 @@
 
 namespace BaserCore\View\Helper;
 
+use BaserCore\Model\Entity\Site;
 use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Utility\BcContainerTrait;
+use Cake\Datasource\EntityInterface;
 use Cake\View\Helper;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -53,9 +55,9 @@ class BcAdminSiteHelper extends Helper
      * @noTodo
      * @unitTest
      */
-    public function getDevices(): array
+    public function getDeviceList(): array
     {
-        return $this->SiteManage->getDevices();
+        return $this->SiteManage->getDeviceList();
     }
 
     /**
@@ -65,21 +67,80 @@ class BcAdminSiteHelper extends Helper
      * @noTodo
      * @unitTest
      */
-    public function getlangs(): array
+    public function getLangList(): array
     {
-        return $this->SiteManage->getlangs();
+        return $this->SiteManage->getLangList();
     }
 
     /**
      * サイトのリストを取得
+     * @param array $options
+     *  - `excludeId` : 除外するサイトID（初期値：なし）
      * @return array
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function getSiteList(): array
+    public function getSiteList($options = []): array
     {
-        return $this->SiteManage->getSiteList();
+        return $this->SiteManage->getSiteList($options);
+    }
+
+    /**
+     * テーマのリストを取得
+     * @param Site $site
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getThemeList($site): array
+    {
+        return $this->SiteManage->getThemeList($site);
+    }
+
+    /**
+     * デバイス設定を利用するかどうか
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function isUseSiteDeviceSetting(): bool
+    {
+        return $this->SiteManage->isUseSiteDeviceSetting();
+    }
+
+    /**
+     * 言語設定を利用するかどうか
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function isUseSiteLangSetting(): bool
+    {
+        return $this->SiteManage->isUseSiteLangSetting();
+    }
+
+    /**
+     * 現在の画面で表示しているものがメインサイトかどうか
+     * @param Site $site
+     * @return bool
+     */
+    public function isMainOnCurrentDisplay($site): bool
+    {
+        return $this->SiteManage->isMainOnCurrentDisplay($site);
+    }
+
+    /**
+     * URLよりサイトを取得する
+     * @param $url
+     * @return Site
+     */
+    public function findByUrl($url): EntityInterface
+    {
+        return $this->SiteManage->findByUrl($url);
     }
 
 }

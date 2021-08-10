@@ -24,6 +24,7 @@ use BaserCore\Event\BcContainerEventListener;
 use BaserCore\Event\BcControllerEventDispatcher;
 use BaserCore\Event\BcModelEventDispatcher;
 use BaserCore\Event\BcViewEventDispatcher;
+use BaserCore\Utility\BcUtil;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
@@ -35,6 +36,9 @@ use Cake\Validation\Validator;
  */
 Configure::config('baser', new PhpConfig());
 Configure::load('BaserCore.setting', 'baser');
+if(file_exists(CONFIG . 'setting.php')) {
+    Configure::load('setting', 'baser');
+}
 
 /**
  * キャッシュ設定
@@ -76,3 +80,8 @@ require __DIR__ . DS . 'paths.php';
 // >>>
 // require BASER . DS . 'src' . DS . 'basics.php';
 // <<<
+
+if(!defined('BC_INSTALLED')) {
+    define('BC_INSTALLED', BcUtil::isInstalled());
+}
+

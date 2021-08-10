@@ -148,11 +148,6 @@ $config['BcApp'] = [
     'updateKey' => 'update',
     // 管理者グループID
     'adminGroupId' => 1,
-    // エディター
-    'editors' => [
-        'none' => __d('baser', 'なし'),
-        'BcCkeditor' => 'CKEditor'
-    ],
     'testTheme' => 'bc_sample',
     // 固定ページでシンタックスエラーチェックを行うかどうか
     // お名前ドットコムの場合、CLI版PHPの存在確認の段階で固まってしまう
@@ -201,34 +196,6 @@ $config['BcRequire'] = [
     'MySQLVersion' => "5.0.0",
     'winSQLiteVersion' => "3.7.16",
     'PostgreSQLVersion' => "8.4.0"
-];
-
-/**
- * 環境設定
- */
-$config['BcEnv'] = [
-    // テストDBプレフィックス
-    'testDbPrefix' => 'test_',
-    // WebサイトURL（インストーラーで install.php 自動設定される、システム設定で変更可）
-    'siteUrl' => '',
-    // SSLのWebサイトURL（システム設定で変更可）
-    'sslUrl' => '',
-    // 復数のWebサイトを管理する場合のメインとなるドメイン
-    'mainDomain' => '',
-    // 現在のリクエストのホスト
-    'host' => @$_SERVER['HTTP_HOST']
-];
-
-/**
- * 文字コード設定
- */
-$config['BcEncode'] = [
-    // 文字コードの検出順
-    'detectOrder' => 'ASCII,JIS,UTF-8,SJIS-win,EUC-JP',
-    'mail' => [
-        'UTF-8' => 'UTF-8',
-        'ISO-2022-JP' => 'ISO-2022-JP'
-    ]
 ];
 
 /**

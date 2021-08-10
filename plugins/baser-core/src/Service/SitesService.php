@@ -13,7 +13,6 @@ namespace BaserCore\Service;
 
 use BaserCore\Model\Entity\Site;
 use BaserCore\Model\Table\SitesTable;
-use Cake\Core\Configure;
 use Cake\Core\Exception\Exception;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -53,10 +52,9 @@ class SitesService implements SitesServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function getNew(): Site
+    public function getNew(): EntityInterface
     {
         return $this->Sites->newEntity([
-            'title' => $this->getSiteConfig('name'),
             'status' => false,
         ]);
     }
@@ -136,10 +134,59 @@ class SitesService implements SitesServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function delete($id)
+    public function delete(int $id)
     {
         $site = $this->get($id);
+        if(!$site->main_site_id) {
+            throw new Exception(__d('baser', 'メインサイトは削除できません。'));
+        }
         return $this->Sites->delete($site);
+    }
+
+    /**
+     * 選択可能なデバイスの一覧を取得する
+     *
+     * 現在のサイトとすでに利用されいているデバイスは除外する
+     *
+     * @param int $mainSiteId メインサイトID
+     * @param int $currentSiteId 現在のサイトID
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getSelectableDevices($mainSiteId, $currentSiteId = null): array
+    {
+        return $this->Sites->getSelectableDevices($mainSiteId, $currentSiteId);
+    }
+
+    /**
+     * 選択可能が言語の一覧を取得する
+     *
+     * @param int $mainSiteId メインサイトID
+     * @param int $currentSiteId 現在のサイトID
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getSelectableLangs($mainSiteId, $currentSiteId = null): array
+    {
+        return $this->Sites->getSelectableLangs($mainSiteId, $currentSiteId);
+    }
+
+    /**
+     * URLよりサイトを取得する
+     *
+     * @param string $url
+     * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function findByUrl($url): EntityInterface
+    {
+        return $this->Sites->findByUrl($url);
     }
 
 }

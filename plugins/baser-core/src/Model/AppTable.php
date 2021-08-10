@@ -12,6 +12,7 @@
 namespace BaserCore\Model;
 
 use ArrayObject;
+use BaserCore\Utility\BcUtil;
 use Cake\Event\Event;
 use Cake\ORM\Table;
 use Cake\ORM\Query;
@@ -445,8 +446,7 @@ class AppTable extends Table
             }
         }
         ClassRegistry::flush();
-        BcSite::flash();
-        clearAllCache();
+        BcUtil::clearAllCache();
         return $result;
         <<< */
     }
@@ -491,8 +491,7 @@ class AppTable extends Table
             }
         }
         ClassRegistry::flush();
-        BcSite::flash();
-        clearAllCache();
+        BcUtil::clearAllCache();
         return $result;
         <<< */
     }
@@ -555,7 +554,6 @@ class AppTable extends Table
         $ret = $db->addColumn($options);
         $this->deleteModelCache();
         ClassRegistry::flush();
-        BcSite::flash();
         return $ret;
         <<< */
     }
@@ -586,7 +584,6 @@ class AppTable extends Table
         $ret = $db->changeColumn($options);
         $this->deleteModelCache();
         ClassRegistry::flush();
-        BcSite::flash();
         return $ret;
         <<< */
     }
@@ -617,7 +614,6 @@ class AppTable extends Table
         $ret = $db->dropColumn($options);
         $this->deleteModelCache();
         ClassRegistry::flush();
-        BcSite::flash();
         return $ret;
         <<< */
     }
@@ -649,7 +645,6 @@ class AppTable extends Table
         $ret = $db->renameColumn($options);
         $this->deleteModelCache();
         ClassRegistry::flush();
-        BcSite::flash();
         return $ret;
         <<< */
     }
@@ -823,88 +818,6 @@ class AppTable extends Table
                 @unlink(CACHE . 'models' . DS . $cache);
             }
         }
-    }
-
-    /**
-     * Key Value 形式のテーブルよりデータを取得して
-     * １レコードとしてデータを展開する
-     *
-     * @return array
-     */
-    public function findExpanded()
-    {
-        $dbDatas = $this->find()
-            ->select(['name', 'value'])
-            ->all();
-        $expandedData = [];
-        var_dump($dbDatas);
-        return;
-        if ($dbDatas) {
-            foreach($dbDatas as $dbData) {
-                $expandedData[$dbData[$this->_alias]['name']] = $dbData[$this->_alias]['value'];
-            }
-        }
-        return $expandedData;
-    }
-
-    /**
-     * Key Value 形式のテーブルにデータを保存する
-     *
-     * @param array $data
-     * @return boolean
-     */
-    public function saveKeyValue($data)
-    {
-        if (isset($data[$this->_alias])) {
-            $data = $data[$this->_alias];
-        }
-
-        if ($this->_behaviors->loaded('BcCache')) {
-            // TODO disableのCakePHP4の記述方法確認
-            // $this->_behaviors->disable('BcCache');
-        }
-
-        $result = true;
-        foreach($data as $key => $value) {
-
-            if ($this->find()->where(['name' => $key])->count() > 1) {
-                $this->deleteAll(['name' => $key]);
-            }
-
-            $dbData = $this->find()->where(['name' => $key])->first();
-
-            if (!$dbData) {
-                $dbData = $this->newEntity([
-                    $this->_alias => [
-                        'name' => $key,
-                        'value' => $value
-                    ]
-                ]);
-                $this->save($dbData);
-            } else {
-                $dbData = $this->patchEntity($dbData, [
-                    $this->_alias => [
-                        'value' => $value
-                    ]
-                ]);
-                $this->save($dbData);
-            }
-
-            // SQliteの場合、トランザクション用の関数をサポートしていない場合があるので、
-            // 個別に保存するようにした。
-            // TODO CakePHP4の記述方法確認
-            // if (!$this->save(null, false)) {
-            //     $result = false;
-            // }
-        }
-
-        if ($this->_behaviors->loaded('BcCache')) {
-            // TODO enableのCakePHP4の記述方法確認
-            // $this->_behaviors->enable('BcCache');
-            // $this->delCache();
-        }
-
-        return $result;
     }
 
     /**

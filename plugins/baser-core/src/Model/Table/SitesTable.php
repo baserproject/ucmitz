@@ -47,6 +47,25 @@ class SitesTable extends AppTable
     private $__changedAlias = false;
 
     /**
+     * Initialize
+     *
+     * @param array $config テーブル設定
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+        $this->setTable('sites');
+        $this->setDisplayField('title');
+        $this->setPrimaryKey('id');
+        $this->addBehavior('Timestamp');
+        $this->setDisplayField('display_name');
+    }
+
+    /**
      * Validation Default
      *
      * @param Validator $validator
@@ -58,7 +77,6 @@ class SitesTable extends AppTable
     public function validationDefault(Validator $validator): Validator
     {
         $validator->setProvider('site', 'BaserCore\Model\Validation\SiteValidation');
-        $validator->requirePresence(['name', 'display_name', 'alias', 'title'], 'create');
 
         $validator
             ->integer('id')
@@ -81,7 +99,7 @@ class SitesTable extends AppTable
                 ]]);
         $validator
             ->scalar('display_name')
-            ->maxLength('display_name', 50, __d('baser', 'サブサイト名は50文字以内で入力してください。'))
+            ->maxLength('display_name', 50, __d('baser', 'サイト名は50文字以内で入力してください。'))
             ->notEmptyString('display_name', __d('baser', 'サイト名を入力してください。'));
         $validator
             ->scalar('alias')
@@ -146,7 +164,7 @@ class SitesTable extends AppTable
             $options = $event->getResult() === true? $event->getData('options') : $event->getResult();
         }
 
-        if(!is_null($options['status'])) {
+        if (!is_null($options['status'])) {
             $conditions = ['status' => $options['status']];
         }
 
@@ -180,7 +198,6 @@ class SitesTable extends AppTable
             }
         }
 
-        $this->setDisplayField('display_name');
         return $this->find('list')->where($conditions)->toArray();
     }
 
@@ -189,28 +206,14 @@ class SitesTable extends AppTable
      *
      * @param mixed $options
      *  - `fields` : 取得するフィールド
-     * @return array
+     * @return EntityInterface
      * @checked
      * @noTodo
      * @unitTest
      */
     public function getRootMain($options = [])
     {
-        $options += [
-            'fields' => []
-        ];
-        $site = $this->find()->where(['main_site_id IS' => null])->first()->toArray();
-        if ($options['fields']) {
-            if (!is_array($options['fields'])) {
-                $options['fields'] = [$options['fields']];
-            }
-            $siteTmp = [];
-            foreach($options['fields'] as $field) {
-                $siteTmp[$field] = $site[$field];
-            }
-            $site = $siteTmp;
-        }
-        return $site;
+        return $this->find()->where(['main_site_id IS' => null])->first();
     }
 
     /**
@@ -284,7 +287,7 @@ class SitesTable extends AppTable
     }
 
     /**
-     * サブサイトを取得する
+     * サイトを取得する
      *
      * @param $id
      * @param array $options
@@ -398,7 +401,7 @@ class SitesTable extends AppTable
     public function getPrefix($id)
     {
         $site = $this->find()->select(['name', 'alias'])->where(['id' => $id])->first();
-        if(!$site) {
+        if (!$site) {
             return false;
         }
         $prefix = $site->name;
@@ -427,31 +430,25 @@ class SitesTable extends AppTable
      * URLよりサイトを取得する
      *
      * @param string $url
-     * @return array|bool|null
+     * @return EntityInterface
      * @checked
      * @noTodo
      * @unitTest
      */
     public function findByUrl($url)
     {
-        if ($url === false || $url === "") {
-            return $this->getRootMain();
+        $url = preg_replace('/(^\/|\/$)/', '', $url);
+        $urlAry = explode('/', $url);
+        $where = [];
+        for($i = count($urlAry); $i > 0; $i--) {
+            $where['or'][] = ['alias' => implode('/', $urlAry)];
+            unset($urlAry[$i - 1]);
         }
-        $url = preg_replace('/^\//', '', $url);
-        $params = explode('/', $url);
-        if (empty($params[0])) {
-            return false;
-        }
-        $site = $this->find()->where([
-            'or' => [
-                'name' => $params[0],
-                'alias' => $params[0]
-            ]
-        ])->first();
-        if (!$site) {
-            return $this->getRootMain();
+        $result = $this->find()->where($where)->order(['alias DESC']);
+        if ($result->count()) {
+            return $result->first();
         } else {
-            return $site->toArray();
+            return $this->getRootMain();
         }
     }
 
@@ -459,7 +456,7 @@ class SitesTable extends AppTable
      * メインサイトを取得する
      *
      * @param int $id
-     * @return array|false
+     * @return EntityInterface|false
      * @checked
      * @noTodo
      * @unitTest
@@ -467,7 +464,7 @@ class SitesTable extends AppTable
     public function getMain($id)
     {
         $currentSite = $this->find()->where(['id' => $id])->first();
-        if(!$currentSite) {
+        if (!$currentSite) {
             return false;
         }
         if (is_null($currentSite->main_site_id)) {
@@ -476,10 +473,10 @@ class SitesTable extends AppTable
         $mainSite = $this->find()->where([
             'id' => $currentSite->main_site_id
         ])->first();
-        if(!$mainSite) {
+        if (!$mainSite) {
             return false;
         }
-        return $mainSite->toArray();
+        return $mainSite;
     }
 
     /**
@@ -502,7 +499,7 @@ class SitesTable extends AppTable
         $selected = $this->find('list')
             ->where([
                 'main_site_id' => $mainSiteId,
-                'id <>' => $currentSiteId
+                'id IS NOT' => $currentSiteId
             ])->toArray();
         foreach($agents as $key => $agent) {
             if (in_array($key, $selected)) {
@@ -531,7 +528,7 @@ class SitesTable extends AppTable
         $selected = $this->find('list')
             ->where([
                 'main_site_id' => $mainSiteId,
-                'id <>' => $currentSiteId
+                'id IS NOT' => $currentSiteId
             ])->toArray();
         foreach($langs as $key => $lang) {
             if (in_array($key, $selected)) {

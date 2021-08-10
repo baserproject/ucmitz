@@ -11,7 +11,6 @@
 
 namespace BaserCore\Service;
 
-use BaserCore\Model\Entity\Site;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\Query;
 
@@ -35,7 +34,7 @@ interface SitesServiceInterface
      * 新しいデータの初期値を取得する
      * @return EntityInterface
      */
-    public function getNew(): Site;
+    public function getNew(): EntityInterface;
 
     /**
      * 新規登録する
@@ -58,4 +57,33 @@ interface SitesServiceInterface
      * @return mixed
      */
     public function delete(int $id);
+
+    /**
+     * 選択可能なデバイスの一覧を取得する
+     *
+     * 現在のサイトとすでに利用されいているデバイスは除外する
+     *
+     * @param int $mainSiteId メインサイトID
+     * @param int $currentSiteId 現在のサイトID
+     * @return array
+     */
+    public function getSelectableDevices($mainSiteId, $currentSiteId = null): array;
+
+    /**
+     * 選択可能が言語の一覧を取得する
+     *
+     * @param int $mainSiteId メインサイトID
+     * @param int $currentSiteId 現在のサイトID
+     * @return array
+     */
+    public function getSelectableLangs($mainSiteId, $currentSiteId = null): array;
+
+    /**
+     * URLよりサイトを取得する
+     *
+     * @param string $url
+     * @return EntityInterface
+     */
+    public function findByUrl($url): EntityInterface;
+
 }

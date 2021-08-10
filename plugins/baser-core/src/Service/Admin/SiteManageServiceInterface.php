@@ -33,7 +33,7 @@ interface SiteManageServiceInterface
      * 新規データ用の初期値を含んだエンティティを取得する
      * @return Site
      */
-    public function getNew(): Site;
+    public function getNew(): EntityInterface;
 
     /**
      * 全件取得する
@@ -75,18 +75,45 @@ interface SiteManageServiceInterface
      * 言語リストを取得
      * @return array
      */
-    public function getLangs(): array;
+    public function getLangList(): array;
 
     /**
      * デバイスリストを取得
      * @return array
      */
-    public function getDevices(): array;
+    public function getDeviceList(): array;
 
     /**
      * サイトのリストを取得
+     * @param array $options
      * @return array
      */
-    public function getSiteList(): array;
+    public function getSiteList($options = []): array;
+
+    /**
+     * テーマのリストを取得する
+     * @param Site $site
+     * @return array
+     */
+    public function getThemeList(Site $site): array;
+
+    /**
+     * デバイス設定を利用するかどうか
+     * @return bool
+     */
+    public function isUseSiteDeviceSetting(): bool;
+
+    /**
+     * 言語設定を利用するかどうか
+     * @return bool
+     */
+    public function isUseSiteLangSetting(): bool;
+
+    /**
+     * 現在の画面で表示しているものがメインサイトかどうか
+     * @param Site $site
+     * @return bool
+     */
+    public function isMainOnCurrentDisplay($site): bool;
 
 }

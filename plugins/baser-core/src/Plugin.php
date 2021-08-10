@@ -60,9 +60,11 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         $application->addPlugin('BcAdminThird');
 
         $plugins = BcUtil::getEnablePlugins();
-        foreach($plugins as $plugin) {
-            if (BcUtil::includePluginClass($plugin->name)) {
-                $this->loadPlugin($application, $plugin->name, $plugin->priority);
+        if($plugins) {
+            foreach($plugins as $plugin) {
+                if (BcUtil::includePluginClass($plugin->name)) {
+                    $this->loadPlugin($application, $plugin->name, $plugin->priority);
+                }
             }
         }
     }
@@ -212,6 +214,11 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'finder' => 'available'
                     ],
                     'contain' => 'UserGroups',
+                ]);
+                // ログインセッションを保有している際も認証済とする
+                // Webの管理画面よりAPIにアクセスできるようにするため
+                $service->loadAuthenticator('Authentication.Session', [
+                    'sessionKey' => $authSetting['sessionKey'],
                 ]);
                 break;
 

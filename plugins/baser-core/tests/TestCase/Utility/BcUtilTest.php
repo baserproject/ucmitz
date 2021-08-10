@@ -714,6 +714,9 @@ class BcUtilTest extends BcTestCase
     {
         $result = BcUtil::getPrefix();
         $this->assertEquals('/baser/admin', $result);
+        // $regex = trueの場合
+        $result = BcUtil::getPrefix(true);
+        $this->assertRegExp('/^(|\/)' . $result .'/', '/baser/admin');
     }
 
 
@@ -788,6 +791,17 @@ class BcUtilTest extends BcTestCase
         $this->assertEquals('baser-core', BcUtil::getPluginDir('BaserCore'));
         $this->assertEquals('bc-blog', BcUtil::getPluginDir('BcBlog'));
         $this->assertEquals('BcSample', BcUtil::getPluginDir('BcSample'));
+    }
+
+    public function testGetContentsItem()
+    {
+        $result = BcUtil::getContentsItem();
+        $list = ['Default', 'ContentFolder', 'ContentAlias', 'ContentLink', 'Page'];
+        foreach($list as $key) {
+            $this->assertArrayHasKey($key, $result);
+        }
+        $this->assertEquals('Core', $result['Default']['plugin']);
+        $this->assertEquals('Default', $result['Default']['type']);
     }
 
 }

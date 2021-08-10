@@ -11,16 +11,14 @@
 
 namespace BaserCore\Controller;
 
-use BaserCore\Controller\Component\BcMessageComponent;
+use BaserCore\Service\SitesServiceInterface;
 use Cake\Controller\ComponentRegistry;
+use Cake\Core\Exception\Exception;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManagerInterface;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
-use BaserCore\Model\Table\LoginStoresTable;
-use Cake\Http\Cookie\Cookie;
-use DateTime;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Service\DblogsServiceInterface;
 use Cake\Core\Configure;
@@ -228,7 +226,8 @@ class BcAppController extends AppController
         }
 
         // 言語設定
-        $currentSite = BcSite::findCurrent();
+        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $currentSite = $siteFront->findCurrent();
         if ($currentSite) {
             $lang = Configure::read('BcLang.' . $currentSite->lang);
         }
@@ -273,13 +272,13 @@ class BcAppController extends AppController
 
             // サブサイト用のエラー
             try {
-                $Site = ClassRegistry::init('Site');
-                $site = $Site->findByUrl($this->request->url);
-                if (!empty($site['Site']['name'])) {
-                    $this->layoutPath = $site['Site']['name'];
-                    if ($site['Site']['name'] === 'mobile') {
+                $sites = $this->getService(SitesServiceInterface::class);
+                $site = $sites->findByUrl($this->request->getPath());
+                if (!empty($site->name)) {
+                    $this->layoutPath = $site->name;
+                    if ($site->name === 'mobile') {
                         $this->helpers[] = 'BcMobile';
-                    } elseif ($site['Site']['name'] === 'smartphone') {
+                    } elseif ($site->name === 'smartphone') {
                         $this->helpers[] = 'BcSmartphone';
                     }
                 }
@@ -565,7 +564,8 @@ class BcAppController extends AppController
             $theme = $this->request->getParam('Site.theme');
         }
         if (!$theme) {
-            $site = BcSite::findCurrent();
+            $siteFront = $this->getService(SiteFrontServiceInterface::class);
+            $site = $siteFront->findCurrent();
             if (!empty($site->theme)) {
                 $theme = $site->theme;
             }
@@ -1519,10 +1519,10 @@ class BcAppController extends AppController
     {
         // CUSTOMIZE ADD 2012/04/22 ryuring
         // >>>
-        $_action = $this->request->action;
+        $_action = $this->request->getParam('action');
         // <<<
 
-        $this->request->action = $action;
+        $this->request->withParam('action', $action);
         $args = func_get_args();
         unset($args[0]);
 
@@ -1531,7 +1531,7 @@ class BcAppController extends AppController
         //return call_user_func_array(array($this, $action), $args);
         // ---
         $return = call_user_func_array([$this, $action], $args);
-        $this->request->action = $_action;
+        $this->request->withParam('action', $_action);
         return $return;
         // <<<
     }

@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Service\Admin;
 
+use BaserCore\Model\Entity\Site;
 use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
@@ -37,7 +38,9 @@ class SiteManageServiceTest extends BcTestCase
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.UserGroups',
-        'plugin.BaserCore.LoginStores'
+        'plugin.BaserCore.LoginStores',
+        'plugin.BaserCore.Sites',
+        'plugin.BaserCore.SiteConfigs'
     ];
 
     /**
@@ -63,21 +66,90 @@ class SiteManageServiceTest extends BcTestCase
     }
 
     /**
-     * Test getLangs
+     * Test getLangList
      */
-    public function testGetLangs()
+    public function testGetLangList()
     {
-        $langs = $this->SiteManage->getLangs();
+        $langs = $this->SiteManage->getLangList();
         $this->assertEquals('english', key($langs));
     }
 
     /**
-     * Test getDevices
+     * Test getDeviceList
      */
-    public function testGetDevices()
+    public function testGetDeviceList()
     {
-        $devices = $this->SiteManage->getDevices();
+        $devices = $this->SiteManage->getDeviceList();
         $this->assertEquals('mobile', key($devices));
+    }
+
+    /**
+     * Test getSiteList
+     */
+    public function testGetSiteList()
+    {
+        $this->assertEquals(4, count($this->SiteManage->getSiteList()));
+        $this->SiteManage->create([
+            'name' => 'test',
+            'display_name' => 'test',
+            'alias' => 'test',
+            'title' => 'test',
+            'status' => true
+        ]);
+        $this->assertEquals(5, count($this->SiteManage->getSiteList()));
+    }
+
+    /**
+     * Test getThemeList
+     */
+    public function testGetThemeList()
+    {
+        // TODO BcUtil::getAllThemeList() を実装しないとテストができない
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test isUseSiteDeviceSetting
+     */
+    public function testIsUseSiteDeviceSetting()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // TODO テストの実装は完了したが、SiteConfigsMockService::value() を実装しないと動作しない
+        $this->assertTrue($this->SiteManage->isUseSiteDeviceSetting());
+        $siteConfigs = $this->getTableLocator()->get('BaserCore.SiteConfigs');
+        $siteConfig = $siteConfigs->find()->where(['name' => 'use_site_device_setting'])->first();
+        $siteConfig->value = false;
+        $siteConfigs->save($siteConfig);
+        $this->assertFalse($this->SiteManage->isUseSiteDeviceSetting());
+    }
+
+    /**
+     * Test isUseSiteLangSetting
+     */
+    public function testIsUseSiteLangSetting()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // TODO テストの実装は完了したが、SiteConfigsMockService::value() を実装しないと動作しない
+        $this->assertFalse($this->SiteManage->isUseSiteLangSetting());
+        $siteConfigs = $this->getTableLocator()->get('BaserCore.SiteConfigs');
+        $siteConfig = $siteConfigs->find()->where(['name' => 'use_site_lang_setting'])->first();
+        $siteConfig->value = true;
+        $siteConfigs->save($siteConfig);
+        $this->assertTrue($this->SiteManage->isUseSiteLangSetting());
+    }
+
+    /**
+     * test isMainOnCurrentDisplay
+     */
+    public function testIsMainOnCurrentDisplay()
+    {
+        $site = new Site(['id' => 1, 'main_site_id' => null]);
+        $this->assertTrue($this->SiteManage->isMainOnCurrentDisplay($site));
+        $site = new Site(['id' => 1, 'main_site_id' => null]);
+        $this->getRequest('/baser/admin/baser-core/sites/add');
+        $this->assertFalse($this->SiteManage->isMainOnCurrentDisplay($site));
+        $site = new Site(['id' => 2, 'main_site_id' => 1]);
+        $this->assertFalse($this->SiteManage->isMainOnCurrentDisplay($site));
     }
 
 }

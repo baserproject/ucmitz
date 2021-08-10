@@ -20,7 +20,7 @@ use BaserCore\Model\Table\ContentsTable;
  * Class ContentTest
  *
  * @package Baser.Test.Case.Model
- * @property Content $Content
+ * @property ContentsTable $Contents
  */
 class ContentsTableTest extends BcTestCase
 {
@@ -57,7 +57,6 @@ class ContentsTableTest extends BcTestCase
     public function tearDown(): void
     {
         unset($this->Contents);
-        // BcSite::flash();
         parent::tearDown();
     }
 
@@ -365,10 +364,9 @@ class ContentsTableTest extends BcTestCase
      */
     public function testFindByType($type, $entityId, $expects)
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
-        $result = $this->Content->findByType($type, $entityId);
+        $result = $this->Contents->findByType($type, $entityId);
         if ($result) {
-            $result = $result['Content']['id'];
+            $result = $result->id;
         }
         $this->assertEquals($expects, $result);
     }
@@ -376,31 +374,12 @@ class ContentsTableTest extends BcTestCase
     public function findByTypeDataProvider()
     {
         return [
-            ['Blog.BlogContent', null, 8],    // entityId指定なし
-            ['Blog.BlogContent', 2, 17],    // entityId指定あり
-            ['Page', 12, 34],                // プラグイン指定なし
-            ['Blog.BlogComment', null, []],    // 存在しないタイプ
-            [false, null, []]                // 異常系
+            ['Mail.MailContent', null, 9],    // entityId指定なし
+            ['Blog.BlogContent', 1, 10],    // entityId指定あり
+            ['Page', 3, 11],                // プラグイン指定なし
+            ['Blog.BlogComment', null, null],    // 存在しないタイプ
+            [false, null, null]                // 異常系
         ];
-    }
-
-    /**
-     * コンテンツフォルダーのリストを取得
-     * コンボボックス用
-     */
-    public function testGetContentFolderList()
-    {
-        $siteId = 1;
-
-        $this->Contents->getContentFolderList();
-    }
-
-    /**
-     * ツリー構造のデータを コンボボックスのデータ用に変換する
-     */
-    public function testConvertTreeList()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**

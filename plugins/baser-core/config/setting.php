@@ -21,6 +21,24 @@ use BaserCore\Annotation\Checked;
 $baserCorePrefix = '/baser';
 $adminPrefix = '/admin';
 return [
+    'BcEnv' => [
+        /**
+         * サイトURL
+         */
+        'siteUrl' => env('SITE_URL', 'https://localhost/'),
+        /**
+         * SSL URL
+         */
+        'sslUrl' => env('SSL_URL', 'https://localhost/'),
+        /**
+         * 復数のWebサイトを管理する場合のメインとなるドメイン
+         */
+        'mainDomain' => '',
+        /**
+         * 現在のリクエストのホスト
+         */
+        'host' => @$_SERVER['HTTP_HOST']
+    ],
     'BcApp' => [
         /**
          * baserコアのプレフィックス
@@ -55,6 +73,17 @@ return [
          */
         'marketPluginRss' => 'https://market.basercms.net/plugins.php',
         /**
+         * 管理画面のSSL
+         */
+        'adminSsl' => filter_var(env('ADMIN_SSL'), FILTER_VALIDATE_BOOLEAN),
+        /**
+         * エディタ
+         */
+        'editors' => [
+            'none' => __d('baser', 'なし'),
+            'BcCkeditor' => 'CKEditor'
+        ],
+        /**
          * システムナビ
          *
          * 初期状態で表示するメニューは、`Contents` キー配下に定義し、「設定」内に格納する場合は、`Systems` キー配下に定義する
@@ -78,21 +107,21 @@ return [
                     'type' => 'dashboard',
                     'url' => $baserCorePrefix . $adminPrefix,
                 ],
-                            'Contents' => [
-                                'title' => __d('baser', 'コンテンツ管理'),
-                                'type' => 'contents',
-                                'menus' => [
-                                    'Contents' => ['title' => __d('baser', 'コンテンツ'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'index']],
-                                    'ContentsTrash' => ['title' => __d('baser', 'ゴミ箱'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'trash_index']],
-                                ]
-                            ],
+                'Contents' => [
+                    'title' => __d('baser', 'コンテンツ管理'),
+                    'type' => 'contents',
+                    'menus' => [
+                        'Contents' => ['title' => __d('baser', 'コンテンツ'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'index']],
+                        'ContentsTrash' => ['title' => __d('baser', 'ゴミ箱'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'contents', 'action' => 'trash_index']],
+                    ]
+                ],
             ],
             'Systems' => [
-                //			'SiteConfigs' => [
-                //				'title' => __d('baser', 'サイト基本設定'),
-                //				'type' => 'system',
-                //				'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'site_configs', 'action' => 'form'],
-                //			],
+                'SiteConfigs' => [
+                    'title' => __d('baser', 'システム基本設定'),
+                    'type' => 'system',
+                    'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'site_configs', 'action' => 'index']
+                ],
                 'Users' => [
                     'title' => __d('baser', 'ユーザー管理'),
                     'type' => 'system',
@@ -110,11 +139,11 @@ return [
                     ]
                 ],
                 'Sites' => [
-                    'title' => __d('baser', 'サブサイト管理'),
+                    'title' => __d('baser', 'サイト管理'),
                     'type' => 'system',
                     'menus' => [
                         'Sites' => [
-                            'title' => __d('baser', 'サブサイト'),
+                            'title' => __d('baser', 'サイト'),
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'sites', 'action' => 'index'],
                             'currentRegex' => '/\/sites\/.+?/s'
                         ],
@@ -162,7 +191,7 @@ return [
                 //						'currentRegex' => '/\/widget_areas\/[^\/]+?\/[0-9]+/s'
                 //					],
                 //					'SearchIndices' => ['title' => __d('baser', '検索インデックス'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'search_indices', 'action' => 'index']],
-                //					'SiteConfigsInfo' => ['title' => __d('baser', '環境情報'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'site_configs', 'action' => 'info']],
+                //					'SiteConfigsInfo' => ['title' => __d('baser', '環境情報'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'tools', 'action' => 'info']],
                 //					'ThemeFiles' => [
                 //						'title' => __d('baser', 'コアテンプレート確認'),
                 //						'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'theme_files', 'action' => 'index', 'core'],
@@ -257,9 +286,9 @@ return [
         ],
     ],
 
-/**
- * エージェント設定
- */
+    /**
+     * エージェント設定
+     */
     'BcAgent' => [
         'mobile' => [
             'name' => __d('baser', 'ケータイ'),
@@ -318,6 +347,156 @@ return [
                 'es'
             ]
         ]
-    ]
+    ],
+    /**
+     * 文字コード設定
+     */
+    'BcEncode' => [
+        // 文字コードの検出順
+        'detectOrder' => 'ASCII,JIS,UTF-8,SJIS-win,EUC-JP',
+        'mail' => [
+            'UTF-8' => 'UTF-8',
+            'ISO-2022-JP' => 'ISO-2022-JP'
+        ]
+    ],
+    /**
+     * コンテンツ設定
+     */
+    'BcContents' => [
+        'items' => [
+            'Core' => [
+                'Default' => [
+                    'title' => __d('baser', '無所属コンテンツ'),
+                    'omitViewAction' => true,
+                    'routes' => [
+                        'add' => [
+                            'admin' => true,
+                            'controller' => 'contents',
+                            'action' => 'add'
+                        ],
+                        'edit' => [
+                            'admin' => true,
+                            'controller' => 'contents',
+                            'action' => 'edit'
+                        ],
+                        'delete' => [
+                            'admin' => true,
+                            'controller' => 'contents',
+                            'action' => 'empty'
+                        ],
+                        'view' => [
+                            'controller' => 'contents',
+                            'action' => 'view'
+                        ]
+                    ],
+                    'icon' => 'bca-icon--file',
+                ],
+                'ContentFolder' => [
+                    'multiple' => true,
+                    'preview' => true,
+                    'title' => __d('baser', 'フォルダー'),
+                    'routes' => [
+                        'add' => [
+                            'admin' => true,
+                            'controller' => 'content_folders',
+                            'action' => 'add'
+                        ],
+                        'edit' => [
+                            'admin' => true,
+                            'controller' => 'content_folders',
+                            'action' => 'edit'
+                        ],
+                        'delete' => [
+                            'admin' => true,
+                            'controller' => 'content_folders',
+                            'action' => 'delete'
+                        ],
+                        'view' => [
+                            'controller' => 'content_folders',
+                            'action' => 'view'
+                        ]
+                    ],
+                    'icon' => 'bca-icon--folder',
+                ],
+                'ContentAlias' => [
+                    'multiple' => true,
+                    'title' => __d('baser', 'エイリアス'),
+                    'icon' => 'bca-icon--alias',
+                    'routes' => [
+                        'add' => [
+                            'admin' => true,
+                            'controller' => 'contents',
+                            'action' => 'add',
+                            1
+                        ],
+                        'edit' => [
+                            'admin' => true,
+                            'controller' => 'contents',
+                            'action' => 'edit_alias'
+                        ]
+                    ],
+                ],
+                'ContentLink' => [
+                    'multiple' => true,
+                    'title' => __d('baser', 'リンク'),
+                    'omitViewAction' => true,
+                    'routes' => [
+                        'add' => [
+                            'admin' => true,
+                            'controller' => 'content_links',
+                            'action' => 'add'
+                        ],
+                        'edit' => [
+                            'admin' => true,
+                            'controller' => 'content_links',
+                            'action' => 'edit'
+                        ],
+                        'delete' => [
+                            'admin' => true,
+                            'controller' => 'content_links',
+                            'action' => 'delete'
+                        ],
+                        'view' => [
+                            'controller' => 'content_links',
+                            'action' => 'view'
+                        ]
+                    ],
+                    'icon' => 'bca-icon--link',
+                ],
+                'Page' => [
+                    'title' => __d('baser', '固定ページ'),
+                    'multiple' => true,
+                    'preview' => true,
+                    'icon' => 'bca-icon--file',
+                    'omitViewAction' => true,
+                    'routes' => [
+                        'add' => [
+                            'admin' => true,
+                            'controller' => 'pages',
+                            'action' => 'ajax_add'
+                        ],
+                        'edit' => [
+                            'admin' => true,
+                            'controller' => 'pages',
+                            'action' => 'edit'
+                        ],
+                        'delete' => [
+                            'admin' => true,
+                            'controller' => 'pages',
+                            'action' => 'delete'
+                        ],
+                        'view' => [
+                            'controller' => 'pages',
+                            'action' => 'display'
+                        ],
+                        'copy' => [
+                            'admin' => true,
+                            'controller' => 'pages',
+                            'action' => 'ajax_copy'
+                        ]
+                    ]
+                ]
+            ]
+        ]
+    ],
 ];
-
