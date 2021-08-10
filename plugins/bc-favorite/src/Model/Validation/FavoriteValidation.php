@@ -35,7 +35,7 @@ class FavoriteValidation extends Validation
      * @noTodo
      * @unitTest
      */
-    public function isPermitted($url)
+    public static function isPermitted($url)
     {
         if (BcUtil::isAdminUser()) {
             return true;

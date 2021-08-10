@@ -20,7 +20,6 @@ use Cake\Validation\Validator;
 class FavoritesTable extends AppTable
 {
 
-
     /**
      * Initialize
      *
@@ -62,7 +61,6 @@ class FavoritesTable extends AppTable
                 'rule' => 'isPermitted',
                 'provider' => 'favorite',
                 'message' => __d('baser', 'このURLの登録は許可されていません。')]);
-
         return $validator;
     }
 

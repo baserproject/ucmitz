@@ -261,7 +261,7 @@ class PermissionsTable extends AppTable
                 return true;
             }
         }
-        $ret = true;
+        $ret = false;
         foreach($permissions as $permission) {
             if (!$permission->status) {
                 continue;

@@ -29,6 +29,9 @@ class FavoritesTableTest extends BcTestCase
      */
     protected $fixtures = [
         'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.Permissions',
         'plugin.BaserCore.Plugins',
         'plugin.BcFavorite.Favorites',
     ];
@@ -68,28 +71,44 @@ class FavoritesTableTest extends BcTestCase
     }
 
     /**
+     * Test initialize
+     *
+     * @return void
+     */
+    public function testInitialize()
+    {
+        $this->assertEquals('favorites', $this->Favorites->getTable());
+        $this->assertEquals('name', $this->Favorites->getDisplayField());
+        $this->assertEquals('id', $this->Favorites->getPrimaryKey());
+        $this->assertTrue($this->Favorites->hasBehavior('Timestamp'));
+        $this->assertEquals('Users', $this->Favorites->getAssociation('Users')->getName());
+    }
+
+    /**
      * Test validationDefault
      *
      * @return void
      * @dataProvider validationDefaultDataProvider
      */
-    public function testValidationDefault($fields): void
+    public function testValidationDefault($fields, $messages): void
     {
+        $this->loginAdmin($this->getRequest(), 2);
         $favorite = $this->Favorites->newEntity($fields);
-        $a = $favorite->getErrors();
         $this->assertSame($messages, $favorite->getErrors());
     }
+
     public function validationDefaultDataProvider()
     {
         return [
             [
-                [
-                    'url' => 1,
-                ]
+                ['url' => 1],
+                ['url' => ['isPermitted' => 'このURLの登録は許可されていません。']]
+            ],
+            [
+                ['url' => '/baser/admin/favorites/add'],
+                []
             ],
         ];
     }
-
-
 
 }
