@@ -143,7 +143,8 @@ class ContentsController extends BcAdminAppController
             $this->viewBuilder()->disableAutoLayout();
             $dataset = $contentManage->getAdminAjaxIndex($this->request->getQueryParams());
             $template = key($dataset);
-            $datas = array_shift($dataset);
+            // $datas = array_shift($dataset);
+            $datas = array_shift(json_decode($this->request->getData('contentData'), true));
             if($this->request->getQuery('action') == "index") {
                     switch($this->request->getQuery('list_type')) {
                         case 1:
