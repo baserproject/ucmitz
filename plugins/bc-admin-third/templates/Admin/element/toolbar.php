@@ -10,12 +10,12 @@
  */
 
 use BaserCore\Utility\BcUtil;
+use BaserCore\View\BcAdminAppView;
 use Cake\Core\Configure;
-use BaserCore\View\AppView;
 
 /**
  * toolbar
- * @var AppView $this
+ * @var BcAdminAppView $this
  */
 
 // JSの出力について、ツールバーはフロントエンドでも利用するため、inlineに出力する
@@ -99,6 +99,9 @@ if ($loginUser) {
     $accountEditUrl = [$currentPrefix => true, 'controller' => 'users', 'action' => 'edit', $loginUser->id];
   }
 }
+
+$currentSite = $this->getRequest()->getSession()->read('BcApp.Admin.currentSite');
+$sites = $this->BcAdminSite->getSiteList();
 ?>
 
 
@@ -126,10 +129,9 @@ if ($loginUser) {
       <?php endif ?>
       <?php if ($modeLabelKey): ?>
         <div class="bca-toolbar__tools-mode">
-                    <span id="DebugMode" class="bca-debug-mode"
-                          title="<?php echo h($modeLabelSettings[$modeLabelKey]['description']) ?>">
-                        <?php echo h($modeLabelSettings[$modeLabelKey]['title']) ?>
-                    </span>
+          <span id="DebugMode" class="bca-debug-mode" title="<?php echo h($modeLabelSettings[$modeLabelKey]['description']) ?>">
+              <?php echo h($modeLabelSettings[$modeLabelKey]['title']) ?>
+          </span>
         </div>
       <?php endif ?>
     </div>
