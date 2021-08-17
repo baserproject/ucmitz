@@ -11,6 +11,7 @@
 
 namespace BcFavorite\Test\TestCase\Service;
 
+use BaserCore\Utility\BcUtil;
 use BaserCore\TestSuite\BcTestCase;
 use BcFavorite\Service\FavoritesService;
 
@@ -28,7 +29,10 @@ class FavoritesServiceTest extends BcTestCase
      * @var array
      */
     protected $fixtures = [
-         'plugin.BaserCore.Favorites',
+        'plugin.BcFavorite.Favorites',
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
     ];
 
     /**
@@ -49,6 +53,12 @@ class FavoritesServiceTest extends BcTestCase
         $this->FavoritesService = new FavoritesService();
     }
 
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        BcUtil::includePluginClass('BcFavorite');
+    }
+
     /**
      * Tear Down
      *
@@ -58,6 +68,60 @@ class FavoritesServiceTest extends BcTestCase
     {
         unset($this->FavoritesService);
         parent::tearDown();
+    }
+
+    /**
+     * testGet
+     *
+     * @return void
+     */
+    public function testGet(): void
+    {
+        $this->expectException("Cake\Datasource\Exception\RecordNotFoundException");
+        $result = $this->FavoritesService->get(0);
+        $this->assertEmpty($result);
+
+        $result = $this->FavoritesService->get(1);
+        $this->assertEquals("固定ページ管理", $result->name);
+    }
+
+    /**
+     * testGetIndex
+     *
+     * @return void
+     */
+    public function testGetIndex(): void
+    {
+        $result = $this->FavoritesService->getIndex(['num' => 2]);
+        $this->assertEquals(2, $result->all()->count());
+    }
+
+    /**
+     * testGetNew
+     *
+     * @return void
+     */
+    public function testGetNew(): void
+    {
+        $result = $this->FavoritesService->getNew();
+        $this->assertInstanceOf("Cake\Datasource\EntityInterface", $result);
+    }
+
+    /**
+     * testCreate
+     *
+     * @return void
+     */
+    public function testCreate(): void
+    {
+        $this->loginAdmin($this->getRequest());
+        $result = $this->FavoritesService->create([
+            'user_id' => '1',
+            'name' => 'テスト新規登録',
+            'url' => '/baser/admin/test/index/1',
+        ]);
+        $expected = $this->FavoritesService->Favorites->find('all')->last();
+        $this->assertEquals($expected->name, $result->name);
     }
 
 }

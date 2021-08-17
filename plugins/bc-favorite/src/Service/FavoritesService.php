@@ -34,13 +34,16 @@ class FavoritesService
      */
     public function __construct()
     {
-        $this->Favorites = TableRegistry::getTableLocator()->get('BaserCore.Favorites');
+        $this->Favorites = TableRegistry::getTableLocator()->get('BcFavorite.Favorites');
     }
 
     /**
      * お気に入りを取得する
      * @param int $id
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function get($id): EntityInterface
     {
@@ -51,6 +54,9 @@ class FavoritesService
      * お気に入り一覧を取得
      * @param array $queryParams
      * @return Query
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getIndex(array $queryParams): Query
     {
@@ -65,6 +71,9 @@ class FavoritesService
     /**
      * 新しいデータの初期値を取得する
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getNew(): EntityInterface
     {
@@ -72,13 +81,17 @@ class FavoritesService
     }
 
     /**
-     * 新規登録する
+     * お気に入りを新規登録する
      * @param array $postData
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function create(array $postData)
     {
         $favorite = $this->Favorites->newEmptyEntity();
+        $favorite->sort = $this->Favorites->getMax('sort', ['user_id' => $postData['user_id']]) + 1;
         $favorite = $this->Favorites->patchEntity($favorite, $postData);
         return ($result = $this->Favorites->save($favorite))? $result : $favorite;
     }
