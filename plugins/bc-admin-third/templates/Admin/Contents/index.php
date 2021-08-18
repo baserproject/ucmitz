@@ -99,4 +99,6 @@ echo $this->BcAdminForm->control('BcManageContent', ['type' => 'hidden', 'value'
 
 <?php $this->BcBaser->element('Contents/index_view_setting') ?>
 
-<div id="DataList" class="bca-data-list">&nbsp;</div>
+<div id="DataList" class="bca-data-list">
+    <?php $this->BcBaser->element("Contents/${template}"); ?>
+</div>

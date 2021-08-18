@@ -37,10 +37,13 @@ $(function () {
         // メニューを再構築する必要があるため、ajax ではなく遷移させる
         location.href = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + siteId + '\&list_type=1';
     });
+    $("input[name='ViewSetting[list_type]']:checked").change(() => {
+        console.log($("input[name='ViewSetting[list_type]']:checked").val());
+    });
+
 
     // 表示変更時
     $("input[name='ViewSetting[list_type]']").click(loadView);
-
     // 新規追加クリック時
     $("#BtnAddContent").click($.bcTree.showMenuByOuter);
 

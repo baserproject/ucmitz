@@ -120,56 +120,40 @@ class ContentsController extends BcAdminAppController
             ]
         ]]);
 
-        if ($this->request->is('ajax')) {
-            $this->ajax_index($contentManage);
-        }
+        $dataset = $contentManage->getAdminAjaxIndex($this->request->getQueryParams());
+        $template = key($dataset) ?? "ajax_index_tree";
+        $datas = array_shift($dataset);
+
+        if($this->request->getParam('action') == "index") {
+            switch($this->request->getQuery('list_type')) {
+                case 1:
+                    // 並び替え最終更新時刻をリセット
+                    // $this->SiteConfigs->resetContentsSortLastModified();
+                    break;
+                case 2:
+                    $datas = $this->paginate($datas);
+                    $this->request = $this->request->withQueryParams(['conditions' => $contentManage->getTableConditions($this->request->getQueryParams())]);
+                    // EVENT Contents.searchIndex
+                    // TODO: うまく動かない
+                    $event = $this->dispatchLayerEvent('searchIndex', [
+                        'request' => $this->request
+                    ]);
+                    if ($event !== false) {
+                        $this->request = ($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult();
+                    }
+                    break;
+            }
+    }
+
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
+        $this->set('datas', $datas);
+        $this->set('template', $template);
         $this->set('contentTypes', $this->BcContents->getTypes());
         $this->set('authors', $this->Users->getUserList());
         $this->set('folders', $contentManage->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
         $this->set('sites', $sites);
     }
 
-    /**
-     * コンテンツ一覧のajax処理部分
-     *
-     * @param  ContentManageService $contentManage
-     * @return void
-     * @checked
-     * @unitTest
-     */
-    protected function ajax_index($contentManage): void
-    {
-            $this->viewBuilder()->disableAutoLayout();
-            $dataset = $contentManage->getAdminAjaxIndex($this->request->getQueryParams());
-            $template = key($dataset);
-            // $datas = array_shift($dataset);
-            $datas = array_shift(json_decode($this->request->getData('contentData'), true));
-            if($this->request->getQuery('action') == "index") {
-                    switch($this->request->getQuery('list_type')) {
-                        case 1:
-                            // 並び替え最終更新時刻をリセット
-                            // $this->SiteConfigs->resetContentsSortLastModified();
-                            break;
-                        case 2:
-                            $datas = $this->paginate($datas);
-                            $this->request = $this->request->withQueryParams(['conditions' => $contentManage->getTableConditions($this->request->getQueryParams())]);
-                            // EVENT Contents.searchIndex
-                            // TODO: うまく動かない
-                            $event = $this->dispatchLayerEvent('searchIndex', [
-                                'request' => $this->request
-                            ]);
-                            if ($event !== false) {
-                                $this->request = ($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult();
-                            }
-                            break;
-                    }
-            }
-            $this->set('datas', $datas);
-            Configure::write('debug', 0);
-            $this->render($template);
-            return;
-    }
     /**
      * ゴミ箱内のコンテンツ一覧を表示する
      * @checked
@@ -179,9 +163,7 @@ class ContentsController extends BcAdminAppController
     public function trash_index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
     {
         $this->setAction('index', $contentManage, $siteManage);
-        if (!$this->request->is('ajax')) {
-            $this->render('index');
-        }
+        $this->render('index');
     }
 
     /**

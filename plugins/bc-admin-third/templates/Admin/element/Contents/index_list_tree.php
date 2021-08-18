@@ -49,7 +49,8 @@ $deleteDisabled = false;
         $icon = $settings[$data->type]['icon'];
       }
     } else {
-      $icon = $settings['Default']['url']['icon'];
+      // TODO: iconがない場合があるため見直す
+      $icon = $settings['Default']['url']['icon'] ?? '';
     }
     if ($data->alias_id) {
       $alias = true;

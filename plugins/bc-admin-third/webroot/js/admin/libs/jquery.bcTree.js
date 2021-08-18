@@ -95,11 +95,11 @@
             }
             $.bcTree._inited = true;
         },
-
         /**
          * ツリーを読み込む
          */
         load: function () {
+            $.bcUtil.showLoader();
             if (!$.bcTree._inited) {
                 return;
             }
@@ -114,45 +114,12 @@
             } else if (mode == 'trash') {
                 url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/trash_index';
             }
-            $.bcToken.check(function () {
-                fetch('http://localhost/baser/api/baser-core/contents/index.json')
-                .then(response => response.json())
-                .then(data => {
-                    $.ajax({
-                        type: "POST",
-                        url: url,
-                        data: {
-                            "contentData" :  JSON.stringify(data),
-                            "_csrfToken" : $.bcToken.key,
-                        },
-                        beforeSend: function (xhr) {
-                            console.log(data);
-                            $.bcUtil.showLoader();
-                        },
-                        success: function (result) {
-                            $.bcToken.key = null;
-                            if (result) {
-                                $.bcTree.listDisplayed = getNowDateTime();
-                                $.bcTree.destroy();
-                                $("#DataList").html(result);
-                                $.bcTree._init();
-                                $($.bcTree).trigger('loaded');
-                            }
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            console.log($.bcToken.key);
-                            console.log(jqXHR.responseText.substr(0, 600));
-                            console.log(textStatus);
-                            console.log(errorThrown);
-                            $.bcToken.key = null;
-                        },
-                        complete: function () {
-                            $.bcToken.key = null;
-                            $.bcUtil.hideLoader();
-                        }
-                    });
-                });
-            });
+            $.bcTree.listDisplayed = getNowDateTime();
+            // $.bcTree.destroy();
+            // location.reload();
+            $.bcTree._init();
+            $($.bcTree).trigger('loaded');
+            $.bcUtil.hideLoader();
         },
 
         /**
