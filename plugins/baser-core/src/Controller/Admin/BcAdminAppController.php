@@ -61,8 +61,6 @@ class BcAdminAppController extends BcAppController
         if (!$userManage->reload($this->request)) {
             $this->redirect($this->Authentication->logout());
         }
-
-        $this->getService(SiteManageServiceInterface::class)->setCurrentSite();
     }
 
     /**
