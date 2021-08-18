@@ -18,8 +18,8 @@ use Cake\Core\Configure;
  * @var BcAdminAppView $this
  */
 
-$currentSite = $this->BcAdminSite->getCurrent();
-$otherSites = $this->BcAdminSite->getOtherList();
+$currentSite = $this->BcAdminSite->getCurrentSite();
+$otherSites = $this->BcAdminSite->getOtherSiteList();
 // JSの出力について、ツールバーはフロントエンドでも利用するため、inlineに出力する
 $this->BcBaser->js(['vendor/jquery.fixedMenu', 'vendor/outerClick', 'admin/toolbar.bundle']);
 $authName = $this->BcAuth->getCurrentName();

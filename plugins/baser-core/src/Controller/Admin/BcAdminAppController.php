@@ -62,7 +62,7 @@ class BcAdminAppController extends BcAppController
             $this->redirect($this->Authentication->logout());
         }
 
-        $this->getService(SiteManageServiceInterface::class)->setCurrent();
+        $this->getService(SiteManageServiceInterface::class)->setCurrentSite();
     }
 
     /**

@@ -119,18 +119,18 @@ interface SiteManageServiceInterface
     /**
      * 現在の管理対象のサイトを設定する
      */
-    public function setCurrent(): void;
+    public function setCurrentSite(): void;
 
     /**
      * 現在の管理対象のサイトを取得する
      * @return Site
      */
-    public function getCurrent(): Site;
+    public function getCurrentSite(): Site;
 
     /**
      * 現在の管理対象のサイト以外のリストを取得する
      * @return array
      */
-    public function getOtherList(): array;
+    public function getOtherSiteList(): array;
 
 }
