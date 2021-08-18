@@ -180,7 +180,11 @@ class SiteManageService extends SitesService implements SiteManageServiceInterfa
      */
     public function getCurrentSite(): Site
     {
-        return Router::getRequest()->getSession()->read('BcApp.Admin.currentSite');
+        $site = Router::getRequest()->getSession()->read('BcApp.Admin.currentSite');
+        if(!$site) {
+            $site = $this->Sites->getRootMain();
+        }
+        return $site;
     }
 
     /**
