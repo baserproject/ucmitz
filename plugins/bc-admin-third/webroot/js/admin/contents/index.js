@@ -37,13 +37,35 @@ $(function () {
         // メニューを再構築する必要があるため、ajax ではなく遷移させる
         location.href = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + siteId + '\&list_type=1';
     });
-    $("input[name='ViewSetting[list_type]']:checked").change(() => {
-        console.log($("input[name='ViewSetting[list_type]']:checked").val());
-    });
 
+    if (location.pathname === "/baser/admin/baser-core/contents/index" && $("input[name='ViewSetting[list_type]']:checked").val() == 1) {
+        // 初回アクセス時
+        loadView();
+    }
 
     // 表示変更時
-    $("input[name='ViewSetting[list_type]']").click(loadView);
+    $("input[name='ViewSetting[list_type]']").change(() => {
+        switch ($("input[name='ViewSetting[list_type]']:checked").val()) {
+            case "1":
+                url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + $("#viewsetting-site-id").val() + '\&list_type=1';
+                // FIXME:　条件をうまく取れないので確認する
+                let extraParams = {
+                    // 'name' : '',
+                    // 'type' : '',
+                    // 'self_status' : "1",
+                    // 'author_id' : '',
+                };
+                let extraQuery = $.param(extraParams);
+                location.href = url + '&' + extraQuery;
+                // $("#ContentIndexForm").attr('action', url);
+                // $.baserAjaxDataList.search();
+                break;
+            case "2":
+                loadView();
+                break;
+        }
+    });
+
     // 新規追加クリック時
     $("#BtnAddContent").click($.bcTree.showMenuByOuter);
 
@@ -58,8 +80,6 @@ $(function () {
     $($.baserAjaxDataList).bind('searchLoaded', function () {
         $.bcUtil.disabledHideMessage = false;
     });
-
-    loadView();
 
     $.baserAjaxDataList.config.methods.del.confirm = bcI18n.confirmMessage1;
     $.baserAjaxBatch.config.methods.del.confirm = bcI18n.confirmMessage2;
@@ -108,7 +128,6 @@ $(function () {
      * 表示初期化
      */
     function loadView(e) {
-
         // サイトが変わった場合はリセット
         if (e !== undefined && e.target.id == 'viewsetting-site-id') {
             $("#BtnSearchClear").click();
@@ -168,8 +187,18 @@ $(function () {
      */
     function loadTable() {
         url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + $("#viewsetting-site-id").val() + '\&list_type=2';
-        $("#ContentIndexForm").attr('action', url);
-        $.baserAjaxDataList.search();
+        let extraParams = {
+            'open' : '1',
+            'name' : '',
+            'folder_id' : '',
+            'type' : '',
+            'self_status' : '1',
+            'author_id' : '',
+        };
+        let extraQuery = $.param(extraParams);
+        location.href = url + '&' + extraQuery;
+        // $("#ContentIndexForm").attr('action', url);
+        // $.baserAjaxDataList.search();
     }
 
 });

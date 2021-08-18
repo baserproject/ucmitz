@@ -11,7 +11,9 @@
 
 namespace BaserCore\Controller\Admin;
 
+use Cake\Utility\Hash;
 use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
 use Cake\Event\EventInterface;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -26,7 +28,6 @@ use BaserCore\Service\Admin\ContentManageService;
 use BaserCore\Controller\Component\BcContentsComponent;
 use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\Admin\ContentManageServiceInterface;
-use Cake\ORM\TableRegistry;
 
 /**
  * Class ContentsController
@@ -132,7 +133,11 @@ class ContentsController extends BcAdminAppController
                     break;
                 case 2:
                     $datas = $this->paginate($datas);
-                    $this->request = $this->request->withQueryParams(['conditions' => $contentManage->getTableConditions($this->request->getQueryParams())]);
+                    $this->request = $this->request->withQueryParams(
+                        Hash::merge(
+                            $this->request->getQueryParams(),
+                            $contentManage->getTableConditions($this->request->getQueryParams())
+                        ));
                     // EVENT Contents.searchIndex
                     // TODO: うまく動かない
                     $event = $this->dispatchLayerEvent('searchIndex', [

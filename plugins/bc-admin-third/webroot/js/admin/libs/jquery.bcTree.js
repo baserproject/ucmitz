@@ -115,8 +115,7 @@
                 url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/trash_index';
             }
             $.bcTree.listDisplayed = getNowDateTime();
-            // $.bcTree.destroy();
-            // location.reload();
+            $.bcTree.destroy();
             $.bcTree._init();
             $($.bcTree).trigger('loaded');
             $.bcUtil.hideLoader();
