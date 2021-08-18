@@ -11,6 +11,8 @@
 
 namespace BaserCore\Controller\Admin;
 
+use BaserCore\Service\Admin\SiteManageService;
+use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\SitesServiceInterface;
 use Exception;
 use BaserCore\Controller\BcAppController;
@@ -59,24 +61,8 @@ class BcAdminAppController extends BcAppController
         if (!$userManage->reload($this->request)) {
             $this->redirect($this->Authentication->logout());
         }
-    }
 
-    /**
-     * 現在の管理対象のサイトを設定する
-     */
-    public function setCurrentSite()
-    {
-        $request = $this->getRequest();
-        $session = $request->getSession();
-        $currentSiteId = 1;
-        $queryCurrentSiteId = $request->getQuery('current_site_id');
-        if (!$session->check('BcApp.Admin.currentSite') || $queryCurrentSiteId) {
-            if ($queryCurrentSiteId) {
-                $currentSiteId = $queryCurrentSiteId;
-            }
-            $sites = $this->getService(SitesServiceInterface::class);
-            $this->getRequest()->getSession()->write('BcApp.Admin.currentSite', $sites->get($currentSiteId));
-        }
+        $this->getService(SiteManageServiceInterface::class)->setCurrent();
     }
 
     /**

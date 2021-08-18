@@ -116,4 +116,21 @@ interface SiteManageServiceInterface
      */
     public function isMainOnCurrentDisplay($site): bool;
 
+    /**
+     * 現在の管理対象のサイトを設定する
+     */
+    public function setCurrent(): void;
+
+    /**
+     * 現在の管理対象のサイトを取得する
+     * @return Site
+     */
+    public function getCurrent(): Site;
+
+    /**
+     * 現在の管理対象のサイト以外のリストを取得する
+     * @return array
+     */
+    public function getOtherList(): array;
+
 }

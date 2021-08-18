@@ -140,4 +140,44 @@ class SiteManageService extends SitesService implements SiteManageServiceInterfa
         return true;
     }
 
+    /**
+     * 現在の管理対象のサイトを設定する
+     */
+    public function setCurrent(): void
+    {
+        $request = Router::getRequest();
+        $session = $request->getSession();
+        $currentSiteId = 1;
+        $queryCurrentSiteId = $request->getQuery('current_site_id');
+        if (!$session->check('BcApp.Admin.currentSite') || $queryCurrentSiteId) {
+            if ($queryCurrentSiteId) {
+                $currentSiteId = $queryCurrentSiteId;
+            }
+            $session->write('BcApp.Admin.currentSite', $this->Sites->get($currentSiteId));
+        }
+    }
+
+    /**
+     * 現在の管理対象のサイトを取得する
+     * @return Site
+     */
+    public function getCurrent(): Site
+    {
+        return Router::getRequest()->getSession()->read('BcApp.Admin.currentSite');
+    }
+
+    /**
+     * 現在の管理対象のサイト以外のリストを取得する
+     * @return array
+     */
+    public function getOtherList(): array
+    {
+        $current = $this->getCurrent();
+        $query = $this->Sites->find('list')->where(['status' => true])->select(['id', 'display_name']);
+        if ($current) {
+            $query = $query->where(['id <>' => $current->id]);
+        }
+        return $query->toArray();
+    }
+
 }

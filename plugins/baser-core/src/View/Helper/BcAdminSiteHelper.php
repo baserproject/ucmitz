@@ -143,4 +143,22 @@ class BcAdminSiteHelper extends Helper
         return $this->SiteManage->findByUrl($url);
     }
 
+    /**
+     * 現在の管理対象のサイトを取得する
+     * @return Site
+     */
+    public function getCurrent(): ?Site
+    {
+        return $this->SiteManage->getCurrent();
+    }
+
+    /**
+     * 現在の管理対象のサイト以外のリストを取得する
+     * @return array
+     */
+    public function getOtherList(): array
+    {
+        return $this->SiteManage->getOtherList();
+    }
+
 }
