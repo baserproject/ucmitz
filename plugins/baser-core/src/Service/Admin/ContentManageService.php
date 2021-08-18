@@ -75,15 +75,15 @@ class ContentManageService extends ContentsService implements ContentManageServi
             case 'index':
                 switch($listType) {
                     case 1:
-                        $dataset = ['ajax_index_tree' => $this->getTreeIndex($queryParams)];
+                        $dataset = ['index_tree' => $this->getTreeIndex($queryParams)];
                         break;
                     case 2:
-                        $dataset = ['ajax_index_table' => $this->getTableIndex($queryParams)];
+                        $dataset = ['index_table' => $this->getTableIndex($queryParams)];
                         break;
                 }
                 break;
             case 'trash_index':
-                $dataset = ['ajax_index_trash' => $this->getTrashIndex($queryParams)];
+                $dataset = ['index_trash' => $this->getTrashIndex($queryParams)];
                 break;
         }
         return $dataset;

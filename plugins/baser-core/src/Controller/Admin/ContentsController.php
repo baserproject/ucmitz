@@ -122,7 +122,7 @@ class ContentsController extends BcAdminAppController
         ]]);
 
         $dataset = $contentManage->getAdminAjaxIndex($this->request->getQueryParams());
-        $template = key($dataset) ?? "ajax_index_tree";
+        $template = key($dataset) ?? "index_tree";
         $datas = array_shift($dataset);
 
         if($this->request->getParam('action') == "index") {

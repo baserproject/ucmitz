@@ -129,7 +129,7 @@ class ContentsControllerTest extends BcTestCase
                 'self_status' => '',
                 'author_id' => '',
             ]);
-        if ($expected === "ajax_index_table") {
+        if ($expected === "index_table") {
             // イベント設定
             $this->entryControllerEventToMock('Controller.BaserCore.Contents.searchIndex', function(Event $event) {
                 $this->request = $event->getData('request');
@@ -138,13 +138,13 @@ class ContentsControllerTest extends BcTestCase
         }
         $ContentsController = $this->ContentsController->setRequest($this->request);
         // index_row_table.phpでエラーがでるため、変数を補完
-        if ($expected === "ajax_index_table") $ContentsController->viewBuilder()->setVar('authors', '');
+        if ($expected === "index_table") $ContentsController->viewBuilder()->setVar('authors', '');
 
         $this->execPrivateMethod($ContentsController, "ajax_index", [new ContentManageService()]);
         $this->assertFalse($ContentsController->viewBuilder()->isAutoLayoutEnabled());
         $this->assertEquals($expected, $ContentsController->viewBuilder()->getTemplate());
 
-        if ($expected !== "ajax_index_table") {
+        if ($expected !== "index_table") {
             $this->assertInstanceOf('Cake\ORM\Query', $ContentsController->viewBuilder()->getVar('datas'));
         } else {
             // FIXME:　うまくいかない　イベント登録正常かテスト
@@ -155,9 +155,9 @@ class ContentsControllerTest extends BcTestCase
     public function ajaxIndexDataProvider()
     {
         return [
-            [1, "index", "ajax_index_tree"],
-            [1, "trash_index", "ajax_index_trash"],
-            [2, "index", "ajax_index_table"],
+            [1, "index", "index_tree"],
+            [1, "trash_index", "index_trash"],
+            [2, "index", "index_table"],
         ];
     }
 
@@ -186,7 +186,7 @@ class ContentsControllerTest extends BcTestCase
         $request = $this->request->withParam('action', 'trash_index')->withEnv('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');
         $this->ContentsController->setRequest($request);
         $this->ContentsController->trash_index(new ContentManageService(), new SiteManageService());
-        $this->assertEquals("ajax_index_trash", $this->ContentsController->viewBuilder()->getTemplate());
+        $this->assertEquals("index_trash", $this->ContentsController->viewBuilder()->getTemplate());
     }
 
     /**
