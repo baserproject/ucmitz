@@ -35,7 +35,7 @@ $(function () {
             siteId = 0;
         }
         // メニューを再構築する必要があるため、ajax ではなく遷移させる
-        location.href = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + siteId + '\&list_type=1';
+        location.href = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?current_site_id=' + siteId + '\&list_type=1';
     });
 
     if (location.pathname === "/baser/admin/baser-core/contents/index" && $("input[name='ViewSetting[list_type]']:checked").val() == 1) {
