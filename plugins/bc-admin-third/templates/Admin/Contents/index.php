@@ -71,7 +71,7 @@ $this->BcBaser->i18nScript([
   'bcTreeNewTitle' => __d('baser', '新しい %s'),
 
 ]);
-$this->BcBaser->js('admin/contents/index', false, [
+$this->BcBaser->js('admin/contents/index.bundle', false, [
   'id' => 'AdminContentsIndexScript',
   'data-isAdmin' => BcUtil::isAdminUser(),
   'data-isUseMoveContents' => $isUseMoveContents,
