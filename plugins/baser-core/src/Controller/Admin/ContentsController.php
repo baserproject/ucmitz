@@ -154,8 +154,6 @@ class ContentsController extends BcAdminAppController
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('datas', $datas);
         $this->set('template', $template);
-        $this->set('contentTypes', $this->BcContents->getTypes());
-        $this->set('authors', $this->Users->getUserList());
         $this->set('folders', $contentManage->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
         $this->set('sites', $sites);
     }

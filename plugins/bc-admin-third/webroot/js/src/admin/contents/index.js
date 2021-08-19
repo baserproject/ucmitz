@@ -35,7 +35,7 @@ $(function () {
             siteId = 0;
         }
         // メニューを再構築する必要があるため、ajax ではなく遷移させる
-        location.href = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?current_site_id=' + siteId + '\&list_type=1';
+        location.href = $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/index?current_site_id=' + siteId + '\&list_type=1';
     });
 
     if (location.pathname === "/baser/admin/baser-core/contents/index" && $("input[name='ViewSetting[list_type]']:checked").val() == 1) {
@@ -45,9 +45,10 @@ $(function () {
 
     // 表示変更時
     $("input[name='ViewSetting[list_type]']").change(() => {
+        $.bcUtil.showLoader();
         switch ($("input[name='ViewSetting[list_type]']:checked").val()) {
             case "1":
-                url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + $("#viewsetting-site-id").val() + '\&list_type=1';
+                url =$.bcUtil.adminBaseUrl + 'baser-core' + '/contents/index?site_id=' + $("#viewsetting-site-id").val() + '\&list_type=1';
                 // FIXME:　条件をうまく取れないので確認する
                 let extraParams = {
                     // 'name' : '',
@@ -101,7 +102,7 @@ $(function () {
         $.bcUtil.showNoticeMessage(bcI18n.infoMessage1.sprintf($.parseJSON(result).title));
     };
     $.baserAjaxDataList.init();
-    $.baserAjaxBatch.init({url: $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/ajax_batch'});
+    $.baserAjaxBatch.init({url: $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/ajax_batch'});
 
     //$("#Search").before($("#ViewSetting"));
 
@@ -132,7 +133,7 @@ $(function () {
         if (e !== undefined && e.target.id == 'viewsetting-site-id') {
             $("#BtnSearchClear").click();
             $.ajax({
-                url: $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/ajax_get_content_folder_list/' + $(this).val(),
+                url: $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/ajax_get_content_folder_list/' + $(this).val(),
                 type: "GET",
                 dataType: "json",
                 beforeSend: function () {
@@ -186,7 +187,7 @@ $(function () {
      * 表形式のリストをロードする
      */
     function loadTable() {
-        url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + $("#viewsetting-site-id").val() + '\&list_type=2';
+        url = $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/index?site_id=' + $("#viewsetting-site-id").val() + '\&list_type=2';
         let extraParams = {
             'open' : '1',
             'name' : '',

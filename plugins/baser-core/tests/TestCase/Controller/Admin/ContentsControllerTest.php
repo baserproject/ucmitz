@@ -40,6 +40,7 @@ class ContentsControllerTest extends BcTestCase
         'plugin.BaserCore.UsersUserGroups',
 
     ];
+
     /**
      * set up
      * @return void
@@ -47,7 +48,7 @@ class ContentsControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->request = $this->loginAdmin($this->getRequest())->withParam('prefix', 'Admin');
+        $this->request = $this->loginAdmin($this->getRequest('/baser/admin/baser-core/contents/index'))->withParam('prefix', 'Admin');
         $this->ContentsController = new ContentsController($this->request);
         $this->ContentsController->setName('Contents');
         $this->ContentsController->loadModel('BaserCore.ContentFolders');
@@ -134,7 +135,7 @@ class ContentsControllerTest extends BcTestCase
             // イベント設定
             $this->entryControllerEventToMock('Controller.BaserCore.Contents.searchIndex', function(Event $event) {
                 $this->request = $event->getData('request');
-                    return $this->request->withQueryParams(['num' => 1]);
+                return $this->request->withQueryParams(['num' => 1]);
             });
         }
 
@@ -147,11 +148,11 @@ class ContentsControllerTest extends BcTestCase
         if ($expected !== "index_table") {
             $this->assertInstanceOf('Cake\ORM\Query', $ContentsController->viewBuilder()->getVar('datas'));
         } else {
-            // FIXME:　うまくいかない　イベント登録正常かテスト
-            // $this->assertEquals(1, $ContentsController->getRequest()->getQuery('num'));
+            $this->assertEquals(1, $ContentsController->getRequest()->getQuery('num'));
             $this->assertInstanceOf('Cake\ORM\ResultSet', $ContentsController->viewBuilder()->getVar('datas'));
         }
     }
+
     public function ajaxIndexDataProvider()
     {
         return [

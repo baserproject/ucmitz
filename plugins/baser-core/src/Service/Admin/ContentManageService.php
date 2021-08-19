@@ -11,12 +11,12 @@
 
 namespace BaserCore\Service\Admin;
 
-use Cake\ORM\Query;
+use BaserCore\Service\UsersServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Service\ContentsService;
-use BaserCore\Service\Admin\ContentManageServiceInterface;
 
 
 /**
@@ -24,6 +24,11 @@ use BaserCore\Service\Admin\ContentManageServiceInterface;
  */
 class ContentManageService extends ContentsService implements ContentManageServiceInterface
 {
+
+    /**
+     * Trait
+     */
+    use BcContainerTrait;
 
     /**
       * コンテンツ情報を取得する
@@ -86,5 +91,28 @@ class ContentManageService extends ContentsService implements ContentManageServi
         }
         return $dataset;
     }
+
+    /**
+     * 登録されているタイプの一覧を取得する
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getTypes(): array
+    {
+        return $this->Contents->getTypes();
+    }
+
+    /**
+     * コンテンツの作成者一覧を取得
+     * @return array
+     */
+    public function getAuthors(): array
+    {
+        $users = $this->getService(UsersServiceInterface::class);
+        return $users->getList();
+    }
+
 }
 
