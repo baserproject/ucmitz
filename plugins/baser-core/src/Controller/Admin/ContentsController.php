@@ -104,10 +104,10 @@ class ContentsController extends BcAdminAppController
         if ($sites) {
             if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {
                 reset($sites);
-                $this->request = $this->request->withQueryParams(['site_id' =>key($sites)]);
+                $this->request = $this->request->withQueryParams(Hash::merge($this->request->getQueryParams(), ['site_id' =>key($sites)]));
             }
         } else {
-            $this->request = $this->request->withQueryParams(['site_id' => null]);
+            $this->request = $this->request->withQueryParams(Hash::merge($this->request->getQueryParams(),  ['site_id' => null]));
         }
         $currentListType = $this->request->getQuery('list_type') ?? 1;
 

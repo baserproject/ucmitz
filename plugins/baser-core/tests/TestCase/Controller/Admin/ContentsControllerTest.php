@@ -115,11 +115,11 @@ class ContentsControllerTest extends BcTestCase
      * @dataProvider ajaxIndexDataProvider
      * @return void
      */
-    public function testAjax_index($listType, $action, $expected): void
+    public function testIndexContents($listType, $action, $expected): void
     {
+        // 初期パラメーター
         $this->request = $this->request->withQueryParams(
             [
-                'action' => $action,
                 'site_id' => 0,
                 'list_type' => $listType,
                 'open' => '1',
@@ -128,7 +128,8 @@ class ContentsControllerTest extends BcTestCase
                 'type' => '',
                 'self_status' => '',
                 'author_id' => '',
-            ]);
+            ])->withParam('action', $action);
+
         if ($expected === "index_table") {
             // イベント設定
             $this->entryControllerEventToMock('Controller.BaserCore.Contents.searchIndex', function(Event $event) {
@@ -136,14 +137,13 @@ class ContentsControllerTest extends BcTestCase
                     return $this->request->withQueryParams(['num' => 1]);
             });
         }
+
         $ContentsController = $this->ContentsController->setRequest($this->request);
         // index_row_table.phpでエラーがでるため、変数を補完
         if ($expected === "index_table") $ContentsController->viewBuilder()->setVar('authors', '');
 
-        $this->execPrivateMethod($ContentsController, "ajax_index", [new ContentManageService()]);
-        $this->assertFalse($ContentsController->viewBuilder()->isAutoLayoutEnabled());
-        $this->assertEquals($expected, $ContentsController->viewBuilder()->getTemplate());
-
+        $ContentsController->index(new ContentManageService(), new SiteManageService());
+        $this->assertEquals($expected, $ContentsController->viewBuilder()->getVar('template'));
         if ($expected !== "index_table") {
             $this->assertInstanceOf('Cake\ORM\Query', $ContentsController->viewBuilder()->getVar('datas'));
         } else {
@@ -174,19 +174,6 @@ class ContentsControllerTest extends BcTestCase
         $this->assertEquals('index', $this->ContentsController->viewBuilder()->getTemplate());
         $this->assertEquals('trash_index', $this->ContentsController->getRequest()->getQuery('action'));
         $this->assertArrayHasKey('num', $this->ContentsController->getRequest()->getQueryParams());
-    }
-
-    /**
-     * ゴミ箱内のコンテンツ一覧を表示する(ajaxの場合)
-     *
-     * @return void
-     */
-    public function testTrash_index_ajax(): void
-    {
-        $request = $this->request->withParam('action', 'trash_index')->withEnv('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');
-        $this->ContentsController->setRequest($request);
-        $this->ContentsController->trash_index(new ContentManageService(), new SiteManageService());
-        $this->assertEquals("index_trash", $this->ContentsController->viewBuilder()->getTemplate());
     }
 
     /**
