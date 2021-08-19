@@ -70,16 +70,14 @@ class ContentsService implements ContentsServiceInterface
      */
     public function getTreeIndex(array $queryParams): Query
     {
-        if ($queryParams['site_id'] === 'all') {
-            $queryParams = ['or' => [
-                ['Sites.use_subdomain' => false],
-                ['Contents.site_id' => 0]
-            ]];
-        }
-
-        // TODO: contain(['Sites'])動かない
-        // return $this->getIndex($queryParams, 'threaded')->order(['lft'])->contain(['Sites']);
-        return $this->getIndex($queryParams, 'threaded')->order(['lft']);
+        // ツリーの全体確認テスト用の条件（実運用では使わない）
+//        if ($queryParams['site_id'] === 'all') {
+//            $queryParams = ['or' => [
+//                ['Sites.use_subdomain' => false],
+//                ['Contents.site_id' => 1]
+//            ]];
+//        }
+        return $this->getIndex($queryParams, 'threaded')->order(['lft'])->contain(['Sites']);
     }
 
     /**

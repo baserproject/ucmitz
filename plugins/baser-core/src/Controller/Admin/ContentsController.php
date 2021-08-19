@@ -149,7 +149,7 @@ class ContentsController extends BcAdminAppController
                     }
                     break;
             }
-    }
+        }
 
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
         $this->set('datas', $datas);
