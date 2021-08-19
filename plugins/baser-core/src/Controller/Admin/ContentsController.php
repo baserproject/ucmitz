@@ -82,7 +82,6 @@ class ContentsController extends BcAdminAppController
         $this->loadModel('BaserCore.SiteConfigs');
         $this->loadModel('BaserCore.ContentFolders');
         $this->loadModel('BaserCore.Users');
-        $this->Security->setConfig('unlockedActions', ['index']);
         // TODO 未実装のためコメントアウト
         /* >>>
         // $this->BcAuth->allow('view');
@@ -140,7 +139,6 @@ class ContentsController extends BcAdminAppController
                             $contentManage->getTableConditions($this->request->getQueryParams())
                         ));
                     // EVENT Contents.searchIndex
-                    // TODO: うまく動かない
                     $event = $this->dispatchLayerEvent('searchIndex', [
                         'request' => $this->request
                     ]);
