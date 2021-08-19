@@ -234,17 +234,17 @@
                 success: function (data) {
                     $(config.loader).hide();
                     if (data) {
-                        // $(config.dataList).html(data);
+                        $(config.dataList).html(data);
                         $.baserAjaxDataList.initList();
-                        // $.yuga.stripe();
+                        $.yuga.stripe();
                     } else {
-                        // $(config.alertBox).html(bcI18n.commonGetDataFailedMessage);
+                        $(config.alertBox).html(bcI18n.commonGetDataFailedMessage);
                         $(config.alertBox).fadeIn(500);
                     }
                 },
                 error: function (result, status) {
                     $(config.loader).hide();
-                    // $(config.alertBox).html(bcI18n.commonExecFailedMessage);
+                    $(config.alertBox).html(bcI18n.commonExecFailedMessage);
                     $(config.alertBox).fadeIn(500);
                 },
                 complete: function () {
@@ -267,28 +267,28 @@
                 return $.ajax({
                     type: "GET",
                     url: $(config.searchBox + " form").attr('action'),
-                    // data: data,
-                    // dataType: "html",
+                    data: data,
+                    dataType: "html",
                     beforeSend: function () {
-                        // $(config.loader).show();
+                        $(config.loader).show();
                     },
                     success: function (data) {
                         $.bcToken.key = null;
-                        // $(config.loader).hide();
-                        // if (data) {
-                        //     $(config.dataList).html(data);
-                        //     $.baserAjaxDataList.initList();
-                        //     // $.yuga.stripe();
-                        // } else {
-                        //     $(config.alertBox).html(bcI18n.commonGetDataFailedMessage);
-                        //     $(config.alertBox).fadeIn(500);
-                        // }
-                        // $($.baserAjaxDataList).trigger('searchLoaded');
+                        $(config.loader).hide();
+                        if (data) {
+                            $(config.dataList).html(data);
+                            $.baserAjaxDataList.initList();
+                            // $.yuga.stripe();
+                        } else {
+                            $(config.alertBox).html(bcI18n.commonGetDataFailedMessage);
+                            $(config.alertBox).fadeIn(500);
+                        }
+                        $($.baserAjaxDataList).trigger('searchLoaded');
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        console.log(jqXHR.responseText.substr(0, 600));
-                        console.log(textStatus);
-                        console.log(errorThrown);
+                        // console.log(jqXHR.responseText.substr(0, 600));
+                        // console.log(textStatus);
+                        // console.log(errorThrown);
                         $.bcToken.key = null;
                         $(config.loader).hide();
                         $(config.alertBox).html(bcI18n.commonExecFailedMessage);
