@@ -55,7 +55,6 @@ class ContentsController extends BcAdminAppController
 
     /**
      * initialize
-     * ログインページ認証除外
      * @return void
      * @checked
      * @noTodo
