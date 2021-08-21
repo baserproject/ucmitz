@@ -267,8 +267,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
 
         // CakePHPの標準ルーティングを解除するためにリロード
         // ルートコレクションをクリアして再生成する
-//        Router::reload();
-//        $routes = Router::createRouteBuilder('/');
+        Router::reload();
+        $routes = Router::createRouteBuilder('/');
+        $routes->setRouteClass('BaserCore.BcContentsRoute');
+        $routes->connect('/', [], ['routeClass' => 'BaserCore.BcContentsRoute']);
 
         $routes->prefix(
             'Admin',
@@ -312,9 +314,9 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                 }
                 if ($siteAlias) {
                     // プラグイン
-                    $routes->connect("/{$siteAlias}/:plugin/:controller", ['prefix' => $sitePrefix, 'action' => 'index'], $pluginMatch);
-                    $routes->connect("/{$siteAlias}/:plugin/:controller/:action/*", ['prefix' => $sitePrefix], $pluginMatch);
-                    $routes->connect("/{$siteAlias}/:plugin/:action/*", ['prefix' => $sitePrefix], $pluginMatch);
+                    $routes->connect("/{$siteAlias}/:plugin/:controller", ['prefix' => $sitePrefix, 'action' => 'index']);
+                    $routes->connect("/{$siteAlias}/:plugin/:controller/:action/*", ['prefix' => $sitePrefix]);
+                    $routes->connect("/{$siteAlias}/:plugin/:action/*", ['prefix' => $sitePrefix]);
                     // モバイルノーマル
                     $routes->connect("/{$siteAlias}/:controller/:action/*", ['prefix' => $sitePrefix]);
                     $routes->connect("/{$siteAlias}/:controller", ['prefix' => $sitePrefix, 'action' => 'index']);
