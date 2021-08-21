@@ -1,28 +1,27 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.Test.Case.Routing.Route
- * @since           baserCMS v 4.0.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
 
-App::uses('BcContentsRoute', 'Routing/Route');
+namespace BaserCore\Test\TestCase\Routing\Route;
+
+use BaserCore\Routing\Route\BcContentsRoute;
+use BaserCore\TestSuite\BcTestCase;
+use Cake\Routing\Router;
 
 /**
- * Class BcRequestFilterTest
+ * Class BcContentsRoute
  *
- * @package Baser.Test.Case.Routing.Route
  * @property BcContentsRoute $BcContentsRoute
  */
 class BcContentsRouteTest extends BcTestCase
 {
-
 
     /**
      * フィクスチャ
@@ -40,7 +39,7 @@ class BcContentsRouteTest extends BcTestCase
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->BcContentsRoute = new BcContentsRoute(
@@ -48,15 +47,6 @@ class BcContentsRouteTest extends BcTestCase
             [],
             []
         );
-    }
-
-    /**
-     * Parses a string URL into an array. If a plugin key is found, it will be copied to the
-     * controller parameter
-     */
-    public function testParse()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
@@ -85,7 +75,7 @@ class BcContentsRouteTest extends BcTestCase
      */
     public function testReverseRouting($current, $params, $expects)
     {
-        Router::setRequestInfo($this->_getRequest($current));
+        Router::setRequestInfo($this->getRequest($current));
         $this->assertEquals($expects, Router::url($params));
     }
 
@@ -115,7 +105,7 @@ class BcContentsRouteTest extends BcTestCase
      * @return void
      * @dataProvider routerParseDataProvider
      */
-    public function testRouterParse($useSiteDeviceSetting, $host, $ua, $url, $expects)
+    public function testParse($useSiteDeviceSetting, $host, $ua, $url, $expects)
     {
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcSite.use_site_device_setting', $useSiteDeviceSetting);
