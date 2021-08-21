@@ -88,10 +88,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             // DBに接続できない場合、CakePHPのエラーメッセージが表示されてしまう為、 try を利用
             // ※ プラグインの setting.php で、DBへの接続処理が書かれている可能性がある為
             try {
-                // TODO 未確認
-                /* >>>
                 Configure::load($plugin . '.setting');
-                <<< */
             } catch (Exception $ex) {
             }
         }
@@ -270,22 +267,8 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
 
         // CakePHPの標準ルーティングを解除するためにリロード
         // ルートコレクションをクリアして再生成する
-        Router::reload();
-        $routes = Router::createRouteBuilder('/');
-
-        /**
-         * コンテンツ管理ルーティング
-         */
-        $plugins = \Cake\Core\Plugin::loaded();
-        $pluginMatch = ['plugin' => implode('|', $plugins)];
-        $routes->scope('/', function($routes) use($pluginMatch) {
-            $routes->setRouteClass('BaserCore.BcContentsRoute');
-            $routes->connect(
-                '*',
-                [],
-                $pluginMatch
-            );
-        });
+//        Router::reload();
+//        $routes = Router::createRouteBuilder('/');
 
         $routes->prefix(
             'Admin',

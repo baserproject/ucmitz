@@ -364,7 +364,7 @@ return [
      */
     'BcContents' => [
         'items' => [
-            'Core' => [
+            'BaserCore' => [
                 'Default' => [
                     'title' => __d('baser', '無所属コンテンツ'),
                     'omitViewAction' => true,

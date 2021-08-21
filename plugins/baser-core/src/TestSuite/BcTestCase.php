@@ -71,9 +71,9 @@ class BcTestCase extends TestCase
         $this->Application->getContainer();
         $builder = Router::createRouteBuilder('/');
         $this->Application->routes($builder);
-        $this->BaserCore = new Plugin();
-        $this->BaserCore->bootstrap($this->Application);
-        $this->BaserCore->routes($builder);
+        $this->Application->pluginBootstrap();
+        $this->Application->pluginRoutes($builder);
+        $this->BaserCore = $this->Application->getPlugins()->get('BaserCore');
         $container = BcContainer::get();
         $container->addServiceProvider(new BcServiceProvider());
     }

@@ -14,14 +14,17 @@
 /**
  * システムナビ
  */
-$config['BcApp.adminNavigation'] = [
-    'Plugins' => [
-        'menus' => [
-            'BlogTags' => ['title' => 'ブログタグ設定', 'url' => ['admin' => true, 'plugin' => 'blog', 'controller' => 'blog_tags', 'action' => 'index']],
+ return [
+    'BcApp.adminNavigation' => [
+        'Plugins' => [
+            'menus' => [
+                'BlogTags' => ['title' => 'ブログタグ設定', 'url' => ['admin' => true, 'plugin' => 'blog', 'controller' => 'blog_tags', 'action' => 'index']],
+            ]
         ]
-    ]
-];
+    ],
 /* @var BlogContent $BlogContent */
+// TODO ucmitz 未実装のためコメントアウト
+/* >>>
 $BlogContent = ClassRegistry::init('Blog.BlogContent');
 $blogContents = $BlogContent->find('all', [
     'conditions' => [
@@ -75,63 +78,67 @@ foreach ($blogContents as $blogContent) {
         'menus' => $menus($blog)
     ];
 }
-
-$config['BcContents']['items']['Blog'] = [
-    'BlogContent' => [
-        'title' => __d('baser', 'ブログ'),
-        'multiple' => true,
-        'preview' => true,
-        'icon' => 'bca-icon--blog',
-        'routes' => [
-            'manage' => [
-                'admin' => true,
-                'plugin' => 'blog',
-                'controller' => 'blog_posts',
-                'action' => 'index'
-            ],
-            'add' => [
-                'admin' => true,
-                'plugin' => 'blog',
-                'controller' => 'blog_contents',
-                'action' => 'ajax_add'
-            ],
-            'edit' => [
-                'admin' => true,
-                'plugin' => 'blog',
-                'controller' => 'blog_contents',
-                'action' => 'edit'
-            ],
-            'delete' => [
-                'admin' => true,
-                'plugin' => 'blog',
-                'controller' => 'blog_contents',
-                'action' => 'delete'
-            ],
-            'view' => [
-                'plugin' => 'blog',
-                'controller' => 'blog',
-                'action' => 'index'
-            ],
-            'copy' => [
-                'admin' => true,
-                'plugin' => 'blog',
-                'controller' => 'blog_contents',
-                'action' => 'ajax_copy'
-            ],
-            'dblclick' => [
-                'admin' => true,
-                'plugin' => 'blog',
-                'controller' => 'blog_posts',
-                'action' => 'index'
-            ],
+<<< */
+    'BcContents' => [
+        'items' => [
+            'BcBlog' => [
+                'BlogContent' => [
+                    'title' => __d('baser', 'ブログ'),
+                    'multiple' => true,
+                    'preview' => true,
+                    'icon' => 'bca-icon--blog',
+                    'routes' => [
+                        'manage' => [
+                            'admin' => true,
+                            'plugin' => 'blog',
+                            'controller' => 'blog_posts',
+                            'action' => 'index'
+                        ],
+                        'add' => [
+                            'admin' => true,
+                            'plugin' => 'blog',
+                            'controller' => 'blog_contents',
+                            'action' => 'ajax_add'
+                        ],
+                        'edit' => [
+                            'admin' => true,
+                            'plugin' => 'blog',
+                            'controller' => 'blog_contents',
+                            'action' => 'edit'
+                        ],
+                        'delete' => [
+                            'admin' => true,
+                            'plugin' => 'blog',
+                            'controller' => 'blog_contents',
+                            'action' => 'delete'
+                        ],
+                        'view' => [
+                            'plugin' => 'blog',
+                            'controller' => 'blog',
+                            'action' => 'index'
+                        ],
+                        'copy' => [
+                            'admin' => true,
+                            'plugin' => 'blog',
+                            'controller' => 'blog_contents',
+                            'action' => 'ajax_copy'
+                        ],
+                        'dblclick' => [
+                            'admin' => true,
+                            'plugin' => 'blog',
+                            'controller' => 'blog_posts',
+                            'action' => 'index'
+                        ],
+                    ]
+                ]
+            ]
         ]
+    ],
+    'Blog' => [
+        // ブログアイキャッチサイズの初期値
+        'eye_catch_size_thumb_width' => 600,
+        'eye_catch_size_thumb_height' => 600,
+        'eye_catch_size_mobile_thumb_width' => 150,
+        'eye_catch_size_mobile_thumb_height' => 150,
     ]
-];
-
-$config['Blog'] = [
-    // ブログアイキャッチサイズの初期値
-    'eye_catch_size_thumb_width' => 600,
-    'eye_catch_size_thumb_height' => 600,
-    'eye_catch_size_mobile_thumb_width' => 150,
-    'eye_catch_size_mobile_thumb_height' => 150,
 ];

@@ -12,6 +12,7 @@
 namespace BaserCore\Routing\Route;
 
 use BaserCore\Service\Front\SiteFrontService;
+use BaserCore\Service\SitesService;
 use BaserCore\Service\SitesServiceInterface;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
@@ -230,6 +231,7 @@ class BcContentsRoute extends Route
         unset($params['controller']);
         unset($params['action']);
         unset($params['entityId']);
+        unset($params['_ext']);
 
         // コンテンツタイプ確定、できなければスルー
         $type = $this->_getContentTypeByParams($url);
@@ -269,12 +271,12 @@ class BcContentsRoute extends Route
         } else {
             $contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
             if ($contentId) {
-                $conditions = ['Content.id' => $contentId];
+                $conditions = ['Contents.id' => $contentId];
             } else {
                 $conditions = [
-                    'Content.plugin' => $plugin,
-                    'Content.type' => $type,
-                    'Content.entity_id' => $entityId
+                    'Contents.plugin' => $plugin,
+                    'Contents.type' => $type,
+                    'Contents.entity_id' => $entityId
                 ];
             }
             $strUrl = $contents->find()->where($conditions)->first()->url;
@@ -285,7 +287,7 @@ class BcContentsRoute extends Route
         }
 
         // URL生成
-        $sites = $this->getService(SitesServiceInterface::class);
+        $sites = new SitesService();
         $site = $sites->findByUrl($strUrl);
         if ($site && $site->use_subdomain) {
             $strUrl = preg_replace('/^\/' . preg_quote($site->alias, '/') . '\//', '/', $strUrl);
@@ -320,6 +322,9 @@ class BcContentsRoute extends Route
         if ($named) {
             $strUrl .= '/' . implode('/', $named);
         }
+        if ($type === 'ContentFolder') {
+            $strUrl .= '/';
+        }
         return $strUrl;
     }
 
@@ -332,11 +337,7 @@ class BcContentsRoute extends Route
      */
     protected function _getContentTypeByParams($params, $useAction = true)
     {
-        if (empty($params['plugin'])) {
-            $plugin = 'Core';
-        } else {
-            $plugin = Inflector::camelize($params['plugin']);
-        }
+        $plugin = Inflector::camelize($params['plugin']);
         $settings = Configure::read('BcContents.items.' . $plugin);
         if (!$settings) {
             return false;

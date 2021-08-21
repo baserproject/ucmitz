@@ -28,10 +28,11 @@ class BcContentsRouteTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
-        'baser.Routing.Route.BcContentsRoute.SiteBcContentsRoute',
-        'baser.Routing.Route.BcContentsRoute.ContentBcContentsRoute',
-        'baser.Default.SiteConfig',
-        'baser.Default.User',
+        'plugin.BaserCore.Routing\Route\BcContentsRoute\SiteBcContentsRoute',
+        'plugin.BaserCore.Routing/Route/BcContentsRoute/ContentBcContentsRoute',
+        'plugin.BaserCore.SiteConfigs',
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.Plugins',
     ];
 
     /**
@@ -42,25 +43,13 @@ class BcContentsRouteTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->BcContentsRoute = new BcContentsRoute(
-            '/',
-            [],
-            []
-        );
+        $this->BcContentsRoute = new BcContentsRoute('/', [], []);
     }
 
     /**
      * コンテンツに関連するパラメーター情報を取得する
      */
     public function testGetParams()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * Reverse route
-     */
-    public function testMatch()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
@@ -73,9 +62,9 @@ class BcContentsRouteTest extends BcTestCase
      * @param string $expects 期待するURL
      * @dataProvider reverseRoutingDataProvider
      */
-    public function testReverseRouting($current, $params, $expects)
+    public function testMatch($current, $params, $expects)
     {
-        Router::setRequestInfo($this->getRequest($current));
+        Router::setRequest($this->getRequest($current));
         $this->assertEquals($expects, Router::url($params));
     }
 
@@ -83,17 +72,15 @@ class BcContentsRouteTest extends BcTestCase
     {
         return [
             // ContentFolder
-            ['/', ['plugin' => null, 'controller' => 'content_folders', 'action' => 'view', 'entityId' => 1], '/'],
+            ['/', ['plugin' => 'BaserCore', 'controller' => 'content_folders', 'action' => 'view', 'entityId' => 1], '/'],
             // Page
-            ['/', ['plugin' => null, 'controller' => 'pages', 'action' => 'display', 'index'], '/index'],
-            ['/', ['plugin' => null, 'controller' => 'pages', 'action' => 'display', 'service', 'service1'], '/service/service1'],
+            ['/', ['plugin' => 'BaserCore', 'controller' => 'pages', 'action' => 'display', 'index'], '/index'],
+            ['/', ['plugin' => 'BaserCore', 'controller' => 'pages', 'action' => 'display', 'service', 'service1'], '/service/service1'],
             // Blog
-            ['/', ['plugin' => 'blog', 'controller' => 'blog', 'action' => 'index', 'entityId' => 1], '/news/'],
-            ['/', ['plugin' => 'blog', 'controller' => 'blog', 'action' => 'archives', 'entityId' => 1, 2], '/news/archives/2'],
-            ['/', ['plugin' => 'blog', 'controller' => 'blog', 'action' => 'archives', 'entityId' => 1, 'page' => 2, 2], '/news/archives/2/page:2'],
-            ['/', ['plugin' => 'blog', 'controller' => 'blog', 'action' => 'archives', 'entityId' => 1, 'category', 'release'], '/news/archives/category/release'],
-            ['/', ['page' => 2], '/page:2'],
-            ['/news/index', ['page' => 2], '/news/index/page:2'],
+            ['/', ['plugin' => 'BcBlog', 'controller' => 'blog', 'action' => 'index', 'entityId' => 1], '/news/'],
+            ['/', ['plugin' => 'BcBlog', 'controller' => 'blog', 'action' => 'archives', 'entityId' => 1, 2], '/news/archives/2'],
+            ['/', ['plugin' => 'BcBlog', 'controller' => 'blog', 'action' => 'archives', 'entityId' => 1, 'page' => 2, 2], '/news/archives/2/page:2'],
+            ['/', ['plugin' => 'BcBlog', 'controller' => 'blog', 'action' => 'archives', 'entityId' => 1, 'category', 'release'], '/news/archives/category/release'],
         ];
     }
 
