@@ -288,11 +288,7 @@ class BcUtilTest extends BcTestCase
      */
     public function testIsAdminSystem($url, $expect)
     {
-        // TODO ucmitz移行時に未実装のため代替措置
-        // >>>
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        // <<<
-        $this->_getRequest($url);
+        $this->getRequest($url);
         $result = BcUtil::isAdminSystem();
         $this->assertEquals($expect, $result, '正しく管理システムかチェックできません');
     }
@@ -305,10 +301,10 @@ class BcUtilTest extends BcTestCase
     public function isAdminSystemDataProvider()
     {
         return [
-            ['admin', true],
-            ['admin/hoge', true],
-            ['/admin/hoge', true],
-            ['admin/', true],
+            ['baser/admin', true],
+            ['baser/admin/hoge', true],
+            ['/baser/admin/hoge', true],
+            ['baser/admin/', true],
             ['hoge', false],
             ['hoge/', false],
         ];
