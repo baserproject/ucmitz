@@ -22,6 +22,9 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 use Cake\View\Exception\MissingViewException;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * PagesController
@@ -59,11 +62,7 @@ class PagesController extends AppController
 
     /**
      * initialize
-     * ログインページ認証除外
      * @return void
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function initialize(): void
     {
