@@ -261,15 +261,13 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * Routes
      * App として管理画面を作成するためのルーティングを設定
      * @param RouteBuilder $routes
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function routes($routes): void
     {
 
-        // CakePHPの標準ルーティングを解除するためにリロード
-        // ルートコレクションをクリアして再生成する
-        Router::reload();
-        $routes = Router::createRouteBuilder('/');
-        $routes->setRouteClass('BaserCore.BcContentsRoute');
         $routes->connect('/', [], ['routeClass' => 'BaserCore.BcContentsRoute']);
 
         $routes->prefix(
@@ -305,7 +303,9 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
              */
             try {
                 $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
-                $request = ServerRequestFactory::fromGlobals();
+                if(!$request = Router::getRequest()) {
+                    $request = ServerRequestFactory::fromGlobals();
+                }
                 $site = $sites->findByUrl($request->getPath());
                 $siteAlias = $sitePrefix = '';
                 if ($site) {
@@ -316,10 +316,14 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                     // プラグイン
                     $routes->connect("/{$siteAlias}/:plugin/:controller", ['prefix' => $sitePrefix, 'action' => 'index']);
                     $routes->connect("/{$siteAlias}/:plugin/:controller/:action/*", ['prefix' => $sitePrefix]);
+                    // TODO baserCMS4のコード
+                    // 使うタイミングまでコメントアウト、テストもなし
+                    /* >>>
                     $routes->connect("/{$siteAlias}/:plugin/:action/*", ['prefix' => $sitePrefix]);
                     // モバイルノーマル
                     $routes->connect("/{$siteAlias}/:controller/:action/*", ['prefix' => $sitePrefix]);
                     $routes->connect("/{$siteAlias}/:controller", ['prefix' => $sitePrefix, 'action' => 'index']);
+                    <<< */
                 }
             } catch (Exception $e) {
             }
@@ -337,6 +341,9 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     /**
      * services
      * @param ContainerInterface $container
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function services(ContainerInterface $container): void
     {

@@ -15,13 +15,20 @@
  * システムナビ
  */
  return [
-    'BcApp.adminNavigation' => [
-        'Plugins' => [
-            'menus' => [
-                'BlogTags' => ['title' => 'ブログタグ設定', 'url' => ['admin' => true, 'plugin' => 'blog', 'controller' => 'blog_tags', 'action' => 'index']],
+    'BcApp' => [
+        // TODO ucmitz 未移行
+        // BcBlogのルーティングが実勢できないとルーティングに失敗するため
+        /* >>>
+        'adminNavigation' => [
+            'Plugins' => [
+                'menus' => [
+                    'BlogTags' => ['title' => 'ブログタグ設定', 'url' => ['admin' => true, 'plugin' => 'blog', 'controller' => 'blog_tags', 'action' => 'index']],
+                ]
             ]
         ]
+        <<< */
     ],
+
 /* @var BlogContent $BlogContent */
 // TODO ucmitz 未実装のためコメントアウト
 /* >>>
@@ -90,43 +97,43 @@ foreach ($blogContents as $blogContent) {
                     'routes' => [
                         'manage' => [
                             'admin' => true,
-                            'plugin' => 'blog',
-                            'controller' => 'blog_posts',
+                            'plugin' => 'BcBlog',
+                            'controller' => 'BlogPosts',
                             'action' => 'index'
                         ],
                         'add' => [
                             'admin' => true,
-                            'plugin' => 'blog',
-                            'controller' => 'blog_contents',
+                            'plugin' => 'BcBlog',
+                            'controller' => 'BlogContents',
                             'action' => 'ajax_add'
                         ],
                         'edit' => [
                             'admin' => true,
-                            'plugin' => 'blog',
-                            'controller' => 'blog_contents',
+                            'plugin' => 'BcBlog',
+                            'controller' => 'BlogContents',
                             'action' => 'edit'
                         ],
                         'delete' => [
                             'admin' => true,
-                            'plugin' => 'blog',
-                            'controller' => 'blog_contents',
+                            'plugin' => 'BcBlog',
+                            'controller' => 'BlogContents',
                             'action' => 'delete'
                         ],
                         'view' => [
-                            'plugin' => 'blog',
-                            'controller' => 'blog',
+                            'plugin' => 'BcBlog',
+                            'controller' => 'Blog',
                             'action' => 'index'
                         ],
                         'copy' => [
                             'admin' => true,
-                            'plugin' => 'blog',
-                            'controller' => 'blog_contents',
+                            'plugin' => 'BcBlog',
+                            'controller' => 'BlogContents',
                             'action' => 'ajax_copy'
                         ],
                         'dblclick' => [
                             'admin' => true,
-                            'plugin' => 'blog',
-                            'controller' => 'blog_posts',
+                            'plugin' => 'BcBlog',
+                            'controller' => 'BlogPosts',
                             'action' => 'index'
                         ],
                     ]
