@@ -23,6 +23,8 @@ use Cake\Core\PluginApplicationInterface;
 use Cake\Event\EventManager;
 use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
+use Cake\Http\ServerRequestFactory;
+use Cake\ORM\TableRegistry;
 use Cake\Routing\Route\InflectedRoute;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
@@ -60,7 +62,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         $application->addPlugin('BcAdminThird');
 
         $plugins = BcUtil::getEnablePlugins();
-        if($plugins) {
+        if ($plugins) {
             foreach($plugins as $plugin) {
                 if (BcUtil::includePluginClass($plugin->name)) {
                     $this->loadPlugin($application, $plugin->name, $plugin->priority);
@@ -139,8 +141,8 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         $queue = $ref->getProperty('queue');
         $queue->setAccessible(true);
         foreach($queue->getValue($middlewareQueue) as $middleware) {
-            if($middleware instanceof CsrfProtectionMiddleware) {
-                $middleware->skipCheckCallback(function ($request) {
+            if ($middleware instanceof CsrfProtectionMiddleware) {
+                $middleware->skipCheckCallback(function($request) {
                     if ($request->getParam('prefix') === 'Api') {
                         return true;
                     }
@@ -265,6 +267,26 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      */
     public function routes($routes): void
     {
+
+        // CakePHPの標準ルーティングを解除するためにリロード
+        // ルートコレクションをクリアして再生成する
+        Router::reload();
+        $routes = Router::createRouteBuilder('/');
+
+        /**
+         * コンテンツ管理ルーティング
+         */
+        $plugins = \Cake\Core\Plugin::loaded();
+        $pluginMatch = ['plugin' => implode('|', $plugins)];
+        $routes->scope('/', function($routes) use($pluginMatch) {
+            $routes->setRouteClass('BaserCore.BcContentsRoute');
+            $routes->connect(
+                '*',
+                [],
+                $pluginMatch
+            );
+        });
+
         $routes->prefix(
             'Admin',
             ['path' => Configure::read('BcApp.baserCorePrefix') . Configure::read('BcApp.adminPrefix')],
@@ -290,6 +312,40 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                 );
             }
         );
+
+        if (!BcUtil::isAdminSystem()) {
+
+            /**
+             * サブサイト標準ルーティング
+             */
+            try {
+                $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+                $request = ServerRequestFactory::fromGlobals();
+                $site = $sites->findByUrl($request->getPath());
+                $siteAlias = $sitePrefix = '';
+                if ($site) {
+                    $siteAlias = $site->alias;
+                    $sitePrefix = $site->name;
+                }
+                if ($siteAlias) {
+                    // プラグイン
+                    $routes->connect("/{$siteAlias}/:plugin/:controller", ['prefix' => $sitePrefix, 'action' => 'index'], $pluginMatch);
+                    $routes->connect("/{$siteAlias}/:plugin/:controller/:action/*", ['prefix' => $sitePrefix], $pluginMatch);
+                    $routes->connect("/{$siteAlias}/:plugin/:action/*", ['prefix' => $sitePrefix], $pluginMatch);
+                    // モバイルノーマル
+                    $routes->connect("/{$siteAlias}/:controller/:action/*", ['prefix' => $sitePrefix]);
+                    $routes->connect("/{$siteAlias}/:controller", ['prefix' => $sitePrefix, 'action' => 'index']);
+                }
+            } catch (Exception $e) {
+            }
+
+            /**
+             * フィード出力
+             * 拡張子rssの場合は、rssディレクトリ内のビューを利用する
+             */
+            $routes->setExtensions('rss');
+
+        }
         parent::routes($routes);
     }
 
