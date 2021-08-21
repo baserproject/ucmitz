@@ -1391,13 +1391,15 @@ class ContentsTable extends AppTable
      */
     public function getConditionAllowPublish()
     {
-        $conditions[$this->alias . '.status'] = true;
-        $conditions[] = ['or' => [[$this->alias . '.publish_begin <=' => date('Y-m-d H:i:s')],
-            [$this->alias . '.publish_begin' => null],
-            [$this->alias . '.publish_begin' => '0000-00-00 00:00:00']]];
-        $conditions[] = ['or' => [[$this->alias . '.publish_end >=' => date('Y-m-d H:i:s')],
-            [$this->alias . '.publish_end' => null],
-            [$this->alias . '.publish_end' => '0000-00-00 00:00:00']]];
+        $conditions['Contents.status'] = true;
+        $conditions[] = ['or' => [
+            ['Contents.publish_begin <=' => date('Y-m-d H:i:s')],
+            ['Contents.publish_begin IS' => null],
+            ['Contents.publish_begin' => '0000-00-00 00:00:00']]];
+        $conditions[] = ['or' => [
+            ['Contents.publish_end >=' => date('Y-m-d H:i:s')],
+            ['Contents.publish_end IS' => null],
+            ['Contents.publish_end' => '0000-00-00 00:00:00']]];
         return $conditions;
     }
 
@@ -1977,6 +1979,7 @@ class ContentsTable extends AppTable
 
     /**
      * URLに関連するコンテンツ情報を取得する
+     * サイト情報を含む
      *
      * @param string $url 検索対象のURL
      * @param bool $publish 公開状態かどうか
@@ -1988,6 +1991,7 @@ class ContentsTable extends AppTable
     public function findByUrl($url, $publish = true, $extend = false, $sameUrl = false, $useSubDomain = false)
     {
         $url = preg_replace('/^\//', '', $url);
+        $query = $this->find()->order(['url' => 'DESC'])->contain('Sites');
         if ($extend) {
             $params = explode('/', $url);
             $condUrls = [];
@@ -2000,51 +2004,31 @@ class ContentsTable extends AppTable
                 $condUrls[] = '/' . $path;
             }
             // 固定ページはURL拡張はしない
-            $conditions = [
-                'Content.type <>' => 'Page',
-                'Content.url' => $condUrls,
-                ['or' => [
-                    ['Site.status' => true],
-                    ['Site.status' => null]
-                ]],
-                ['or' => [
-                    ['Site.same_main_url' => $sameUrl],
-                    ['Site.same_main_url' => null]
-                ]],
-                ['or' => [
-                    ['Site.use_subdomain' => $useSubDomain],
-                    ['Site.use_subdomain' => null]
-                ]]
-            ];
+            $query->where([
+                'Contents.type <>' => 'Page',
+                'Contents.url IN' => $condUrls
+            ]);
         } else {
-            $conditions = [
-                'Content.url' => $this->getUrlPattern($url),
-                ['or' => [
-                    ['Site.status' => true],
-                    ['Site.status' => null]
-                ]],
-                ['or' => [
-                    ['Site.same_main_url' => $sameUrl],
-                    ['Site.same_main_url' => null]
-                ]],
-                ['or' => [
-                    ['Site.use_subdomain' => $useSubDomain],
-                    ['Site.use_subdomain' => null]
-                ]]
-            ];
+            $query->where([
+                'Contents.url IN' => $this->getUrlPattern($url)
+            ]);
         }
+        $query->innerJoinWith('Sites', function($q) use($sameUrl, $useSubDomain) {
+            return $q->where([
+                ['Sites.status' => true],
+                ['Sites.same_main_url' => $sameUrl],
+                ['Sites.use_subdomain' => $useSubDomain]
+            ]);
+        });
         if ($publish) {
-            $conditions = array_merge($conditions, $this->getConditionAllowPublish());
+            $query->where($this->getConditionAllowPublish());
         }
-        $content = $this->find('first', ['conditions' => $conditions, 'order' => 'Content.url DESC', 'cache' => false]);
+        $content = $query->first();
         if (!$content) {
             return false;
         }
-        if ($extend && $content['Content']['type'] == 'ContentFolder') {
+        if ($extend && $content->type == 'ContentFolder') {
             return false;
-        }
-        if ($content && empty($content['Site']['id'])) {
-            $content['Site'] = $this->Sites->getRootMain();
         }
         return $content;
     }
