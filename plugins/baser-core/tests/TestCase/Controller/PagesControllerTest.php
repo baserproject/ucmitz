@@ -12,12 +12,13 @@
 namespace BaserCore\Test\TestCase\Controller;
 
 use BaserCore\TestSuite\BcTestCase;
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * PagesController
  */
-class PagesController extends BcTestCase
+class PagesControllerTest extends BcTestCase
 {
 
     /**
@@ -34,6 +35,7 @@ class PagesController extends BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.Pages',
+        'plugin.BaserCore.Plugins',
     ];
 
     /**
@@ -58,6 +60,12 @@ class PagesController extends BcTestCase
 
     public function testDisplay(): void
     {
+        $plugins = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
+        $plugins->save($plugins->newEntity([
+            'name' => 'BcSample',
+            'title' => 'title',
+            'status' => true
+        ]));
         $this->get('/');
         $this->assertResponseOk();
     }

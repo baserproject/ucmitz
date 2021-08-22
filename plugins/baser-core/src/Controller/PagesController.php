@@ -77,6 +77,9 @@ class PagesController extends AppController
      * @throws ForbiddenException When a directory traversal attempt.
 	 * @throws NotFoundException When the view file could not be found
 	 *   or MissingViewException in debug mode.
+     * @checked
+     * @noTodo
+     * @unitTest
 	 */
 	public function display()
 	{

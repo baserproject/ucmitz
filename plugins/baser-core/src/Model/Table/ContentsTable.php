@@ -1388,19 +1388,25 @@ class ContentsTable extends AppTable
      * 公開済の conditions を取得
      *
      * @return array 公開条件（conditions 形式）
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getConditionAllowPublish()
     {
-        $conditions['Contents.status'] = true;
-        $conditions[] = ['or' => [
-            ['Contents.publish_begin <=' => date('Y-m-d H:i:s')],
-            ['Contents.publish_begin IS' => null],
-            ['Contents.publish_begin' => '0000-00-00 00:00:00']]];
-        $conditions[] = ['or' => [
-            ['Contents.publish_end >=' => date('Y-m-d H:i:s')],
-            ['Contents.publish_end IS' => null],
-            ['Contents.publish_end' => '0000-00-00 00:00:00']]];
-        return $conditions;
+        return [
+            'Contents.status' => true,
+            ['or' => [
+                ['Contents.publish_begin <=' => date('Y-m-d H:i:s')],
+                ['Contents.publish_begin IS' => null],
+                ['Contents.publish_begin' => '0000-00-00 00:00:00']
+            ]],
+            ['or' => [
+                ['Contents.publish_end >=' => date('Y-m-d H:i:s')],
+                ['Contents.publish_end IS' => null],
+                ['Contents.publish_end' => '0000-00-00 00:00:00']
+            ]]
+        ];
     }
 
     /**
@@ -1987,6 +1993,9 @@ class ContentsTable extends AppTable
      * @param bool $sameUrl 対象をメインサイトと同一URLで表示するサイト設定内のコンテンツするかどうか
      * @param bool $useSubDomain 対象をサブドメインを利用しているサイト設定内のコンテンツをするかどうか
      * @return mixed false|array Content データ
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function findByUrl($url, $publish = true, $extend = false, $sameUrl = false, $useSubDomain = false)
     {

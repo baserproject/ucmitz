@@ -13,13 +13,15 @@ namespace BaserCore\Routing\Route;
 
 use BaserCore\Service\Front\SiteFrontService;
 use BaserCore\Service\SitesService;
-use BaserCore\Service\SitesServiceInterface;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Route\Route;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * Class BcContentsRoute
@@ -32,6 +34,9 @@ class BcContentsRoute extends Route
      * @param string $url
      * @param string $method
      * @return array|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function parse($url, $method): ?array
     {
@@ -139,7 +144,7 @@ class BcContentsRoute extends Route
     {
         $viewParams = Configure::read('BcContents.items.' . $plugin . '.' . $type . '.routes.view');
         if (!$viewParams) {
-            $viewParams = Configure::read('BcContents.items.Core.Default.routes.view');
+            $viewParams = Configure::read('BcContents.items.BaserCore.Default.routes.view');
             $params = [
                 'controller' => $viewParams['controller'],
                 'action' => $viewParams['action'],
@@ -204,6 +209,9 @@ class BcContentsRoute extends Route
      *
      * @param array $url Array of parameters to convert to a string.
      * @return mixed either false or a string URL.
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function match($url, $context = []): string
     {
