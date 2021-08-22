@@ -82,6 +82,7 @@ class BcContentsRouteTest extends BcTestCase
         return [
             // ContentFolder
             ['/', ['plugin' => 'BaserCore', 'controller' => 'ContentFolders', 'action' => 'view', 'entityId' => 1], '/'],
+            ['/', ['plugin' => 'BaserCore', 'controller' => 'ContentFolders', 'action' => 'view', 'entityId' => 4], '/service/'],
             // Page
             ['/', ['plugin' => 'BaserCore', 'controller' => 'Pages', 'action' => 'display', 'index'], '/index'],
             ['/', ['plugin' => 'BaserCore', 'controller' => 'Pages', 'action' => 'display', 'service', 'service1'], '/service/service1'],
