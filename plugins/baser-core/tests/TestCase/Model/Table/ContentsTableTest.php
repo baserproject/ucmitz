@@ -405,10 +405,10 @@ class ContentsTableTest extends BcTestCase
     public function findByTypeDataProvider()
     {
         return [
-            ['Mail.MailContent', null, 9],    // entityId指定なし
-            ['Blog.BlogContent', 1, 10],    // entityId指定あり
+            ['BcMail.MailContent', null, 9],    // entityId指定なし
+            ['BcBlog.BlogContent', 1, 10],    // entityId指定あり
             ['Page', 3, 11],                // プラグイン指定なし
-            ['Blog.BlogComment', null, null],    // 存在しないタイプ
+            ['BcBlog.BlogComment', null, null],    // 存在しないタイプ
             [false, null, null]                // 異常系
         ];
     }

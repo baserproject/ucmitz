@@ -1,19 +1,30 @@
 <?php
-// TODO : コード確認要
-return;
+/**
+ * baserCMS :  Based Website Development Project <https://basercms.net>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
+ *
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
+ */
+
+namespace BaserCore\Test\Fixture;
+
+use Cake\TestSuite\Fixture\TestFixture;
 
 /**
  * PageFixture
  */
-class PageFixture extends BaserTestFixture
+class PagesFixture extends TestFixture
 {
 
     /**
-     * Name of the object
+     * Import
      *
-     * @var string
+     * @var array
      */
-    public $name = 'Page';
+    public $import = ['table' => 'pages'];
 
     /**
      * Records

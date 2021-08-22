@@ -1,31 +1,27 @@
 <?php
-// TODO : コード確認要
-use BaserCore\Event\BcEventDispatcherTrait;
-
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link            https://basercms.net baserCMS Project
- * @package         Baser.View.Helper
- * @since           baserCMS v 0.1.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
 
-App::uses('Helper', 'View');
+namespace BaserCore\View\Helper;
+
+use BaserCore\Event\BcEventDispatcherTrait;
+use Cake\View\Helper;
+use Cake\View\View;
+use Throwable;
 
 /**
- * ページヘルパー
- *
- * @package Baser.View.Helper
- * @property BcContentsHelper $BcContents
- * @property BcBaserHelper $BcBaser
- * @property BcAppView $_View
+ * BcPageHelper
  */
 class BcPageHelper extends Helper
 {
+
     /**
      * Trait
      */
@@ -56,15 +52,17 @@ class BcPageHelper extends Helper
      *
      * @param View $View
      */
-    public function __construct(View $View)
+    public function __construct(View $View, $settings = [])
     {
-
-        parent::__construct($View);
+        parent::__construct($View, $settings);
+        // TODO ucmitz 未移行のためコメントアウト
+        /* >>>
         if (ClassRegistry::isKeySet('Page')) {
             $this->Page = ClassRegistry::getObject('Page');
         } else {
             $this->Page = ClassRegistry::init('Page', 'Model');
         }
+        <<< */
     }
 
     /**
@@ -284,9 +282,9 @@ class BcPageHelper extends Helper
         if ($previewTemplate) {
             $path = $previewTemplate;
         } else {
-            $path = APP . 'View' . DS . 'Pages' . DS . $this->_View->get('pagePath') . $this->_View->ext;
+            $path = ROOT . DS . 'templates' . DS . 'Pages' . DS . $this->_View->get('pagePath') . $this->_View->getExt();
         }
-        echo $this->_View->evaluate($path, $this->_View->viewVars);
+        echo $this->_View->evaluate($path);
     }
 
 }

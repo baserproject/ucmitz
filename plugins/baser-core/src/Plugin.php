@@ -268,7 +268,13 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     public function routes($routes): void
     {
 
-        $routes->connect('/', [], ['routeClass' => 'BaserCore.BcContentsRoute']);
+        if(!BcUtil::isConsole()) {
+            // ユニットテストでは実行しない
+            Router::reload();
+            $routes = Router::createRouteBuilder('/');
+        }
+
+        $routes->connect('/*', [], ['routeClass' => 'BaserCore.BcContentsRoute']);
 
         $routes->prefix(
             'Admin',

@@ -118,9 +118,9 @@ class BcTestCase extends TestCase
         }
 
         try {
+            Router::setRequest($request);
             $params = Router::parseRequest($request);
         } catch (\Exception $e) {
-            Router::setRequest($request);
             return $request;
         }
 

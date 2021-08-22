@@ -52,9 +52,12 @@ class AppController extends BaseController
      */
     public function beforeRender(EventInterface $event): void
     {
-        $site = $this->getRequest()->getParam('Site');
-        if($site) {
-            $this->viewBuilder()->setTheme($site->theme);
+        if (!isset($this->RequestHandler) || !$this->RequestHandler->prefers('json')) {
+            $this->viewBuilder()->setClassName('BaserCore.App');
+            $site = $this->getRequest()->getParam('Site');
+            if($site) {
+                $this->viewBuilder()->setTheme($site->theme);
+            }
         }
     }
 

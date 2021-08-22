@@ -949,7 +949,7 @@ class ContentsTable extends AppTable
     {
         [$plugin, $type] = pluginSplit($type);
         if (!$plugin) {
-            $plugin = 'Core';
+            $plugin = 'BaserCore';
         }
         $conditions = [
             'Contents.plugin' => $plugin,

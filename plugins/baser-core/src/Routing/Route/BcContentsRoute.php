@@ -195,6 +195,7 @@ class BcContentsRoute extends Route
                 'entityId' => $entityId
             ];
         }
+        $params['_matchedRoute'] = $this->template;
         return $params;
     }
 

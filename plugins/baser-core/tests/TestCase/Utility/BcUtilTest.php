@@ -796,7 +796,7 @@ class BcUtilTest extends BcTestCase
         foreach($list as $key) {
             $this->assertArrayHasKey($key, $result);
         }
-        $this->assertEquals('Core', $result['Default']['plugin']);
+        $this->assertEquals('BaserCore', $result['Default']['plugin']);
         $this->assertEquals('Default', $result['Default']['type']);
     }
 
