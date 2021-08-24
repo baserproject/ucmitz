@@ -41,14 +41,14 @@ class MailContentsController extends MailAppController
      *
      * @var array
      */
-    public $uses = ["Mail.MailContent", 'Mail.MailMessage'];
+    public $uses = ['BcMail.MailContent", 'BcMail.MailMessage'];
 
     /**
      * ヘルパー
      *
      * @var array
      */
-    public $helpers = ['BcHtml', 'BcTime', 'BcForm', 'BcText', 'Mail.Mail'];
+    public $helpers = ['BcHtml', 'BcTime', 'BcForm', 'BcText', 'BcMail.Mail'];
 
     /**
      * コンポーネント
