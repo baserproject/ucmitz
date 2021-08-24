@@ -72,7 +72,7 @@ class ContentFoldersServiceTest extends BcTestCase
             'content' => [
                 "parent_id" => "1",
                 "title" => "新しい フォルダー",
-                "plugin" => "Core",
+                "plugin" => 'BaserCore',
                 "type" => "ContentFolder",
                 "site_id" => "0",
                 "alias_id" => "",
