@@ -14,7 +14,7 @@
 /**
  * データベース初期化
  */
-$this->Plugin->initDb('Mail');
+$this->Plugin->initDb('BcMail');
 
 /**
  * メッセージテーブル構築

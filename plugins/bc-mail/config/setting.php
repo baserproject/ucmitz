@@ -103,6 +103,6 @@ $config['BcContents']['items']['BcMail'] = [
 /**
  * ショートコード
  */
-$config['BcShortCode']['Mail'] = [
+$config['BcShortCode']['BcMail'] = [
     'Mail.getForm'
 ];
