@@ -32,7 +32,7 @@
 /* @var BlogContent $BlogContent */
 // TODO ucmitz 未実装のためコメントアウト
 /* >>>
-$BlogContent = ClassRegistry::init('Blog.BlogContent');
+$BlogContent = ClassRegistry::init('BcBlog.BlogContent');
 $blogContents = $BlogContent->find('all', [
     'conditions' => [
         $BlogContent->Content->getConditionAllowPublish()

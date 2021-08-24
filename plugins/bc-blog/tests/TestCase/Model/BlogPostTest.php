@@ -12,7 +12,7 @@ return;
  * @license         https://basercms.net/license/index.html
  */
 
-App::uses('BlogPost', 'Blog.Model');
+App::uses('BlogPost', 'BcBlog.Model');
 
 /**
  * Class BlogPostTest
@@ -42,7 +42,7 @@ class BlogPostTest extends BaserTestCase
 
     public function setUp()
     {
-        $this->BlogPost = ClassRegistry::init('Blog.BlogPost');
+        $this->BlogPost = ClassRegistry::init('BcBlog.BlogPost');
         parent::setUp();
     }
 
@@ -467,7 +467,7 @@ class BlogPostTest extends BaserTestCase
             'SearchIndex' => [
                 'type' => 'ブログ',
                 'model_id' => false,
-                'site_id' => '0',
+                'site_id' => '1',
                 'title' => 'test-name',
                 'detail' => 'test-content test-detail',
                 'url' => '/news/archives/1',

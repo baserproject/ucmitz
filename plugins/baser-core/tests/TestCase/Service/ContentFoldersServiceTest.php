@@ -49,6 +49,7 @@ class ContentFoldersServiceTest extends BcTestCase
         parent::setUp();
         $this->ContentFoldersService = new ContentFoldersService();
         $this->Contents = $this->getTableLocator()->get('Contents');
+        $this->loginAdmin($this->getRequest());
     }
 
     /**
