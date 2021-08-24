@@ -92,7 +92,6 @@ class ContentsControllerTest extends BcTestCase
         $this->assertNotEmpty($this->ContentsController->SiteConfigs);
         $this->assertNotEmpty($this->ContentsController->ContentFolders);
         $this->assertNotEmpty($this->ContentsController->Users);
-        $this->assertEquals($this->ContentsController->Security->getConfig('unlockedActions'), ['index']);
     }
 
 
