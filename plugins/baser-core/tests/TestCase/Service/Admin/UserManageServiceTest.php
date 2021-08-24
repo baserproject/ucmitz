@@ -12,7 +12,6 @@
 namespace BaserCore\Test\TestCase\Service\Admin;
 
 use BaserCore\Model\Table\LoginStoresTable;
-use BaserCore\Model\Table\UsersTable;
 use BaserCore\Service\Admin\UserManageService;
 use Cake\Http\Response;
 
@@ -150,34 +149,6 @@ class UserManageServiceTest extends \BaserCore\TestSuite\BcTestCase
     public function testGetUserGroupList()
     {
         $this->assertIsArray($this->UserManage->getUserGroupList());
-    }
-
-    /**
-     * Test willChangeSelfGroup
-     * @param $loginId
-     * @param $userGroupId
-     * @param $expected
-     * @dataProvider willChangeSelfGroupDataProvider
-     */
-    public function testWillChangeSelfGroup($loginId, $userGroupId, $expected)
-    {
-        $request = $this->getRequest();
-        if ($loginId) {
-            $this->loginAdmin($request, $loginId);
-        }
-        $postData = [
-            'user_groups' => ['_ids' => $userGroupId]
-        ];
-        $this->assertEquals($expected, $this->UserManage->willChangeSelfGroup($postData));
-    }
-
-    public function willChangeSelfGroupDataProvider()
-    {
-        return [
-            [null, [0 => 1], false],
-            [1, [0 => 1], false],
-            [1, [0 => 1, 1 => 2], true],
-        ];
     }
 
     /**

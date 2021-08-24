@@ -16,7 +16,6 @@ use BaserCore\Model\Table\LoginStoresTable;
 use BaserCore\Model\Table\UsersTable;
 use BaserCore\Service\SiteConfigsTrait;
 use BaserCore\Service\UserGroupsServiceInterface;
-use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Service\UsersService;
 use Cake\Core\Configure;
@@ -124,25 +123,6 @@ class UserManageService extends UsersService implements UserManageServiceInterfa
     {
         $userGroups = $this->getService(UserGroupsServiceInterface::class);
         return $userGroups->list();
-    }
-
-    /**
-     * ログインユーザーが自身のユーザーグループを変更しようとしているかどうか
-     * @param array $postData
-     * @return bool
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function willChangeSelfGroup(array $postData)
-    {
-        $loginUser = BcUtil::loginUser();
-        if (empty($loginUser->user_groups)) {
-            return false;
-        }
-        $loginGroupId = Hash::extract($loginUser->user_groups, '{n}.id');
-        $postGroupId = array_map('intval', $postData['user_groups']['_ids']);
-        return ($loginGroupId !== $postGroupId);
     }
 
     /**
@@ -360,7 +340,7 @@ class UserManageService extends UsersService implements UserManageServiceInterfa
         $session->delete('AuthAgent');
         return $redirectUrl;
     }
-    
+
     /**
      * ログイン情報をリロードする
      *

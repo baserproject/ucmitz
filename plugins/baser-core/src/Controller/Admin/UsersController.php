@@ -220,19 +220,15 @@ class UsersController extends BcAdminAppController
         }
         $user = $userManage->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            if (!BcUtil::isAdminUser() && $userManage->willChangeSelfGroup($this->getRequest()->getData())) {
-                $this->BcMessage->setError(__d('baser', '自分のアカウントのグループは変更できません。'));
+            $user = $userManage->update($user, $this->request->getData());
+            if (!$user->getErrors()) {
+                $this->dispatchLayerEvent('afterEdit', [
+                    'user' => $user
+                ]);
+                $this->BcMessage->setSuccess(__d('baser', 'ユーザー「{0}」を更新しました。', $user->name));
+                return $this->redirect(['action' => 'edit', $user->id]);
             } else {
-                $user = $userManage->update($user, $this->request->getData());
-                if (!$user->getErrors()) {
-                    $this->dispatchLayerEvent('afterEdit', [
-                        'user' => $user
-                    ]);
-                    $this->BcMessage->setSuccess(__d('baser', 'ユーザー「{0}」を更新しました。', $user->name));
-                    return $this->redirect(['action' => 'edit', $user->id]);
-                } else {
-                    $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
-                }
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
         }
         $this->set('user', $user);

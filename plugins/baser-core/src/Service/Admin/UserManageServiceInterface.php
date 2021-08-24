@@ -90,13 +90,6 @@ interface UserManageServiceInterface
     public function isDeletable(int $id);
 
     /**
-     * ログインユーザーが自身のユーザーグループを変更しようとしているかどうか
-     * @param array $postData
-     * @return bool
-     */
-    public function willChangeSelfGroup(array $postData);
-
-    /**
      * ログイン
      * @param ServerRequest $request
      * @param ResponseInterface $response
