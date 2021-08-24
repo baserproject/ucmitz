@@ -20,7 +20,7 @@
 /**
  * データベース初期化
  */
-$this->Plugin->initDb('Blog');
+$this->Plugin->initDb('BcBlog');
 
 /**
  * ブログ記事の投稿日を更新

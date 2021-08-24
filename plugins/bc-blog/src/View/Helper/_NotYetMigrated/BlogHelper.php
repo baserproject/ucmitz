@@ -275,7 +275,7 @@ class BlogHelper extends AppHelper
             'title' => $title,
             'options' => $options,
             'url' => $url,
-        ], ['class' => 'Blog', 'plugin' => 'Blog']);
+        ], ['class' => 'Blog', 'plugin' => 'BcBlog']);
         if ($event !== false) {
             $options = ($event->getResult() === null || $event->getResult() === true) ? $event->getData('options') : $event->getResult();
             $post = $event->getData('post');
@@ -291,7 +291,7 @@ class BlogHelper extends AppHelper
             'title' => $title,
             'out' => $out,
             'url' => $url,
-        ], ['class' => 'Blog', 'plugin' => 'Blog']);
+        ], ['class' => 'Blog', 'plugin' => 'BcBlog']);
         if ($event !== false) {
             $out = ($event->getResult() === null || $event->getResult() === true) ? $event->getData('out') : $event->getResult();
         }
@@ -1874,7 +1874,7 @@ class BlogHelper extends AppHelper
      */
     public function isBlog()
     {
-        return (!empty($this->request->params['Content']['plugin']) && $this->request->params['Content']['plugin'] == 'Blog');
+        return (!empty($this->request->params['Content']['plugin']) && $this->request->params['Content']['plugin'] == 'BcBlog');
     }
 
     /**

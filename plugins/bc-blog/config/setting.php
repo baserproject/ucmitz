@@ -141,7 +141,7 @@ foreach ($blogContents as $blogContent) {
             ]
         ]
     ],
-    'Blog' => [
+    'BcBlog' => [
         // ブログアイキャッチサイズの初期値
         'eye_catch_size_thumb_width' => 600,
         'eye_catch_size_thumb_height' => 600,

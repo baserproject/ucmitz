@@ -151,7 +151,7 @@ class BlogContent extends BlogAppModel
                         'title',
                     ],
                     'conditions' => [
-                        'plugin' => 'Blog',
+                        'plugin' => 'BcBlog',
                         'type' => 'BlogContent',
                     ],
                     'recursive' => -1,
