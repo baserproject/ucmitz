@@ -35,7 +35,6 @@ class BcAdminContentHelper extends Helper
      * @param array $config
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function initialize(array $config): void
     {
