@@ -207,6 +207,7 @@ class UsersTable extends Table
                 'willChangeSelfGroup' => [
                     'rule' => 'willChangeSelfGroup',
                     'provider' => 'user',
+                    'on' => 'update',
                     'message' => __d('baser', '自分のアカウントのグループは変更できません。')
                 ]
             ]);

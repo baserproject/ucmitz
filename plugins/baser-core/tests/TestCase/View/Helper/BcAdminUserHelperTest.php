@@ -17,12 +17,22 @@ use BaserCore\View\Helper\BcAdminUserHelper;
 /**
  * Class BcAdminUserHelperTest
  *
- * 基本的に UserManageService のラッパークラスのため、ラップしたメソッドのテストは書かない
- *
  * @package BaserCore\Test\TestCase\View\Helper
  */
 class BcAdminUserHelperTest extends \BaserCore\TestSuite\BcTestCase
 {
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    protected $fixtures = [
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
+    ];
+
     /**
      * BcAdminUserHelper
      * @var BcAdminUserHelper
@@ -46,14 +56,6 @@ class BcAdminUserHelperTest extends \BaserCore\TestSuite\BcTestCase
     {
         unset($this->BcAdminUser);
         parent::tearDown();
-    }
-
-    /**
-     * Test initialize
-     */
-    public function testInitialize()
-    {
-        $this->assertTrue(isset($this->BcAdminUser->UserManage));
     }
 
     /**

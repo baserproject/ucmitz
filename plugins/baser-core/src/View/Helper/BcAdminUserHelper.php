@@ -73,7 +73,7 @@ class BcAdminUserHelper extends Helper
      * @noTodo
      * @unitTest
      */
-    public function isDeletable(int $id)
+    public function isDeletable(?int $id)
     {
         $user = BcUtil::loginUser();
         if (empty($id) || empty($user)) {
