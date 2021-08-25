@@ -23,26 +23,24 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Service\SitesService;
 use BaserCore\Service\UsersService;
-use BaserCore\Service\DblogsService;
+use BaserCore\Service\DblogService;
 use BaserCore\Service\PluginsService;
-use BaserCore\Service\ContentsService;
+use BaserCore\Service\ContentService;
 use BaserCore\Service\UserGroupsService;
 use BaserCore\Service\SitesServiceInterface;
 use BaserCore\Service\UsersServiceInterface;
-use BaserCore\Service\DblogsServiceInterface;
+use BaserCore\Service\DblogServiceInterface;
 use BaserCore\Service\SiteConfigsService;
 use BaserCore\Service\Admin\SiteManageService;
 use BaserCore\Service\PluginsServiceInterface;
-use BaserCore\Service\ContentsServiceInterface;
+use BaserCore\Service\ContentServiceInterface;
 use BaserCore\Service\Admin\PluginManageService;
-use BaserCore\Service\Admin\ContentManageService;
 use BaserCore\Service\UserGroupsServiceInterface;
 use BaserCore\Service\PermissionServiceInterface;
 use BaserCore\Service\PermissionService;
 use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\Admin\PluginManageServiceInterface;
-use BaserCore\Service\Admin\ContentManageServiceInterface;
 use BaserCore\Service\Admin\ContentFolderManageService;
 use BaserCore\Service\Admin\ContentFolderManageServiceInterface;
 use BaserCore\Service\ContentFoldersService;
@@ -70,9 +68,8 @@ class BcServiceProvider extends ServiceProvider
         SiteConfigsServiceInterface::class,
         SiteConfigManageServiceInterface::class,
         PermissionServiceInterface::class,
-        DblogsServiceInterface::class,
-        ContentManageServiceInterface::class,
-        ContentsServiceInterface::class,
+        DblogServiceInterface::class,
+        ContentServiceInterface::class,
         ContentFoldersServiceInterface::class,
         ContentFolderManageServiceInterface::class,
     ];
@@ -104,10 +101,9 @@ class BcServiceProvider extends ServiceProvider
         // Permissionsサービス
         $container->add(PermissionServiceInterface::class, PermissionService::class);
         // Dblogsサービス
-        $container->add(DblogsServiceInterface::class, DblogsService::class, true);
+        $container->add(DblogServiceInterface::class, DblogService::class, true);
         // Contentsサービス
-        $container->add(ContentManageServiceInterface::class, ContentManageService::class, true);
-        $container->add(ContentsServiceInterface::class, ContentsService::class, true);
+        $container->add(ContentServiceInterface::class, ContentService::class, true);
         // ContentFoldersサービス
         $container->add(ContentFolderManageServiceInterface::class, ContentFolderManageService::class, true);
         $container->add(ContentFoldersServiceInterface::class, ContentFoldersService::class, true);
