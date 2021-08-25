@@ -11,7 +11,6 @@
 
 namespace BaserCore\View\Helper;
 
-use BaserCore\Service\Admin\UserManageServiceInterface;
 use BaserCore\Service\UserGroupsServiceInterface;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
@@ -27,26 +26,10 @@ use BaserCore\Annotation\Checked;
 class BcAdminUserHelper extends Helper
 {
 
+    /**
+     * Trait
+     */
     use BcContainerTrait;
-
-    /**
-     * User Manage Service
-     * @var UserManageServiceInterface
-     */
-    public $UserManage;
-
-    /**
-     * initialize
-     * @param array $config
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function initialize(array $config): void
-    {
-        parent::initialize($config);
-        $this->UserManage = $this->getService(UserManageServiceInterface::class);
-    }
 
     /**
      * ログインユーザー自身の更新かどうか
@@ -108,7 +91,7 @@ class BcAdminUserHelper extends Helper
      */
     public function getUserGroupList()
     {
-        return $this->getService(UserGroupsServiceInterface::class)->list();
+        return $this->getService(UserGroupsServiceInterface::class)->getList();
     }
 
 }
