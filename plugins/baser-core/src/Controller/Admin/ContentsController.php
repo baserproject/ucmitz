@@ -11,6 +11,7 @@
 
 namespace BaserCore\Controller\Admin;
 
+use BaserCore\Service\BcAdminServiceInterface;
 use Cake\Utility\Hash;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
@@ -95,10 +96,10 @@ class ContentsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
+    public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage, BcAdminServiceInterface $bcAdminService)
     {
-        $siteManage->setCurrentSite();
-        $currentSiteId = $siteManage->getCurrentSite()->id;
+        $bcAdminService->setCurrentSite();
+        $currentSiteId = $bcAdminService->getCurrentSite()->id;
         $sites = $siteManage->getSiteList();
         if ($sites) {
             if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {

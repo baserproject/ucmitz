@@ -13,6 +13,8 @@ namespace BaserCore\ServiceProvider;
 
 use BaserCore\Service\Admin\SiteConfigManageService;
 use BaserCore\Service\Admin\SiteConfigManageServiceInterface;
+use BaserCore\Service\BcAdminService;
+use BaserCore\Service\BcAdminServiceInterface;
 use BaserCore\Service\Front\SiteFrontService;
 use BaserCore\Service\Front\SiteFrontServiceInterface;
 use Cake\Core\ServiceProvider;
@@ -58,12 +60,12 @@ class BcServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $provides = [
+        BcAdminServiceInterface::class,
         UsersServiceInterface::class,
         UserGroupsServiceInterface::class,
         PluginsServiceInterface::class,
         PluginManageServiceInterface::class,
         SitesServiceInterface::class,
-        SiteManageServiceInterface::class,
         SiteFrontServiceInterface::class,
         SiteConfigsServiceInterface::class,
         SiteConfigManageServiceInterface::class,
@@ -84,6 +86,8 @@ class BcServiceProvider extends ServiceProvider
      */
     public function services($container): void
     {
+        // BcAdminサービス
+        $container->add(BcAdminServiceInterface::class, BcAdminService::class);
         // Usersサービス
         $container->add(UsersServiceInterface::class, UsersService::class);
         // UserGroupsサービス
@@ -93,7 +97,6 @@ class BcServiceProvider extends ServiceProvider
         $container->add(PluginManageServiceInterface::class, PluginManageService::class, true);
         // Sites サービス
         $container->add(SitesServiceInterface::class, SitesService::class, true);
-        $container->add(SiteManageServiceInterface::class, SiteManageService::class, true);
         $container->add(SiteFrontServiceInterface::class, SiteFrontService::class, true);
         // SiteConfigsサービス
         $container->add(SiteConfigsServiceInterface::class, SiteConfigsService::class, true);
