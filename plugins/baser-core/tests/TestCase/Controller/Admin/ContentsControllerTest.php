@@ -11,6 +11,8 @@
 
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
+use BaserCore\Service\BcAdminService;
+use BaserCore\Service\SitesService;
 use Cake\Event\Event;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Service\Admin\SiteManageService;
@@ -106,7 +108,7 @@ class ContentsControllerTest extends BcTestCase
         $this->get('/baser/admin/baser-core/contents/index/');
         $this->assertResponseOk();
         // リクエストの変化をテスト
-        $this->ContentsController->index(new ContentManageService(), new SiteManageService());
+        $this->ContentsController->index(new ContentManageService(), new SitesService(), new BcAdminService());
         $this->assertArrayHasKey('num', $this->ContentsController->getRequest()->getQueryParams());
 
     }
@@ -143,7 +145,7 @@ class ContentsControllerTest extends BcTestCase
         // index_row_table.phpでエラーがでるため、変数を補完
         if ($expected === "index_table") $ContentsController->viewBuilder()->setVar('authors', '');
 
-        $ContentsController->index(new ContentManageService(), new SiteManageService());
+        $ContentsController->index(new ContentManageService(), new SitesService(), new BcAdminService());
         $this->assertEquals($expected, $ContentsController->viewBuilder()->getVar('template'));
         if ($expected !== "index_table") {
             $this->assertInstanceOf('Cake\ORM\Query', $ContentsController->viewBuilder()->getVar('datas'));
@@ -171,7 +173,7 @@ class ContentsControllerTest extends BcTestCase
     {
         $request = $this->request->withParam('action', 'trash_index');
         $this->ContentsController->setRequest($request);
-        $this->ContentsController->trash_index(new ContentManageService(), new SiteManageService());
+        $this->ContentsController->trash_index(new ContentManageService(), new SitesService(), new BcAdminService());
         $this->assertEquals('index', $this->ContentsController->viewBuilder()->getTemplate());
         $this->assertEquals('trash_index', $this->ContentsController->getRequest()->getQuery('action'));
         $this->assertArrayHasKey('num', $this->ContentsController->getRequest()->getQueryParams());

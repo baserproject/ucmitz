@@ -12,6 +12,7 @@
 namespace BaserCore\Controller\Admin;
 
 use BaserCore\Service\BcAdminServiceInterface;
+use BaserCore\Service\SitesServiceInterface;
 use Cake\Utility\Hash;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
@@ -26,9 +27,7 @@ use BaserCore\Service\SiteConfigsTrait;
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Model\Table\SiteConfigsTable;
 use BaserCore\Model\Table\ContentFoldersTable;
-use BaserCore\Service\Admin\ContentManageService;
 use BaserCore\Controller\Component\BcContentsComponent;
-use BaserCore\Service\Admin\SiteManageServiceInterface;
 use BaserCore\Service\Admin\ContentManageServiceInterface;
 
 /**
@@ -96,11 +95,11 @@ class ContentsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage, BcAdminServiceInterface $bcAdminService)
+    public function index(ContentManageServiceInterface $contentManage, SitesServiceInterface $siteService, BcAdminServiceInterface $bcAdminService)
     {
         $bcAdminService->setCurrentSite();
         $currentSiteId = $bcAdminService->getCurrentSite()->id;
-        $sites = $siteManage->getSiteList();
+        $sites = $siteService->getList();
         if ($sites) {
             if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {
                 reset($sites);
@@ -164,9 +163,9 @@ class ContentsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function trash_index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
+    public function trash_index(ContentManageServiceInterface $contentManage, SitesServiceInterface $sitesService, BcAdminServiceInterface $bcAdminService)
     {
-        $this->setAction('index', $contentManage, $siteManage);
+        $this->setAction('index', $contentManage, $sitesService, $bcAdminService);
         $this->render('index');
     }
 

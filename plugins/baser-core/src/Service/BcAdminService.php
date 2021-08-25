@@ -15,6 +15,9 @@ use BaserCore\Model\Entity\Site;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * BcAdminService
@@ -74,6 +77,9 @@ class BcAdminService implements BcAdminServiceInterface
     /**
      * 現在の管理対象のサイト以外のリストを取得する
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getOtherSiteList(): array
     {

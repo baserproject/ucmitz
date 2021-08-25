@@ -21,18 +21,12 @@ Interface BcAdminServiceInterface
 
     /**
      * 現在の管理対象のサイトを設定する
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function setCurrentSite(): void;
 
     /**
      * 現在の管理対象のサイトを取得する
      * @return Site
-     * @checked
-     * @noTodo
-     * @unitTest
      */
     public function getCurrentSite(): Site;
 
