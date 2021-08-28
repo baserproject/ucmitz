@@ -245,10 +245,7 @@ class BcAdminHelper extends Helper
         // if(empty($this->_View->viewVars['user']['user_group_id'])) {
         //     return null;
         // }
-        $currentSiteId = (string)$this->_View->getRequest()
-                        ->getSession()
-                        ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
-        $currentSiteId = $this->getService(BcAdminServiceInterface::class)->getCurrentSite()->id;
+        $currentSiteId = $this->_View->getRequest()->getAttribute('currentSite')->id;
 
         $covertedAdminMenuGroups = $this->convertAdminMenuGroups($adminMenuGroups);
 
