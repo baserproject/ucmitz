@@ -213,9 +213,9 @@ class ContentsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function trash_index(ContentServiceInterface $contentService, SiteServiceInterface $siteService, BcAdminServiceInterface $bcAdminService)
+    public function trash_index(ContentServiceInterface $contentService, SiteServiceInterface $siteService)
     {
-        $this->setAction('index', $contentService, $siteService, $bcAdminService);
+        $this->setAction('index', $contentService, $siteService);
         $this->render('index');
     }
 

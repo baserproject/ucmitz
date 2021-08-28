@@ -245,7 +245,10 @@ class BcAdminHelper extends Helper
         // if(empty($this->_View->viewVars['user']['user_group_id'])) {
         //     return null;
         // }
-        $currentSiteId = $this->_View->getRequest()->getAttribute('currentSite')->id;
+        $currentSiteId = 1;
+        if($currentSite = $this->_View->getRequest()->getAttribute('currentSite')) {
+            $currentSiteId = $currentSite->id;
+        }
 
         $covertedAdminMenuGroups = $this->convertAdminMenuGroups($adminMenuGroups);
 
