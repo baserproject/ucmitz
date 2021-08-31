@@ -15,9 +15,9 @@ use Cake\Datasource\EntityInterface;
 use Cake\ORM\Query;
 
 /**
- * FavoritesServiceInterface
+ * FavoriteServiceInterface
  */
-interface FavoritesServiceInterface
+interface FavoriteServiceInterface
 {
 
     /**

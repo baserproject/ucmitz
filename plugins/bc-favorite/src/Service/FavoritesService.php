@@ -19,9 +19,9 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 
 /**
- * FavoritesService
+ * FavoriteService
  */
-class FavoritesService
+class FavoriteService implements FavoriteServiceInterface
 {
 
     /**
@@ -31,7 +31,7 @@ class FavoritesService
     public $Favorites;
 
     /**
-     * FavoritesService constructor.
+     * FavoriteService constructor.
      */
     public function __construct()
     {
