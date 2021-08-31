@@ -10,3 +10,9 @@ The recommended way to install composer packages is:
 composer require baserproject/bc-favorite
 ```
 
+- [ ] API を作成する
+- [ ] Controller を移行する
+- [ ] View を移行
+- [ ] メニューの上にイベントディスパッチャーを作る
+- [ ] BcFavoriteから上記イベントを横取りしてお気に入り一覧を表示
+
