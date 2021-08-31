@@ -16,6 +16,7 @@ use BcAuthComponent;
 use Cake\Cache\Cache;
 use Cake\Core\Plugin;
 use Cake\Core\Configure;
+use Cake\Http\ServerRequestFactory;
 use Cake\Routing\Router;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
@@ -322,18 +323,22 @@ class BcUtil
      * Router::reload() や、Router::setRequestInfo() で調整しようとしたがうまくいかなかった。
      * @todo Testable humuhimi
      * @return boolean
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public static function isAdminSystem($url = null)
     {
         if (!$url) {
-            $request = Router::getRequest();
+            if(!$request = Router::getRequest()) {
+                $request = ServerRequestFactory::fromGlobals();
+            }
             if ($request) {
-                $url = $request->getUri();
+                $url = $request->getPath();
             } else {
                 return false;
             }
         }
-
         $adminPrefix = BcUtil::getPrefix(true);
         return (boolean)(preg_match('/^(|\/)' . $adminPrefix . '\//', $url) || preg_match('/^(|\/)' . $adminPrefix . '$/', $url));
     }
@@ -349,9 +354,8 @@ class BcUtil
     public static function isAdminUser($user = null): bool
     {
         /** @var User $User */
-        $User = $user? $user : self::loginUser('Admin');
-        if (!$User) return false;
-        return $User->isAdmin();
+        $loginUser = $user ?? self::loginUser('Admin');
+        return ($loginUser)? $loginUser->isAdmin() : false;
     }
 
     /**
@@ -446,12 +450,12 @@ class BcUtil
     {
 
         if (!$plugin) {
-            $plugin = 'Core';
+            $plugin = 'BaserCore';
         } else {
             $plugin = Inflector::camelize($plugin);
         }
 
-        if ($plugin == 'Core') {
+        if ($plugin == 'BaserCore') {
             return BASER_CONFIGS . 'Schema';
         }
 
@@ -481,22 +485,22 @@ class BcUtil
     {
 
         if (!$plugin) {
-            $plugin = 'Core';
+            $plugin = 'BaserCore';
         } else {
             $plugin = Inflector::camelize($plugin);
         }
 
         if (!$theme) {
-            $theme = 'core';
+            $theme = 'BcSample';
         }
 
         if (!$pattern) {
             $pattern = 'default';
         }
 
-        if ($plugin == 'Core') {
+        if ($plugin == 'BaserCore') {
             $paths = [BASER_CONFIGS . 'data' . DS . $pattern];
-            if ($theme != 'core') {
+            if ($theme != 'BcSample') {
                 $paths = array_merge([
                     BASER_THEMES . $theme . DS . 'Config' . DS . 'data' . DS . $pattern,
                     BASER_THEMES . $theme . DS . 'Config' . DS . 'Data' . DS . $pattern,
@@ -526,7 +530,7 @@ class BcUtil
                 $pluginPath . DS . 'Config' . DS . 'data' . DS . 'default',
                 $pluginPath . DS . 'Config' . DS . 'Data' . DS . 'default',
             ];
-            if ($theme != 'core') {
+            if ($theme != 'BcSample') {
                 $paths = array_merge([
                     BASER_THEMES . $theme . DS . 'Config' . DS . 'data' . DS . $pattern . DS . $plugin,
                     BASER_THEMES . $theme . DS . 'Config' . DS . 'Data' . DS . $pattern . DS . $plugin,

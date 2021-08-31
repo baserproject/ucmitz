@@ -11,9 +11,9 @@
 
 namespace BaserCore\Controller\Admin;
 
-use BaserCore\Service\DblogsServiceInterface;
-use BaserCore\Service\SiteConfigsTrait;
-use BaserCore\Service\Admin\UserManageServiceInterface;
+use BaserCore\Service\DblogServiceInterface;
+use BaserCore\Service\SiteConfigTrait;
+use BaserCore\Service\UserServiceInterface;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -25,9 +25,9 @@ use BaserCore\Annotation\Checked;
 class DblogsController extends BcAdminAppController
 {
     /**
-     * SiteConfigsTrait
+     * SiteConfigTrait
      */
-    use SiteConfigsTrait;
+    use SiteConfigTrait;
 
     /**
      * [ADMIN] DBログ一覧
@@ -37,10 +37,10 @@ class DblogsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function index(DblogsServiceInterface $DblogsService, UserManageServiceInterface $userManage)
+    public function index(DblogServiceInterface $DblogService, UserServiceInterface $userService)
     {
         $this->setViewConditions('Dblog', ['default' => ['query' => [
-            'num' => $userManage->getSiteConfig('admin_list_num'),
+            'num' => $userService->getSiteConfig('admin_list_num'),
             'sort' => 'id',
             'direction' => 'desc',
         ]]]);
@@ -50,7 +50,7 @@ class DblogsController extends BcAdminAppController
             $this->paginate['limit'] = $queryParams['num'];
         }
 
-        $this->set('dblogs', $this->paginate($DblogsService->getIndex($queryParams)));
+        $this->set('dblogs', $this->paginate($DblogService->getIndex($queryParams)));
         $this->request = $this->request->withParsedBody($this->request->getQuery());
     }
 
@@ -62,13 +62,13 @@ class DblogsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    public function delete_all(DblogsServiceInterface $DblogsService)
+    public function delete_all(DblogServiceInterface $DblogService)
     {
         if (!$this->request->is('post')) {
             $this->notFound();
         }
 
-        if ($DblogsService->deleteAll()) {
+        if ($DblogService->deleteAll()) {
             $this->BcMessage->setInfo(__d('baser', '最近の動きのログを削除しました。'));
         } else {
             $this->BcMessage->setError(__d('baser', '最近の動きのログ削除に失敗しました。'));

@@ -12,11 +12,10 @@
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
 use BaserCore\Controller\Admin\SitesController;
-use BaserCore\Service\Admin\SiteManageServiceInterface;
+use BaserCore\Service\SiteServiceInterface;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Event\Event;
-use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
 
 /**
@@ -42,6 +41,7 @@ class SitesControllerTest extends BcTestCase
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.Sites',
+        'plugin.BaserCore.SiteConfigs',
         'plugin.BaserCore.Dblogs'
     ];
 
@@ -80,7 +80,7 @@ class SitesControllerTest extends BcTestCase
         });
         // アクション実行（requestの変化を判定するため $this->get() ではなくクラスを直接利用）
         $sitesController = new SitesController($this->getRequest('/baser/admin/baser-core/sites/'));
-        $sitesController->index($this->getService(SiteManageServiceInterface::class));
+        $sitesController->index($this->getService(SiteServiceInterface::class));
         $this->assertEquals(1, $sitesController->getRequest()->getQuery('num'));
     }
 

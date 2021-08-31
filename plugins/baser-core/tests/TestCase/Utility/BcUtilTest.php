@@ -288,11 +288,7 @@ class BcUtilTest extends BcTestCase
      */
     public function testIsAdminSystem($url, $expect)
     {
-        // TODO ucmitz移行時に未実装のため代替措置
-        // >>>
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        // <<<
-        $this->_getRequest($url);
+        $this->getRequest($url);
         $result = BcUtil::isAdminSystem();
         $this->assertEquals($expect, $result, '正しく管理システムかチェックできません');
     }
@@ -305,10 +301,10 @@ class BcUtilTest extends BcTestCase
     public function isAdminSystemDataProvider()
     {
         return [
-            ['admin', true],
-            ['admin/hoge', true],
-            ['/admin/hoge', true],
-            ['admin/', true],
+            ['baser/admin', true],
+            ['baser/admin/hoge', true],
+            ['/baser/admin/hoge', true],
+            ['baser/admin/', true],
             ['hoge', false],
             ['hoge/', false],
         ];
@@ -475,7 +471,7 @@ class BcUtilTest extends BcTestCase
         $this->assertEquals(BASER_CONFIGS . 'Schema', $result, 'Coreのスキーマ情報のパスを正しく取得できません');
 
         // Blog
-        $result = BcUtil::getSchemaPath('Blog');
+        $result = BcUtil::getSchemaPath('BcBlog');
         $this->assertEquals(BASER_PLUGINS . 'Blog/Config/Schema', $result, 'プラグインのスキーマ情報のパスを正しく取得できません');
     }
 
@@ -543,9 +539,9 @@ class BcUtilTest extends BcTestCase
             [null, null, null, BASER_CONFIGS . 'data/default'],
             [null, 'nada-icons', null, BASER_THEMES . 'nada-icons/Config/data/default'],
             [null, 'nada-icons', 'not_default', BASER_THEMES . 'nada-icons/Config/data/not_default'],
-            ['Blog', null, null, BASER_PLUGINS . 'Blog/Config/data/default'],
-            ['Blog', 'nada-icons', null, BASER_THEMES . 'nada-icons/Config/data/default/Blog'],
-            ['Blog', 'nada-icons', 'not_default', BASER_THEMES . 'nada-icons/Config/data/not_default/Blog'],
+            ['BcBlog', null, null, BASER_PLUGINS . 'Blog/Config/data/default'],
+            ['BcBlog', 'nada-icons', null, BASER_THEMES . 'nada-icons/Config/data/default/Blog'],
+            ['BcBlog', 'nada-icons', 'not_default', BASER_THEMES . 'nada-icons/Config/data/not_default/Blog'],
         ];
     }
 
@@ -800,7 +796,7 @@ class BcUtilTest extends BcTestCase
         foreach($list as $key) {
             $this->assertArrayHasKey($key, $result);
         }
-        $this->assertEquals('Core', $result['Default']['plugin']);
+        $this->assertEquals('BaserCore', $result['Default']['plugin']);
         $this->assertEquals('Default', $result['Default']['type']);
     }
 

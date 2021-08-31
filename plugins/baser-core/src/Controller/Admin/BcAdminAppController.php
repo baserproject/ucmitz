@@ -11,10 +11,9 @@
 
 namespace BaserCore\Controller\Admin;
 
-use Exception;
 use BaserCore\Controller\BcAppController;
-use BaserCore\Service\Admin\UserManageServiceInterface;
-use BaserCore\Service\Admin\UserManageService;
+use BaserCore\Service\UserServiceInterface;
+use BaserCore\Service\UserService;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
@@ -50,12 +49,12 @@ class BcAdminAppController extends BcAppController
         $this->loadComponent('Authentication.Authentication', [
             'logoutRedirect' => Router::url(Configure::read('BcPrefixAuth.Admin.loginAction'), true),
         ]);
-        /** @var UserManageService $userManage */
-        $userManage = $this->getService(UserManageServiceInterface::class);
-        $this->response = $userManage->checkAutoLogin($this->request, $this->response);
+        /** @var UserService $userService */
+        $userService = $this->getService(UserServiceInterface::class);
+        $this->response = $userService->checkAutoLogin($this->request, $this->response);
 
         // ログインユーザ再読込
-        if (!$userManage->reload($this->request)) {
+        if (!$userService->reload($this->request)) {
             $this->redirect($this->Authentication->logout());
         }
     }

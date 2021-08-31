@@ -11,13 +11,13 @@
 
 namespace BcFavorite\Model\Validation;
 
-use Cake\ORM\TableRegistry;
+use BaserCore\Service\PermissionServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Validation\Validation;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
-use BaserCore\Model\Table\PermissionsTable;
 
 /**
  * Class BcValidation
@@ -25,17 +25,24 @@ use BaserCore\Model\Table\PermissionsTable;
  */
 class FavoriteValidation extends Validation
 {
+
+    /**
+     * Trait
+     */
+    use BcContainerTrait;
+
     /**
      * アクセス権があるかチェックする
      *
      * 管理者グループは全て true を返却
      *
      * @param array $check
+     * @param PermissionServiceInterface $permissionService
      * @checked
      * @noTodo
      * @unitTest
      */
-    public static function isPermitted($url)
+    public static function isPermitted($url, $permissionService)
     {
         if (BcUtil::isAdminUser()) {
             return true;
@@ -45,10 +52,8 @@ class FavoriteValidation extends Validation
         if (!$userGroups) {
             return false;
         }
-        /** @var PermissionsTable $permissions */
-        $permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
         foreach($userGroups as $userGroup) {
-            if ($permissions->check($url, $userGroup->id)) {
+            if ($permissionService->check($url, $userGroup->id)) {
                 return true;
             }
         }

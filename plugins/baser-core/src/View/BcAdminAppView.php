@@ -51,6 +51,7 @@ use BaserCore\View\Helper\BcContentsHelper;
  * @property BcAdminPermissionHelper $BcAdminPermission
  * @property BcAdminSiteConfigHelper $BcAdminSiteConfig
  * @property BcContentsHelper $BcContents
+ * @property BcAdminContentHelper $BcAdminContent
  */
 class BcAdminAppView extends AppView
 {
@@ -66,10 +67,15 @@ class BcAdminAppView extends AppView
         $this->loadHelper('BaserCore.BcAdminForm', ['templates' => 'BaserCore.bc_form']);
         $this->loadHelper('BaserCore.BcBaser');
         $this->loadHelper('BaserCore.BcAuth');
+        $this->loadHelper('BaserCore.BcText');
+        $this->loadHelper('BaserCore.BcTime');
         $this->loadHelper('BaserCore.BcAdmin');
         $this->loadHelper('BaserCore.BcAdminUser');
         $this->loadHelper('BaserCore.BcAdminSiteConfig');
+        $this->loadHelper('BaserCore.BcAdminSite');
         $this->loadHelper('BaserCore.BcContents');
+        $this->loadHelper('BaserCore.BcListTable');
+        $this->loadHelper('BaserCore.BcAdminContent');
         if (!$this->get('title')) {
             $this->set('title', 'Undefined');
         }

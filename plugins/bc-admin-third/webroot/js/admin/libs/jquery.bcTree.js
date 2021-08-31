@@ -95,11 +95,11 @@
             }
             $.bcTree._inited = true;
         },
-
         /**
          * ツリーを読み込む
          */
         load: function () {
+            $.bcUtil.showLoader();
             if (!$.bcTree._inited) {
                 return;
             }
@@ -110,29 +110,15 @@
                 if (siteId == undefined) {
                     siteId = 0;
                 }
-                url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/index?site_id=' + siteId + '&list_type=1';
+                url = $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/index?site_id=' + siteId + '&list_type=1';
             } else if (mode == 'trash') {
-                url = $.baseUrl() + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/' + 'baser-core' + '/contents/trash_index';
+                url = $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/trash_index';
             }
-            $.ajax({
-                type: "GET",
-                url: url,
-                beforeSend: function () {
-                    $.bcUtil.showLoader();
-                },
-                success: function (result) {
-                    if (result) {
-                        $.bcTree.listDisplayed = getNowDateTime();
-                        $.bcTree.destroy();
-                        $("#DataList").html(result);
-                        $.bcTree._init();
-                        $($.bcTree).trigger('loaded');
-                    }
-                },
-                complete: function () {
-                    $.bcUtil.hideLoader();
-                }
-            });
+            $.bcTree.listDisplayed = getNowDateTime();
+            $.bcTree.destroy();
+            $.bcTree._init();
+            $($.bcTree).trigger('loaded');
+            $.bcUtil.hideLoader();
         },
 
         /**
@@ -910,20 +896,19 @@
                         url: url,
                         type: 'POST',
                         data: {
-                            data: {
-                                Content: {
-                                    parent_id: data.contentParentId,
-                                    title: editNode.text,
-                                    plugin: data.contentPlugin,
-                                    type: data.contentType,
-                                    site_id: data.contentSiteId,
-                                    alias_id: data.contentAliasId,
-                                    entity_id: data.contentEntityId
-                                },
-                                _Token: {
-                                    key: $.bcToken.key
-                                }
-                            }
+                            _csrfToken: $.bcToken.key,
+                            // TODO: テンプレートにどの値が入るべきかを定義する
+                            folder_template : '',
+                            page_template : '',
+                            content: {
+                                parent_id: data.contentParentId,
+                                title: editNode.text,
+                                plugin: data.contentPlugin,
+                                type: data.contentType,
+                                site_id: data.contentSiteId,
+                                alias_id: data.contentAliasId,
+                                entity_id: data.contentEntityId
+                            },
                         },
                         dataType: 'json',
                         beforeSend: function () {
@@ -945,7 +930,7 @@
                             $.bcUtil.hideLoader();
                         }
                     }).then(function () {
-                        return $.bcUtil.ajax($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_get_full_url/' + data.contentId, {}, {type: 'GET'}).done(function (result) {
+                        return $.bcUtil.ajax($.bcUtil.adminBaseUrl + 'baser-core' + '/contents/ajax_get_full_url/' + data.contentId, {}, {type: 'GET'}).done(function (result) {
                             data.contentFullUrl = result;
                             node.data.jstree = data;
                             if (data.contentType == 'ContentFolder') {

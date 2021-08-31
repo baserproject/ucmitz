@@ -9,68 +9,70 @@
  * @since           baserCMS v 4.0.0
  * @license         https://basercms.net/license/index.html
  */
-
+use BaserCore\View\BcAdminAppView;
 /**
  * コンテンツ一覧 テーブル行
  *
- * @var BcAppView $this
+ * @var BcAdminAppView $this
+ * @var array $authors
  */
 
-$isSiteRelated = $this->BcContents->isSiteRelated($data);
-$isPublish = $this->BcContents->isAllowPublish($data, true);
-$isSiteRoot = $data->site_root;
-$isAlias = (boolean)$data->alias_id;
-if (!empty($this->BcContents->settings[$data->type])) {
-  $type = $data->type;
+$isSiteRelated = $this->BcContents->isSiteRelated($content);
+$isPublish = $this->BcContents->isAllowPublish($content, true);
+$isSiteRoot = $content->site_root;
+$isAlias = (boolean)$content->alias_id;
+$settings = $this->BcContents->getConfig('settings');
+if (!empty($settings[$content->type])) {
+  $type = $content->type;
 } else {
   $type = 'Default';
 }
 if ($isAlias) {
-  $editDisabled = !$this->BcContents->isActionAvailable('ContentAlias', 'edit', $data->entity_id);
-  $manageDisabled = !$this->BcContents->isActionAvailable('ContentAlias', 'manage', $data->entity_id);
+  $editDisabled = !$this->BcContents->isActionAvailable('ContentAlias', 'edit', $content->entity_id);
+  $manageDisabled = !$this->BcContents->isActionAvailable('ContentAlias', 'manage', $content->entity_id);
 } else {
-  $editDisabled = !$this->BcContents->isActionAvailable($data->type, 'edit', $data->entity_id);
-  $manageDisabled = !$this->BcContents->isActionAvailable($data->type, 'manage', $data->entity_id);
+  $editDisabled = !$this->BcContents->isActionAvailable($content->type, 'edit', $content->entity_id);
+  $manageDisabled = !$this->BcContents->isActionAvailable($content->type, 'manage', $content->entity_id);
 }
-$typeTitle = $this->BcContents->settings[$type]['title'];
-if (!empty($this->BcContents->settings[$type]['icon'])) {
-  $iconPath = $this->BcContents->settings[$type]['icon'];
+$typeTitle = @$settings[$type]['title'];
+if (!empty($settings[$type]['icon'])) {
+  $iconPath = $settings[$type]['icon'];
 } else {
-  $iconPath = $this->BcContents->settings['Default']['icon'];
+  $iconPath = @$settings['Default']['icon'];
 }
 $isImageIcon = false;
 if (preg_match('/^admin\//', $iconPath)) {
   $isImageIcon = true;
-  if ($data->plugin != 'Core' && $type != 'Default') {
-    $iconPath = $data->plugin . '.' . $iconPath;
+  if ($content->plugin != 'BaserCore' && $type != 'Default') {
+    $iconPath = $content->plugin . '.' . $iconPath;
   }
 }
-$urlParams = ['content_id' => $data->id];
-if ($data->entity_id) {
-  $urlParams = array_merge($urlParams, [$data->entity_id]);
+$urlParams = ['content_id' => $content->id];
+if ($content->entity_id) {
+  $urlParams = array_merge($urlParams, [$content->entity_id]);
 }
-$fullUrl = $this->BcContents->getUrl($data->url, true, $data['Site']['use_subdomain']);
+$fullUrl = $this->BcContents->getUrl($content->url, true, @$content['Site']['use_subdomain']);
 $toStatus = 'publish';
-if ($data->self_status) {
+if ($content->self_status) {
   $toStatus = 'unpublish';
 }
 ?>
 
 
-<tr id="Row<?= $count + 1 ?>"<?php $this->BcListTable->rowClass($isPublish, $data) ?>>
+<tr id="Row<?= $count + 1 ?>"<?php $this->BcListTable->rowClass($isPublish, $content) ?>>
   <td class="bca-table-listup__tbody-td bca-table-listup__tbody-td--select"><?php // 選択 ?>
-    <?php if ($this->BcBaser->isAdminUser() && empty($data->site_root)): ?>
-      <?= $this->BcAdminForm->control('ListTool.batch_targets.' . $data->id, ['type' => 'checkbox', 'label' => '<span class="bca-visually-hidden">チェックする</span>', 'class' => 'batch-targets bca-checkbox__input', 'value' => $data->id, 'escape' => false]) ?>
+    <?php if ($this->BcBaser->isAdminUser() && empty($content->site_root)): ?>
+      <?= $this->BcAdminForm->control('ListTool.batch_targets.' . $content->id, ['type' => 'checkbox', 'label' => '<span class="bca-visually-hidden">チェックする</span>', 'class' => 'batch-targets bca-checkbox__input', 'value' => $content->id, 'escape' => false]) ?>
     <?php endif ?>
   </td>
-  <td class="bca-table-listup__tbody-td" style="width:5%"><?= $data->id; ?></td>
+  <td class="bca-table-listup__tbody-td" style="width:5%"><?= $content->id; ?></td>
   <td class="bca-table-listup__tbody-td" style="width:5%">
     <?php if ($isImageIcon): ?>
       <?php $this->BcBaser->img($iconPath, ['title' => $typeTitle]) ?>
     <?php else: ?>
       <i class="<?= $iconPath ?>"></i>
     <?php endif ?>
-    <?php if ($data->alias_id): ?>
+    <?php if ($content->alias_id): ?>
       <span class="alias"></span>
     <?php endif ?>
   </td>
@@ -80,20 +82,20 @@ if ($data->self_status) {
     <?php else: ?>
       <?= urldecode($fullUrl); ?><br>
     <?php endif; ?>
-    <?= h($data->title) ?>
+    <?= h($content->title) ?>
   </td>
   <td class="bca-table-listup__tbody-td" style="width:8%;text-align:center">
-    <?= $this->BcText->booleanMark($data->status); ?>
+    <?= $this->BcText->booleanMark($content->status); ?>
   </td>
   <td class="bca-table-listup__tbody-td" style="width:8%;text-align:center">
-    <?= h($this->BcText->arrayValue($data->author_id, $authors)); ?>
+    <?= h($this->BcText->arrayValue($content->author_id, $authors)); ?>
   </td>
 
-  <?= $this->BcListTable->dispatchShowRow($data) ?>
+  <?= $this->BcListTable->dispatchShowRow($content) ?>
 
   <td class="bca-table-listup__tbody-td" style="width:8%;white-space: nowrap">
-    <?= $this->BcTime->format($data->created_date, 'yyyy-MM-dd') ?><br/>
-    <?= $this->BcTime->format($data->modified_date, 'yyyy-MM-dd') ?>
+    <?= $this->BcTime->format($content->created_date, 'yyyy-MM-dd') ?><br/>
+    <?= $this->BcTime->format($content->modified_date, 'yyyy-MM-dd') ?>
   </td>
   <td class="bca-table-listup__tbody-td bca-table-listup__tbody-td--actions">
     <?php if ($isPublish): ?>
@@ -102,8 +104,8 @@ if ($data->self_status) {
       <a title="管理" class="btn bca-btn-icon" data-bca-btn-type="preview" data-bca-btn-size="lg"
         data-bca-btn-status="gray"></a>
     <?php endif ?>
-    <?php if (!$manageDisabled && !empty($this->BcContents->settings[$type]['routes']['manage'])): ?>
-      <?php $this->BcBaser->link('', array_merge($this->BcContents->settings[$type]['routes']['manage'], $urlParams), ['title' => __d('baser', '管理'), 'class' => 'btn-check bca-btn-icon', 'data-bca-btn-type' => 'th-list', 'data-bca-btn-size' => 'lg']) ?>
+    <?php if (!$manageDisabled && !empty($settings[$type]['routes']['manage'])): ?>
+      <?php $this->BcBaser->link('', array_merge($settings[$type]['routes']['manage'], $urlParams), ['title' => __d('baser', '管理'), 'class' => 'btn-check bca-btn-icon', 'data-bca-btn-type' => 'th-list', 'data-bca-btn-size' => 'lg']) ?>
     <?php else: ?>
       <a title="管理" class="btn bca-btn-icon" data-bca-btn-type="th-list" data-bca-btn-size="lg"
         data-bca-btn-status="gray"></a>
@@ -115,27 +117,27 @@ if ($data->self_status) {
       <a title="非公開" class="btn bca-btn-icon" data-bca-btn-type="unpublish" data-bca-btn-size="lg"
         data-bca-btn-status="gray"></a>
     <?php endif ?>
-    <?php if (!$editDisabled && $type != 'ContentFolder' && !empty($this->BcContents->settings[$type]['routes']['copy'])): ?>
-      <?php $this->BcBaser->link('', array_merge($this->BcContents->settings[$type]['routes']['copy'], $urlParams), ['title' => __d('baser', 'コピー'), 'class' => 'btn-copy bca-btn-icon', 'data-bca-btn-type' => 'copy', 'data-bca-btn-size' => 'lg']) ?>
+    <?php if (!$editDisabled && $type != 'ContentFolder' && !empty($settings[$type]['routes']['copy'])): ?>
+      <?php $this->BcBaser->link('', array_merge($settings[$type]['routes']['copy'], $urlParams), ['title' => __d('baser', 'コピー'), 'class' => 'btn-copy bca-btn-icon', 'data-bca-btn-type' => 'copy', 'data-bca-btn-size' => 'lg']) ?>
     <?php else: ?>
       <a title="コピー" class="bca-btn-icon" data-bca-btn-type="copy" data-bca-btn-size="lg"
         data-bca-btn-status="gray"></a>
     <?php endif ?>
     <?php if (!$editDisabled): ?>
-      <?php $this->BcBaser->link('', array_merge($this->BcContents->settings[$type]['routes']['edit'], $urlParams), ['title' => __d('baser', '編集'), 'class' => 'btn-edit bca-btn-icon', 'data-bca-btn-type' => 'edit', 'data-bca-btn-size' => 'lg']) ?>
+      <?php $this->BcBaser->link('', array_merge($settings[$type]['routes']['edit'], $urlParams), ['title' => __d('baser', '編集'), 'class' => 'btn-edit bca-btn-icon', 'data-bca-btn-type' => 'edit', 'data-bca-btn-size' => 'lg']) ?>
     <?php endif ?>
     <?php if (!$editDisabled && !$isSiteRoot): ?>
-      <?php $this->BcBaser->link('', ['action' => 'ajax_delete', $data->id], ['title' => __d('baser', '削除'), 'class' => 'btn-delete bca-btn-icon', 'data-bca-btn-type' => 'delete', 'data-bca-btn-size' => 'lg']) ?>
+      <?php $this->BcBaser->link('', ['action' => 'ajax_delete', $content->id], ['title' => __d('baser', '削除'), 'class' => 'btn-delete bca-btn-icon', 'data-bca-btn-type' => 'delete', 'data-bca-btn-size' => 'lg']) ?>
     <?php endif ?>
     <form>
-      <input type="hidden" name="data[contentId]" value="<?= $data->id ?>">
-      <input type="hidden" name="data[type]" value="<?= $data->type ?>">
-      <input type="hidden" name="data[entityId]" value="<?= $data->entity_id ?>">
-      <input type="hidden" name="data[parentId]" value="<?= $data->parent_id ?>">
-      <input type="hidden" name="data[title]" value="<?= h($data->title) ?>">
-      <input type="hidden" name="data[siteId]" value="<?= $data->site_id ?>">
+      <input type="hidden" name="data[contentId]" value="<?= $content->id ?>">
+      <input type="hidden" name="data[type]" value="<?= $content->type ?>">
+      <input type="hidden" name="data[entityId]" value="<?= $content->entity_id ?>">
+      <input type="hidden" name="data[parentId]" value="<?= $content->parent_id ?>">
+      <input type="hidden" name="data[title]" value="<?= h($content->title) ?>">
+      <input type="hidden" name="data[siteId]" value="<?= $content->site_id ?>">
       <input type="hidden" name="data[status]" value="<?= $toStatus ?>">
-      <input type="hidden" name="data[alias]" value="<?= (bool)$data->alias_id ?>">
+      <input type="hidden" name="data[alias]" value="<?= (bool)$content->alias_id ?>">
     </form>
   </td>
 </tr>

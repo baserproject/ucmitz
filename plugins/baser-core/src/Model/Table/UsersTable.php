@@ -22,6 +22,7 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Model\Entity\User;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\View\BcAdminAppView;
 use Cake\ORM\Association\BelongsTo;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\Behavior\TimestampBehavior;
@@ -162,6 +163,8 @@ class UsersTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
+        $validator->setProvider('user', 'BaserCore\Model\Validation\UserValidation');
+
         $validator
             ->integer('id')
             ->allowEmptyString('id', null, 'create');
@@ -199,6 +202,14 @@ class UsersTable extends Table
                     'rule' => 'notEmptyMultiple',
                     'provider' => 'bc',
                     'message' => __d('baser', 'グループを選択してください。')
+                ]
+            ])
+            ->add('user_groups', [
+                'willChangeSelfGroup' => [
+                    'rule' => 'willChangeSelfGroup',
+                    'provider' => 'user',
+                    'on' => 'update',
+                    'message' => __d('baser', '自分のアカウントのグループは変更できません。')
                 ]
             ]);
         $validator
@@ -317,6 +328,9 @@ class UsersTable extends Table
      *
      * @param array $conditions 取得条件
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getUserList($conditions = [])
     {
@@ -326,9 +340,9 @@ class UsersTable extends Table
         ]);
         $list = [];
         if ($users) {
-            $appView = new AppView();
+            $appView = new BcAdminAppView();
             $appView->loadHelper('BaserCore.BcBaser');
-            foreach($users as $key => $user) {
+            foreach($users as $user) {
                 $list[$user->id] = $appView->BcBaser->getUserName($user);
             }
         }

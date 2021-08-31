@@ -11,6 +11,8 @@
 
 namespace BcFavorite\Test\TestCase\Model\Validation;
 
+use BaserCore\Service\PermissionServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use BcFavorite\Model\Validation\FavoriteValidation;
 use BaserCore\TestSuite\BcTestCase;
 
@@ -21,6 +23,11 @@ use BaserCore\TestSuite\BcTestCase;
  */
 class FavoriteValidationTest extends BcTestCase
 {
+
+    /**
+     * Trait
+     */
+    use BcContainerTrait;
 
     /**
      * Fixtures
@@ -75,7 +82,7 @@ class FavoriteValidationTest extends BcTestCase
         if($isAdmin) {
             $this->loginAdmin($this->getRequest('/'), $id);
         }
-        $this->assertEquals($expected, $this->FavoriteValidation->isPermitted($url));
+        $this->assertEquals($expected, $this->FavoriteValidation->isPermitted($url, $this->getService(PermissionServiceInterface::class)));
     }
 
     public function isPermittedDataProvider()

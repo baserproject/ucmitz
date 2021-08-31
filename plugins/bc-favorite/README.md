@@ -9,3 +9,4 @@ The recommended way to install composer packages is:
 ```
 composer require baserproject/bc-favorite
 ```
+

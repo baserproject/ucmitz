@@ -22,9 +22,12 @@ use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
-use BaserCore\Event\BcEventDispatcherTrait;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Service\PermissionService;
+use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\Table\PermissionsTable;
+use BaserCore\Service\PermissionServiceInterface;
 
 
 /**
@@ -33,7 +36,7 @@ use BaserCore\Model\Table\PermissionsTable;
  * @package BaserCore\View\Helper
  * @var BcContentsHelper $this
  * @property ContentsTable $_Contents
- * @property PermissionsTable $_Permissions
+ * @property PermissionService $PermissionService
  */
 class BcContentsHelper extends Helper
 {
@@ -42,6 +45,8 @@ class BcContentsHelper extends Helper
      * Trait
      */
     use BcEventDispatcherTrait;
+    use BcContainerTrait;
+
 
     /**
      * Helper
@@ -49,12 +54,6 @@ class BcContentsHelper extends Helper
      * @var array
      */
     public $helpers = ['BcBaser'];
-
-    /**
-     *
-     */
-    protected $_Contents = null;
-    protected $_Permissions = null;
 
     /**
      * initialize
@@ -69,7 +68,7 @@ class BcContentsHelper extends Helper
     {
         parent::initialize($config);
         $this->_Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
-        $this->_Permissions = TableRegistry::getTableLocator()->get('BaserCore.Permissions');
+        $this->PermissionService = $this->getService(PermissionServiceInterface::class);
         if (BcUtil::isAdminSystem(Router::url())) {
             $this->setup();
         }
@@ -140,7 +139,7 @@ class BcContentsHelper extends Helper
             }
             // disabled
 			if(!empty($setting['url']['add'])) {
-				$setting['addDisabled'] = !($this->_Permissions->check($setting['url']['add'], $user->user_groups[0]->id));
+				$setting['addDisabled'] = !($this->PermissionService->check($setting['url']['add'], $user->user_groups[0]->id));
 			} else {
 				$setting['addDisabled'] = true;
 			}
@@ -164,9 +163,10 @@ class BcContentsHelper extends Helper
         }
         $url = $this->getConfig('settings')[$type]['url'][$action] . '/' . $entityId;
 
-        if ($userGroups = $user->fields->user_groups) {
+        if (isset($user->fields->user_groups)) {
+            $userGroups = $user->fields->user_groups;
             foreach ($userGroups as $group) {
-                if ($this->_Permissions->check($url, $group)) {
+                if ($this->PermissionService->check($url, $group)) {
                     return true;
                 }
             }
@@ -218,13 +218,11 @@ class BcContentsHelper extends Helper
     {
         $imageBaseUrl = Configure::read('App.imageBaseUrl');
         if ($file) {
-            if ($plugin != 'Core') {
-                $file = $plugin . '.' . $file;
-            }
+            $file = $plugin . '.' . $file;
         } else {
             $icon = 'admin/icon_' . Inflector::underscore($type) . $suffix . '.png';
             $defaultIcon = 'admin/icon_content' . $suffix . '.png';
-            if ($plugin == 'Core') {
+            if ($plugin == 'BaserCore') {
                 $iconPath = WWW_ROOT . $imageBaseUrl . DS . $icon;
                 if (file_exists($iconPath)) {
                     $file = $icon;
@@ -433,8 +431,8 @@ class BcContentsHelper extends Helper
      */
     public function isSiteRelated($data)
     {
-        if (($data['Site']['relate_main_site'] && $data['Content']['main_site_content_id'] && $data['Content']['alias_id']) ||
-            $data['Site']['relate_main_site'] && $data['Content']['main_site_content_id'] && $data['Content']['type'] == 'ContentFolder') {
+        if ((@$data['Site']['relate_main_site'] && @$data['Content']['main_site_content_id'] && @$data['Content']['alias_id']) ||
+            @$data['Site']['relate_main_site'] && @$data['Content']['main_site_content_id'] && @$data['Content']['type'] == 'ContentFolder') {
             return true;
         } else {
             return false;

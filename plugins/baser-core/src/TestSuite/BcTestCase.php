@@ -12,15 +12,12 @@
 namespace BaserCore\TestSuite;
 
 use App\Application;
-use Authentication\AuthenticationService;
 use Authentication\Authenticator\Result;
 use BaserCore\Event\BcControllerEventListener;
 use BaserCore\Plugin;
-use BaserCore\Service\Api\UserApiService;
-use Cake\Core\App;
+use BaserCore\Utility\BcApiUtil;
 use Cake\Core\Configure;
 use Cake\Event\EventManager;
-use Cake\Http\BaseApplication;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
 use Cake\Http\ServerRequestFactory;
@@ -70,13 +67,13 @@ class BcTestCase extends TestCase
         $this->Application->bootstrap();
         $this->Application->getContainer();
         $builder = Router::createRouteBuilder('/');
-        $this->Application->routes($builder);
-        $this->BaserCore = new Plugin();
-        $this->BaserCore->bootstrap($this->Application);
-        $this->BaserCore->routes($builder);
+        $this->Application->pluginBootstrap();
+        $this->Application->pluginRoutes($builder);
+        $this->BaserCore = $this->Application->getPlugins()->get('BaserCore');
         $container = BcContainer::get();
         $container->addServiceProvider(new BcServiceProvider());
     }
+
     /**
      * Tear Down
      * @checked
@@ -118,9 +115,9 @@ class BcTestCase extends TestCase
         }
 
         try {
+            Router::setRequest($request);
             $params = Router::parseRequest($request);
         } catch (\Exception $e) {
-            Router::setRequest($request);
             return $request;
         }
 
@@ -186,10 +183,9 @@ class BcTestCase extends TestCase
      */
     protected function apiLoginAdmin($id = 1)
     {
-        $userApi = new UserApiService();
         $user = $this->getUser($id);
         if($user) {
-            return $userApi->getAccessToken(new Result($this->getUser($id), Result::SUCCESS));
+            return BcApiUtil::createAccessToken($id);
         } else {
             return [];
         }

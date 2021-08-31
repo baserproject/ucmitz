@@ -12,6 +12,8 @@
 namespace BcFavorite\Model\Table;
 
 use BaserCore\Model\AppTable;
+use BaserCore\Service\PermissionServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use Cake\Validation\Validator;
 
 /**
@@ -19,6 +21,11 @@ use Cake\Validation\Validator;
  */
 class FavoritesTable extends AppTable
 {
+
+    /**
+     * Trait
+     */
+    use BcContainerTrait;
 
     /**
      * Initialize
@@ -58,7 +65,7 @@ class FavoritesTable extends AppTable
         $validator
             ->scalar('url')
             ->add('url', 'isPermitted', [
-                'rule' => 'isPermitted',
+                'rule' => ['isPermitted', $this->getService(PermissionServiceInterface::class)],
                 'provider' => 'favorite',
                 'message' => __d('baser', 'このURLの登録は許可されていません。')]);
         return $validator;

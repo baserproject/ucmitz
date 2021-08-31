@@ -12,9 +12,10 @@
 namespace BaserCore\View\Helper;
 
 use BaserCore\Event\BcEventDispatcherTrait;
+use BaserCore\Service\BcAdminServiceInterface;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Utility\BcContainerTrait;
-use BaserCore\Service\DblogsServiceInterface;
+use BaserCore\Service\DblogServiceInterface;
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\View\Helper;
@@ -247,7 +248,7 @@ class BcAdminHelper extends Helper
         $currentSiteId = (string)$this->_View->getRequest()
                         ->getSession()
                         ->read('Baser.viewConditions.ContentsAdminIndex.named.site_id');
-        $currentSiteId = $currentSiteId ? (string)$currentSiteId : "0";
+        $currentSiteId = $this->getService(BcAdminServiceInterface::class)->getCurrentSite()->id;
 
         $covertedAdminMenuGroups = $this->convertAdminMenuGroups($adminMenuGroups);
 
@@ -407,8 +408,8 @@ class BcAdminHelper extends Helper
      */
     public function getDblogs($limit): object
     {
-        $DblogsService = $this->getService(DblogsServiceInterface::class);
-        return $DblogsService->getDblogs($limit);
+        $DblogService = $this->getService(DblogServiceInterface::class);
+        return $DblogService->getDblogs($limit);
     }
 
 }

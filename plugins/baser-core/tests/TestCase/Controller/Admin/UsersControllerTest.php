@@ -12,8 +12,9 @@
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
 use BaserCore\Controller\Admin\UsersController;
-use BaserCore\Service\Admin\UserManageService;
+use BaserCore\Service\UserServiceInterface;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -23,7 +24,12 @@ use Cake\TestSuite\IntegrationTestTrait;
  */
 class UsersControllerTest extends BcTestCase
 {
+
+    /**
+     * Trait
+     */
     use IntegrationTestTrait;
+    use BcContainerTrait;
 
     /**
      * Fixtures
@@ -36,6 +42,8 @@ class UsersControllerTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.LoginStores',
         'plugin.BaserCore.Dblogs',
+        'plugin.BaserCore.SiteConfigs',
+        'plugin.BaserCore.Sites',
         'plugin.BaserCore.Controller/UsersController/UsersPagination',
     ];
 
@@ -53,7 +61,7 @@ class UsersControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->loadFixtures('UsersUserGroups', 'UserGroups', 'Dblogs');
+        $this->loadFixtures('UsersUserGroups', 'UserGroups', 'Dblogs', 'SiteConfigs', 'Sites');
         if ($this->getName() == 'testIndex_pagination') {
             $this->loadFixtures('Controller\UsersController\UsersPagination');
         } else {
@@ -104,7 +112,7 @@ class UsersControllerTest extends BcTestCase
         });
         // アクション実行（requestの変化を判定するため $this->get() ではなくクラスを直接利用）
         $this->UsersController->beforeFilter(new Event('beforeFilter'));
-        $this->UsersController->index(new UserManageService());
+        $this->UsersController->index($this->getService(UserServiceInterface::class));
         $this->assertEquals(1, $this->UsersController->getRequest()->getQuery('num'));
     }
 

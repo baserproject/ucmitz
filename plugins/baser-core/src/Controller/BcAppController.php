@@ -11,7 +11,9 @@
 
 namespace BaserCore\Controller;
 
-use BaserCore\Service\SitesServiceInterface;
+use BaserCore\Service\BcFrontServiceInterface;
+use BaserCore\Service\SiteServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use Cake\Controller\ComponentRegistry;
 use Cake\Core\Exception\Exception;
 use Cake\Event\EventInterface;
@@ -20,9 +22,8 @@ use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
 use BaserCore\Utility\BcUtil;
-use BaserCore\Service\DblogsServiceInterface;
+use BaserCore\Service\DblogServiceInterface;
 use Cake\Core\Configure;
-use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -39,7 +40,7 @@ class BcAppController extends AppController
 {
 
     /**
-     * BcContainerTrait
+     * Trait
      */
     use BcContainerTrait;
 
@@ -226,7 +227,7 @@ class BcAppController extends AppController
         }
 
         // 言語設定
-        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $siteFront = $this->getService(BcFrontServiceInterface::class);
         $currentSite = $siteFront->findCurrent();
         if ($currentSite) {
             $lang = Configure::read('BcLang.' . $currentSite->lang);
@@ -272,7 +273,7 @@ class BcAppController extends AppController
 
             // サブサイト用のエラー
             try {
-                $sites = $this->getService(SitesServiceInterface::class);
+                $sites = $this->getService(SiteServiceInterface::class);
                 $site = $sites->findByUrl($this->request->getPath());
                 if (!empty($site->name)) {
                     $this->layoutPath = $site->name;
@@ -541,7 +542,7 @@ class BcAppController extends AppController
         if (!$user) {
             return;
         }
-
+        // TODO: サービス注入に変更する
         if (!$Permission->check($this->request->url, $user['user_group_id'])) {
             $this->BcMessage->setError(__d('baser', '指定されたページへのアクセスは許可されていません。'));
             $this->redirect($this->BcAuth->loginRedirect);
@@ -564,7 +565,7 @@ class BcAppController extends AppController
             $theme = $this->request->getParam('Site.theme');
         }
         if (!$theme) {
-            $siteFront = $this->getService(SiteFrontServiceInterface::class);
+            $siteFront = $this->getService(BcFrontServiceInterface::class);
             $site = $siteFront->findCurrent();
             if (!empty($site->theme)) {
                 $theme = $site->theme;
@@ -613,7 +614,7 @@ class BcAppController extends AppController
      *
      * @return    void
      */
-    public function beforeRender(EventInterface $event)
+    public function beforeRender(EventInterface $event): void
     {
         parent::beforeRender($event);
 
@@ -1613,7 +1614,7 @@ class BcAppController extends AppController
      */
     protected function saveDblog($message)
     {
-        $DblogsService = $this->getService(DblogsServiceInterface::class);
-        return $DblogsService->create($message);
+        $DblogService = $this->getService(DblogServiceInterface::class);
+        return $DblogService->create($message);
     }
 }

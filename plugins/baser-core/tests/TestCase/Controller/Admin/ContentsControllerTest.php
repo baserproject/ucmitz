@@ -11,11 +11,13 @@
 
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
+use BaserCore\Service\BcAdminService;
+use BaserCore\Service\SiteService;
 use Cake\Event\Event;
 use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Service\Admin\SiteManageService;
-use BaserCore\Service\Admin\ContentManageService;
+use BaserCore\Service\ContentService;
 use BaserCore\Controller\Admin\ContentsController;
+
 /**
  * Class ContentsControllerTest
  *
@@ -39,6 +41,7 @@ class ContentsControllerTest extends BcTestCase
         'plugin.BaserCore.UsersUserGroups',
 
     ];
+
     /**
      * set up
      * @return void
@@ -46,12 +49,13 @@ class ContentsControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->ContentsController = new ContentsController($this->getRequest());
-        $this->ContentsController->setName('Admin/Contents');
+        $this->request = $this->loginAdmin($this->getRequest('/baser/admin'));
+        $this->ContentsController = new ContentsController($this->request);
+        $this->ContentsController->setName('Contents');
         $this->ContentsController->loadModel('BaserCore.ContentFolders');
         $this->ContentsController->loadModel('BaserCore.Users');
         $this->ContentsController->loadComponent('BaserCore.BcContents');
-        $this->ContentsController->BcContents->setConfig('items', ["test" => ['title' => 'test']]);
+        $this->ContentsController->BcContents->setConfig('items', ["test" => ['title' => 'test', 'plugin' => 'BaserCore']]);
     }
 
     /**
@@ -62,7 +66,7 @@ class ContentsControllerTest extends BcTestCase
     public function tearDown(): void
     {
         parent::tearDown();
-        unset($this->ContentsController);
+        unset($this->ContentsController, $this->request);
     }
 
     /**
@@ -89,7 +93,6 @@ class ContentsControllerTest extends BcTestCase
         $this->assertNotEmpty($this->ContentsController->SiteConfigs);
         $this->assertNotEmpty($this->ContentsController->ContentFolders);
         $this->assertNotEmpty($this->ContentsController->Users);
-        $this->assertEquals($this->ContentsController->Security->getConfig('unlockedActions'), ['index']);
     }
 
 
@@ -98,56 +101,153 @@ class ContentsControllerTest extends BcTestCase
      *
      * @return void
      */
-    public function testIndex(): void
+    public function testIndexRequest(): void
     {
-        $this->loginAdmin($this->getRequest());
         $this->get('/baser/admin/baser-core/contents/index/');
         $this->assertResponseOk();
         // リクエストの変化をテスト
-        $this->ContentsController->index(new ContentManageService(), new SiteManageService());
+        $this->ContentsController->index(new ContentService(), new SiteService(), new BcAdminService());
         $this->assertArrayHasKey('num', $this->ContentsController->getRequest()->getQueryParams());
-        $this->assertNotNull($this->ContentsController->getRequest()->getData('ViewSetting.site_id'));
-        $this->assertNotNull($this->ContentsController->getRequest()->getData('ViewSetting.list_type'));
-        $this->assertNotNull($this->ContentsController->getRequest()->getData('Param.action'));
-
     }
 
     /**
      * testAjax_index
+     * @dataProvider indexDataProvider
+     * @return void
+     */
+    public function testIndex($listType, $action): void
+    {
+        $search = [
+            'site_id' => 1,
+            'list_type' => $listType,
+            'open' => '1',
+            'folder_id' => '',
+            'name' => '',
+            'type' => '',
+            'self_status' => '',
+            'author_id' => '',
+        ];
+        // 初期パラメーター
+        $this->request = $this->request->withQueryParams($search)->withParam('action', $action);
+
+        if ($action === 'index' && $listType === 2) {
+            // イベント設定
+            $this->entryControllerEventToMock('Controller.BaserCore.Contents.searchIndex', function(Event $event) {
+                $this->request = $event->getData('request');
+                return $this->request->withQueryParams(array_merge($this->request->getQueryParams(), ['num' => 1]));
+            });
+        }
+
+        $ContentsController = $this->ContentsController->setRequest($this->request);
+        $ContentsController->viewBuilder()->setVar('authors', '');
+        $ContentsController->index(new ContentService(), new SiteService(), new BcAdminService());
+        $this->assertNotEquals('', $ContentsController->viewBuilder()->getVar('template'));
+        $this->assertNotEmpty($ContentsController->viewBuilder()->getVar('contents'));
+
+        if ($action === 'index' && $listType === 2) {
+            $this->assertEquals(1, $ContentsController->getRequest()->getQuery('num'));
+        }
+    }
+
+    public function indexDataProvider()
+    {
+        return [
+            [1, "index"],
+            [1, "trash_index"],
+            [2, "index"],
+        ];
+    }
+
+    /**
+     * testGetContents
+     *
+     * @param  string $action
+     * @param  string $listType
+     * @param  string $expected
+     * @return void
+     * @dataProvider getContentsDataProvider
+     */
+    public function testGetContents($action, $listType, $search, $expected, $count): void
+    {
+        $request = $this->request->withParam('action', $action)->withQueryParams(array_merge(['list_type' => $listType], $search));
+        $ContentsController = $this->ContentsController->setRequest($request);
+        $contents = $this->execPrivateMethod($ContentsController, '_getContents', [new ContentService()]);
+        $this->assertInstanceOf($expected, $contents);
+        $this->assertEquals($count, $contents->count());
+    }
+    public function getContentsDataProvider()
+    {
+        $search = [
+            'site_id' => 1,
+            'open' => '1',
+            'folder_id' => '',
+            'name' => '',
+            'type' => '',
+            'self_status' => '',
+            'author_id' => '',
+        ];
+        return [
+            ['index', '1', [], "Cake\ORM\Query", 11],
+            ['index', '2', $search, 'Cake\ORM\ResultSet', 10],
+            ['trash_index', '1', [], 'Cake\ORM\Query', 1],
+            // 足りない場合は空のindexを返す
+            ['index', '', [], 'Cake\ORM\Query', 0],
+            ['', '1', [], 'Cake\ORM\Query', 0],
+        ];
+    }
+
+    /**
+     * testGetTemplate
+     *
+     * @param  string $action
+     * @param  string $listType
+     * @param  string $expected
+     * @return void
+     * @dataProvider getTemplateDataProvider
+     */
+    public function testGetTemplate($action, $listType, $expected): void
+    {
+        $request = $this->request->withParam('action', $action)->withQueryParams(['list_type' => $listType]);
+        $ContentsController = $this->ContentsController->setRequest($request);
+        $template = $this->execPrivateMethod($ContentsController, '_getTemplate', [new ContentService()]);
+        $this->assertEquals($expected, $template);
+    }
+    public function getTemplateDataProvider()
+    {
+        return [
+            ['index', '1', 'index_tree'],
+            ['index', '2', 'index_table'],
+            ['trash_index', '1', 'index_trash'],
+            // 足りない場合空文字列を返す
+            ['index', '', 'index_tree'],
+            ['', '1', 'index_tree'],
+        ];
+    }
+
+    /**
+     * ゴミ箱内のコンテンツ一覧を表示する
      *
      * @return void
      */
-    public function testAjax_index(): void
+    public function testTrash_index(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        // イベントテスト
-        $this->entryControllerEventToMock('Controller.BaserCore.Users.searchIndex', function(Event $event) {
-            $request = $event->getData('request');
-            return $request->withQueryParams(['num' => 1]);
-        });
+        $request = $this->request->withParam('action', 'trash_index')->withParam('prefix', 'Admin');
+        $this->ContentsController->setRequest($request);
+        $this->ContentsController->trash_index(new ContentService(), new SiteService(), new BcAdminService());
+        $this->assertEquals('index', $this->ContentsController->viewBuilder()->getTemplate());
+        $this->assertArrayHasKey('num', $this->ContentsController->getRequest()->getQueryParams());
     }
 
-
-
     /**
-     * ゴミ箱内のコンテンツ一覧を表示するテスト
+     * ゴミ箱内のコンテンツ一覧を表示する(リクエストテスト)
+     *
+     * @return void
      */
-    public function testTrash_index()
+    public function testTrash_index_getRequest(): void
     {
         // requestテスト
-        $this->loginAdmin($this->getRequest());
         $this->get('/baser/admin/baser-core/contents/trash_index/');
         $this->assertResponseOk();
-        // setAction先のindexの環境準備
-        // ->withEnv('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest')
-        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-        $request = $this->getRequest()->withParam('action', 'trash_index');
-        $this->ContentsController->setRequest($request);
-        $this->ContentsController->trash_index(new ContentManageService(), new SiteManageService());
-        // indexアクションにリダイレクトしてるか判定
-        $this->assertEquals(0, $this->ContentsController->getRequest()->getData('ViewSetting.site_id'));
-        $this->assertEquals(1, $this->ContentsController->getRequest()->getData('ViewSetting.list_type'));
-        // ajaxならリダイレクトしない
     }
 
     /**

@@ -11,21 +11,22 @@
 
 namespace BaserCore\View\Helper;
 
-use BaserCore\Event\BcEventDispatcherTrait;
-use BaserCore\Service\Admin\SiteManageServiceInterface;
-use BaserCore\Service\Front\SiteFrontServiceInterface;
-use BaserCore\Utility\BcAgent;
-use BaserCore\Utility\BcContainerTrait;
-use BaserCore\Utility\BcUtil;
-use Cake\Core\Configure;
+use Cake\View\View;
 use Cake\ORM\Entity;
 use Cake\View\Helper;
-use Cake\View\Helper\FlashHelper;
+use Cake\Core\Configure;
+use BaserCore\Utility\BcUtil;
+use BaserCore\Utility\BcAgent;
 use Cake\View\Helper\UrlHelper;
-use Cake\View\View;
-use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
+use BaserCore\Model\Entity\User;
 use BaserCore\Annotation\Checked;
+use Cake\View\Helper\FlashHelper;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Event\BcEventDispatcherTrait;
+use BaserCore\Service\SiteServiceInterface;
+use BaserCore\Service\BcFrontServiceInterface;
 
 /**
  * Class BcBaserHelper
@@ -573,7 +574,7 @@ class BcBaserHelper extends Helper
      * 姓と名を結合して取得
      * ニックネームがある場合にはニックネームを優先する
      *
-     * @param Entity $user ユーザーデータ
+     * @param User $user ユーザーデータ
      * @return string $userName ユーザー名
      * @checked
      * @noTodo
@@ -837,7 +838,7 @@ class BcBaserHelper extends Helper
     public function publishLink()
     {
         if ($this->existsPublishLink()) {
-            $siteManage = $this->getService(SiteManageServiceInterface::class);
+            $siteManage = $this->getService(SiteServiceInterface::class);
             $site = $siteManage->findByUrl($this->_View->viewVars['publishLink']);
             $useSubdomain = $fullUrl = false;
             if ($site && $site->name) {
@@ -1195,7 +1196,7 @@ class BcBaserHelper extends Helper
         if (empty($this->request->getParam('Site'))) {
             return false;
         }
-        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $siteFront = $this->getService(BcFrontServiceInterface::class);
         $site = $siteFront->findCurrent();
         if (!$site->alias || $site->same_main_url || $site->use_subdomain) {
             return (
@@ -2292,7 +2293,7 @@ END_FLASH;
      *
      * 《利用例》
      * $this->BcBaser->includeCore('Users/admin/form')
-     * $this->BcBaser->includeCore('Mail.MailFields/admin/form')
+     * $this->BcBaser->includeCore('BcMail.MailFields/admin/form')
      *
      * @param string $name テンプレート名
      * @param array $data 読み込むテンプレートに引き継ぐパラメータ（初期値 : array()）
@@ -2927,13 +2928,13 @@ END_FLASH;
      */
     public function setCanonicalUrl()
     {
-        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $siteFront = $this->getService(BcFrontServiceInterface::class);
         $currentSite = $siteFront->findCurrent();
         if (!$currentSite) {
             return;
         }
         if ($currentSite->device === 'smartphone') {
-            $siteFront = $this->getService(SiteFrontServiceInterface::class);
+            $siteFront = $this->getService(BcFrontServiceInterface::class);
             $mainSite = $siteFront->findCurrentMain();
             $url = $mainSite->makeUrl(new CakeRequest($this->BcContents->getPureUrl(
                 $this->request->url,
@@ -2965,7 +2966,7 @@ END_FLASH;
      */
     public function setAlternateUrl()
     {
-        $siteFront = $this->getService(SiteFrontServiceInterface::class);
+        $siteFront = $this->getService(BcFrontServiceInterface::class);
         $subSite = $siteFront->findCurrentSub(false, BcAgent::find('smartphone'));
         if (!$subSite || $subSite->same_main_url) {
             return;
@@ -3043,7 +3044,7 @@ END_FLASH;
             }
         }
         if (is_null($useSubDomain)) {
-            $siteFront = $this->getService(SiteFrontServiceInterface::class);
+            $siteFront = $this->getService(BcFrontServiceInterface::class);
             $site = $siteFront->findCurrent();
             $useSubDomain = $site->use_subdomain;
         }

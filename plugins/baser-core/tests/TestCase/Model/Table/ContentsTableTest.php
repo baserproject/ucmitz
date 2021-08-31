@@ -30,12 +30,18 @@ class ContentsTableTest extends BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Contents',
         // 'baser.Model.Content.ContentIsMovable',
-        // 'baser.Model.Content.ContentStatusCheck',
+         'plugin.BaserCore.Model/Content/ContentStatusCheck',
         // 'baser.Routing.Route.BcContentsRoute.SiteBcContentsRoute',
         // 'baser.Routing.Route.BcContentsRoute.ContentBcContentsRoute',
         // 'baser.Default.SiteConfig',
         // 'baser.Default.User',
     ];
+
+    /**
+     * Auto Fixtures
+     * @var bool
+     */
+    public $autoFixtures = false;
 
     /**
      * set up
@@ -88,6 +94,38 @@ class ContentsTableTest extends BcTestCase
         $this->assertEquals(['id', 'name', 'title', 'eyecatch', 'self_publish_begin', 'self_publish_end', 'created_date', 'modified_date'], $fields);
     }
 
+    /**
+     * testValidationDefaultWithEntity
+     *
+     * @param  mixed $fields
+     * @param  mixed $messages
+     * @return void
+     * @dataProvider validationDefaultWithEntityDataProvider
+     */
+    public function testValidationDefaultWithEntity($fields, $messages): void
+    {
+        $this->loadFixtures('Contents');
+        $contents = $this->Contents->newEntity($fields);
+        $this->assertSame($messages, $contents->getErrors());
+    }
+    public function validationDefaultWithEntityDataProvider()
+    {
+        return [
+            [
+                [
+                    'id' => 'aaa', // 空の場合通る
+                    'name' => '',
+                    'title' => '',
+                ],
+                [
+                    'id' => ['integer' => "The provided value is invalid"],
+                    'name' => ['_empty' => 'スラッグを入力してください。'],
+                    'title' => ['_empty' => 'タイトルを入力してください。'],
+                ]
+            ]
+        ];
+    }
+
 
     /**
      * Implemented Events
@@ -116,9 +154,9 @@ class ContentsTableTest extends BcTestCase
     public function duplicateRelatedSiteContentDataProvider()
     {
         return [
-            [['id' => null, 'name' => 'hoge', 'parent_id' => 5, 'site_id' => 0], true],        // 新規・存在しない
-            [['id' => null, 'name' => 'index', 'parent_id' => 1, 'site_id' => 0], false],        // 新規・存在する（alias_id / main_site_content_id あり）
-            [['id' => 4, 'name' => 'index', 'parent_id' => 1, 'site_id' => 0], true],        // 既存・存在する（alias_id / main_site_content_id あり）
+            [['id' => null, 'name' => 'hoge', 'parent_id' => 5, 'site_id' => 1], true],        // 新規・存在しない
+            [['id' => null, 'name' => 'index', 'parent_id' => 1, 'site_id' => 1], false],        // 新規・存在する（alias_id / main_site_content_id あり）
+            [['id' => 4, 'name' => 'index', 'parent_id' => 1, 'site_id' => 1], true],        // 既存・存在する（alias_id / main_site_content_id あり）
             [['id' => null, 'name' => null, 'parent_id' => null, 'site_id' => 6], true],    // メインサイトでない場合はエラーとしない
         ];
     }
@@ -364,6 +402,7 @@ class ContentsTableTest extends BcTestCase
      */
     public function testFindByType($type, $entityId, $expects)
     {
+        $this->loadFixtures('Contents');
         $result = $this->Contents->findByType($type, $entityId);
         if ($result) {
             $result = $result->id;
@@ -374,10 +413,10 @@ class ContentsTableTest extends BcTestCase
     public function findByTypeDataProvider()
     {
         return [
-            ['Mail.MailContent', null, 9],    // entityId指定なし
-            ['Blog.BlogContent', 1, 10],    // entityId指定あり
+            ['BcMail.MailContent', null, 9],    // entityId指定なし
+            ['BcBlog.BlogContent', 1, 10],    // entityId指定あり
             ['Page', 3, 11],                // プラグイン指定なし
-            ['Blog.BlogComment', null, null],    // 存在しないタイプ
+            ['BcBlog.BlogComment', null, null],    // 存在しないタイプ
             [false, null, null]                // 異常系
         ];
     }
@@ -433,10 +472,10 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetUrlById($id, $full, $expects)
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
+        $this->loadFixtures('Sites');
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
-        $result = $this->Content->getUrlById($id, $full);
+        $result = $this->Contents->getUrlById($id, $full);
         $this->assertEquals($expects, $result);
         Configure::write('BcEnv.siteUrl', $siteUrl);
     }
@@ -580,7 +619,14 @@ class ContentsTableTest extends BcTestCase
      */
     public function testGetConditionAllowPublish()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $result = $this->Contents->getConditionAllowPublish();
+        $this->assertEquals(true, $result['Contents.status']);
+        $this->assertArrayHasKey('Contents.publish_begin <=', $result[0]['or'][0]);
+        $this->assertEquals(null, $result[0]['or'][1]['Contents.publish_begin IS']);
+        $this->assertEquals('0000-00-00 00:00:00', $result[0]['or'][2]['Contents.publish_begin']);
+        $this->assertArrayHasKey('Contents.publish_end >=', $result[1]['or'][0]);
+        $this->assertEquals(null, $result[1]['or'][1]['Contents.publish_end IS']);
+        $this->assertEquals('0000-00-00 00:00:00', $result[1]['or'][2]['Contents.publish_end']);
     }
 
     /**
@@ -846,9 +892,8 @@ class ContentsTableTest extends BcTestCase
      */
     public function testFindByUrl($expected, $url, $publish = true, $extend = false, $sameUrl = false, $useSubDomain = false)
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
-        $this->loadFixtures('ContentStatusCheck');
-        $result = (bool)$this->Content->findByUrl($url, $publish, $extend, $sameUrl, $useSubDomain);
+        $this->loadFixtures('Model\Content\ContentStatusCheck', 'Sites');
+        $result = (bool)$this->Contents->findByUrl($url, $publish, $extend, $sameUrl, $useSubDomain);
         $this->assertEquals($expected, $result);
     }
 

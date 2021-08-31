@@ -149,7 +149,7 @@ class SitesTable extends AppTable
      * @noTodo
      * @unitTest
      */
-    public function getSiteList($mainSiteId = null, $options = [])
+    public function getList($mainSiteId = null, $options = [])
     {
         $options = array_merge([
             'excludeIds' => [],
@@ -164,6 +164,7 @@ class SitesTable extends AppTable
             $options = $event->getResult() === true? $event->getData('options') : $event->getResult();
         }
 
+        $conditions = [];
         if (!is_null($options['status'])) {
             $conditions = ['status' => $options['status']];
         }
@@ -373,7 +374,7 @@ class SitesTable extends AppTable
 
         $children = $Content->children($id, false);
         foreach($children as $child) {
-            $child['Content']['site_id'] = 0;
+            $child['Content']['site_id'] = 1;
             // バリデートすると name が変換されてしまう
             $Content->save($child, false);
         }

@@ -10,12 +10,18 @@
  * @license         https://basercms.net/license/index.html
  */
 
+use BaserCore\View\BcAdminAppView;
+
 /**
- * @var BcAppView $this
+ * @var BcAdminAppView $this
  * @var array $sites
  */
 
 $listTypes = [1 => __d('baser', 'ツリー形式'), 2 => __d('baser', '表形式')];
+
+$this->request = $this->request
+  ->withData('ViewSetting.site_id', $this->BcAdminSite->getCurrentSite()->id)
+  ->withData('ViewSetting.list_type', $this->request->getQuery('list_type'));
 
 if ($this->request->getParam('action') == 'index') {
   echo $this->BcAdminForm->control('ViewSetting.mode', ['type' => 'hidden', 'value' => 'index']);
@@ -23,7 +29,6 @@ if ($this->request->getParam('action') == 'index') {
   echo $this->BcAdminForm->control('ViewSetting.mode', ['type' => 'hidden', 'value' => 'trash']);
 }
 ?>
-
 
 <?php if ($this->request->getParam('action') == 'index'): ?>
   <div class="panel-box bca-panel-box" id="ViewSetting">
@@ -44,7 +49,6 @@ if ($this->request->getParam('action') == 'index') {
       <div class="bca-panel-box__inline-fields-separator"></div>
       <div id="GrpChangeTreeOpenClose">
         <button id="BtnOpenTree" class="button-small"><?php echo __d('baser', '全て展開') ?></button>
-        　
         <button id="BtnCloseTree" class="button-small"><?php echo __d('baser', '全て閉じる') ?></button>
       </div>
     </div>

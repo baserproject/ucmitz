@@ -11,22 +11,27 @@
 
 namespace BaserCore\Controller\Admin;
 
+use BaserCore\Service\BcAdminServiceInterface;
+use BaserCore\Service\SiteServiceInterface;
+use Cake\ORM\Query;
+use Cake\Utility\Hash;
+use Cake\ORM\ResultSet;
 use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
+use BaserCore\Utility\BcUtil;
 use Cake\Event\EventInterface;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Model\Table\SitesTable;
 use BaserCore\Model\Table\UsersTable;
-use BaserCore\Service\SiteConfigsTrait;
+use BaserCore\Service\SiteConfigTrait;
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Model\Table\SiteConfigsTable;
 use BaserCore\Model\Table\ContentFoldersTable;
-use BaserCore\Service\Admin\ContentManageService;
 use BaserCore\Controller\Component\BcContentsComponent;
-use BaserCore\Service\Admin\SiteManageServiceInterface;
-use BaserCore\Service\Admin\ContentManageServiceInterface;
-use Cake\ORM\TableRegistry;
+use BaserCore\Service\ContentService;
+use BaserCore\Service\ContentServiceInterface;
 
 /**
  * Class ContentsController
@@ -48,13 +53,12 @@ use Cake\ORM\TableRegistry;
 class ContentsController extends BcAdminAppController
 {
     /**
-     * SiteConfigsTrait
+     * SiteConfigTrait
      */
-    use SiteConfigsTrait;
+    use SiteConfigTrait;
 
     /**
      * initialize
-     * ログインページ認証除外
      * @return void
      * @checked
      * @noTodo
@@ -80,7 +84,6 @@ class ContentsController extends BcAdminAppController
         $this->loadModel('BaserCore.SiteConfigs');
         $this->loadModel('BaserCore.ContentFolders');
         $this->loadModel('BaserCore.Users');
-        $this->Security->setConfig('unlockedActions', ['index']);
         // TODO 未実装のためコメントアウト
         /* >>>
         // $this->BcAuth->allow('view');
@@ -94,93 +97,127 @@ class ContentsController extends BcAdminAppController
      * @checked
      * @unitTest
      */
-    public function index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
+    public function index(ContentServiceInterface $contentService, SiteServiceInterface $siteService, BcAdminServiceInterface $bcAdminService)
     {
-        // TODO: コンテンツはsite ID=0にしかないので一時措置
-        // $currentSiteId = $this->request->getQuery('site_id') ?? 0;
-        $currentSiteId = 0;
-        $sites = $siteManage->getSiteList();
-        // if ($sites) {
-        //     if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {
-        //         reset($sites);
-        //         $this->request = $this->request->withQueryParams(['site_id' =>key($sites)]);
-        //     }
-        // } else {
-        //     $this->request = $this->request->withQueryParams(['site_id' => null]);
-        // }
-
+        $bcAdminService->setCurrentSite();
+        $currentSiteId = $bcAdminService->getCurrentSite()->id;
+        $sites = $siteService->getList();
+        if ($sites) {
+            if (!$this->request->getQuery('site_id') || !in_array($this->request->getQuery('site_id'), array_keys($sites))) {
+                reset($sites);
+                $this->request = $this->request->withQueryParams(Hash::merge($this->request->getQueryParams(), ['site_id' =>key($sites)]));
+            }
+        } else {
+            $this->request = $this->request->withQueryParams(Hash::merge($this->request->getQueryParams(),  ['site_id' => null]));
+        }
         $currentListType = $this->request->getQuery('list_type') ?? 1;
+
         $this->setViewConditions('Contents', ['default' => [
             'query' => [
-                'num' => $this->getSiteConfig('admin_list_num'),
+                'num' => $siteService->getSiteConfig('admin_list_num'),
                 'site_id' => $currentSiteId,
                 'list_type' => $currentListType,
                 'sort' => 'id',
-                'direction' => 'asc'
+                'direction' => 'asc',
             ]
         ]]);
-
-        $this->request = $this->request
-            ->withData('ViewSetting.site_id', $currentSiteId)
-            ->withData('ViewSetting.list_type', $currentListType)
-            ->withData('Param.action', $this->request->getParam('action'));
-
-        if ($this->request->is('ajax')) {
-            $this->ajax_index($contentManage);
+        if($this->request->getParam('action') == "index") {
+            switch($this->request->getQuery('list_type')) {
+                case 1:
+                    // TODO: 未実装
+                    // 並び替え最終更新時刻をリセット
+                    // $this->SiteConfigs->resetContentsSortLastModified();
+                    break;
+                case 2:
+                    $this->request = $this->request->withQueryParams(
+                        Hash::merge(
+                            $this->request->getQueryParams(),
+                            $contentService->getTableConditions($this->request->getQueryParams())
+                        ));
+                    // EVENT Contents.searchIndex
+                    $event = $this->dispatchLayerEvent('searchIndex', [
+                        'request' => $this->request
+                    ]);
+                    if ($event !== false) {
+                        $this->request = ($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult();
+                    }
+                    break;
+            }
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
-        $this->set('contentTypes', $this->BcContents->getTypes());
-        $this->set('authors', $this->Users->getUserList());
-        $this->set('folders', $contentManage->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
+        $this->set('contents', $this->_getContents($contentService));
+        $this->set('template', $this->_getTemplate());
+        $this->set('folders', $contentService->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
         $this->set('sites', $sites);
-        $this->subMenuElements = ['contents'];
     }
 
     /**
-     * コンテンツ一覧のajax処理部分
+     * リクエストに応じたコンテンツを返す
      *
-     * @param  ContentManageService $contentManage
-     * @return void
+     * @param  ContentServiceInterface $contentService
+     * @return Query|ResultSet
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    protected function ajax_index($contentManage): void
+    private function _getContents($contentService)
     {
-            $this->viewBuilder()->disableAutoLayout();
-            $dataset = $contentManage->getAdminAjaxIndex($this->request->getData());
-            $template = key($dataset);
-            $datas = array_shift($dataset);
-            if($this->request->getParam('action') == "index") {
-                    switch($this->request->getData('ViewSetting.list_type')) {
-                        case 1:
-                            // 並び替え最終更新時刻をリセット
-                            // $this->SiteConfigs->resetContentsSortLastModified();
-                            break;
-                        case 2:
-                            $datas = $this->paginate($datas);
-                            $this->request = $this->request->withQueryParams(['conditions' => $contentManage->getAdminTableConditions($this->request->getData('Contents'))]);
-                            // EVENT Contents.searchIndex
-                            $event = $this->dispatchLayerEvent('Contents.searchIndex', [
-                                'request' => $this->request
-                            ]);
-                            if ($event !== false) {
-                                $this->request = ($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult();
-                            }
-                            break;
-                    }
-            }
-            $this->set('datas', $datas);
-            Configure::write('debug', 0);
-            $this->render($template);
-            return;
+        switch($this->request->getParam('action')) {
+            case 'index':
+                switch($this->request->getQuery('list_type')) {
+                    case 1:
+                        return $contentService->getTreeIndex($this->request->getQueryParams());
+                    case 2:
+                        return $this->paginate($contentService->getTableIndex($this->request->getQueryParams()));
+                    default:
+                        return $contentService->getEmptyIndex();
+                }
+            case 'trash_index':
+                return $contentService->getTrashIndex($this->request->getQueryParams());
+            default:
+                return $contentService->getEmptyIndex();
+        }
     }
+
+    /**
+     * リクエストに応じたテンプレートを取得する
+     *
+     * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    private function _getTemplate(): string
+    {
+        switch($this->request->getParam('action')) {
+            case 'index':
+                switch($this->request->getQuery('list_type')) {
+                    case 1:
+                        return 'index_tree';
+                    case 2:
+                        return 'index_table';
+                    default:
+                        $this->BcMessage->setError(__d('baser', '指定されたテンプレートは存在しません'));
+                        return 'index_tree';
+                }
+            case 'trash_index':
+                return 'index_trash';
+            default:
+                $this->BcMessage->setError(__d('baser', '指定されたテンプレートは存在しません'));
+                return 'index_tree';
+        }
+    }
+
     /**
      * ゴミ箱内のコンテンツ一覧を表示する
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function trash_index(ContentManageServiceInterface $contentManage, SiteManageServiceInterface $siteManage)
+    public function trash_index(ContentServiceInterface $contentService, SiteServiceInterface $siteService, BcAdminServiceInterface $bcAdminService)
     {
-        $this->setAction('index', $contentManage, $siteManage);
-        if (!$this->request->is('ajax')) {
-            $this->render('index');
-        }
+        $this->setAction('index', $contentService, $siteService, $bcAdminService);
+        $this->render('index');
     }
 
     /**
@@ -215,10 +252,10 @@ class ContentsController extends BcAdminAppController
      *
      * @return void
      */
-    public function admin_add($alias = false)
+    public function add(ContentServiceInterface $contentService, $alias = false)
     {
 
-        if (!$this->request->data) {
+        if (!$this->request->getData()) {
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
 
@@ -244,8 +281,9 @@ class ContentsController extends BcAdminAppController
 
         }
 
-        $user = $this->BcAuth->user();
-        $this->request = $this->request->withData('Content.author_id', $user['id']);
+        $user = $currentUser = BcUtil::loginUser('Admin');
+        $this->request = $this->request->withData('author_id', $user->id);
+        $contentService->create($this->request->getData());
         $this->Content->create(false);
         $data = $this->Content->save($this->request->data);
         if (!$data) {
@@ -549,10 +587,10 @@ class ContentsController extends BcAdminAppController
 
         if ($contents) {
             foreach($contents as $content) {
-                if (!empty($this->BcContents->settings['items'][$content['Content']['type']]['routes']['delete'])) {
-                    $route = $this->BcContents->settings['items'][$content['Content']['type']]['routes']['delete'];
+                if (!empty($this->BcContents->getConfig('settings')['items'][$content['Content']['type']]['routes']['delete'])) {
+                    $route = $this->BcContents->getConfig('settings')['items'][$content['Content']['type']]['routes']['delete'];
                 } else {
-                    $route = $this->BcContents->settings['items']['Default']['routes']['delete'];
+                    $route = $this->BcContents->getConfig('settings')['items']['Default']['routes']['delete'];
                 }
                 if (!$this->requestAction($route, ['data' => [
                     'contentId' => $content['Content']['id'],
@@ -759,15 +797,15 @@ class ContentsController extends BcAdminAppController
 
     /**
      * サイトに紐付いたフォルダリストを取得
-     * @param ContentManageServiceInterface $contentManage
+     * @param ContentServiceInterface $contentService
      * @param $siteId
      */
-    public function admin_ajax_get_content_folder_list(ContentManageServiceInterface $contentManage, $siteId)
+    public function admin_ajax_get_content_folder_list(ContentServiceInterface $contentService, $siteId)
     {
         $this->autoRender = false;
         Configure::write('debug', 0);
         return json_encode(
-            $contentManage->getContentFolderList(
+            $contentService->getContentFolderList(
                 (int)$siteId,
                 [
                     'conditions' => ['Content.site_root' => false]
@@ -779,16 +817,16 @@ class ContentsController extends BcAdminAppController
     /**
      * コンテンツ情報を取得する
      */
-    public function ajax_contents_info(ContentManageServiceInterface $contentManage)
+    public function ajax_contents_info(ContentServiceInterface $contentService)
     {
         $this->autoLayout = false;
-        $this->set('sites', $contentManage->getContensInfo());
+        $this->set('sites', $contentService->getContensInfo());
     }
 
-    public function admin_ajax_get_full_url($id)
+    public function ajax_get_full_url($id)
     {
         $this->autoRender = false;
         Configure::write('debug', 0);
-        return $this->Content->getUrlById($id, true);
+        return $this->response->withType("application/json")->withStringBody($this->Contents->getUrlById($id, true));
     }
 }

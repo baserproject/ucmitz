@@ -1,19 +1,30 @@
 <?php
-// TODO : コード確認要
-return;
+/**
+ * baserCMS :  Based Website Development Project <https://basercms.net>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
+ *
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
+ */
+
+namespace BaserCore\Test\Fixture\Model\Content;
+
+use Cake\TestSuite\Fixture\TestFixture;
 
 /**
- * ContentFixture
+ * ContentStatusCheckFixture
  */
-class ContentStatusCheckFixture extends BaserTestFixture
+class ContentStatusCheckFixture extends TestFixture
 {
 
     /**
-     * Name of the object
+     * Import
      *
-     * @var string
+     * @var array
      */
-    public $name = 'Content';
+    public $import = ['table' => 'contents'];
 
     /**
      * Records
@@ -23,9 +34,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
     public $records = [
         [
             'id' => '1',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => '',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'ContentFolder',
             'url' => '/',
             'parent_id' => null,
@@ -59,9 +70,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '2',
-            'site_id' => '1',
+            'site_id' => '2',
             'name' => 'm',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'ContentFolder',
             'url' => '/m/',
             'parent_id' => '1',
@@ -95,9 +106,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '3',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 's',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'ContentFolder',
             'url' => '/s/',
             'parent_id' => '1',
@@ -131,9 +142,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '4',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => 'index',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/index',
             'parent_id' => '1',
@@ -167,9 +178,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '5',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => 'about',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/about',
             'parent_id' => '1',
@@ -203,9 +214,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '6',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => 'service',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/service',
             'parent_id' => '1',
@@ -239,9 +250,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '7',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => 'icons',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/icons',
             'parent_id' => '1',
@@ -275,9 +286,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '8',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => 'sitemap',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/sitemap',
             'parent_id' => '1',
@@ -311,9 +322,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '9',
-            'site_id' => '1',
+            'site_id' => '2',
             'name' => 'index',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/m/index',
             'parent_id' => '2',
@@ -347,9 +358,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '10',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 'index',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/s/index',
             'parent_id' => '3',
@@ -383,9 +394,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '11',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 'about',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/s/about',
             'parent_id' => '3',
@@ -419,9 +430,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '12',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 'service',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/s/service',
             'parent_id' => '3',
@@ -455,9 +466,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '13',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 'icons',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/s/icons',
             'parent_id' => '3',
@@ -491,9 +502,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '14',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 'sitemap',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'Page',
             'url' => '/s/sitemap',
             'parent_id' => '3',
@@ -527,9 +538,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '15',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => 'contact',
-            'plugin' => 'Mail',
+            'plugin' => 'BcMail',
             'type' => 'MailContent',
             'url' => '/contact/',
             'parent_id' => '1',
@@ -563,9 +574,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '16',
-            'site_id' => '0',
+            'site_id' => '1',
             'name' => 'news',
-            'plugin' => 'Blog',
+            'plugin' => 'BcBlog',
             'type' => 'BlogContent',
             'url' => '/news/',
             'parent_id' => '1',
@@ -599,9 +610,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '17',
-            'site_id' => '1',
+            'site_id' => '2',
             'name' => 'contact',
-            'plugin' => 'Mail',
+            'plugin' => 'BcMail',
             'type' => 'MailContent',
             'url' => '/m/contact/',
             'parent_id' => '2',
@@ -635,9 +646,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '18',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 'contact',
-            'plugin' => 'Mail',
+            'plugin' => 'BcMail',
             'type' => 'MailContent',
             'url' => '/s/contact/',
             'parent_id' => '3',
@@ -671,9 +682,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '19',
-            'site_id' => '1',
+            'site_id' => '2',
             'name' => 'news',
-            'plugin' => 'Blog',
+            'plugin' => 'BcBlog',
             'type' => 'BlogContent',
             'url' => '/m/news/',
             'parent_id' => '2',
@@ -707,9 +718,9 @@ class ContentStatusCheckFixture extends BaserTestFixture
         ],
         [
             'id' => '20',
-            'site_id' => '2',
+            'site_id' => '3',
             'name' => 'news',
-            'plugin' => 'Blog',
+            'plugin' => 'BcBlog',
             'type' => 'BlogContent',
             'url' => '/s/news/',
             'parent_id' => '3',

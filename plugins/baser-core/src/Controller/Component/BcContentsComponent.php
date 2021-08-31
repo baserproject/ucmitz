@@ -274,7 +274,6 @@ class BcContentsComponent extends Component
         }
         $controller->set('layoutTemplates', $templates);
         $controller->set('parentContents', $controller->Content->getContentFolderList($currentSiteId, $options));
-        $controller->set('authors', $controller->User->getUserList());
         $Sites = TableRegistry::getTableLocator()->get('Sites');
         $site = $controller->Content->find('first', ['conditions' => ['Content.id' => $data['Content']['id']]]);
         if (!is_null($site['Site']['main_site_id'])) {
@@ -339,20 +338,6 @@ class BcContentsComponent extends Component
             }
         }
         return $parentTemplate;
-    }
-
-    /**
-     * 登録されているタイプの一覧を取得する
-     *
-     * @return array
-     */
-    public function getTypes()
-    {
-        $types = [];
-        foreach($this->getConfig('items') as $key => $value) {
-            $types[$key] = $value['title'];
-        }
-        return $types;
     }
 
 }

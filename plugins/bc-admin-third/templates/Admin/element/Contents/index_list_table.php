@@ -10,20 +10,22 @@
  * @license         https://basercms.net/license/index.html
  */
 
+use BaserCore\View\BcAdminAppView;
+
 /**
  * コンテンツ一覧 テーブル
  *
- * @var BcAppView $this
+ * @var BcAdminAppView $this
  */
-
 $this->BcListTable->setColumnNumber(8);
+$authors = $this->BcAdminContent->getAuthors();
 ?>
 
 <div class="bca-data-list__top">
   <?php if ($this->BcBaser->isAdminUser()): ?>
     <div class="bca-action-table-listup">
       <?php echo $this->BcAdminForm->control('ListTool.batch', ['type' => 'select', 'options' => ['del' => __d('baser', '削除'), 'publish' => __d('baser', '公開'), 'unpublish' => __d('baser', '非公開')], 'empty' => __d('baser', '一括処理')]) ?>
-      <?php echo $this->BcForm->button(__d('baser', '適用'), ['id' => 'BtnApplyBatch', 'disabled' => 'disabled', 'class' => 'bca-btn']) ?>
+      <?php echo $this->BcAdminForm->button(__d('baser', '適用'), ['id' => 'BtnApplyBatch', 'disabled' => 'disabled', 'class' => 'bca-btn']) ?>
     </div>
   <?php endif ?>
   <div class="bca-data-list__sub">
@@ -93,10 +95,10 @@ $this->BcListTable->setColumnNumber(8);
   </tr>
   </thead>
   <tbody>
-  <?php if (!empty($datas)): ?>
+  <?php if (!empty($contents)): ?>
     <?php $count = 0; ?>
-    <?php foreach($datas as $data): ?>
-      <?php $this->BcBaser->element('Contents/index_row_table', ['data' => $data, 'count' => $count]) ?>
+    <?php foreach($contents as $content): ?>
+      <?php $this->BcBaser->element('Contents/index_row_table', ['content' => $content, 'count' => $count, 'authors' => $authors]) ?>
       <?php $count++; ?>
     <?php endforeach; ?>
   <?php else: ?>

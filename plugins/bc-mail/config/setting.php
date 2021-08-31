@@ -11,6 +11,9 @@
  * @license         https://basercms.net/license/index.html
  */
 
+// TODO ucmitz 未移行のため暫定措置
+return [];
+
 /**
  * システムナビ
  */
@@ -22,7 +25,7 @@ $config['BcApp.adminNavigation'] = [
     ]
 ];
 /* @var MailContent $MailContent */
-$MailContent = ClassRegistry::init('Mail.MailContent');
+$MailContent = ClassRegistry::init('BcMail.MailContent');
 $mailContents = $MailContent->find('all', [
     'conditions' => [
         $MailContent->Content->getConditionAllowPublish()
@@ -51,7 +54,7 @@ foreach ($mailContents as $mailContent) {
     ];
 }
 
-$config['BcContents']['items']['Mail'] = [
+$config['BcContents']['items']['BcMail'] = [
     'MailContent' => [
         'title' => __d('baser', 'メールフォーム'),
         'multiple' => true,
@@ -100,6 +103,6 @@ $config['BcContents']['items']['Mail'] = [
 /**
  * ショートコード
  */
-$config['BcShortCode']['Mail'] = [
-    'Mail.getForm'
+$config['BcShortCode']['BcMail'] = [
+    'BcMail.getForm'
 ];

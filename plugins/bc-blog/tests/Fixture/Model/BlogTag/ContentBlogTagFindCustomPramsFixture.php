@@ -23,7 +23,7 @@ class ContentBlogTagFindCustomPramsFixture extends CakeTestFixture
         [
             'id' => '1',
             'name' => '',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'ContentFolder',
             'entity_id' => '1',
             'url' => '/',
@@ -59,7 +59,7 @@ class ContentBlogTagFindCustomPramsFixture extends CakeTestFixture
         [
             'id' => '3',
             'name' => 's',
-            'plugin' => 'Core',
+            'plugin' => 'BaserCore',
             'type' => 'ContentFolder',
             'entity_id' => '3',
             'url' => '/s/',
@@ -95,7 +95,7 @@ class ContentBlogTagFindCustomPramsFixture extends CakeTestFixture
         [
             'id' => '16',
             'name' => 'blog1',
-            'plugin' => 'Blog',
+            'plugin' => 'BcBlog',
             'type' => 'BlogContent',
             'entity_id' => '1',
             'url' => '/blog1/',
@@ -131,7 +131,7 @@ class ContentBlogTagFindCustomPramsFixture extends CakeTestFixture
         [
             'id' => '21',
             'name' => 'blog2',
-            'plugin' => 'Blog',
+            'plugin' => 'BcBlog',
             'type' => 'BlogContent',
             'entity_id' => '2',
             'url' => '/blog2/',
@@ -167,7 +167,7 @@ class ContentBlogTagFindCustomPramsFixture extends CakeTestFixture
         [
             'id' => '22',
             'name' => 'blog3',
-            'plugin' => 'Blog',
+            'plugin' => 'BcBlog',
             'type' => 'BlogContent',
             'entity_id' => '3',
             'url' => '/s/blog3/',
