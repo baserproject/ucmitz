@@ -124,4 +124,27 @@ class FavoritesServiceTest extends BcTestCase
         $this->assertEquals($expected->name, $result->name);
     }
 
+    /**
+     * test update
+     */
+    public function testUpdate(): void
+    {
+        $favorite = $this->FavoritesService->get(1);
+        $this->FavoritesService->update($favorite, [
+            'name' => 'ucmitz',
+        ]);
+        $favorite = $this->FavoritesService->get(1);
+        $this->assertEquals('ucmitz', $favorite->name);
+    }
+
+    /**
+     * Test delete
+     */
+    public function testDelete()
+    {
+        $this->FavoritesService->delete(2);
+        $users = $this->FavoritesService->getIndex([]);
+        $this->assertEquals(5, $users->all()->count());
+    }
+
 }

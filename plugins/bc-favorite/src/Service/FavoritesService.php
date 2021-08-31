@@ -11,11 +11,12 @@
 
 namespace BcFavorite\Service;
 
-use Cake\Core\Configure;
-use Cake\Core\Exception\Exception;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * FavoritesService
@@ -101,6 +102,9 @@ class FavoritesService
      * @param EntityInterface $target
      * @param array $postData
      * @return mixed
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $target, array $postData)
     {
@@ -112,6 +116,9 @@ class FavoritesService
      * 削除する
      * @param int $id
      * @return mixed
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function delete(int $id)
     {
