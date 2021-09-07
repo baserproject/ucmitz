@@ -11,12 +11,8 @@
 
 namespace BaserCore\ServiceProvider;
 
-use BaserCore\Service\Admin\SiteConfigManageService;
-use BaserCore\Service\Admin\SiteConfigManageServiceInterface;
-use BaserCore\Service\Front\SiteFrontService;
-use BaserCore\Service\Front\SiteFrontServiceInterface;
-use BcFavorite\Service\FavoritesService;
-use BcFavorite\Service\FavoritesServiceInterface;
+use BcFavorite\Service\FavoriteService;
+use BcFavorite\Service\FavoriteServiceInterface;
 use Cake\Core\ServiceProvider;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -52,7 +48,7 @@ class BcServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $provides = [
-        FavoritesServiceInterface::class,
+        FavoriteServiceInterface::class,
         UserServiceInterface::class,
         UserGroupServiceInterface::class,
         PluginServiceInterface::class,
@@ -91,7 +87,7 @@ class BcServiceProvider extends ServiceProvider
         // Contentsサービス
         $container->add(ContentServiceInterface::class, ContentService::class, true);
         // Favoriteサービス
-        $container->add(FavoritesServiceInterface::class, FavoritesService::class, true);
+        $container->add(FavoriteServiceInterface::class, FavoriteService::class, true);
         // ContentFoldersサービス
         $container->add(ContentFolderServiceInterface::class, ContentFolderService::class, true);
 

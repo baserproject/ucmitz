@@ -13,6 +13,8 @@ declare(strict_types=1);
 namespace BcFavorite;
 
 use BaserCore\BcPlugin;
+use Cake\Core\ContainerInterface;
+use BcFavorite\ServiceProvider\BcFavoriteServiceProvider;
 
 /**
  * plugin for ContactManager
@@ -46,4 +48,13 @@ class Plugin extends BcPlugin
         return parent::uninstall($options);
     }
 
+    /**
+     * services
+     * @param ContainerInterface $container
+     * @checked
+     */
+    public function services(ContainerInterface $container): void
+    {
+        $container->addServiceProvider(new BcFavoriteServiceProvider());
+    }
 }

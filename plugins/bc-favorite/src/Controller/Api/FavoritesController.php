@@ -9,7 +9,7 @@
  * @license       http://basercms.net/license/index.html MIT License
  */
 
-namespace BcFavorite\Model\Table;
+namespace BcFavorite\Controller\Api;
 
 use App\Controller\AppController;
 use BaserCore\Annotation\NoTodo;
@@ -21,7 +21,7 @@ use Exception;
 /**
  * Class Favorite
  */
-class FavoritesTable extends AppController
+class FavoritesController extends AppController
 {
 
     /**
@@ -30,6 +30,7 @@ class FavoritesTable extends AppController
      * @param $id
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function view(FavoriteServiceInterface $favorites, $id)
     {
@@ -44,6 +45,7 @@ class FavoritesTable extends AppController
      * @param FavoriteServiceInterface $favorites
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(FavoriteServiceInterface $favorites)
     {

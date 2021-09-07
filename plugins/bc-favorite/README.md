@@ -13,6 +13,7 @@ composer require baserproject/bc-favorite
 - [ ] API を作成する
   - [x] コントローラー実装
   - [ ] コントローラーのテスト
+    - [x] testIndexまで終了（次は坂口さんから）
 - [ ] Controller を移行する
 - [ ] View を移行
 - [ ] メニューの上にイベントディスパッチャーを作る

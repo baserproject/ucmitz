@@ -1,0 +1,162 @@
+<?php
+/**
+ * baserCMS :  Based Website Development Project <https://basercms.net>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
+ *
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
+ */
+
+namespace BcFavorite\Test\TestCase\Controller\Api;
+
+use Cake\Core\Configure;
+use BaserCore\Utility\BcUtil;
+use Cake\TestSuite\IntegrationTestTrait;
+
+class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
+{
+
+    /**
+     * IntegrationTestTrait
+     */
+    use IntegrationTestTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Plugins',
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
+        'plugin.BcFavorite.Favorites',
+        'plugin.BaserCore.Sites',
+        'plugin.BaserCore.Contents',
+    ];
+
+    /**
+     * Access Token
+     * @var string
+     */
+    public $accessToken = null;
+
+    /**
+     * Refresh Token
+     * @var null
+     */
+    public $refreshToken = null;
+
+    /**
+     * set up
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $token = $this->apiLoginAdmin(1);
+        $this->accessToken = $token['access_token'];
+        $this->refreshToken = $token['refresh_token'];
+    }
+
+    public static function setUpBeforeClass(): void
+    {
+        parent::setUpBeforeClass();
+        BcUtil::includePluginClass('BcFavorite');
+    }
+
+    /**
+     * Tear Down
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        Configure::clear();
+        parent::tearDown();
+    }
+
+    /**
+     * test View
+     */
+    public function testView(): void
+    {
+        $this->get('/baser/api/bc-favorite/favorites/view/2.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('新着情報管理', $result->favorite->name);
+    }
+
+    /**
+     * Test index method
+     *
+     * @return void
+     */
+    public function testIndex()
+    {
+        $this->get('/baser/api/bc-favorite/favorites/index.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('固定ページ管理', $result->favorites[0]->name);
+    }
+
+    /**
+     * Test add method
+     *
+     * @return void
+     */
+    public function testAdd()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $data = [
+            'name' => 'chinese',
+            'display_name' => '中国語サイト',
+            'title' => '中国語',
+            'alias' => 'zh'
+        ];
+        $this->post('/baser/api/bc-favorite/favorites/add.json?token=' . $this->accessToken, $data);
+        $this->assertResponseSuccess();
+        $favorites = $this->getTableLocator()->get('Favorites');
+        $query = $favorites->find()->where(['name' => $data['name']]);
+        $this->assertEquals(1, $query->count());
+    }
+
+    /**
+     * Test edit method
+     *
+     * @return void
+     */
+    public function testEdit()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $data = [
+            'name' => 'Test_test_Man'
+        ];
+        $this->post('/baser/api/bc-favorite/favorites/edit/1.json?token=' . $this->accessToken, $data);
+        $this->assertResponseSuccess();
+        $favorites = $this->getTableLocator()->get('Favorites');
+        $query = $favorites->find()->where(['name' => $data['name']]);
+        $this->assertEquals(1, $query->count());
+    }
+
+    /**
+     * Test delete method
+     *
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $this->post('/baser/api/bc-favorite/favorites/delete/2.json?token=' . $this->accessToken);
+        $this->assertResponseSuccess();
+        $favorites = $this->getTableLocator()->get('Favorites');
+        $query = $favorites->find()->where(['id' => 2]);
+        $this->assertEquals(0, $query->count());
+    }
+
+}
