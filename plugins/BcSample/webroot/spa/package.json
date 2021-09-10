@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "sample",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "vue": "^2.6.12",
     "vue-loader": "^15.9.7",
     "vue-localstorage": "^0.6.2",
