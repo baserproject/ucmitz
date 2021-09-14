@@ -36,6 +36,7 @@ class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
         'plugin.BcFavorite.Favorites',
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Contents',
+        'plugin.BaserCore.Permissions',
     ];
 
     /**
@@ -112,10 +113,9 @@ class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         $data = [
-            'name' => 'chinese',
-            'display_name' => '中国語サイト',
-            'title' => '中国語',
-            'alias' => 'zh'
+            'name' => 'hogehoge',
+            'user_id' => '1',
+            'url' => '/baser/admin/contents/index',
         ];
         $this->post('/baser/api/bc-favorite/favorites/add.json?token=' . $this->accessToken, $data);
         $this->assertResponseSuccess();

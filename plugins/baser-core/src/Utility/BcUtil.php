@@ -51,10 +51,7 @@ class BcUtil
         if (!$request = Router::getRequest()) {
             return false;
         }
-        $session = $request->getSession();
-        $sessionKey = Configure::read('BcPrefixAuth.' . $prefix . '.sessionKey');
-        $user = isset($_SESSION[$sessionKey])? $session->read($sessionKey) : null;
-        return $user;
+        return $request->getAttribute('authenticationResult')->getData() ?? null;
     }
 
     /**

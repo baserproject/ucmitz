@@ -192,18 +192,21 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'className' => 'Authentication.Orm',
                         'userModel' => $authSetting['userModel'],
                     ],
+                    'contain' => 'UserGroups',
                 ]);
                 $service->loadIdentifier('Authentication.JwtSubject', [
                     'resolver' => [
                         'className' => 'Authentication.Orm',
                         'userModel' => $authSetting['userModel'],
                     ],
+                    'contain' => 'UserGroups',
                 ]);
                 $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
                     'fields' => [
                         'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
                         'password' => $authSetting['password']
-                    ]
+                    ],
+                    'contain' => 'UserGroups',
                 ]);
                 $service->loadIdentifier('Authentication.Password', [
                     'returnPayload' => false,

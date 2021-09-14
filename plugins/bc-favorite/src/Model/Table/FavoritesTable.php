@@ -70,7 +70,11 @@ class FavoritesTable extends AppTable
             ->add('url', 'isPermitted', [
                 'rule' => ['isPermitted', $this->getService(PermissionServiceInterface::class)],
                 'provider' => 'favorite',
-                'message' => __d('baser', 'このURLの登録は許可されていません。')]);
+                'message' => __d('baser', 'このURLの登録は許可されていません。')])
+            ->notEmptyString('url', __d('baser', 'URLは必須です。'));
+        $validator
+            ->scalar('user_id')
+            ->notEmptyString('user_id', __d('baser', 'ユーザーIDは必須です。'));
         return $validator;
     }
 
