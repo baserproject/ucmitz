@@ -110,7 +110,11 @@ class PluginService implements PluginServiceInterface
      */
     public function install($name, $connection = 'default'): ?bool
     {
-        $options = ['connection' => $connection];
+        if($connection) {
+            $options = ['connection' => $connection];
+        } else {
+            $options = [];
+        }
         BcUtil::includePluginClass($name);
         $plugins = CakePlugin::getCollection();
         $plugin = $plugins->create($name);
