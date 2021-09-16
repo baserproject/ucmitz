@@ -14,7 +14,7 @@ composer require baserproject/bc-favorite
   - [x] コントローラー実装
   - [ ] コントローラーのテスト
     - [x] testIndexまで終了
-    - [ ] testAdd / UserGroupがcontainされない現象調査中（次は江頭さんから）
+    - [ ] testAdd / UserGroupがcontainされない問題解消済（次は江頭さんから）
 - [ ] Controller を移行する
 - [ ] View を移行
 - [ ] メニューの上にイベントディスパッチャーを作る

@@ -192,21 +192,19 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'className' => 'Authentication.Orm',
                         'userModel' => $authSetting['userModel'],
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 $service->loadIdentifier('Authentication.JwtSubject', [
                     'resolver' => [
                         'className' => 'Authentication.Orm',
                         'userModel' => $authSetting['userModel'],
+                        'finder' => 'available'
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
                     'fields' => [
                         'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
                         'password' => $authSetting['password']
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 $service->loadIdentifier('Authentication.Password', [
                     'returnPayload' => false,
@@ -219,7 +217,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'userModel' => $authSetting['userModel'],
                         'finder' => 'available'
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 // ログインセッションを保有している際も認証済とする
                 // Webの管理画面よりAPIにアクセスできるようにするため
@@ -233,7 +230,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                 $service->setConfig([
                     'unauthenticatedRedirect' => Router::url($authSetting['loginAction'], true),
                     'queryParam' => 'redirect',
-                    'contain' => 'UserGroups',
                 ]);
                 $service->loadAuthenticator('Authentication.Session', [
                     'sessionKey' => $authSetting['sessionKey'],
@@ -255,7 +251,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'userModel' => $authSetting['userModel'],
                         'finder' => 'available'
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 break;
 

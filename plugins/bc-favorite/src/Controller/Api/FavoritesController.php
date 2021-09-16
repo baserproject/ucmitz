@@ -11,17 +11,17 @@
 
 namespace BcFavorite\Controller\Api;
 
-use App\Controller\AppController;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Controller\Api\BcApiController;
 use BcFavorite\Service\FavoriteServiceInterface;
 use Exception;
 
 /**
  * Class Favorite
  */
-class FavoritesController extends AppController
+class FavoritesController extends BcApiController
 {
 
     /**
