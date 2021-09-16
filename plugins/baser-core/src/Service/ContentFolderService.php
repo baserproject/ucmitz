@@ -12,16 +12,19 @@
 
 namespace BaserCore\Service;
 
+use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
-use BaserCore\Model\Table\ContentFoldersTable;
-use BaserCore\Service\ContentFolderServiceInterface;
-use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use Cake\Datasource\EntityInterface;
+use BaserCore\Model\Table\ContentFoldersTable;
+use BaserCore\Service\ContentFolderServiceInterface;
 /**
  * Class ContentFolderService
  * @package BaserCore\Service
  * @property ContentFoldersTable $ContentFolders
+ * @property ContentsTable $Contents
  */
 class ContentFolderService implements ContentFolderServiceInterface
 {
@@ -38,6 +41,46 @@ class ContentFolderService implements ContentFolderServiceInterface
     public function __construct()
     {
         $this->ContentFolders = TableRegistry::getTableLocator()->get('BaserCore.ContentFolders');
+        $this->Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+    }
+
+    /**
+     * コンテンツフォルダーを取得する
+     * @param int $id
+     * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function get($id): EntityInterface
+    {
+        $contentFolder = $this->ContentFolders->get($id, ['contain' => ['Contents']]);
+        $contentFolder->content = $contentFolder->content ?? $this->Contents->find('all', ['withDeleted'])->where(['entity_id' => $id])->first();
+        return $contentFolder;
+    }
+
+    /**
+     * コンテンツフォルダー一覧用のデータを取得
+     * @param array $queryParams
+     * @return Query
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getIndex(array $queryParams=[]): Query
+    {
+        $options = [];
+        if (!empty($queryParams['num'])) {
+            $options = ['limit' => $queryParams['num']];
+        }
+        $query = $this->ContentFolders->find('all', $options)->contain('Contents');
+        if (!empty($queryParams['folder_template'])) {
+            $query->where(['folder_template LIKE' => '%' . $queryParams['folder_template'] . '%']);
+        }
+        if (!empty($queryParams['page_template'])) {
+            $query->where(['page_template LIKE' => '%' . $queryParams['page_template'] . '%']);
+        }
+        return $query;
     }
 
     /**
@@ -51,7 +94,21 @@ class ContentFolderService implements ContentFolderServiceInterface
     public function create(array $postData)
     {
         $contentFolder = $this->ContentFolders->newEmptyEntity();
-        $contentFolder = $this->ContentFolders->patchEntity($contentFolder, $postData,  ['associated' => ['Contents']]);
+        $contentFolder = $this->ContentFolders->patchEntity($contentFolder, $postData);
         return ($result = $this->ContentFolders->save($contentFolder)) ? $result : $contentFolder;
+    }
+
+    /**
+     * コンテンツフォルダーを削除する
+     * @param int $id
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete($id)
+    {
+        $ContentFolder = $this->get($id);
+        return $this->ContentFolders->delete($ContentFolder);
     }
 }

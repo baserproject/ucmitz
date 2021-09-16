@@ -12,11 +12,14 @@
 namespace BaserCore\Model\Table;
 
 use ArrayObject;
+use Cake\Core\Plugin;
 use Cake\Event\Event;
 use Cake\Utility\Hash;
 use Cake\Core\Configure;
+use Cake\Database\Query;
 use Cake\Routing\Router;
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Inflector;
 use BaserCore\Model\AppTable;
 use BaserCore\Utility\BcUtil;
 use Cake\Event\EventInterface;
@@ -24,13 +27,18 @@ use Cake\Validation\Validator;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Model\Entity\Content;
 use Cake\Datasource\EntityInterface;
+use SoftDelete\Model\Table\SoftDeleteTrait;
 
 /**
  * Class ContentsTable
  */
 class ContentsTable extends AppTable
 {
+    use SoftDeleteTrait;
+
+    protected $softDeleteField = 'deleted_date';
 
     /**
      * Initialize
@@ -120,7 +128,7 @@ class ContentsTable extends AppTable
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
             // 'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
             'Model.beforeDelete' => ['callable' => 'beforeDelete', 'passParams' => true, 'priority' => 1],
-            'Model.afterDelete' => ['callable' => 'afterDelete'],
+            // 'Model.afterDelete' => ['callable' => 'afterDelete'],
         ];
     }
     /**
@@ -308,9 +316,6 @@ class ContentsTable extends AppTable
             if (!isset($data['content']['self_publish_end'])) {
                 $data['content']['self_publish_end'] = null;
             }
-            if (!isset($data['content']['deleted'])) {
-                $data['content']['deleted'] = false;
-            }
             if (!isset($data['content']['created_date'])) {
                 $data['content']['created_date'] = date('Y-m-d H:i:s');
             }
@@ -421,7 +426,7 @@ class ContentsTable extends AppTable
     public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)
     {
         if (!empty($entity->id)) {
-            $this->beforeSaveParentId = $this->field('parent_id', ['Contents.id' => $entity->id]);
+            $this->beforeSaveParentId = $entity->parent_id;
         }
         return parent::beforeSave($event, $entity, $options);
     }
@@ -456,26 +461,25 @@ class ContentsTable extends AppTable
 
     /**
      * 関連するコンテンツ本体のデータキャッシュを削除する
-     * @param $data
+     * @param Content $content
      */
-    public function deleteAssocCache($data)
+    public function deleteAssocCache($content)
     {
-        if (empty($data['Content']['plugin']) || empty($data['Content']['type'])) {
-            $data = $this->find('first', ['fields' => ['Content.plugin', 'Content.type'], 'conditions' => ['Content.id' => $data['Content']['id']], 'recursive' => -1]);
+        if (empty($content->plugin) || empty($content->type)) {
+            $content = $this->find()->select(['plugin', 'type'])->where(['id' => $content->id])->first();
         }
-        $assoc = $data['Content']['type'];
-        if ($data['Content']['plugin'] != 'BaserCore') {
-            if (!CakePlugin::loaded($data['Content']['plugin'])) {
+        $assoc = $content->plugin . '.' . Inflector::pluralize($content->type);
+        if ($content->plugin != 'BaserCore') {
+            if (!Plugin::isLoaded($content->plugin)) {
                 return;
             }
-            $assoc = $data['Content']['plugin'] . '.' . $assoc;
         }
-        $AssocModel = ClassRegistry::init($assoc);
-        if ($AssocModel && !empty($AssocModel->actsAs) && in_array('BcCache', $AssocModel->actsAs)) {
-            if ($AssocModel->Behaviors->hasMethod('delCache')) {
-                $AssocModel->delCache();
-            }
-        }
+        $AssocTable = TableRegistry::getTableLocator()->get($assoc);
+        // if ($AssocTable && !empty($AssocTable->actsAs) && in_array('BcCache', $AssocTable->actsAs)) {
+        //     if ($AssocTable->Behaviors->hasMethod('delCache')) {
+        //         $AssocTable->delCache();
+        //     }
+        // }
     }
 
     /**
@@ -487,16 +491,17 @@ class ContentsTable extends AppTable
      */
     public function beforeDelete($cascade = true)
     {
-        if (!parent::beforeDelete($cascade)) {
-            return false;
-        }
-        $data = $this->find('first', [
-            'conditions' => [$this->alias . '.id' => $this->id]
-        ]);
-        $this->__deleteTarget = $data;
-        if (!$this->softDelete(null)) {
-            return true;
-        }
+        // TODO: 一時的にコメントアウト
+        // if (!parent::beforeDelete($cascade)) {
+        //     return false;
+        // }
+        // $data = $this->find('first', [
+        //     'conditions' => [$this->alias . '.id' => $this->id]
+        // ]);
+        // $this->__deleteTarget = $data;
+        // if (!$this->softDelete(null)) {
+        //     return true;
+        // }
         return true;
     }
 
@@ -505,17 +510,18 @@ class ContentsTable extends AppTable
      *
      * 関連コンテンツのキャッシュを削除する
      */
-    public function afterDelete()
-    {
-        parent::afterDelete();
-        $data = $this->__deleteTarget;
-        $this->__deleteTarget = null;
-        if ($data) {
-            $this->deleteRelateSubSiteContent($data);
-            $this->deleteAlias($data);
-        }
-        $this->deleteAssocCache($data);
-    }
+    // TODO: 一時的にコメントアウト
+    // public function afterDelete()
+    // {
+    //     parent::afterDelete();
+    //     $data = $this->__deleteTarget;
+    //     $this->__deleteTarget = null;
+    //     if ($data) {
+    //         $this->deleteRelateSubSiteContent($data);
+    //         $this->deleteAlias($data);
+    //     }
+    //     $this->deleteAssocCache($data);
+    // }
 
     /**
      * 自データのエイリアスを削除する
@@ -748,8 +754,9 @@ class ContentsTable extends AppTable
         $content['plugin'] = $plugin;
         $content['type'] = $type;
         $content['entity_id'] = $entityId;
-        if (!isset($content['deleted'])) {
-            $content['deleted'] = false;
+        // TODO: deleted → deleted_dateに変更
+        if (!isset($content['deleted_date'])) {
+            $content['deleted_date'] = '';
         }
         if (!isset($content['site_root'])) {
             $content['site_root'] = 0;
@@ -786,6 +793,7 @@ class ContentsTable extends AppTable
             // それまでは、SQLインジェクション対策として、値をチェックしてから利用する。
             // =========================================================================================================
             $db = $this->getDataSource();
+            // FIXME: deleted_dateに変更する
             $sql = "SELECT lft, rght FROM {$this->tablePrefix}contents AS Content WHERE id = {$id} AND deleted = " . $db->value(false, 'boolean');
             $content = $db->query($sql, false);
             if (!$content) {
@@ -796,6 +804,7 @@ class ContentsTable extends AppTable
             } else {
                 $content = $content[0][0];
             }
+            // FIXME: deleted_dateに変更する
             $sql = "SELECT name, plugin, type FROM {$this->tablePrefix}contents AS Content " .
                 "WHERE lft <= {$db->value($content['lft'], 'integer')} AND rght >= {$db->value($content['rght'], 'integer')} AND deleted =  " . $db->value(false, 'boolean') . " " .
                 "ORDER BY lft ASC";
@@ -962,141 +971,6 @@ class ContentsTable extends AppTable
             $conditions['Contents.entity_id'] = $entityId;
         }
         return $this->find('all')->where([$conditions])->order(['Contents.id'])->first();
-    }
-
-    /**
-     * コンテンツフォルダーのリストを取得
-     * コンボボックス用
-     *TODO: ContentServiceと統一する
-     * @param int $siteId
-     * @param array $options
-     * @return array|bool
-     */
-    public function getContentFolderList($siteId = null, $options = [])
-    {
-        $options = array_merge([
-            'excludeId' => null
-        ], $options);
-
-        $conditions = [
-            'type' => 'ContentFolder',
-            'alias_id IS NULL'
-        ];
-
-        if (!is_null($siteId)) {
-            $conditions['site_id'] = $siteId;
-        }
-        if ($options['excludeId']) {
-            $conditions['id <>'] = $options['excludeId'];
-        }
-        if (!empty($options['conditions'])) {
-            $conditions = array_merge($conditions, $options['conditions']);
-        }
-        $folders = $this->find('treeList')->where([$conditions]);
-        if ($folders) {
-            return $this->convertTreeList($folders->all()->toArray());
-        }
-        return false;
-    }
-
-    /**
-     * ツリー構造のデータを コンボボックスのデータ用に変換する
-     *TODO: ContentServiceと統一する
-     * @param $nodes
-     * @return array
-     */
-    public function convertTreeList($nodes)
-    {
-        if (!$nodes) {
-            return [];
-        }
-        foreach($nodes as $key => $value) {
-            if (preg_match("/^([_]+)/i", $value, $matches)) {
-                $value = preg_replace("/^[_]+/i", '', $value);
-                $prefix = str_replace('_', '　　　', $matches[1]);
-                $value = $prefix . '└' . $value;
-            }
-            $nodes[$key] = $value;
-        }
-        return $nodes;
-    }
-
-    /**
-     * ツリー構造より論理削除する
-     *
-     * @param $id
-     * @return bool
-     */
-    public function softDeleteFromTree($id)
-    {
-        $this->softDelete(true);
-        $this->Behaviors->unload('BcCache');
-        $this->Behaviors->unload('BcUpload');
-        $result = $this->deleteRecursive($id);
-        $this->Behaviors->load('BcCache');
-        $this->Behaviors->load('BcUpload');
-        $this->delAssockCache();
-        return $result;
-    }
-
-    /**
-     * 再帰的に削除
-     *
-     * エイリアスの場合
-     *
-     * @param $id
-     * @return bool
-     */
-    public function deleteRecursive($id)
-    {
-        if (!$id) {
-            return false;
-        }
-        $children = $this->children($id, true);
-        $result = true;
-        if ($children) {
-            foreach($children as $child) {
-                if (!$this->deleteRecursive($child['Content']['id'])) {
-                    $result = false;
-                }
-            }
-        }
-        if ($result) {
-            $content = $this->find('first', [
-                'conditions' => ['Content.id' => $id],
-                'recursive' => -1
-            ]);
-            if (empty($content['Content']['alias_id'])) {
-                // エイリアス以外の場合
-                // 一旦階層構造から除外しリセットしてゴミ箱に移動（論理削除）
-                $content['Content']['parent_id'] = null;
-                $content['Content']['url'] = '';
-                $content['Content']['status'] = false;
-                $content['Content']['self_status'] = false;
-                unset($content['Content']['lft']);
-                unset($content['Content']['rght']);
-                $this->updatingSystemData = false;
-                // ここでは callbacks を false にすると lft rght が更新されないので callbacks は true に設定する（default: true）
-                $this->clear();
-                $this->save($content, ['validate' => false]);
-                $this->updatingSystemData = true;
-                $result = $this->delete($id);
-                // =====================================================================
-                // 通常の削除の際、afterDelete で、関連コンテンツのキャッシュを削除しているが、
-                // 論理削除の場合、afterDelete が呼ばれない為、ここで削除する
-                // =====================================================================
-                $this->deleteAssocCache($content);
-                return $result;
-            } else {
-                // エイリアスの場合、直接削除
-                $softDelete = $this->softDelete(null);
-                $this->softDelete(false);
-                $result = $this->removeFromTree($content['Content']['id'], true);
-                $this->softDelete($softDelete);
-                return $result;
-            }
-        }
-        return false;
     }
 
     /**
@@ -1954,7 +1828,7 @@ class ContentsTable extends AppTable
         $this->save($mainSite, false);
         // ゴミ箱
         $this->Behaviors->unload('SoftDelete');
-        $contents = $this->find('all', ['conditions' => ['Content.deleted' => true], 'order' => 'lft', 'recursive' => -1]);
+        $contents = $this->find('all', ['conditions' => ['Content.deleted_date IS NOT NULL'], 'order' => 'lft', 'recursive' => -1]);
         if ($contents) {
             foreach($contents as $content) {
                 $count++;

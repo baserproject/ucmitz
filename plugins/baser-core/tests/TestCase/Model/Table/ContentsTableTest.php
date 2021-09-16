@@ -14,6 +14,7 @@ namespace BaserCore\Test\TestCase\Model\Table;
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\Validation\Validator;
+use BaserCore\Model\Entity\Content;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Model\Table\ContentsTable;
 /**
@@ -26,11 +27,10 @@ class ContentsTableTest extends BcTestCase
 {
 
     public $fixtures = [
-        'plugin.BaserCore.Contents',
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Contents',
         // 'baser.Model.Content.ContentIsMovable',
-         'plugin.BaserCore.Model/Content/ContentStatusCheck',
+        'plugin.BaserCore.Model/Content/ContentStatusCheck',
         // 'baser.Routing.Route.BcContentsRoute.SiteBcContentsRoute',
         // 'baser.Routing.Route.BcContentsRoute.ContentBcContentsRoute',
         // 'baser.Default.SiteConfig',
@@ -221,6 +221,8 @@ class ContentsTableTest extends BcTestCase
     public function testDeleteAssocCache()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $content = new Content();
+        $this->Contents->deleteAssocCache($content);
     }
 
     /**
@@ -419,24 +421,6 @@ class ContentsTableTest extends BcTestCase
             ['BcBlog.BlogComment', null, null],    // 存在しないタイプ
             [false, null, null]                // 異常系
         ];
-    }
-
-    /**
-     * ツリー構造より論理削除する
-     */
-    public function testSoftDeleteFromTree()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 再帰的に削除
-     *
-     * エイリアスの場合
-     */
-    public function testDeleteRecursive()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**

@@ -18,10 +18,11 @@ use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
-use BaserCore\Controller\Admin\ContentsController;
-use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Model\Entity\Content;
+use BaserCore\Controller\Admin\ContentsController;
 /**
  * Class BcContentsComponent
  *
@@ -121,8 +122,7 @@ class BcContentsComponent extends Component
      */
     public function setupAdmin()
     {
-        $createdSettings = BcUtil::getContentsItem();
-        $this->setConfig('items', $createdSettings);
+        $this->setConfig('items', BcUtil::getContentsItem());
     }
 
     /**
@@ -193,7 +193,7 @@ class BcContentsComponent extends Component
     /**
      * Content データを取得する
      * @param int $entityId
-     * @return array
+     * @return Content
      * @checked
      * @noTodo
      * @unitTest
@@ -213,7 +213,7 @@ class BcContentsComponent extends Component
     {
         $controller = $this->getController();
         if (BcUtil::isAdminSystem(Router::url())) {
-            $controller->set('contentsSettings', $this->getConfig('items'));
+            $controller->set('contentsItems', $this->getConfig('items'));
             // パンくずをセット
             array_unshift($controller->crumbs, ['name' => __d('baser', 'コンテンツ一覧'), 'url' => ['plugin' => null, 'controller' => 'contents', 'action' => 'index']]);
             if ($controller->subMenuElements && !in_array('contents', $controller->subMenuElements)) {

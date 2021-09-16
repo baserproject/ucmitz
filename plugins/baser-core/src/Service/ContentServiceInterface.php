@@ -15,6 +15,7 @@ use BaserCore\Model\Entity\Content;
 use Cake\Http\ServerRequest;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\Query;
+use Nette\Utils\DateTime;
 
 /**
  * Interface ContentServiceInterface
@@ -28,6 +29,21 @@ interface ContentServiceInterface
      * @return EntityInterface
      */
     public function get($id): EntityInterface;
+
+    /**
+     * ゴミ箱のコンテンツを取得する
+     * @param int $id
+     * @return EntityInterface|array|null
+     */
+    public function getTrash($id);
+
+    /**
+     * コンテンツの子要素を取得する
+     *
+     * @param  int $id
+     * @return Query|null
+     */
+    public function getChildren($id);
 
     /**
      * 空のQueryを返す
@@ -50,7 +66,7 @@ interface ContentServiceInterface
      * @param string $type
      * @return Query
      */
-    public function getIndex(array $queryParams, ?string $type="all"): Query;
+    public function getIndex(array $queryParams=[], ?string $type="all"): Query;
 
     /**
      * getTableConditions
@@ -70,10 +86,11 @@ interface ContentServiceInterface
 
     /**
      * getTrashIndex
-     * @param  array $queryParams
+     * @param array $queryParams
+     * @param string $type
      * @return Query
      */
-    public function getTrashIndex(array $queryParams): Query;
+    public function getTrashIndex(array $queryParams=[], string $type="all"): Query;
 
     /**
      * コンテンツフォルダーのリストを取得
@@ -100,8 +117,74 @@ interface ContentServiceInterface
     public function create(array $postData);
 
     /**
+     * コンテンツ情報を論理削除する
+     * @param int $id
+     * @return bool
+     *
+     */
+    public function delete($id);
+
+    /**
+     * コンテンツ情報を削除する
+     * @param int $id
+     * @return bool
+     */
+    public function hardDelete($id);
+
+    /**
+     * 該当するコンテンツ情報をすべて論理削除する
+     *
+     * @param  array $conditions
+     * @return int
+     */
+    public function deleteAll(array $conditions): int;
+
+    /**
+     * 指定日時以前の該当する論理削除されたコンテンツ情報をすべて削除する
+     *
+     * @param  Datetime $dateTime
+     * @return int
+     */
+    public function hardDeleteAll(Datetime $dateTime): int;
+
+    /**
+     * コンテンツを削除する（論理削除）
+     *
+     * ※ エイリアスの場合は直接削除
+     * @param int $id
+     * @return bool
+     */
+    public function treeDelete($id): bool;
+
+    /**
+     * 論理削除されたコンテンツを復元する
+     *
+     * @param  int $id
+     * @return EntityInterface|array|null $trash
+     */
+    public function restore($id);
+
+    /**
+     * ゴミ箱内のコンテンツをすべて元に戻す
+     *
+     * @param  array $queryParams
+     * @return int $count
+     */
+    public function restoreAll(array $queryParams = []): int;
+
+    /**
       * コンテンツ情報を取得する
       * @return array
       */
     public function getContensInfo();
+
+    /**
+     * 再帰的に削除
+     *
+     * エイリアスの場合
+     *
+     * @param int $id
+     * @return bool $result
+     */
+    public function deleteRecursive($id): bool;
 }

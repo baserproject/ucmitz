@@ -70,7 +70,40 @@ class ContentServiceTest extends BcTestCase
     {
         $result = $this->ContentService->get(1);
         $this->assertEquals("baserCMSサンプル", $result->title);
+    }
 
+    /**
+     * testGetTrash
+     *
+     * @return void
+     */
+    public function testGetTrash(): void
+    {
+        $result = $this->ContentService->getTrash(15);
+        $this->assertEquals("BcContentsテスト(deleted)", $result->title);
+    }
+
+    /**
+     * testGetChildren
+     *
+     * @return void
+     */
+    public function testGetChildren(): void
+    {
+        $this->assertNull($this->ContentService->getChildren(4));
+        $this->assertEquals(3, $this->ContentService->getChildren(6)->count());
+    }
+
+    /**
+     * testGetEmptyIndex
+     *
+     * @return void
+     */
+    public function testGetEmptyIndex(): void
+    {
+        $result = $this->ContentService->getEmptyIndex();
+        $this->assertTrue($result->isEmpty());
+        $this->assertInstanceOf('Cake\ORM\Query', $result);
     }
     /**
      * testGetTreeIndex
@@ -91,7 +124,6 @@ class ContentServiceTest extends BcTestCase
      */
     public function testGetTableConditions()
     {
-
         $request = $this->getRequest()->withQueryParams([
             'site_id' => 1,
             'open' => '1',
@@ -107,6 +139,7 @@ class ContentServiceTest extends BcTestCase
             'name LIKE' => '%テスト%',
             'title LIKE' => '%テスト%',
             ],
+            'name' => 'テスト',
             'rght <' => (int) 15,
             'lft >' => (int) 8,
             'self_status' => '1',
@@ -132,6 +165,10 @@ class ContentServiceTest extends BcTestCase
             [[
                 'site_id' => 1,
             ], 10],
+            [[
+                'site_id' => 1,
+                'withTrash' => true,
+            ], 12],
             [[
                 'site_id' => 1,
                 'open' => '1',
@@ -170,10 +207,18 @@ class ContentServiceTest extends BcTestCase
         $request = $this->getRequest('/?num=1');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
         $this->assertEquals(1, $contents->all()->count());
-
+        // softDeleteの場合
         $request = $this->getRequest('/?status=1');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
         $this->assertEquals(10, $contents->all()->count());
+        // ゴミ箱を含むの場合
+        $request = $this->getRequest('/?status=1&withTrash=true');
+        $contents = $this->ContentService->getIndex($request->getQueryParams());
+        $this->assertEquals(12, $contents->all()->count());
+        // 否定の場合
+        $request = $this->getRequest('/?status=1&type!=Page');
+        $contents = $this->ContentService->getIndex($request->getQueryParams());
+        $this->assertEquals(4, $contents->all()->count());
     }
     /**
      * testGetTrashIndex
@@ -182,9 +227,13 @@ class ContentServiceTest extends BcTestCase
      */
     public function testGetTrashIndex(): void
     {
+        // type: all
+        $result = $this->ContentService->getTrashIndex();
+        $this->assertNotNull($result->first()->deleted_date);
+        // type: threaded
         $request = $this->getRequest('/');
-        $result = $this->ContentService->getTrashIndex($request->getQueryParams());
-        $this->assertTrue($result->first()->deleted);
+        $result = $this->ContentService->getTrashIndex($request->getQueryParams(), 'threaded');
+        $this->assertNotNull($result->first()->deleted_date);
     }
 
     /**
@@ -225,6 +274,80 @@ class ContentServiceTest extends BcTestCase
     }
 
     /**
+     * testDelete
+     *
+     * @return void
+     */
+    public function testDelete(): void
+    {
+        $this->assertTrue($this->ContentService->delete(14));
+        $contents = $this->ContentService->getTrash(14);
+        $this->assertNotNull($contents->deleted_date);
+    }
+
+    /**
+     * testDelete
+     *
+     * @return void
+     */
+    public function testHardDelete(): void
+    {
+        $this->assertTrue($this->ContentService->hardDelete(15, true));
+    }
+
+    /**
+     * testDeleteAll
+     *
+     * @return void
+     */
+    public function testDeleteAll(): void
+    {
+        $this->assertEquals(11, $this->ContentService->deleteAll());
+        $contents = $this->ContentService->getIndex();
+        $this->assertEquals(0, $contents->all()->count());
+    }
+
+    /**
+     * testTreeDelete
+     *
+     * @return void
+     */
+    public function testTreeDelete()
+    {
+        // エンティティが存在しない場合
+        $this->assertFalse($this->ContentService->treeDelete(0));
+        // エイリアス出ない場合
+        $this->assertTrue($this->ContentService->treeDelete(6));
+        $query = $this->ContentService->getTrashIndex(['name' => 'service']);
+        $this->assertEquals(4, $query->count());
+        // エイリアスがある場合
+        // TODO: $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // $result = $this->ContentService->treeDelete(14);
+    }
+
+    /**
+     * testRestore
+     *
+     * @return void
+     */
+    public function testRestore()
+    {
+        $this->assertNotEmpty($this->ContentService->restore(16));
+        $this->assertNotEmpty($this->ContentService->get(16));
+    }
+
+    /**
+     * testRestoreAll
+     *
+     * @return void
+     */
+    public function testRestoreAll()
+    {
+        $this->assertEquals(2, $this->ContentService->restoreAll(['type' => "ContentFolder"]));
+        $this->assertTrue($this->ContentService->getTrashIndex(['type' => "ContentFolder"])->isEmpty());
+    }
+
+    /**
      * testGetContentsInfo
      *
      * @return void
@@ -236,5 +359,32 @@ class ContentServiceTest extends BcTestCase
         $this->assertTrue(isset($result[0]['published']));
         $this->assertTrue(isset($result[0]['total']));
         $this->assertTrue(isset($result[0]['display_name']));
+    }
+
+    /**
+     * ツリー構造より論理削除する
+     */
+    public function testSoftDeleteFromTree()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // $result = $this->ContentService->softDeleteFromTree(1);
+    }
+
+    /**
+     * 再帰的に削除
+     *
+     * エイリアスの場合
+     */
+    public function testDeleteRecursive()
+    {
+        // 子要素がない場合
+        $this->assertTrue($this->ContentService->deleteRecursive(4));
+        $this->assertNotEmpty($this->ContentService->getTrash(4));
+        // 子要素がある場合
+        $children = $this->ContentService->getChildren(6);
+        $this->assertTrue($this->ContentService->deleteRecursive(6));
+        foreach ($children as $child) {
+            $this->assertNotEmpty($this->ContentService->getTrash($child->id));
+        }
     }
 }

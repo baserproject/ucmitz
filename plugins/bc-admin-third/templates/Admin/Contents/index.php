@@ -58,7 +58,7 @@ $this->BcBaser->i18nScript([
   'bcTreeConfirmToTrash' => __d('baser', 'コンテンツをゴミ箱に移動してもよろしいですか？'),
   'bcTreeConfirmDeleteAlias' => __d('baser', "エイリアスを削除してもよろしいですか？\nエイリアスはゴミ箱に入らず完全に削除されます。"),
   'bcTreeAlertMessage1' => __d('baser', 'エイリアスの元コンテンツを先に戻してください。'),
-  'bcTreeAlertMessage2' => __d('baser', 'ゴミ箱の空にする事に失敗しました。'),
+  'bcTreeAlertMessage2' => __d('baser', 'ゴミ箱を空にする事に失敗しました。'),
   'bcTreeAlertMessage3' => __d('baser', 'ゴミ箱から戻す事に失敗しました。'),
   'bcTreeAlertMessage4' => __d('baser', 'ゴミ箱に移動しようとして失敗しました。'),
   'bcTreeAlertMessage5' => __d('baser', '名称変更に失敗しました。'),
@@ -86,7 +86,7 @@ $this->BcBaser->js([
   'admin/libs/baser_ajax_batch_config'
 ]);
 $this->BcBaser->js(['admin/libs/jquery.bcTree', 'admin/vendors/jquery.jstree-3.3.8/jstree.min'], false);
-echo $this->BcAdminForm->control('BcManageContent', ['type' => 'hidden', 'value' => $this->BcContents->getJsonSettings()]);
+echo $this->BcAdminForm->control('BcManageContent', ['type' => 'hidden', 'value' => $this->BcContents->getJsonItems()]);
 ?>
 <script type="text/javascript">
 </script>

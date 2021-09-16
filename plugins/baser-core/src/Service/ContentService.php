@@ -11,17 +11,26 @@
 
 namespace BaserCore\Service;
 
+use Exception;
 use Cake\ORM\Query;
+use Nette\Utils\DateTime;
 use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Model\Entity\Content;
 use Cake\Datasource\EntityInterface;
 use BaserCore\Model\Table\SitesTable;
 use Cake\Datasource\ConnectionManager;
-use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Model\Table\ContentsTable;
+use Cake\Datasource\Exception\RecordNotFoundException;
 
+/**
+ * Class ContentService
+ * @package BaserCore\Service
+ * @property ContentsTable $Contents
+ */
 class ContentService implements ContentServiceInterface
 {
 
@@ -56,20 +65,51 @@ class ContentService implements ContentServiceInterface
      * @param int $id
      * @return EntityInterface
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function get($id): EntityInterface
     {
-        // TODO: Sitesが含まれてない
         return $this->Contents->get($id, [
             'contain' => ['Sites'],
         ]);
     }
 
     /**
-     * 空のQueryを返す
+     * ゴミ箱のコンテンツを取得する
+     * @param int $id
+     * @return EntityInterface|array|null
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getTrash($id)
+    {
+        return $this->getTrashIndex()->where(['Contents.id' => $id])->first();
+    }
+
+    /**
+     * コンテンツの子要素を取得する
      *
+     * @param  int $id
+     * @return Query|null
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getChildren($id)
+    {
+        $query = $this->Contents->find('children', ['for' => $id]);
+        return $query->isEmpty() ? null : $query;
+    }
+
+    /**
+     * 空のQueryを返す
+
      * @return Query
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getEmptyIndex(): Query
     {
@@ -94,7 +134,7 @@ class ContentService implements ContentServiceInterface
 //                ['Contents.site_id' => 1]
 //            ]];
 //        }
-        return $this->getIndex($queryParams, 'threaded')->order(['lft'])->contain(['Sites']);
+        return $this->getIndex($queryParams, 'threaded')->order(['lft']);
     }
 
     /**
@@ -108,17 +148,25 @@ class ContentService implements ContentServiceInterface
      */
     public function getTableConditions(array $queryParams): array
     {
-
+        $options = [];
         $conditions['site_id'] = $queryParams['site_id'];
+
+        if (!empty($queryParams['withTrash'])) {
+            $conditions['withTrash'] = $queryParams['withTrash'];
+            if ($conditions['withTrash']) {
+                $options = array_merge($options, ['withDeleted']);
+            }
+        }
 
         if ($queryParams['name']) {
             $conditions['OR'] = [
                 'name LIKE' => '%' . $queryParams['name'] . '%',
                 'title LIKE' => '%' . $queryParams['name'] . '%'
             ];
+            $conditions['name'] = $queryParams['name'];
         }
         if ($queryParams['folder_id']) {
-            $Contents = $this->Contents->find('all')->select(['lft', 'rght'])->where(['id' => $queryParams['folder_id']]);
+            $Contents = $this->Contents->find('all', $options)->select(['lft', 'rght'])->where(['id' => $queryParams['folder_id']]);
             $conditions['rght <'] = $Contents->first()->rght;
             $conditions['lft >'] = $Contents->first()->lft;
         }
@@ -144,26 +192,35 @@ class ContentService implements ContentServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function getIndex(array $queryParams, ?string $type="all"): Query
+    public function getIndex(array $queryParams=[], ?string $type="all"): Query
     {
         $options = [];
-
         $columns = ConnectionManager::get('default')->getSchemaCollection()->describe('contents')->columns();
-        $allowed = array_merge($columns, ['OR', 'NOT']);
 
-        $query = $this->Contents->find($type, $options);
+        if (!empty($queryParams['withTrash'])) {
+            if ($queryParams['withTrash']) {
+                $options = array_merge($options, ['withDeleted']);
+            }
+        }
+        $query = $this->Contents->find($type, $options)->contain(['Sites']);
 
         if (!empty($queryParams['name'])) {
-            $query = $query->where(['name LIKE' => '%' . $queryParams['name'] . '%']);
+            $query = $query->where(['OR' => [
+                'Contents.name LIKE' => '%' . $queryParams['name'] . '%',
+                'Contents.title LIKE' => '%' . $queryParams['name'] . '%'
+            ]]);
+            unset($queryParams['name']);
         }
 
         if (!empty($queryParams['title'])) {
-            $query = $query->where(['title LIKE' => '%' . $queryParams['name'] . '%']);
+            $query = $query->andWhere(['Contents.title LIKE' => '%' . $queryParams['title'] . '%']);
         }
 
         foreach($queryParams as $key => $value) {
-            if (in_array($key, $allowed)) {
-                $query = $query->where([$key => $value]);
+            if (in_array($key, $columns)) {
+                $query = $query->andWhere(['Contents.' . $key => $value]);
+            } elseif ($key[-1] === '!' && in_array($key = mb_substr($key, 0, -1), $columns)) {
+                $query = $query->andWhere(['Contents.' . $key . " IS NOT " => $value]);
             }
         }
 
@@ -203,16 +260,17 @@ class ContentService implements ContentServiceInterface
 
     /**
      * getTrashIndex
-     * @param  array $queryParams
+     * @param array $queryParams
+     * @param string $type
      * @return Query
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function getTrashIndex(array $queryParams): Query
+    public function getTrashIndex(array $queryParams=[], string $type="all"): Query
     {
-        $queryParams = array_merge($queryParams, ['deleted' => true]);
-        return $this->getIndex($queryParams, 'threaded')->order(['site_id', 'lft']);
+        $queryParams = array_merge($queryParams, ['withTrash' => true]);
+        return $this->getIndex($queryParams, $type)->where(['deleted_date IS NOT NULL']);
     }
 
     /**
@@ -223,7 +281,7 @@ class ContentService implements ContentServiceInterface
      * @param array $options
      * @return array|bool
      * @checked
-     * @noTodo
+
      * @unitTest
      */
     public function getContentFolderList($siteId = null, $options = [])
@@ -293,6 +351,130 @@ class ContentService implements ContentServiceInterface
     }
 
     /**
+     * コンテンツ情報を論理削除する
+     * @param int $id
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete($id)
+    {
+        $content = $this->get($id);
+        return $this->Contents->delete($content);
+    }
+
+    /**
+     * コンテンツ情報を削除する
+     * @param int $id
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function hardDelete($id)
+    {
+        $content = $this->getTrash($id);
+        if ($content->deleted_date) {
+            return $this->Contents->hardDelete($content);
+        }
+        return false;
+    }
+
+
+    /**
+     * 該当するコンテンツ情報をすべて論理削除する
+     *
+     * @param  array $conditions
+     * @return int
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function deleteAll(array $conditions=[]): int
+    {
+        $conditions = array_merge(['deleted_date IS NULL'], $conditions);
+        return $this->Contents->deleteAll($conditions);
+    }
+
+    /**
+     * 指定日時以前の該当する論理削除されたコンテンツ情報をすべて削除する
+     *
+     * @param  Datetime $dateTime
+     * @return int
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function hardDeleteAll(Datetime $dateTime): int
+    {
+        return $this->Contents->hardDeleteAll($dateTime);
+    }
+
+    /**
+     * コンテンツを削除する（論理削除）
+     *
+     * ※ エイリアスの場合は直接削除
+     * @param int $id
+     * @return bool
+     * @checked
+     * @unitTest
+     */
+    public function treeDelete($id): bool
+    {
+        try {
+            $content = $this->get($id);
+        } catch (RecordNotFoundException $e) {
+            return false;
+        }
+
+        if ($content->alias_id) {
+            $result = $this->Contents->removeFromTree($content);
+        } else {
+            // $result = $this->Contents->softDeleteFromTree($id); TODO: キャッシュ系が有効化されてからsoftDeleteFromTreeを使用する
+            $result = $this->deleteRecursive($id); // 一時措置
+        }
+
+        return $result;
+    }
+
+    /**
+     * 論理削除されたコンテンツを復元する
+     *
+     * @param  int $id
+     * @return EntityInterface|array|null $trash
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function restore($id)
+    {
+        $trash = $this->getTrash($id);
+        return $this->Contents->restore($trash) ? $trash : null;
+    }
+
+    /**
+     * ゴミ箱内のコンテンツをすべて元に戻す
+     *
+     * @param  array $queryParams
+     * @return int $count
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function restoreAll(array $queryParams = []): int
+    {
+        $count = 0;
+        $trash = $this->getTrashIndex($queryParams);
+        foreach ($trash as $entity) {
+            if ($this->Contents->restore($entity)) {
+                $count++;
+            }
+        }
+        return $count;
+    }
+
+    /**
       * コンテンツ情報を取得する
       * @return array
       */
@@ -311,6 +493,81 @@ class ContentService implements ContentServiceInterface
             $contentsInfo[$key]['display_name'] = $site->display_name;
         }
         return $contentsInfo;
+    }
+
+    /**
+     * ツリー構造より論理削除する
+     * TODO: キャッシュビヘイビアー実装後復活させる
+     * @param $id
+     * @return bool
+     */
+    // public function softDeleteFromTree($id)
+    // {
+    //     // TODO:　キャッシュ系をオフにする
+    //     // $this->softDelete(true);
+    //     // $this->Behaviors->unload('BcCache');
+    //     // $this->Behaviors->unload('BcUpload');
+    //     $result = $this->deleteRecursive($id);
+    //     // $this->Behaviors->load('BcCache');
+    //     // $this->Behaviors->load('BcUpload');
+    //     // $this->delAssockCache();
+    //     return $result;
+    // }
+
+    /**
+     * 再帰的に削除
+     *
+     * エイリアスの場合
+     *
+     * @param int $id
+     * @return bool $result
+     * @checked
+     * @unitTest
+     */
+    public function deleteRecursive($id): bool
+    {
+        if (!$id) {
+            return false;
+        }
+        $result = true;
+        if ($children = $this->getChildren($id)) {
+            foreach($children as $child) {
+                if (!$this->deleteRecursive($child->id)) {
+                    $result = false;
+                }
+            }
+        }
+        if ($result) {
+            $content = $this->get($id);
+            if (empty($content->alias_id)) {
+                // エイリアス以外の場合
+                // 一旦階層構造から除外しリセットしてゴミ箱に移動（論理削除）
+                $content->parent_id = null;
+                $content->url = '';
+                $content->status = false;
+                $content->self_status = false;
+                unset($content->lft);
+                unset($content->rght);
+                // TODO: $this->updatingSystemDataのsetter getterを用意する必要あり
+                $this->updatingSystemData = false;
+                // ここでは callbacks を false にすると lft rght が更新されないので callbacks は true に設定する（default: true）
+                // $this->clear(); // TODO: これは何か再確認する humuhimi
+                $this->Contents->save($content, ['validate' => false]); // 論理削除用のvalidationを用意するべき
+                $this->updatingSystemData = true;
+                $result = $this->Contents->delete($content);
+                // =====================================================================
+                // 通常の削除の際、afterDelete で、関連コンテンツのキャッシュを削除しているが、
+                // 論理削除の場合、afterDelete が呼ばれない為、ここで削除する
+                // =====================================================================
+                $this->Contents->deleteAssocCache($content);
+                return $result;
+            } else {
+                // エイリアスの場合、直接削除
+                $result = $this->Contents->removeFromTree($content);
+                return $result;
+            }
+        }
+        return false;
     }
 }
 
