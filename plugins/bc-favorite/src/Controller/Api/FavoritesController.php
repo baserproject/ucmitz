@@ -130,4 +130,22 @@ class FavoritesController extends BcApiController
         $this->viewBuilder()->setOption('serialize', ['favorite', 'message']);
     }
 
+    /**
+     * [ADMIN] 並び替えを更新する
+     *
+     * @return void
+     */
+    public function update_sort()
+    {
+        $user = $this->BcAuth->user();
+        if ($this->request->data) {
+            if ($this->Favorite->changeSort($this->request->getData('Sort.id'), $this->request->getData('Sort.offset'), ['Favorite.user_id' => $user['id']])) {
+                clearDataCache();
+                exit(true);
+            }
+        }
+        $this->ajaxError(400, __d('baser', '無効な処理です。'));
+        exit();
+    }
+
 }

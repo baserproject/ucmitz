@@ -19,8 +19,10 @@ use BaserCore\View\AppView;
 
 
 <div id="SideBar" class="bca-nav">
+
+  <?php $this->dispatchLayerEvent('beforeAdminMenu') ?>
+
   <?php // TODO : 要実装 ?>
-  <?php // $this->BcBaser->element('favorite_menu') ?>
   <?php // $this->BcBaser->element('permission') ?>
 
   <nav class="bca-nav__main" data-js-tmpl="AdminMenu" hidden>

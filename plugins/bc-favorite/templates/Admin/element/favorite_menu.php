@@ -13,6 +13,8 @@
 /**
  * [ADMIN] よく使う項目
  */
+echo '<ul><li>テスト</li></ul>';
+return;
 ?>
 
 

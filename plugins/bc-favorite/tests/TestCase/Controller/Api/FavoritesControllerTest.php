@@ -118,7 +118,7 @@ class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
             'url' => '/baser/admin/contents/index',
         ];
         $this->post('/baser/api/bc-favorite/favorites/add.json?token=' . $this->accessToken, $data);
-        $this->assertResponseSuccess();
+        $this->assertResponseOk();
         $favorites = $this->getTableLocator()->get('Favorites');
         $query = $favorites->find()->where(['name' => $data['name']]);
         $this->assertEquals(1, $query->count());
