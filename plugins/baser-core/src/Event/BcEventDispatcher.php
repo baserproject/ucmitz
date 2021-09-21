@@ -56,10 +56,9 @@ class BcEventDispatcher
             if ($options['plugin']) {
                 $eventName .= '.' . $options['plugin'];
             }
-            // TODO 仕様検討要
-//            if ($options['class']) {
-//                $eventName .= '.' . $options['class'];
-//            }
+            if ($options['class']) {
+                $eventName .= '.' . $options['class'];
+            }
             $eventName .= '.' . $name;
         }
 

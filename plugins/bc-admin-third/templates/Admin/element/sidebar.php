@@ -20,6 +20,7 @@ use BaserCore\View\AppView;
 
 <div id="SideBar" class="bca-nav">
 
+  <?php $this->dispatchLayerEvent('beforeAdminMenu', [], ['class' => '', 'plugin' => '']) ?>
   <?php $this->dispatchLayerEvent('beforeAdminMenu') ?>
 
   <?php // TODO : 要実装 ?>

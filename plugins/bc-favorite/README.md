@@ -24,7 +24,8 @@ composer require baserproject/bc-favorite
   - [ ] 編集
   - [ ] 削除
   - [ ] 並び替え
-- BcEventDispatcher::dispatch() の class の指定の仕様検討
+- [x] BcEventDispatcher::dispatch() の class の指定の仕様検討
+  - dispatchメソッドの呼び出し側で class を指定しないように設定可能だった
 
 ## baserCMS4のイベント仕様
 
