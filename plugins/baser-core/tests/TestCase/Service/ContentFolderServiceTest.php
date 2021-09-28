@@ -42,6 +42,7 @@ class ContentFolderServiceTest extends BcTestCase
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.ContentFolders',
         'plugin.BaserCore.Users',
+        'plugin.BaserCore.Sites',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
     ];
@@ -112,7 +113,7 @@ class ContentFolderServiceTest extends BcTestCase
                 "site_id" => "0",
                 "alias_id" => "",
                 "entity_id" => "",
-            ]
+            ],
         ];
         $result = $this->ContentFolderService->create($data);
         $folderExpected = $this->ContentFolderService->ContentFolders->find()->last();
@@ -130,5 +131,9 @@ class ContentFolderServiceTest extends BcTestCase
     {
         $content = $this->Contents->find()->where(['type' => 'ContentFolder', 'entity_id' => 10])->first();
         $this->assertTrue($this->ContentFolderService->delete($content->entity_id));
+        $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
+        $this->ContentFolderService->get($content->entity_id);
+        $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
+        $this->Contents->get($content->id);
     }
 }
