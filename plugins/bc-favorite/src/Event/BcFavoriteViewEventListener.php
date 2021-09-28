@@ -23,12 +23,12 @@ class BcFavoriteViewEventListener extends \BaserCore\Event\BcViewEventListener
      * Event
      * @var string[]
      */
-    public $events = ['BaserCore.beforeAdminMenu'];
+    public $events = ['beforeAdminMenu'];
 
     /**
      * 管理画面メニュー上部
      */
-    public function baserCoreBeforeAdminMenu(Event $event) {
+    public function beforeAdminMenu(Event $event) {
         /* @var \BaserCore\View\BcAdminAppView $viewClass */
         $viewClass = $event->getSubject();
         echo $viewClass->element('BcFavorite.favorite_menu');
