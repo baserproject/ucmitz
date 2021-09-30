@@ -90,7 +90,7 @@ class SiteTest extends BcTestCase
             'domain_type' => null,
             'alias' => 'sub'
         ]);
-        $this->assertEquals('sub.localhost', $site->host);
+        $this->assertEquals('sub.localhost', $site->host); // hostはどういう意図?
         $site = new Site([
             'use_subdomain' => true,
             'domain_type' => 2,

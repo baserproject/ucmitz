@@ -110,7 +110,7 @@ class SiteConfigServiceTest extends \BaserCore\TestSuite\BcTestCase
             ->putenv(true)
             ->toEnv(true)
             ->toServer(true);
-        $this->assertTrue(filter_var(env('INSTALL_MODE'), FILTER_VALIDATE_BOOLEAN));
+        $this->assertTrue(filter_var(env('INSTALL_MODE'), FILTER_VALIDATE_BOOLEAN)); // FIXME: エラーが出る。
         $this->SiteConfigs->putEnv('BASERCMS', 'BASERCMS');
         $dotenv->parse()
             ->putenv(true)
