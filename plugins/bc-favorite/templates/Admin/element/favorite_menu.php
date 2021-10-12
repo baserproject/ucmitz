@@ -13,6 +13,8 @@
 /**
  * [ADMIN] よく使う項目
  */
+$this->BcBaser->js('BcFavorite.admin/favorites/main.bundle', true);
 ?>
-
-<nav id="FavoriteMenu" class="bca-nav-favorite"></nav>
+<nav id="FavoriteMenu" class="bca-nav-favorite">
+    <favorite-index />
+</nav>

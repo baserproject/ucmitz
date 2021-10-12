@@ -8,12 +8,13 @@
  * @license       http://basercms.net/license/index.html MIT License
  */
 
-import Vue from 'vue'
+// import Vue from 'vue'
+import Vue from 'vue/dist/vue.js'
 import FavoriteIndex from './index.vue'
 
 $(function () {
 	new Vue({
-		el : '#FavoriteMenu' ,
+		el : '#FavoriteMenu',
 		components: {
 			FavoriteIndex
 		},
