@@ -94,11 +94,7 @@ class UserService implements UserServiceInterface
      */
     public function getIndex(array $queryParams): Query
     {
-        $options = [];
-        if (!empty($queryParams['num'])) {
-            $options = ['limit' => $queryParams['num']];
-        }
-        $query = $this->Users->find('all', $options)->contain('UserGroups');
+        $query = $this->Users->find('all')->contain('UserGroups');
         if (!empty($queryParams['user_group_id'])) {
             $query->matching('UserGroups', function($q) use ($queryParams) {
                 return $q->where(['UserGroups.id' => $queryParams['user_group_id']]);
