@@ -137,7 +137,7 @@ class UserService implements UserServiceInterface
     public function update(EntityInterface $target, array $postData)
     {
         $user = $this->Users->patchEntity($target, $postData);
-        return ($result = $this->Users->save($target))? $result : $user;
+        return $this->Users->saveOrFail($user);
     }
 
     /**
