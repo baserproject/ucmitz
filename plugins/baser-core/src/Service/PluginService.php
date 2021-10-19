@@ -212,7 +212,6 @@ class PluginService implements PluginServiceInterface
     public function changePriority(int $id, int $offset, array $conditions = []): bool
     {
         $result = $this->Plugins->changePriority($id, $offset, $conditions);
-        BcUtil::clearAllCache();
         return $result;
     }
 

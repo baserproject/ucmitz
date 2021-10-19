@@ -13,7 +13,9 @@
 namespace BaserCore\Service;
 
 use Cake\ORM\Query;
+use Cake\Utility\Hash;
 use Cake\ORM\TableRegistry;
+use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
@@ -61,9 +63,22 @@ class ContentFolderService implements ContentFolderServiceInterface
      */
     public function get($id): EntityInterface
     {
-        $contentFolder = $this->ContentFolders->get($id, ['contain' => ['Contents']]);
-        $contentFolder->content = $contentFolder->content ?? $this->Contents->find('all', ['withDeleted'])->where(['entity_id' => $id])->first();
-        return $contentFolder;
+        return $this->ContentFolders->get($id, ['contain' => ['Contents' => ['Sites']]]);
+    }
+
+    /**
+     * コンテンツフォルダーをゴミ箱から取得する
+     * @param int $id
+     * @return EntityInterface|array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getTrash($id)
+    {
+        return $this->ContentFolders->findById($id)->contain('Contents', function (Query $q) {
+            return $q->applyOptions(['withDeleted'])->contain(['Sites'])->where(['Contents.deleted_date IS NOT NULL']);
+        })->firstOrFail();
     }
 
     /**
@@ -93,15 +108,16 @@ class ContentFolderService implements ContentFolderServiceInterface
     /**
      * コンテンツフォルダー登録
      * @param array $data
+     * @param array $options
      * @return \Cake\Datasource\EntityInterface
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function create(array $postData)
+    public function create(array $postData, $options=[])
     {
         $contentFolder = $this->ContentFolders->newEmptyEntity();
-        $contentFolder = $this->ContentFolders->patchEntity($contentFolder, $postData);
+        $contentFolder = $this->ContentFolders->patchEntity($contentFolder, $postData, $options);
         return ($result = $this->ContentFolders->save($contentFolder)) ? $result : $contentFolder;
     }
 
@@ -115,13 +131,95 @@ class ContentFolderService implements ContentFolderServiceInterface
     public function delete($id)
     {
         $ContentFolder = $this->get($id);
-        // TODO: bccontentsBehaviorのafterDeleteでの削除に移行する
-        try {
-            $contentService = $this->getService(ContentServiceInterface::class);
-            $result =  $this->ContentFolders->delete($ContentFolder);
-        } catch (\Exception $e) {
-            $result = false;
+        return $this->ContentFolders->delete($ContentFolder);
+    }
+
+    /**
+     * コンテンツフォルダー情報を更新する
+     * @param EntityInterface $target
+     * @param array $contentFolderData
+     * @param array $options
+     * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function update(EntityInterface $target, array $contentFolderData, $options = [])
+    {
+        $options = array_merge(['associated' => ['Contents' => ['validate' => 'default']]], $options);
+        $contentFolder = $this->ContentFolders->patchEntity($target, $contentFolderData, $options);
+        return ($result = $this->ContentFolders->save($contentFolder))? $result : $contentFolder;
+    }
+
+    /**
+     * フォルダのテンプレートリストを取得する
+     *
+     * @param $contentId
+     * @param $theme
+     * @return array
+     */
+    public function getFolderTemplateList($contentId, $theme)
+    {
+        if (!is_array($theme)) {
+            $theme = [$theme];
         }
-        return $result;
+        $folderTemplates = [];
+        foreach($theme as $value) {
+            $folderTemplates = array_merge($folderTemplates, BcUtil::getTemplateList('ContentFolders', '', $value));
+        }
+        if ($contentId != 1) {
+            $parentTemplate = $this->getParentTemplate($contentId, 'folder');
+            $searchKey = array_search($parentTemplate, $folderTemplates);
+            if ($searchKey !== false) {
+                unset($folderTemplates[$searchKey]);
+            }
+            $folderTemplates = ['' => sprintf(__d('baser', '親フォルダの設定に従う（%s）'), $parentTemplate)] + $folderTemplates;
+        }
+        return $folderTemplates;
+    }
+
+    /**
+     * 親のテンプレートを取得する
+     *
+     * @param int $id
+     * @param string $type folder|page
+     */
+    public function getParentTemplate($id, $type)
+    {
+        // TODO ucmitz 暫定措置
+        // >>>
+        return 'default';
+        // <<<
+
+        $this->Content->bindModel(
+            ['belongsTo' => [
+                'ContentFolder' => [
+                    'className' => 'ContentFolder',
+                    'foreignKey' => 'entity_id'
+                ]
+            ]
+            ],
+            false
+        );
+        $contents = $this->Content->getPath($id, null, 0);
+        $this->Content->unbindModel(
+            ['belongsTo' => [
+                'ContentFolder'
+            ]
+            ]
+        );
+        $contents = array_reverse($contents);
+        unset($contents[0]);
+        $parentTemplates = Hash::extract($contents, '{n}.ContentFolder.' . $type . '_template');
+        $parentTemplate = '';
+        foreach($parentTemplates as $parentTemplate) {
+            if ($parentTemplate) {
+                break;
+            }
+        }
+        if (!$parentTemplate) {
+            $parentTemplate = 'default';
+        }
+        return $parentTemplate;
     }
 }

@@ -18,6 +18,7 @@ use Cake\Utility\Hash;
 use Cake\Core\Configure;
 use Cake\Database\Query;
 use Cake\Routing\Router;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use BaserCore\Model\AppTable;
@@ -29,6 +30,7 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Model\Entity\Content;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\ConnectionManager;
 use SoftDelete\Model\Table\SoftDeleteTrait;
 
 /**
@@ -50,6 +52,7 @@ class ContentsTable extends AppTable
      */
     public function initialize(array $config): void
     {
+        FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss');
         parent::initialize($config);
          /** TODO: soft deleteはTraitで実装する @see https://github.com/salines/cakephp4-soft-delete */
         $this->addBehavior('Tree', ['level' => 'level']);
@@ -126,6 +129,7 @@ class ContentsTable extends AppTable
             'Model.beforeValidate' => ['callable' => 'beforeValidate', 'passParams' => true],
             'Model.afterValidate' => ['callable' => 'afterValidate'],
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
+            'Model.afterMarshal' => 'afterMarshal',
             // 'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
             'Model.beforeDelete' => ['callable' => 'beforeDelete', 'passParams' => true, 'priority' => 1],
             // 'Model.afterDelete' => ['callable' => 'afterDelete'],
@@ -165,9 +169,7 @@ class ContentsTable extends AppTable
                 'message' => __d('baser', '連携しているサブサイトでスラッグが重複するコンテンツが存在します。重複するコンテンツのスラッグ名を先に変更してください。'),
             ]
         ]);
-
         $validator
-        ->requirePresence('title')
         ->scalar('title')
         ->notEmptyString('title', __d('baser', 'タイトルを入力してください。'))
         ->maxLength('title', 230, __d('baser', 'タイトルは230文字以内で入力してください。'))
@@ -179,20 +181,11 @@ class ContentsTable extends AppTable
                 'message' => __d('baser', 'タイトルはスペース、全角スペース及び、指定の記号(\\\'|`^"(){}[];/?:@&=+$,%<>#!)だけの名前は付けられません。')
             ]
         ]);
-
         $validator
-        ->requirePresence('parent_id', true, __d('baser', 'このフィールドは必須です'));
-
-        $validator
-        ->requirePresence('plugin', true, __d('baser', 'このフィールドは必須です'));
-
-        $validator
-        ->requirePresence('type', true, __d('baser', 'このフィールドは必須です'));
-
-        $validator
+        ->allowEmptyString('eyecatch')
         ->add('eyecatch', [
             'fileCheck' => [
-                'rule' => ['fileCheck', $this->convertSize(ini_get('upload_max_filesize'))],
+                'rule' => ['fileCheck', BcUtil::convertSize(ini_get('upload_max_filesize'))],
                 'provider' => 'bc',
                 'message' => __d('baser', 'ファイルのアップロードに失敗しました。')
             ]
@@ -327,7 +320,7 @@ class ContentsTable extends AppTable
                 $data['content']['self_publish_end'] = null;
             }
             if (!isset($data['content']['created_date'])) {
-                $data['content']['created_date'] = date('Y-m-d H:i:s');
+                $data['content']['created_date'] = FrozenTime::now();
             }
             if (!isset($data['content']['site_root'])) {
                 $data['content']['site_root'] = 0;
@@ -341,7 +334,7 @@ class ContentsTable extends AppTable
             }
         } else {
             if (empty($data['content']['modified_date'])) {
-                $data['content']['modified_date'] = date('Y-m-d H:i:s');
+                $data['content']['modified_date'] = FrozenTime::now();
             }
             if (isset($data['content']['name'])) {
                 $data['content']['name'] = BcUtil::urlencode(mb_substr($data['content']['name'], 0, 230, 'UTF-8'));
@@ -360,6 +353,25 @@ class ContentsTable extends AppTable
                 $contentId = $data['content']['id'];
             }
             $data['content']['name'] = $this->getUniqueName($data['content']['name'], $data['content']['parent_id'], $contentId);
+        }
+    }
+
+    /**
+     * afterMarshal
+     * FrozenTime形式のデータをバリデーション前にstringとして保存
+     * @param  EventInterface $event
+     * @param  EntityInterface $entity
+     * @param  ArrayObject $options
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    {
+        $columns = ConnectionManager::get('default')->getSchemaCollection()->describe($this->getTable())->columns();
+        foreach ($columns as $field) {
+            if ($entity->get($field) instanceof FrozenTime) $entity->set($field, $entity->get($field)->__toString());
         }
     }
 
@@ -813,7 +825,7 @@ class ContentsTable extends AppTable
             $content['exclude_search'] = 0;
         }
         if (!isset($content['created_date'])) {
-            $content['created_date'] = date('Y-m-d H:i:s');
+            $content['created_date'] = FrozenTime::now();
         }
         $content = $this->newEntity($content);
         return $this->save($content);
@@ -1022,59 +1034,6 @@ class ContentsTable extends AppTable
     }
 
     /**
-     * ゴミ箱より元に戻す
-     *
-     * @param $id
-     */
-    public function trashReturn($id)
-    {
-        return $this->trashReturnRecursive($id, true);
-    }
-
-    /**
-     * 再帰的にゴミ箱より元に戻す
-     *
-     * @param $id
-     * @return bool|int
-     */
-    public function trashReturnRecursive($id, $top = false)
-    {
-        $this->softDelete(false);
-        $children = $this->children($id, true);
-        $this->softDelete(true);
-        $result = true;
-        if ($children) {
-            foreach($children as $child) {
-                if (!$this->trashReturnRecursive($child['Content']['id'])) {
-                    $result = false;
-                }
-            }
-        }
-        $this->Behaviors->unload('Tree');
-        $this->updatingRelated = false;
-        if ($result && $this->undelete($id)) {
-            $this->Behaviors->load('Tree');
-            $this->updatingRelated = true;
-            $content = $this->find('first', ['conditions' => ['Content.id' => $id], 'recursive' => -1]);
-            if ($top) {
-                $siteRootId = $this->field('id', ['Content.site_id' => $content['Content']['site_id'], 'site_root' => true]);
-                $content['Content']['parent_id'] = $siteRootId;
-            }
-            unset($content['Content']['lft']);
-            unset($content['Content']['rght']);
-            if ($this->save($content, true)) {
-                return $content['Content']['site_id'];
-            } else {
-                $result = false;
-            }
-        } else {
-            $this->Behaviors->load('Tree');
-            $result = false;
-        }
-        return $result;
-    }
-
-    /**
      * タイプよりコンテンツを削除する
      *
      * @param string $type 例）Blog.BlogContent
@@ -1101,103 +1060,6 @@ class ContentsTable extends AppTable
         $result = $this->removeFromTree($id, true);
         $this->softDelete($softDelete);
         return $result;
-    }
-
-    /**
-     * コンテンツIDよりURLを取得する
-     *
-     * @param int $id
-     * @return string URL
-     * @checked
-     * @unitTest
-     * @noTodo
-     */
-    public function getUrlById($id, $full = false)
-    {
-        if (!is_numeric($id)) return '';
-        $data = $this->findById($id)->contain(['Sites'])->first();
-        // TODO: containが動かないため一旦false
-        return $data ? $this->getUrl($data->url, $full, false) : "";
-        // return $data ? $this->getUrl($data->url, $full, $data->site->use_subdomain) : "";
-    }
-
-    /**
-     * コンテンツ管理上のURLを元に正式なURLを取得する
-     *
-     * ドメインからのフルパスでない場合、デフォルトでは、
-     * サブフォルダ設置時等の baseUrl（サブフォルダまでのパス）は含まない
-     *
-     * @param string $url コンテンツ管理上のURL
-     * @param bool $full http からのフルのURLかどうか
-     * @param bool $useSubDomain サブドメインを利用しているかどうか
-     * @param bool $base $full が false の場合、ベースとなるURLを含めるかどうか
-     * @return string URL
-     */
-    public function getUrl($url, $full = false, $useSubDomain = false, $base = false)
-    {
-        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
-        if ($useSubDomain && !is_array($url)) {
-            $subDomain = '';
-            $site = $this->Sites->findByUrl($url);
-            $originUrl = $url;
-            if ($site) {
-                $subDomain = $site->alias;
-                $originUrl = preg_replace('/^\/' . preg_quote($site->alias, '/') . '\//', '/', $url);
-            }
-            if ($full) {
-                if ($site) {
-                    $fullUrl = topLevelUrl(false) . $originUrl;
-                    if ($site->domain_type == 1) {
-                        $mainDomain = BcUtil::getMainDomain();
-                        $fullUrlArray = explode('//', $fullUrl);
-                        $fullPassArray = explode('/', $fullUrlArray[1]);
-                        unset($fullPassArray[0]);
-                        $url = $fullUrlArray[0] . '//' . $subDomain . '.' . $mainDomain . '/' . implode('/', $fullPassArray);
-                    } elseif ($site->domain_type == 2) {
-                        $fullUrlArray = explode('//', $fullUrl);
-                        $urlArray = explode('/', $fullUrlArray[1]);
-                        unset($urlArray[0]);
-                        if ($site->same_main_url) {
-                            $mainSite = $sites->findById($site->main_site_id)->first();
-                            $subDomain = $mainSite->alias;
-                        }
-                        $url = $fullUrlArray[0] . '//' . $subDomain . '/' . implode('/', $urlArray);
-                    }
-                } else {
-                    $url = preg_replace('/\/$/', '', Configure::read('BcEnv.siteUrl')) . $originUrl;
-                }
-            } else {
-                $url = $originUrl;
-            }
-        } else {
-            if (BC_INSTALLED) {
-                if (!is_array($url)) {
-                    $site = $this->Sites->findByUrl($url);
-                    if ($site && $site->same_main_url) {
-                        $mainSite = $sites->findById($site->main_site_id)->first();
-                        $alias = $mainSite->alias;
-                        if ($alias) {
-                            $alias = '/' . $alias;
-                        }
-                        $url = $alias . $site->getPureUrl($url);
-                    }
-                }
-            }
-            if ($full) {
-                $mainDomain = BcUtil::getMainDomain();
-                $fullUrlArray = explode('//', Configure::read('BcEnv.siteUrl'));
-                $siteDomain = preg_replace('/\/$/', '', $fullUrlArray[1]);
-                if (preg_match('/^www\./', $siteDomain) && str_replace('www.', '', $siteDomain) === $mainDomain) {
-                    $mainDomain = $siteDomain;
-                }
-                $url = $fullUrlArray[0] . '//' . $mainDomain . Router::url($url);
-            }
-        }
-        $url = preg_replace('/\/index$/', '/', $url);
-        if (!$full && $base) {
-            $url = Router::url($url);
-        }
-        return $url;
     }
 
     /**
@@ -1263,46 +1125,6 @@ class ContentsTable extends AppTable
             }
         }
         return $parentId;
-    }
-
-    /**
-     * コピーする
-     *
-     * @param $id
-     * @param $newTitle
-     * @param $newAuthorId
-     * @param $entityId
-     * @return mixed
-     */
-    public function copy($id, $entityId, $newTitle, $newAuthorId, $newSiteId = null)
-    {
-
-        $data = $this->find('first', ['conditions' => ['Content.id' => $id]]);
-        $url = $data['Content']['url'];
-        if (!is_null($newSiteId) && $data['Site']['id'] != $newSiteId) {
-            $data['Content']['site_id'] = $newSiteId;
-            $data['Content']['parent_id'] = $this->copyContentFolderPath($url, $newSiteId);
-        }
-        unset($data['Content']['id']);
-        unset($data['Content']['modified_date']);
-        unset($data['Content']['created']);
-        unset($data['Content']['modified']);
-        unset($data['Content']['main_site_content']);
-        if ($newTitle) {
-            $data['Content']['title'] = $newTitle;
-        } else {
-            $data['Content']['title'] = sprintf(__d('baser', '%s のコピー'), $data['Content']['title']);
-        }
-        $data['Content']['self_publish_begin'] = null;
-        $data['Content']['self_publish_end'] = null;
-        $data['Content']['self_status'] = false;
-        $data['Content']['author_id'] = $newAuthorId;
-        $data['Content']['created_date'] = date('Y-m-d H:i:s');
-        $data['Content']['entity_id'] = $entityId;
-        unset($data['Site']);
-        $this->create($data);
-        return $this->save($data);
-
     }
 
     /**

@@ -81,10 +81,19 @@ class ContentFolderServiceTest extends BcTestCase
         $contentFolder = $this->ContentFolderService->get(1);
         $this->assertEquals('フォルダーテンプレート1', $contentFolder->folder_template);
         $this->assertEquals(1, $contentFolder->content->entity_id);
-        // deleted_dateがnullじゃないコンテンツエンティティと紐付いてる場合
-        $contentFolder = $this->ContentFolderService->get(10);
+        $this->assertEquals('メインサイト', $contentFolder->content->site->display_name);
+    }
+    /**
+     * Test getTrash
+     *
+     * @return void
+     */
+    public function testGetTrash()
+    {
+        $contentFolder = $this->ContentFolderService->getTrash(10);
         $this->assertEquals('削除済みフォルダー(親)', $contentFolder->folder_template);
         $this->assertEquals(10, $contentFolder->content->entity_id);
+        $this->assertEquals('メインサイト', $contentFolder->content->site->display_name);
     }
 
     /**
@@ -96,7 +105,7 @@ class ContentFolderServiceTest extends BcTestCase
     {
         $contentFolders = $this->ContentFolderService->getIndex();
         $this->assertEquals('フォルダーテンプレート1', $contentFolders->first()->folder_template);
-        $this->assertEquals(5, $contentFolders->count());
+        $this->assertEquals(6, $contentFolders->count());
     }
     /**
      * Test create
@@ -115,7 +124,8 @@ class ContentFolderServiceTest extends BcTestCase
                 "entity_id" => "",
             ],
         ];
-        $result = $this->ContentFolderService->create($data);
+        $option = ['validate' => 'default'];
+        $result = $this->ContentFolderService->create($data, $option);
         $folderExpected = $this->ContentFolderService->ContentFolders->find()->last();
         $contentExpected = $this->Contents->find()->last();
         $this->assertEquals($folderExpected->name, $result->name);
@@ -135,5 +145,20 @@ class ContentFolderServiceTest extends BcTestCase
         $this->ContentFolderService->get($content->entity_id);
         $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
         $this->Contents->get($content->id);
+    }
+
+    /**
+     * Test update
+     */
+    public function testUpdate()
+    {
+        $newContentFolder = $this->ContentFolderService->getIndex(['folder_template' => "testEdit"])->first();
+        $newContentFolder->folder_template = "testUpdate";
+        $newContentFolder->content->title = "contentFolderTestUpdate";
+        $newContentFolder->content->name = "contentFolderTestUpdate";
+        $oldContentFolder = $this->ContentFolderService->get($newContentFolder->id);
+        $result = $this->ContentFolderService->update($oldContentFolder, $newContentFolder->toArray());
+        $this->assertEquals("testUpdate", $result->folder_template);
+        $this->assertEquals("contentFolderTestUpdate", $result->content->name);
     }
 }

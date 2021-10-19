@@ -14,6 +14,7 @@ namespace BaserCore\Test\TestCase\Controller\Admin;
 use Cake\Event\Event;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Service\ContentFolderService;
 use BaserCore\Model\Table\ContentFoldersTable;
 use BaserCore\Controller\Admin\ContentFoldersController;
 
@@ -49,8 +50,10 @@ class ContentFoldersControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->loginAdmin($this->getRequest('/baser/admin/baser-core/content_folders'));
         $this->ContentFoldersController = new ContentFoldersController($this->getRequest());
         $this->ContentFolders = $this->getTableLocator()->get('ContentFolders');
+        $this->ContentFolderService = new ContentFolderService();
         $this->Contents = $this->getTableLocator()->get('Contents');
     }
 
@@ -72,7 +75,7 @@ class ContentFoldersControllerTest extends BcTestCase
      */
     public function testInitialize(): void
     {
-        $this->assertNotEmpty($this->ContentFoldersController->BcContents);
+        $this->assertNotEmpty($this->ContentFoldersController->BcAdminContents);
     }
 
     /**
@@ -91,7 +94,6 @@ class ContentFoldersControllerTest extends BcTestCase
      */
     public function testAdd()
     {
-        $this->loginAdmin($this->getRequest('/baser/admin/baser-core/content_folders/add'));
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         $data = [
@@ -117,11 +119,21 @@ class ContentFoldersControllerTest extends BcTestCase
     }
 
     /**
-     * コンテンツを更新する
+     * コンテンツ編集
      */
-    public function testAdmin_edit()
+    public function testEdit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $data = $this->ContentFolderService->getIndex(['folder_template' => "testEdit"])->first();
+        $data->folder_template = 'testEditテンプレート';
+        $data->content->name = "contentFolderTestUpdate";
+        $id = $data->id;
+        $this->post('/baser/admin/baser-core/content_folders/edit/' . $id, ['ContentFolder' => $data->toArray()]);
+        $this->assertResponseSuccess();
+        $this->assertRedirect('/baser/admin/baser-core/content_folders/edit/' . $id);
+        $this->assertEquals('testEditテンプレート', $this->ContentFolderService->get($id)->folder_template);
+        $this->assertEquals('contentFolderTestUpdate', $this->ContentFolderService->get($id)->content->name);
     }
 
     /**

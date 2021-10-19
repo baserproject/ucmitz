@@ -740,33 +740,7 @@
          */
         returnContent: function (node) {
             $.bcToken.check(function () {
-                $.ajax({
-                    url: $.baseUrl() + '/' + $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/ajax_trash_return',
-                    type: 'POST',
-                    data: {
-                        id: node.data.jstree.contentId,
-                        _Token: {
-                            key: $.bcToken.key
-                        }
-                    },
-                    dataType: 'json',
-                    beforeSend: function () {
-                        $.bcUtil.hideMessage();
-                        $.bcUtil.showLoader();
-                    },
-                    success: function (result) {
-                        $.bcUtil.showNoticeMessage(bcI18n.bcTreeInfoMessage2);
-                        $.bcTree.jsTree.delete_node(node);
-                        if ($.bcTree.jsTree.get_json('#', {flat: true}).length == 0) {
-                            $("#DataList").html('<div class="tree-empty">' + bcI18n.bcTreeInfoMessage1 + '</div>');
-                        }
-                        $.bcTree.openUrl($.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/index/site_id:' + result);
-                    },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
-                        $.bcUtil.showAjaxError(bcI18n.bcTreeAlertMessage3, XMLHttpRequest, errorThrown);
-                        $.bcUtil.hideLoader();
-                    }
-                });
+                return $(location).prop('href', $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/trash_return/' + node.data.jstree.contentId);
             }, {hideLoader: false});
         },
 
@@ -872,9 +846,9 @@
             data = _data;
 
             var url = '';
-            // シングルコンテンツでデータが既に存在する場合
+            // シングルコンテンツでデータが既に存在する場合 エイリアス作成の場合
             if ((!$.bcTree.settings[data.contentType]['multiple'] && $.bcTree.settings[data.contentType]['exists']) || data.contentAliasId) {
-                url = $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/add/1';
+                url = $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/create_alias/' + data.contentAliasId + "?aliasName=" + data.contentTitle;
                 data.alias = true;
             } else {
                 url = $.bcTree.settings[data.contentType]['url']['add']
@@ -891,7 +865,6 @@
                         type: 'POST',
                         data: {
                             _csrfToken: $.bcToken.key,
-                            // TODO: テンプレートにどの値が入るべきかを定義する
                             folder_template : '',
                             page_template : '',
                             content: {
@@ -904,7 +877,7 @@
                                 entity_id: data.contentEntityId
                             },
                         },
-                        dataType: 'json',
+                        dataType: 'html',
                         beforeSend: function () {
                             $.bcUtil.hideMessage();
                             $.bcUtil.showLoader();
@@ -932,7 +905,8 @@
                             }
                         });
                     });
-                }, {hideLoader: false});
+                }
+                , {hideLoader: false});
             });
         },
 
@@ -1004,9 +978,7 @@
                         title: data.contentTitle,
                         parentId: data.contentParentId,
                         siteId: data.contentSiteId,
-                        _Token: {
-                            key: $.bcToken.key
-                        }
+                        _csrfToken: $.bcToken.key,
                     },
                     dataType: 'json',
                     beforeSend: function () {
@@ -1067,43 +1039,7 @@
                     return false;
                 }
                 $.bcToken.check(function () {
-                    return $.ajax({
-                        url: $.baseUrl() + '/' + $.bcTree.config.baserCorePrefix + $.bcTree.config.adminPrefix + '/contents/ajax_rename',
-                        type: 'POST',
-                        data: {
-                            id: node.data.jstree.contentId,
-                            newTitle: newTitle,
-                            oldTitle: oldTitle,
-                            parentId: node.data.jstree.contentParentId,
-                            siteId: node.data.jstree.contentSiteId,
-                            plugin: node.data.jstree.contentPlugin,
-                            type: node.data.jstree.contentType,
-                            first: +first,	// 0 Or 1 に変換,
-                            _Token: {
-                                key: $.bcToken.key
-                            }
-                        },
-                        dataType: 'text',
-                        beforeSend: function () {
-                            $.bcUtil.hideMessage();
-                            $.bcUtil.showLoader();
-                        },
-                        success: function (result) {
-                            if (!result) {
-                                $.bcUtil.showAjaxError(bcI18n.bcTreeAlertMessage5);
-                            } else {
-                                $.bcTree.settings[node.data.jstree.contentType]['existsTitle'] = editNode.text;
-                                editNode.data.jstree.contentFullUrl = result;
-                            }
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            $.bcTree.jsTree.rename_node(editNode, defaultTitle);
-                            $.bcUtil.showAjaxError(bcI18n.bcTreeAlertMessage5, XMLHttpRequest, errorThrown);
-                        },
-                        complete: function () {
-                            $.bcUtil.hideLoader();
-                        }
-                    });
+                    return $(location).prop('href', $.bcUtil.adminBaseUrl + 'baser-core' + '/contents/rename/' + node.data.jstree.contentId + '?newTitle=' + newTitle)
                 }, {hideLoader: false});
             });
         },
@@ -1193,9 +1129,7 @@
                         targetParentId: $.bcTree.dropTarget.data.jstree.contentId,
                         targetSiteId: $.bcTree.dropTarget.data.jstree.contentSiteId,
                         listDisplayed: $.bcTree.listDisplayed,
-                        _Token: {
-                            key: $.bcToken.key
-                        }
+                        _csrfToken: $.bcToken.key,
                     },
                     dataType: 'json',
                     beforeSend: function () {

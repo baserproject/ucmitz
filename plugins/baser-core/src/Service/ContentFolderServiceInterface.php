@@ -28,6 +28,13 @@ interface ContentFolderServiceInterface
     public function get($id): EntityInterface;
 
     /**
+     * コンテンツフォルダーをゴミ箱から取得する
+     * @param int $id
+     * @return EntityInterface|array
+     */
+    public function getTrash($id);
+
+    /**
      * コンテンツフォルダー一覧用のデータを取得
      * @param array $queryParams
      * @return Query
@@ -37,9 +44,10 @@ interface ContentFolderServiceInterface
     /**
      * コンテンツフォルダー登録
      * @param array $data
+     * @param array $options
      * @return \Cake\Datasource\EntityInterface
      */
-    public function create(array $postData);
+    public function create(array $postData, $options=[]);
 
     /**
      * コンテンツフォルダーを削除する
@@ -48,4 +56,31 @@ interface ContentFolderServiceInterface
      */
     public function delete($id);
 
+    /**
+     * コンテンツフォルダー情報を更新する
+     * @param EntityInterface $target
+     * @param array $contentFolderData
+     * @param array $options
+     * @return EntityInterface
+     */
+    public function update(EntityInterface $target, array $contentFolderData, $options = []);
+
+    /**
+     * フォルダのテンプレートリストを取得する
+     *
+     * @param $contentId
+     * @param $theme
+     * @return array
+     */
+    public function getFolderTemplateList($contentId, $theme);
+
+    /**
+     * 親のテンプレートを取得する
+     *
+     * @param int $id
+     * @param string $type folder|page
+     */
+    public function getParentTemplate($id, $type);
 }
+
+

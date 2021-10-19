@@ -11,10 +11,11 @@
 
 namespace BaserCore\Model\Table;
 
-use BaserCore\Event\BcEventDispatcherTrait;
-use Cake\Datasource\EntityInterface;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
+use BaserCore\Utility\BcUtil;
+use Cake\Datasource\EntityInterface;
+use BaserCore\Event\BcEventDispatcherTrait;
 
 /**
  * Class PagesTable
@@ -893,13 +894,14 @@ class PagesTable extends Table
         }
 
         if ($contentId != 1) {
-            $ContentFolder = ClassRegistry::init('ContentFolder');
-            $parentTemplate = $ContentFolder->getParentTemplate($contentId, 'page');
-            $searchKey = array_search($parentTemplate, $pageTemplates);
-            if ($searchKey !== false) {
-                unset($pageTemplates[$searchKey]);
-            }
-            $pageTemplates = ['' => sprintf(__d('baser', '親フォルダの設定に従う（%s）'), $parentTemplate)] + $pageTemplates;
+            $ContentFolder = TableRegistry::getTableLocator()->get('BaserCore.ContentFolders');
+            // FIXME:
+            // $parentTemplate = $ContentFolder->getParentTemplate($contentId, 'page');
+            // $searchKey = array_search($parentTemplate, $pageTemplates);
+            // if ($searchKey !== false) {
+            //     unset($pageTemplates[$searchKey]);
+            // }
+            // $pageTemplates = ['' => sprintf(__d('baser', '親フォルダの設定に従う（%s）'), $parentTemplate)] + $pageTemplates;
         }
         return $pageTemplates;
     }

@@ -15,9 +15,8 @@ use Cake\ORM\Query;
 use Cake\Utility\Hash;
 use Cake\ORM\ResultSet;
 use Cake\Core\Configure;
-use Nette\Utils\DateTime;
+use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
-use Cake\Utility\Inflector;
 use BaserCore\Utility\BcUtil;
 use Cake\Event\EventInterface;
 use BaserCore\Annotation\NoTodo;
@@ -27,13 +26,14 @@ use BaserCore\Model\Table\SitesTable;
 use BaserCore\Model\Table\UsersTable;
 use BaserCore\Service\SiteConfigTrait;
 use BaserCore\Model\Table\ContentsTable;
+use Cake\Http\Exception\NotFoundException;
 use BaserCore\Model\Table\SiteConfigsTable;
 use BaserCore\Service\SiteServiceInterface;
 use BaserCore\Model\Table\ContentFoldersTable;
 use BaserCore\Service\BcAdminServiceInterface;
 use BaserCore\Service\ContentServiceInterface;
 use BaserCore\Controller\Component\BcMessageComponent;
-use BaserCore\Controller\Component\BcContentsComponent;
+use BaserCore\Controller\Component\BcAdminContentsComponent;
 
 /**
  * Class ContentsController
@@ -49,7 +49,7 @@ use BaserCore\Controller\Component\BcContentsComponent;
  * @property SitesTable $Sites
  * @property UsersTable $Users
  * @property ContentFoldersTable $ContentFolders
- * @property BcContentsComponent $BcContents
+ * @property BcAdminContentsComponent $BcAdminContents
  * @property BcMessageComponent $BcMessage
  */
 
@@ -70,7 +70,7 @@ class ContentsController extends BcAdminAppController
     public function initialize(): void
     {
         parent::initialize();
-        $this->loadComponent('BaserCore.BcContents');
+        $this->loadComponent('BaserCore.BcAdminContents');
     }
 
     /**
@@ -88,7 +88,7 @@ class ContentsController extends BcAdminAppController
         $this->loadModel('BaserCore.ContentFolders');
         $this->loadModel('BaserCore.Users');
         $this->loadModel('BaserCore.Contents');
-        $this->Security->setConfig('unlockedActions', ['delete', 'trash_empty']);
+        $this->Security->setConfig('unlockedActions', ['delete', 'trash_empty', 'batch', 'add', 'create_alias']);
         // TODO 未実装のためコメントアウト
         /* >>>
         // $this->BcAuth->allow('view');
@@ -115,7 +115,6 @@ class ContentsController extends BcAdminAppController
             $this->request = $this->request->withQueryParams(Hash::merge($this->request->getQueryParams(),  ['site_id' => null]));
         }
         $currentListType = $this->request->getQuery('list_type') ?? 1;
-
         $this->setViewConditions('Contents', ['default' => [
             'query' => [
                 'num' => $siteService->getSiteConfig('admin_list_num'),
@@ -149,8 +148,8 @@ class ContentsController extends BcAdminAppController
             }
         }
         $this->ContentFolders->getEventManager()->on($this->ContentFolders);
-        $this->set('contents', $this->_getContents($contentService));
-        $this->set('template', $this->_getTemplate());
+        $this->set('contents', $this->getContents($contentService));
+        $this->set('template', $this->getTemplate());
         $this->set('folders', $contentService->getContentFolderList($currentSiteId, ['conditions' => ['site_root' => false]]));
         $this->set('sites', $sites);
     }
@@ -164,7 +163,7 @@ class ContentsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    protected function _getContents($contentService)
+    protected function getContents($contentService)
     {
         switch($this->request->getParam('action')) {
             case 'index':
@@ -191,7 +190,7 @@ class ContentsController extends BcAdminAppController
      * @noTodo
      * @unitTest
      */
-    protected function _getTemplate(): string
+    protected function getTemplate(): string
     {
         switch($this->request->getParam('action')) {
             case 'index':
@@ -214,6 +213,9 @@ class ContentsController extends BcAdminAppController
 
     /**
      * ゴミ箱内のコンテンツ一覧を表示する
+     *
+     * @param  ContentServiceInterface $contentService
+     * @param  SiteServiceInterface $siteService
      * @checked
      * @noTodo
      * @unitTest
@@ -227,69 +229,95 @@ class ContentsController extends BcAdminAppController
     /**
      * ゴミ箱のコンテンツを戻す
      *
-     * @return mixed Site Id Or false
+     * @param  ContentServiceInterface $contentService
+     * @param  int $id
+     * @return Response|void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function admin_ajax_trash_return()
+    public function trash_return(ContentServiceInterface $contentService, $id)
     {
-        if (empty($this->request->getData('id'))) {
+        if (empty($id)) {
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
-        $this->autoRender = false;
-
+        $this->disableAutoRender();
         // EVENT Contents.beforeTrashReturn
         $this->dispatchLayerEvent('beforeTrashReturn', [
-            'data' => $this->request->getData('id')
+            'data' => $id
         ]);
-
-        $siteId = $this->Content->trashReturn($this->request->getData('id'));
-
+        if ($restored = $contentService->restore($id)) {
+            $this->BcMessage->setSuccess(sprintf(__d('baser', 'ゴミ箱「%s」を戻しました。'), $restored->title));
+            return $this->redirect(['action' => 'trash_index']);
+        } else {
+            $this->BcMessage->setError('ゴミ箱から戻す事に失敗しました。');
+        }
         // EVENT Contents.afterTrashReturn
         $this->dispatchLayerEvent('afterTrashReturn', [
-            'data' => $this->request->getData('id')
+            'data' => $id
         ]);
-
-        return $siteId;
     }
 
     /**
-     * 新規コンテンツ登録（AJAX）
+     * create_alias
+     *
+     * @param  ContentServiceInterface $contentService
+     * @param  int $id
+     * @return void
+     */
+    public function create_alias(ContentServiceInterface $contentService, $id)
+    {
+        try {
+            $alias = $contentService->alias($id, $this->request->getData('content'));
+        } catch (NotFoundException $e) {
+            $this->ajaxError(500, __d('baser', '無効な処理です。'));
+            return false;
+        }
+        if(!$alias->hasErrors()) {
+            return $this->redirect(['action' => 'index']);
+        } else {
+                $this->BcMessage->setError('保存中にエラーが発生しました。');
+        }
+    }
+    /**
+     * 新規コンテンツ登録
      *
      * @return void
      */
     public function add(ContentServiceInterface $contentService, $alias = false)
     {
-
-        if (!$this->request->getData()) {
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
-        }
+        // NOTE: そもそもエイリアス以外の作成をここで担当するのはどうなのか?
 
         $srcContent = [];
+        // $postData = $this->request->getData('ContentFolder');
+        $postData = $this->request->getData('Content');
         if ($alias) {
-            if ($this->request->getData('Content.alias_id')) {
-                $conditions = ['id' => $this->request->getData('Content.alias_id')];
+            if ($postData->alias_id) {
+                $conditions = ['id' => $postData->alias_id];
             } else {
                 $conditions = [
-                    'plugin' => $this->request->getData('Content.plugin'),
-                    'type' => $this->request->getData('Content.type')
+                    'plugin' => $postData->plugin,
+                    'type' => $postData->type
                 ];
             }
-            $srcContent = $this->Content->find('first', ['conditions' => $conditions, 'recursive' => -1]);
+            // $srcContent = $this->Content->find('first', ['conditions' => $conditions, 'recursive' => -1]);
+            $srcContent = $contentService->getIndex($conditions)->first();
             if ($srcContent) {
-                $this->request = $this->request->withData('Content.alias_id', $srcContent['Content']['id']);
-                $srcContent = $srcContent['Content'];
+                $this->request = $this->request->withData('Content.alias_id', $srcContent->id);
             }
 
-            if (empty($this->request->getData('Content.parent_id')) && !empty($this->request->getData('Content.url'))) {
-                $this->request = $this->request->withData('Content.parent_id', $this->Content->copyContentFolderPath($this->request->getData('Content.url'), $this->request->getData('Content.site_id')));
+            if (empty($postData->parent_id) && !empty($postData->url)) {
+                $this->request = $this->request->withData('Content.parent_id', $this->Content->copyContentFolderPath($postData->url, $postData->site_id));
             }
 
         }
-
+        // aliasじゃなかった場合の処理?
         $user = $currentUser = BcUtil::loginUser('Admin');
         $this->request = $this->request->withData('author_id', $user->id);
+
         $contentService->create($this->request->getData());
         $this->Content->create(false);
-        $data = $this->Content->save($this->request->data);
+        $data = $this->Content->save($this->request->getData());
         if (!$data) {
             $this->ajaxError(500, __d('baser', '保存中にエラーが発生しました。'));
             exit;
@@ -308,36 +336,35 @@ class ContentsController extends BcAdminAppController
     /**
      * コンテンツ編集
      *
+     * @param  int $id
+     * @param  ContentServiceInterface $contentService
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function admin_edit()
+    public function edit(ContentServiceInterface $contentService, $id)
     {
-        $this->setTitle(__d('baser', 'コンテンツ編集'));
-        if (!$this->request->data) {
-            $this->request->data = $this->Content->find('first', ['conditions' => ['Content.id' => $this->request->params['named']['content_id']]]);
-            if (!$this->request->data) {
-                $this->BcMessage->setError(__d('baser', '無効な処理です。'));
-                $this->redirect(['plugin' => false, 'admin' => true, 'controller' => 'contents', 'action' => 'index']);
-            }
-        } else {
-            if ($this->Content->save($this->request->data)) {
+        if (!$id && empty($this->request->getData())) {
+            $this->BcMessage->setError(__d('baser', '無効な処理です。'));
+            return $this->redirect(['action' => 'index']);
+        }
+
+        $content = $contentService->get($id);
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $content = $contentService->update($content, $this->request->getData('Content'));
+            if (!$content->hasErrors()) {
                 $message = Configure::read('BcContents.items.' . $this->request->getData('Content.plugin') . '.' . $this->request->getData('Content.type') . '.title') .
-                    sprintf(__d('baser', '「%s」を更新しました。'), $this->request->getData('Content.title'));
+                sprintf(__d('baser', '「%s」を更新しました。'), $this->request->getData('Content.title'));
                 $this->BcMessage->setSuccess($message);
-                $this->redirect([
-                    'plugin' => null,
-                    'controller' => 'contents',
-                    'action' => 'edit',
-                    'content_id' => $this->request->params['named']['content_id'],
-                    'parent_id' => $this->request->params['named']['parent_id']
-                ]);
+                return $this->redirect(['action' => 'edit', $content->id]);
             } else {
                 $this->BcMessage->setError('保存中にエラーが発生しました。入力内容を確認してください。');
             }
         }
-        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
-        $site = $sites->findById($this->request->getData('Content.site_id'))->first();
-        $this->set('publishLink', $this->Content->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
+        $this->request = $this->request->withData("Content", $content);
+        $this->set('content', $content);
+        $this->set('publishLink', $contentService->getUrl($content->url, true, $content->site->useSubDomain));
     }
 
     /**
@@ -346,15 +373,14 @@ class ContentsController extends BcAdminAppController
      * @param $id
      * @throws Exception
      */
-    public function admin_edit_alias($id)
+    public function edit_alias($id)
     {
-
         $this->setTitle(__d('baser', 'エイリアス編集'));
         if ($this->request->is(['post', 'put'])) {
-            if ($this->Content->isOverPostSize()) {
-                $this->BcMessage->setError(__d('baser', '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。', ini_get('post_max_size')));
-                $this->redirect(['action' => 'edit_alias', $id]);
-            }
+            // if ($this->Content->isOverPostSize()) {
+            //     $this->BcMessage->setError(__d('baser', '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。', ini_get('post_max_size')));
+            //     $this->redirect(['action' => 'edit_alias', $id]);
+            // }
             if ($this->Content->save($this->request->data)) {
                 $srcContent = $this->Content->find('first', ['conditions' => ['Content.id' => $this->request->getData('Content.alias_id')], 'recursive' => -1]);
                 $srcContent = $srcContent['Content'];
@@ -381,7 +407,7 @@ class ContentsController extends BcAdminAppController
         }
 
         $this->set('srcContent', $srcContent);
-        $this->BcContents->settingForm($this, $this->request->getData('Content.site_id'), $this->request->getData('Content.id'));
+        $this->BcAdminContents->settingForm($this, $this->request->getData('Content.site_id'), $this->request->getData('Content.id'));
         $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
         $site = $sites->findById($this->request->getData('Content.site_id'))->first();
         $this->set('publishLink', $this->Content->getUrl($this->request->getData('Content.url'), true, $site->useSubDomain));
@@ -417,8 +443,12 @@ class ContentsController extends BcAdminAppController
         // ]);
         try {
             $content = $contentService->get($id);
-            $typeName = Configure::read('BcContents.items.' . $content->plugin . '.' . $content->type . '.title');
-            $result = $contentService->treeDelete($id);
+            if ($content->alias_id) {
+                $result = $contentService->deleteAlias($id);
+            } else {
+                $typeName = Configure::read('BcContents.items.' . $content->plugin . '.' . $content->type . '.title');
+                $result = $contentService->treeDelete($id);
+            }
         } catch (\Exception $e) {
             $result = false;
             $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
@@ -443,56 +473,76 @@ class ContentsController extends BcAdminAppController
     }
 
     /**
-     * 一括削除
+     * batch
      *
-     * @param array $ids
-     * @return boolean
-     * @access protected
+     * @param  ContentServiceInterface $contentService
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    protected function _batch_del(ContentServiceInterface $contentService, $ids)
+    public function batch(ContentServiceInterface $contentService)
     {
-        if ($ids) {
-            foreach($ids as $id) {
-                // FIXME: _deleteを消したので、修正する
-                $this->_delete($contentService, $id, false);
+        $this->disableAutoRender();
+        $allowMethod = [
+            'publish' => '公開',
+            'unpublish' => '非公開',
+            'delete' => '削除',
+        ];
+
+        $method = $this->request->getData('ListTool.batch');
+        if (!isset($allowMethod[$method])) {
+            return;
+        }
+
+        $methodText = $allowMethod[$method];
+
+        foreach($this->request->getData('ListTool.batch_targets') as $id) {
+            $content = $contentService->get($id);
+            if ($contentService->$method($id)) {
+                $this->BcMessage->setSuccess(
+                    sprintf(__d('baser', 'コンテンツ「%s」 を %sしました。'), $content->name, $methodText),
+                    true,
+                    false
+                );
             }
         }
-        return true;
+        return $this->response->withStringBody('true');
     }
 
-    /**
-     * 一括公開
-     *
-     * @param array $ids
-     * @return boolean
-     * @access protected
-     */
-    protected function _batch_publish($ids)
-    {
-        if ($ids) {
-            foreach($ids as $id) {
-                $this->_changeStatus($id, true);
-            }
-        }
-        return true;
-    }
+    // /**
+    //  * 一括公開
+    //  *
+    //  * @param array $ids
+    //  * @return boolean
+    //  * @access protected
+    //  */
+    // protected function _batch_publish($ids)
+    // {
+    //     if ($ids) {
+    //         foreach($ids as $id) {
+    //             $this->_changeStatus($id, true);
+    //         }
+    //     }
+    //     return true;
+    // }
 
-    /**
-     * 一括非公開
-     *
-     * @param array $ids
-     * @return boolean
-     * @access protected
-     */
-    protected function _batch_unpublish($ids)
-    {
-        if ($ids) {
-            foreach($ids as $id) {
-                $this->_changeStatus($id, false);
-            }
-        }
-        return true;
-    }
+    // /**
+    //  * 一括非公開
+    //  *
+    //  * @param array $ids
+    //  * @return boolean
+    //  * @access protected
+    //  */
+    // protected function _batch_unpublish($ids)
+    // {
+    //     if ($ids) {
+    //         foreach($ids as $id) {
+    //             $this->_changeStatus($id, false);
+    //         }
+    //     }
+    //     return true;
+    // }
 
     /**
      * 公開状態を変更する
@@ -561,8 +611,8 @@ class ContentsController extends BcAdminAppController
         }
         $contents = $contentService->getTrashIndex()->order(['plugin', 'type']);
 
-        // EVENT Contents.beforeTrashEmpty
-        $this->dispatchLayerEvent('beforeTrashEmpty', [
+        // EVENT Contents.beforetrash_empty
+        $this->dispatchLayerEvent('beforetrash_empty', [
             'data' => $contents
         ]);
         if ($contents) {
@@ -570,11 +620,12 @@ class ContentsController extends BcAdminAppController
             foreach($contents as $content) {
                 if(!$contentService->hardDeleteWithAssoc($content->id)) {
                     $result = false;
+                    $this->BcMessage->setError(__d('baser', 'ゴミ箱の削除に失敗しました'));
                 }
             }
         }
-        // EVENT Contents.afterTrashEmpty
-        $this->dispatchLayerEvent('afterTrashEmpty', [
+        // EVENT Contents.aftertrash_empty
+        $this->dispatchLayerEvent('aftertrash_empty', [
             'data' => $result
         ]);
         return $this->redirect(['action' => "trash_index"]);
@@ -589,7 +640,7 @@ class ContentsController extends BcAdminAppController
     public function view($plugin, $type)
     {
         $data = ['Content' => $this->request->getParam('Content')];
-        if ($this->BcContents->preview && $this->request->data) {
+        if ($this->BcAdminContents->preview && $this->request->data) {
             $data = $this->request->data;
         }
         $this->set('data', $data);
@@ -605,22 +656,24 @@ class ContentsController extends BcAdminAppController
      *
      * 新規登録時の初回リネーム時は、name にも保存する
      */
-    public function admin_ajax_rename()
+    /**
+     * rename
+     *
+     * @param  ContentServiceInterface $contentService
+     * @param  int $id
+     * @return Response|false
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function rename(ContentServiceInterface $contentService, $id)
     {
-        $this->autoRender = false;
-        if (!$this->request->data) {
+        if (!$id) {
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
-        $data = [
-            'Content' => [
-                'id' => $this->request->getData('id'),
-                'title' => $this->request->getData('newTitle'),
-                'parent_id' => $this->request->getData('parentId'),
-                'type' => $this->request->getData('type'),
-                'site_id' => $this->request->getData('siteId')
-            ]
-        ];
-        if (!$this->Content->save($data, ['firstCreate' => !empty($this->request->getData('first'))])) {
+        $oldContent = $contentService->get($id);
+        $newContent = $contentService->update($oldContent, ['title' => $this->request->getQuery('newTitle')]);
+        if ($newContent->hasErrors()) {
             $this->ajaxError(500, __d('baser', '名称変更中にエラーが発生しました。'));
             return false;
         }
@@ -631,21 +684,21 @@ class ContentsController extends BcAdminAppController
                 Configure::read(
                     sprintf(
                         'BcContents.items.%s.%s.title',
-                        $this->request->getData('plugin'),
-                        $this->request->getData('type')
+                        $oldContent->plugin,
+                        $oldContent->type
                     )
                 ),
                 sprintf(
                     __d('baser', '「%s」を「%s」に名称変更しました。'),
-                    $this->request->getData('oldTitle'),
-                    $this->request->getData('newTitle')
+                    $oldContent->title,
+                    $newContent->title
                 )
             ),
             true,
             false
         );
         Configure::write('debug', 0);
-        return $this->Content->getUrlById($this->Content->id);
+        return $this->redirect(['action' => 'index']);
     }
 
     /**
@@ -776,10 +829,17 @@ class ContentsController extends BcAdminAppController
         $this->set('sites', $contentService->getContensInfo());
     }
 
-    public function ajax_get_full_url($id)
+    /**
+     * ajax_get_full_url
+     *
+     * @param  ContentServiceInterface $contentService
+     * @param  int $id
+     * @return \Cake\Http\Response
+     */
+    public function ajax_get_full_url(ContentServiceInterface $contentService, $id)
     {
         $this->autoRender = false;
         Configure::write('debug', 0);
-        return $this->response->withType("application/json")->withStringBody($this->Contents->getUrlById($id, true));
+        return $this->response->withType("application/json")->withStringBody($contentService->getUrlById($id, true));
     }
 }

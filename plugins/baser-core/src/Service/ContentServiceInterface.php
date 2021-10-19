@@ -111,11 +111,13 @@ interface ContentServiceInterface
     public function convertTreeList($nodes);
 
     /**
-     * コンテンツ登録
-     * @param array $data
+     * aliasを作成する
+     *
+     * @param  int $id
+     * @param  array $postData
      * @return \Cake\Datasource\EntityInterface
      */
-    public function create(array $postData);
+    public function alias(int $id, array $postData);
 
     /**
      * コンテンツ情報を論理削除する
@@ -132,6 +134,14 @@ interface ContentServiceInterface
      * @return bool
      */
     public function hardDelete($id, $enableTree = false): bool;
+
+    /**
+     * deleteAlias
+     *
+     * @param  int $id
+     * @return bool
+     */
+    public function deleteAlias($id): bool;
 
     /**
      * コンテンツ情報と紐付いてるモデルを削除する
@@ -196,4 +206,43 @@ interface ContentServiceInterface
      * @return bool $result
      */
     public function deleteRecursive($id): bool;
+
+    /**
+     * レイアウトテンプレートを取得する
+     *
+     * @param $id
+     * @return string $parentTemplate|false
+     */
+    public function getParentLayoutTemplate($id);
+
+    /**
+     * コンテンツIDよりURLを取得する
+     *
+     * @param int $id
+     * @return string URL
+     */
+    public function getUrlById($id, $full = false);
+
+    /**
+     * コンテンツ管理上のURLを元に正式なURLを取得する
+     *
+     * ドメインからのフルパスでない場合、デフォルトでは、
+     * サブフォルダ設置時等の baseUrl（サブフォルダまでのパス）は含まない
+     *
+     * @param string $url コンテンツ管理上のURL
+     * @param bool $full http からのフルのURLかどうか
+     * @param bool $useSubDomain サブドメインを利用しているかどうか
+     * @param bool $base $full が false の場合、ベースとなるURLを含めるかどうか
+     * @return string URL
+     */
+    public function getUrl($url, $full = false, $useSubDomain = false, $base = false);
+
+    /**
+     * コンテンツ情報を更新する
+     *
+     * @param  EntityInterface $content
+     * @param  array $contentData
+     * @return EntityInterface
+     */
+    public function update($content, $contentData);
 }

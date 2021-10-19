@@ -12,7 +12,8 @@
 namespace BaserCore\Test\TestCase\Model\Table;
 
 use Cake\Core\Configure;
-use Cake\Routing\Router;
+use Cake\ORM\Marshaller;
+use Cake\I18n\FrozenTime;
 use Cake\Validation\Validator;
 use BaserCore\Model\Entity\Content;
 use BaserCore\TestSuite\BcTestCase;
@@ -88,7 +89,7 @@ class ContentsTableTest extends BcTestCase
     public function testGetTrash(): void
     {
         $result = $this->Contents->getTrash(15);
-        $this->assertEquals("BcContentsテスト(deleted)", $result->title);
+        $this->assertEquals("BcAdminContentsテスト(deleted)", $result->title);
     }
 
     /**
@@ -124,7 +125,7 @@ class ContentsTableTest extends BcTestCase
         foreach($validator->getIterator() as $key => $value) {
             $fields[] = $key;
         }
-        $this->assertEquals(['id', 'name', 'title', 'parent_id', 'plugin', 'type', 'eyecatch', 'self_publish_begin', 'self_publish_end', 'created_date', 'modified_date'], $fields);
+        $this->assertEquals(['id', 'name', 'title', 'eyecatch', 'self_publish_begin', 'self_publish_end', 'created_date', 'modified_date'], $fields);
     }
 
     /**
@@ -154,9 +155,6 @@ class ContentsTableTest extends BcTestCase
                     'id' => ['integer' => "The provided value is invalid"],
                     'name' => ['_empty' => 'スラッグを入力してください。'],
                     'title' => ['_empty' => 'タイトルを入力してください。'],
-                    'parent_id' => ['_required' => 'このフィールドは必須です'],
-                    'plugin' => ['_required' => 'このフィールドは必須です'],
-                    'type' => ['_required' => 'このフィールドは必須です'],
                 ]
             ]
         ];
@@ -233,6 +231,28 @@ class ContentsTableTest extends BcTestCase
             ['index', 0, 'index'],
             ['index', 1, 'index_2'],
         ];
+    }
+
+    /**
+     * testAfterMarshal
+     *
+     * @return void
+     */
+    public function testAfterMarshal()
+    {
+        $time = new FrozenTime();
+        $data = [
+            "name" => "test",
+            "created" => $time,
+        ];
+        $marshall = new Marshaller($this->Contents);
+
+        $this->Contents->getEventManager()->on(
+            'Model.afterMarshal',
+            function ($event, $entity, $options) {}
+        );
+        $entity = $marshall->one($data);
+        $this->assertEquals($time->i18nFormat('yyyy-MM-dd HH:mm:ss'), $entity->created);
     }
 
     /**
@@ -458,144 +478,11 @@ class ContentsTableTest extends BcTestCase
     }
 
     /**
-     */
-    public function testTrashReturn()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 再帰的にゴミ箱より元に戻す
-     */
-    public function testTrashReturnRecursive()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * タイプよりコンテンツを削除する
      */
     public function testDeleteByType()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * コンテンツIDよりURLを取得する
-     *
-     * @param int $id コンテンツID
-     * @param bool $full http からのフルのURLかどうか
-     * @param string $expects 期待するURL
-     * @dataProvider getUrlByIdDataProvider
-     */
-    public function testGetUrlById($id, $full, $expects)
-    {
-        $this->loadFixtures('Sites');
-        $siteUrl = Configure::read('BcEnv.siteUrl');
-        Configure::write('BcEnv.siteUrl', 'http://main.com');
-        $result = $this->Contents->getUrlById($id, $full);
-        $this->assertEquals($expects, $result);
-        Configure::write('BcEnv.siteUrl', $siteUrl);
-    }
-
-    public function getUrlByIdDataProvider()
-    {
-        return [
-            // ノーマルURL
-            [1, false, '/'],
-            [1, true, 'http://main.com/'],    // フルURL
-            [999, false, ''],                // 存在しないid
-            ['あ', false, '']                // 異常系
-        ];
-    }
-
-    /**
-     * testGetUrl
-     *
-     * $param string $host ホスト名
-     * $param string $ua ユーザーエージェント名
-     * @param string $url 変換前URL
-     * @param boolean $full フルURLで出力するかどうか
-     * @param boolean $useSubDomain サブドメインを利用するかどうか
-     * @param string $expects 期待するURL
-     * @dataProvider getUrlDataProvider
-     */
-    public function testGetUrl($host, $ua, $url, $full, $useSubDomain, $expects)
-    {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
-        $siteUrl = Configure::read('BcEnv.siteUrl');
-        Configure::write('BcEnv.siteUrl', 'http://main.com');
-        if ($ua) {
-            $_SERVER['HTTP_USER_AGENT'] = $ua;
-        }
-        if ($host) {
-            Configure::write('BcEnv.host', $host);
-        }
-        Router::setRequestInfo($this->_getRequest('/m/'));
-        $result = $this->Content->getUrl($url, $full, $useSubDomain);
-        $this->assertEquals($result, $expects);
-        Configure::write('BcEnv.siteUrl', $siteUrl);
-    }
-
-    public function getUrlDataProvider()
-    {
-        return [
-            // ノーマルURL
-            ['main.com', '', '/', false, false, '/'],
-            ['main.com', '', '/index', false, false, '/'],
-            ['main.com', '', '/news/archives/1', false, false, '/news/archives/1'],
-            ['main.com', 'SoftBank', '/m/news/archives/1', false, false, '/m/news/archives/1'],
-            ['main.com', 'iPhone', '/news/archives/1', false, false, '/news/archives/1'],    // 同一URL
-            ['sub.main.com', '', '/sub/', false, true, '/'],
-            ['sub.main.com', '', '/sub/index', false, true, '/'],
-            ['sub.main.com', '', '/sub/news/archives/1', false, true, '/news/archives/1'],
-            ['another.com', '', '/another.com/', false, true, '/'],
-            ['another.com', '', '/another.com/index', false, true, '/'],
-            ['another.com', '', '/another.com/news/archives/1', false, true, '/news/archives/1'],
-            ['another.com', 'iPhone', '/another.com/s/news/archives/1', false, true, '/news/archives/1'],
-            // フルURL
-            ['main.com', '', '/', true, false, 'http://main.com/'],
-            ['main.com', '', '/index', true, false, 'http://main.com/'],
-            ['main.com', '', '/news/archives/1', true, false, 'http://main.com/news/archives/1'],
-            ['main.com', 'SoftBank', '/m/news/archives/1', true, false, 'http://main.com/m/news/archives/1'],
-            ['main.com', 'iPhone', '/news/archives/1', true, false, 'http://main.com/news/archives/1'],    // 同一URL
-            ['sub.main.com', '', '/sub/', true, true, 'http://sub.main.com/'],
-            ['sub.main.com', '', '/sub/index', true, true, 'http://sub.main.com/'],
-            ['sub.main.com', '', '/sub/news/archives/1', true, true, 'http://sub.main.com/news/archives/1'],
-            ['another.com', '', '/another.com/', true, true, 'http://another.com/'],
-            ['another.com', '', '/another.com/index', true, true, 'http://another.com/'],
-            ['another.com', '', '/another.com/news/archives/1', true, true, 'http://another.com/news/archives/1'],
-            ['another.com', 'iPhone', '/another.com/s/news/archives/1', true, true, 'http://another.com/news/archives/1'],
-        ];
-    }
-
-    /**
-     * testGetUrl の base テスト
-     *
-     * @param $url
-     * @param $base
-     * @param $expects
-     * @dataProvider getUrlBaseDataProvider
-     */
-    public function testGetUrlBase($url, $base, $useBase, $expects)
-    {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
-        Configure::write('app.baseUrl', $base);
-        $request = $this->_getRequest('/');
-        $request->base = $base;
-        Router::setRequestInfo($request);
-        $result = $this->Content->getUrl($url, false, false, $useBase);
-        $this->assertEquals($result, $expects);
-    }
-
-    public function getUrlBaseDataProvider()
-    {
-        return [
-            ['/news/archives/1', '', true, '/news/archives/1'],
-            ['/news/archives/1', '', false, '/news/archives/1'],
-            ['/news/archives/1', '/sub', true, '/sub/news/archives/1'],
-            ['/news/archives/1', '/sub', false, '/news/archives/1'],
-        ];
     }
 
     /**
@@ -605,31 +492,6 @@ class ContentsTableTest extends BcTestCase
     public function testCopyContentFolderPath()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * コピーする
-     *
-     * @dataProvider copyDataProvider
-     */
-    public function testCopy($id, $entityId, $newTitle, $newAuthorId, $newSiteId, $titleExpected)
-    {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
-        $this->loginAdmin($this->getRequest());
-        $result = $this->Content->copy($id, $entityId, $newTitle, $newAuthorId, $newSiteId)['Content'];
-        $this->assertEquals($result['site_id'], $newSiteId);
-        $this->assertEquals($result['entity_id'], $entityId);
-        $this->assertEquals($result['title'], $titleExpected);
-        $this->assertEquals($result['author_id'], $newAuthorId);
-
-    }
-
-    public function copyDataProvider()
-    {
-        return [
-            [1, 2, 'hoge', 3, 4, 'hoge'],
-            [1, 2, '', 3, 4, 'baserCMS inc. [デモ] のコピー'],
-        ];
     }
 
     /**

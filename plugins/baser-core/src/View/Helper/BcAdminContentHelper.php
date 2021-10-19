@@ -97,4 +97,44 @@ class BcAdminContentHelper extends Helper
         return false;
     }
 
+    /**
+     * コンテンツフォルダーのリストを取得
+     *
+     * @param null $siteId
+     * @param array $options
+     * @return array|bool
+     */
+    public function getContentFolderList($siteId = null, $options = [])
+    {
+        return $this->ContentService->getContentFolderList($siteId, $options);
+    }
+
+    /**
+     * コンテンツ管理上のURLを元に正式なURLを取得する
+     *
+     * ドメインからのフルパスでない場合、デフォルトでは、
+     * サブフォルダ設置時等の baseUrl（サブフォルダまでのパス）は含まない
+     *
+     * @param string $url コンテンツ管理上のURL
+     * @param bool $full http からのフルのURLかどうか
+     * @param bool $useSubDomain サブドメインを利用しているかどうか
+     * @param bool $base $full が false の場合、ベースとなるURLを含めるかどうか
+     * @return string URL
+     */
+    public function getUrl($url, $full = false, $useSubDomain = false, $base = false)
+    {
+        return $this->ContentService->getUrl($url, $full, $useSubDomain, $base);
+    }
+
+    /**
+     * コンテンツIDよりフルURLを取得する
+     *
+     * @param int $id コンテンツID
+     * @return mixed
+     */
+    public function getUrlById($id, $full = false)
+    {
+        return $this->ContentService->getUrlById($id, $full);
+    }
+
 }

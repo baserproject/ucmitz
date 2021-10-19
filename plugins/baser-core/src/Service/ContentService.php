@@ -13,9 +13,14 @@ namespace BaserCore\Service;
 
 use Exception;
 use Cake\ORM\Query;
+use Cake\Utility\Hash;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+use Cake\I18n\FrozenTime;
 use Nette\Utils\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
+use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
@@ -154,38 +159,31 @@ class ContentService implements ContentServiceInterface
      */
     public function getTableConditions(array $queryParams): array
     {
+        $customFields = ['name', 'folder_id', 'self_status'];
         $options = [];
-        $conditions['site_id'] = $queryParams['site_id'];
-
-        if (!empty($queryParams['withTrash'])) {
-            $conditions['withTrash'] = $queryParams['withTrash'];
-            if ($conditions['withTrash']) {
-                $options = array_merge($options, ['withDeleted']);
+        foreach ($queryParams as $key => $value) {
+            if (!empty($queryParams[$key])) {
+                if (!in_array($key, $customFields)) {
+                    $conditions[$key] = $value;
+                } else {
+                    if ($key === 'name') {
+                        $conditions['OR'] = [
+                            'name LIKE' => '%' . $value . '%',
+                            'title LIKE' => '%' . $value . '%'
+                        ];
+                        $conditions['name'] = $value;
+                    }
+                    if ($key === 'folder_id') {
+                        $Contents = $this->Contents->find('all', $options)->select(['lft', 'rght'])->where(['id' => $value]);
+                        $conditions['rght <'] = $Contents->first()->rght;
+                        $conditions['lft >'] = $Contents->first()->lft;
+                    }
+                    if ($key === 'self_status' && $value !== '') {
+                        $conditions['self_status'] = $value;
+                    }
+                }
             }
         }
-
-        if ($queryParams['name']) {
-            $conditions['OR'] = [
-                'name LIKE' => '%' . $queryParams['name'] . '%',
-                'title LIKE' => '%' . $queryParams['name'] . '%'
-            ];
-            $conditions['name'] = $queryParams['name'];
-        }
-        if ($queryParams['folder_id']) {
-            $Contents = $this->Contents->find('all', $options)->select(['lft', 'rght'])->where(['id' => $queryParams['folder_id']]);
-            $conditions['rght <'] = $Contents->first()->rght;
-            $conditions['lft >'] = $Contents->first()->lft;
-        }
-        if ($queryParams['author_id']) {
-            $conditions['author_id'] = $queryParams['author_id'];
-        }
-        if ($queryParams['self_status'] !== '') {
-            $conditions['self_status'] = $queryParams['self_status'];
-        }
-        if ($queryParams['type']) {
-            $conditions['type'] = $queryParams['type'];
-        }
-
         return $conditions;
     }
 
@@ -340,18 +338,23 @@ class ContentService implements ContentServiceInterface
     }
 
     /**
-     * コンテンツ登録
-     * @param array $data
+     * aliasを作成する
+     *
+     * @param  int $id
+     * @param  array $postData
      * @return \Cake\Datasource\EntityInterface
-     * @checked
-     * @noTodo
-     * @unitTest
      */
-    public function create(array $postData)
+    public function alias(int $id, array $postData)
     {
-        $content = $this->Contents->newEmptyEntity();
-        $content = $this->Contents->patchEntity($content, $postData, ['validate' => 'default']);
-        return ($result = $this->Contents->save($content)) ? $result : $content;
+        $content = $this->get($id);
+        $data = array_merge($content->toArray(), $postData);
+        $alias = $this->Contents->newEmptyEntity();
+        unset($data['lft'], $data['rght'], $data['level'], $data['pubish_begin'], $data['publish_end'], $data['created_date'], $data['created'], $data['modified']);
+        $alias->name = $postData['name'] ?? $postData['title'];
+        $alias->alias_id = $id;
+        $alias->created_date = FrozenTime::now();
+        $alias = $this->Contents->patchEntity($alias, $postData, ['validate' => 'default']);
+        return ($result = $this->Contents->save($alias)) ? $result : $alias;
     }
 
     /**
@@ -381,6 +384,25 @@ class ContentService implements ContentServiceInterface
     {
         $content = $this->getTrash($id);
         return $this->Contents->hardDel($content, $enableTree);
+    }
+
+    /**
+     * deleteAlias
+     *
+     * @param  int $id
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function deleteAlias($id): bool
+    {
+        $contents = $this->getIndex(['id' => $id,'alias_id!' => null, 'withTrash' => true]);
+        if (!$contents->isEmpty()) {
+            return $this->Contents->hardDelete($contents->first());
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -456,9 +478,8 @@ class ContentService implements ContentServiceInterface
         } catch (RecordNotFoundException $e) {
             return false;
         }
-
         if ($content->alias_id) {
-            $result = $this->Contents->removeFromTree($content);
+            $result = $this->delete($id) && $this->hardDelete($id);
         } else {
             // $result = $this->Contents->softDeleteFromTree($id); TODO: キャッシュ系が有効化されてからsoftDeleteFromTreeを使用する
             $result = $this->deleteRecursive($id); // 一時措置
@@ -575,6 +596,7 @@ class ContentService implements ContentServiceInterface
                 $node->url = '';
                 $node->status = false;
                 $node->self_status = false;
+                //TODO: ゴミ箱からの親子関係を取得できなくなるので一旦コメントアウト
                 unset($node->lft);
                 unset($node->rght);
                 // TODO: $this->updatingSystemDataのsetter getterを用意する必要あり
@@ -591,10 +613,257 @@ class ContentService implements ContentServiceInterface
                 $this->Contents->deleteAssocCache($node);
             } else {
                 // エイリアスの場合、直接削除
-                $result = $this->Contents->removeFromTree($node);
+                $result = $this->hardDelete($node->id);
             }
             if (!$result) return false;
         }
         return $result;
+    }
+
+    /**
+     * 直属の親フォルダのレイアウトテンプレートを取得する
+     *
+     * @param $id
+     * @return string $parentTemplate|false
+     */
+    public function getParentLayoutTemplate($id)
+    {
+        if (!$id) {
+            return false;
+        }
+        // ===========================================================================================
+        // 2016/09/22 ryuring
+        // PHP 7.0.8 環境にて、コンテンツ一覧追加時、検索インデックス作成のため、BcContentsComponent が
+        // 呼び出されるが、その際、モデルのマジックメソッドの戻り値を返すタイミングで処理がストップしてしまう。
+        // そのため、ビヘイビアのメソッドを直接実行して対処した。
+        // CakePHPも、PHP自体のエラーも発生せず、ただ止まる。PHP7のバグ？PHP側のメモリーを256Mにしても変わらず。
+        // ===========================================================================================
+        $contents = $this->Contents->find('path', ['for' => $id])->all()->toArray();
+        $contents = array_reverse($contents);
+        unset($contents[0]);
+        if (!$contents) {
+            return false;
+        }
+        $parentTemplates = Hash::extract($contents, '{n}.layout_template');
+        foreach($parentTemplates as $parentTemplate) {
+            if ($parentTemplate) {
+                break;
+            }
+        }
+        return $parentTemplate;
+    }
+
+    /**
+     * コンテンツIDよりURLを取得する
+     *
+     * @param int $id
+     * @return string URL
+     * @checked
+     * @unitTest
+     * @noTodo
+     */
+    public function getUrlById($id, $full = false)
+    {
+        if (!is_numeric($id)) return '';
+        try {
+            $data = $this->get($id);
+        } catch (RecordNotFoundException $e) {
+            return false;
+        }
+        return $data ? $this->getUrl($data->url, $full, $data->site->use_subdomain) : "";
+    }
+
+    /**
+     * コンテンツ管理上のURLを元に正式なURLを取得する
+     *
+     * ドメインからのフルパスでない場合、デフォルトでは、
+     * サブフォルダ設置時等の baseUrl（サブフォルダまでのパス）は含まない
+     *
+     * @param string $url コンテンツ管理上のURL
+     * @param bool $full http からのフルのURLかどうか
+     * @param bool $useSubDomain サブドメインを利用しているかどうか
+     * @param bool $base $full が false の場合、ベースとなるURLを含めるかどうか
+     * @return string URL
+     */
+    public function getUrl($url, $full = false, $useSubDomain = false, $base = false)
+    {
+        if ($useSubDomain && !is_array($url)) {
+            $subDomain = '';
+            $site = $this->Sites->findByUrl($url);
+            $originUrl = $url;
+            if ($site) {
+                $subDomain = $site->alias;
+                $originUrl = preg_replace('/^\/' . preg_quote($site->alias, '/') . '\//', '/', $url);
+            }
+            if ($full) {
+                if ($site) {
+                    $fullUrl = topLevelUrl(false) . $originUrl;
+                    if ($site->domain_type == 1) {
+                        $mainDomain = BcUtil::getMainDomain();
+                        $fullUrlArray = explode('//', $fullUrl);
+                        $fullPassArray = explode('/', $fullUrlArray[1]);
+                        unset($fullPassArray[0]);
+                        $url = $fullUrlArray[0] . '//' . $subDomain . '.' . $mainDomain . '/' . implode('/', $fullPassArray);
+                    } elseif ($site->domain_type == 2) {
+                        $fullUrlArray = explode('//', $fullUrl);
+                        $urlArray = explode('/', $fullUrlArray[1]);
+                        unset($urlArray[0]);
+                        if ($site->same_main_url) {
+                            $mainSite = $this->Sites->findById($site->main_site_id)->first();
+                            $subDomain = $mainSite->alias;
+                        }
+                        $url = $fullUrlArray[0] . '//' . $subDomain . '/' . implode('/', $urlArray);
+                    }
+                } else {
+                    $url = preg_replace('/\/$/', '', Configure::read('BcEnv.siteUrl')) . $originUrl;
+                }
+            } else {
+                $url = $originUrl;
+            }
+        } else {
+            if (BC_INSTALLED) {
+                if (!is_array($url)) {
+                    $site = $this->Sites->findByUrl($url);
+                    if ($site && $site->same_main_url) {
+                        $mainSite = $this->Sites->findById($site->main_site_id)->first();
+                        $alias = $mainSite->alias;
+                        if ($alias) {
+                            $alias = '/' . $alias;
+                        }
+                        $url = $alias . $this->Sites->getPureUrl($url);
+                    }
+                }
+            }
+            if ($full) {
+                $mainDomain = BcUtil::getMainDomain();
+                $fullUrlArray = explode('//', Configure::read('BcEnv.siteUrl'));
+                $siteDomain = preg_replace('/\/$/', '', $fullUrlArray[1]);
+                if (preg_match('/^www\./', $siteDomain) && str_replace('www.', '', $siteDomain) === $mainDomain) {
+                    $mainDomain = $siteDomain;
+                }
+                $url = $fullUrlArray[0] . '//' . $mainDomain . Router::url($url);
+            }
+        }
+        $url = preg_replace('/\/index$/', '/', $url);
+        if (!$full && $base) {
+            $url = Router::url($url);
+        }
+        return $url;
+    }
+
+    /**
+     * コンテンツ情報を更新する
+     *
+     * @param  EntityInterface $content
+     * @param  array $contentData
+     * @return EntityInterface
+     * @checked
+     * @unitTest
+     * @noTodo
+     */
+    public function update($content, $contentData)
+    {
+        $content = $this->Contents->patchEntity($content, $contentData);
+        return ($result = $this->Contents->save($content)) ? $result : $content;
+    }
+
+    /**
+     * ゴミ箱より元に戻す
+     *
+     * @param $id
+     */
+    public function trashReturn($id)
+    {
+        // TODO: ucmitz移行未完了
+        return $this->trashReturnRecursive($id, true);
+    }
+
+    /**
+     * 再帰的にゴミ箱より元に戻す
+     *
+     * @param $id
+     * @return bool|int
+     */
+    public function trashReturnRecursive($id, $top = false)
+    {
+        // TODO: ucmitz移行未完了
+        return;
+        $this->softDelete(false);
+        $children = $this->children($id, true);
+        $this->softDelete(true);
+
+        $result = true;
+        if ($children) {
+            foreach($children as $child) {
+                if (!$this->trashReturnRecursive($child['Content']['id'])) {
+                    $result = false;
+                }
+            }
+        }
+
+        $this->Behaviors->unload('Tree');
+        // tree off
+        $this->updatingRelated = false;
+
+        if ($result && $this->undelete($id)) {
+            // restore and tree on
+            $this->Behaviors->load('Tree');
+            // 関連データの更新
+            $this->updatingRelated = true;
+            $content = $this->find('first', ['conditions' => ['Content.id' => $id], 'recursive' => -1]);
+            if ($top) {
+                $siteRootId = $this->field('id', ['Content.site_id' => $content['Content']['site_id'], 'site_root' => true]);
+                $content['Content']['parent_id'] = $siteRootId;
+            }
+            unset($content['Content']['lft']);
+            unset($content['Content']['rght']);
+            if ($this->save($content, true)) {
+                return $content['Content']['site_id'];
+            } else {
+                $result = false;
+            }
+        } else {
+            $this->Behaviors->load('Tree');
+            $result = false;
+        }
+        return $result;
+    }
+
+    /**
+     * コピーする
+     *
+     * @param $id
+     * @param $newTitle
+     * @param $newAuthorId
+     * @param $entityId
+     * @return mixed
+     */
+    public function copy($id, $entityId, $newTitle, $newAuthorId, $newSiteId = null)
+    {
+        $content = $this->get($id);
+        $url = $content->url;
+        if (!is_null($newSiteId) && $content->site_id != $newSiteId) {
+            $content->site_id = $newSiteId;
+            // $content->parent_id = $this->copyContentFolderPath($url, $newSiteId);
+        }
+        unset($content->id);
+        unset($content->modified_date);
+        unset($content->created);
+        unset($content->modified);
+        unset($content->main_site_content);
+        if ($newTitle) {
+            $content->title = $newTitle;
+        } else {
+            $content->title = sprintf(__d('baser', '%s のコピー'), $content->title);
+        }
+        $content->self_publish_begin = null;
+        $content->self_publish_end = null;
+        $content->self_status = false;
+        $content->author_id = $newAuthorId;
+        $content->created_date = date('Y-m-d H:i:s');
+        $content->entity_id = $entityId;
+        unset($data['Site']);
+        $this->create($data);
+        return $this->save($data);
     }
 }
