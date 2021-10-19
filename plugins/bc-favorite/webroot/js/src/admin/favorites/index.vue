@@ -7,13 +7,13 @@
             {{ i18Favorite }} <i class="bca-icon--chevron-down bca-nav-favorite-title-icon"></i>
             </button>
         </h2>
-<!--
+
         <ul v-if="favorites" class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
-            <li v-for="(favorite, i) in favorites" :key="i" :id="'FavoriteRow' + name" class="bca-nav-favorite-list-item">
-                <a :href="url" :title="fullUrl"><span class="bca-nav-favorite-list-item-label">{{name}}</span></a>
-                <hidden :value="id" class="favorite-id"  :name="'id' + '.' + id" />
-                <hidden :value="name" class="favorite-name"  :name="'name' + '.' + id" />
-                <hidden :value="url" class="favorite-url"  :name="'url' + '.' + id" />
+            <li v-for="(favorite, i) in favorites" :key="i" :id="'FavoriteRow' + favorite.name" class="bca-nav-favorite-list-item">
+                <a :href="favorite.url" :title="favorite.fullUrl"><span class="bca-nav-favorite-list-item-label">{{favorite.name}}</span></a>
+                <input type="hidden" :value="favorite.id" class="favorite-id"  :name="'id' + '.' + favorite.id" />
+                <input type="hidden" :value="favorite.name" class="favorite-name"  :name="'name' + '.' + favorite.id" />
+                <input type="hidden" :value="favorite.url" class="favorite-url"  :name="'url' + '.' + favorite.id" />
             </li>
         </ul>
         <ul v-else class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
@@ -34,7 +34,7 @@
         <ul id="FavoritesMenu" class="context-menu" style="display:none">
             <li class="edit"><a href="#FavoriteEdit">{{ i18Edit }}</a></li>
             <li class="delete"><a href="#FavoriteDelete">{{ i18Delete }}</a></li>
-        </ul> -->
+        </ul>
     </div>
 </template>
 
@@ -43,7 +43,15 @@ module.exports = {
     data:function () {
     return {
         favoriteBoxOpened: true,
-        i18Favorite: 'testest2'
+        i18Favorite: 'testest2',
+        favorites: [{id: 1, name: 'name', url: 'url', fullUrl: 'fullUrl'}],
+        i18NoData: 'nodata',
+        registerUrl: '',
+        i18Title: 'title',
+        i18Url: 'url',
+        i18Edit: 'edit',
+        i18Delete: 'delete',
+
         }
     }
 }

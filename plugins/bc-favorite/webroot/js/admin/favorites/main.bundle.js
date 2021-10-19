@@ -133,18 +133,23 @@
 //
 //
 //
-// export default {
-//   data () {
-//     return {
-//       i18Favorite: 'testest2'
-//     }
-//   }
-// }
 module.exports = {
   data: function data() {
     return {
       favoriteBoxOpened: true,
-      i18Favorite: 'testest2'
+      i18Favorite: 'testest2',
+      favorites: [{
+        id: 1,
+        name: 'name',
+        url: 'url',
+        fullUrl: 'fullUrl'
+      }],
+      i18NoData: 'nodata',
+      registerUrl: '',
+      i18Title: 'title',
+      i18Url: 'url',
+      i18Edit: 'edit',
+      i18Delete: 'delete'
     };
   }
 };
@@ -651,16 +656,156 @@ var render = function() {
           }
         },
         [
-          _vm._v("\n            " + _vm._s(_vm.i18Favorite) + " "),
+          _vm._v("\n        " + _vm._s(_vm.i18Favorite) + " "),
           _c("i", {
             staticClass: "bca-icon--chevron-down bca-nav-favorite-title-icon"
           })
         ]
       )
-    ])
+    ]),
+    _vm._v(" "),
+    _vm.favorites
+      ? _c(
+          "ul",
+          {
+            staticClass:
+              "favorite-menu-list bca-nav-favorite-list bca-collapse",
+            attrs: { id: "favoriteBody" }
+          },
+          _vm._l(_vm.favorites, function(favorite, i) {
+            return _c(
+              "li",
+              {
+                key: i,
+                staticClass: "bca-nav-favorite-list-item",
+                attrs: { id: "FavoriteRow" + favorite.name }
+              },
+              [
+                _c(
+                  "a",
+                  { attrs: { href: favorite.url, title: favorite.fullUrl } },
+                  [
+                    _c(
+                      "span",
+                      { staticClass: "bca-nav-favorite-list-item-label" },
+                      [_vm._v(_vm._s(favorite.name))]
+                    )
+                  ]
+                ),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "favorite-id",
+                  attrs: { type: "hidden", name: "id" + "." + favorite.id },
+                  domProps: { value: favorite.id }
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "favorite-name",
+                  attrs: { type: "hidden", name: "name" + "." + favorite.id },
+                  domProps: { value: favorite.name }
+                }),
+                _vm._v(" "),
+                _c("input", {
+                  staticClass: "favorite-url",
+                  attrs: { type: "hidden", name: "url" + "." + favorite.id },
+                  domProps: { value: favorite.url }
+                })
+              ]
+            )
+          }),
+          0
+        )
+      : _c(
+          "ul",
+          {
+            staticClass:
+              "favorite-menu-list bca-nav-favorite-list bca-collapse",
+            attrs: { id: "favoriteBody" }
+          },
+          [
+            _c("li", { staticClass: "no-data" }, [
+              _c("small", [_vm._v(_vm._s(_vm.i18NoData))])
+            ])
+          ]
+        ),
+    _vm._v(" "),
+    _c(
+      "div",
+      {
+        staticStyle: { display: "none" },
+        attrs: { id: "FavoriteDialog", title: "お気に入り登録" }
+      },
+      [
+        _c("form", { attrs: { action: _vm.registerUrl, method: "POST" } }, [
+          _c("input", { attrs: { type: "hidden", name: "id" } }),
+          _vm._v(" "),
+          _c("dl", [
+            _c("dt", [
+              _c("label", { attrs: { for: "favorite-name" } }, [
+                _vm._v(_vm._s(_vm.i18Title))
+              ])
+            ]),
+            _vm._v(" "),
+            _vm._m(0),
+            _vm._v(" "),
+            _c("dt", [
+              _c("label", { attrs: { for: "favorite-url" } }),
+              _vm._v(_vm._s(_vm.i18Url))
+            ]),
+            _vm._v(" "),
+            _vm._m(1)
+          ])
+        ])
+      ]
+    ),
+    _vm._v(" "),
+    _c(
+      "ul",
+      {
+        staticClass: "context-menu",
+        staticStyle: { display: "none" },
+        attrs: { id: "FavoritesMenu" }
+      },
+      [
+        _c("li", { staticClass: "edit" }, [
+          _c("a", { attrs: { href: "#FavoriteEdit" } }, [
+            _vm._v(_vm._s(_vm.i18Edit))
+          ])
+        ]),
+        _vm._v(" "),
+        _c("li", { staticClass: "delete" }, [
+          _c("a", { attrs: { href: "#FavoriteDelete" } }, [
+            _vm._v(_vm._s(_vm.i18Delete))
+          ])
+        ])
+      ]
+    )
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("dd", [
+      _c("input", {
+        staticClass: "required",
+        attrs: { type: "text", size: "30", name: "favorite-name" }
+      })
+    ])
+  },
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("dd", [
+      _c("input", {
+        staticClass: "required",
+        attrs: { type: "text", size: "30", name: "favorite-url" }
+      })
+    ])
+  }
+]
 render._withStripped = true
 
 

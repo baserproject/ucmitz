@@ -19,6 +19,7 @@ composer require baserproject/bc-favorite
   - [x] メニューの上にイベントディスパッチャーを作る
   - [ ] BcFavoriteから上記イベントを横取りしてお気に入り一覧を表示
     - [ ] 開閉ボタンの実装
+      - [ ] 開閉状態の保存処理を実装する
     - [ ] お気に入りのテンプレートを vue.js 化して読み込む
       - [ ] favorite_menu-navの中外をvue化する
     - [ ] APIでJSONを取得して vue.js でレンダリング
