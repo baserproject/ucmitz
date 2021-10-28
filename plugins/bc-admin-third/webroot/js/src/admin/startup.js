@@ -104,40 +104,6 @@ $(function () {
     });
 
     /**
-     * collapse　オプション、お気に入りの折りたたみ開閉
-     */
-    $("[data-bca-collapse='favorite-collapse']").on({
-        'click': function () {
-            const target = $(this).attr('data-bca-target');
-            changeOpenFavorite('#btn-favorite-expand', target);
-            initFavorite('#btn-favorite-expand', target);
-            return false;
-        }
-    });
-
-    function initFavorite(button, target) {
-        if ($(button).attr('data-bca-state') == 'open') {
-            $(target).show();
-        } else {
-            $(target).hide();
-        }
-    }
-
-    function changeOpenFavorite(button, target) {
-        if ($(button).attr('data-bca-state') == 'open') {
-            // ボタンの制御
-            $(button).attr('data-bca-state', '').attr('aria-expanded', 'true');
-            // $.ajax({type: "GET", url: $("#SaveFavoriteBoxUrl").html() + '/'});
-        } else {
-            // ボタンの制御
-            $(button).attr('data-bca-state', 'open').attr('aria-expanded', 'false');
-            // $.ajax({type: "GET", url: $("#SaveFavoriteBoxUrl").html() + '/1'});
-        }
-    }
-
-    initFavorite('#btn-favorite-expand', '#favoriteBody');
-
-    /**
      * Cake\View\Helper\FormHelper
      * @method error()
      * `error`, `errorList` and `errorItem` templatesのclassをjsで変更する

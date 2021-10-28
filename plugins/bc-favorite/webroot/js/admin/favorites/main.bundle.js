@@ -136,7 +136,7 @@
 module.exports = {
   data: function data() {
     return {
-      favoriteBoxOpened: true,
+      favoriteBoxOpened: "block",
       i18Favorite: 'testest2',
       favorites: [{
         id: 1,
@@ -149,8 +149,41 @@ module.exports = {
       i18Title: 'title',
       i18Url: 'url',
       i18Edit: 'edit',
-      i18Delete: 'delete'
+      i18Delete: 'delete',
+      ariaExpanded: 'true'
     };
+  },
+
+  /**
+   * Methods
+   */
+  methods: {
+    /**
+     * initFavorite
+     */
+    initFavorite: function initFavorite() {
+      if (this.favoriteBoxOpened == 'open') {
+        $(target).show();
+      } else {
+        $(target).hide();
+      }
+    },
+    changeOpenFavorite: function changeOpenFavorite() {
+      if (this.favoriteBoxOpened == 'block') {
+        // ボタンの制御
+        this.favoriteBoxOpened = 'none';
+        this.ariaExpanded = 'true'; // TODO: 保存処理を追加
+        // $.ajax({type: "GET", url: $("#SaveFavoriteBoxUrl").html() + '/'});
+      } else {
+        // ボタンの制御
+        this.favoriteBoxOpened = 'block';
+        this.ariaExpanded = 'false'; // TODO: 保存処理を追加
+        // $.ajax({type: "GET", url: $("#SaveFavoriteBoxUrl").html() + '/1'});
+      }
+    }
+  },
+  mounted: function mounted() {
+    this.initFavorite();
   }
 };
 
@@ -650,10 +683,10 @@ var render = function() {
             id: "btn-favorite-expand",
             "data-bca-collapse": "favorite-collapse",
             "data-bca-target": "#favoriteBody",
-            "aria-expanded": "false",
-            "aria-controls": "favoriteBody",
-            "data-bca-state": _vm.favoriteBoxOpened
-          }
+            "aria-expanded": "ariaExpanded",
+            "aria-controls": "favoriteBody"
+          },
+          on: { click: _vm.changeOpenFavorite }
         },
         [
           _vm._v("\n        " + _vm._s(_vm.i18Favorite) + " "),
@@ -664,12 +697,13 @@ var render = function() {
       )
     ]),
     _vm._v(" "),
-    _vm.favorites
+    _vm.favorites.length
       ? _c(
           "ul",
           {
             staticClass:
               "favorite-menu-list bca-nav-favorite-list bca-collapse",
+            style: "display:" + _vm.favoriteBoxOpened,
             attrs: { id: "favoriteBody" }
           },
           _vm._l(_vm.favorites, function(favorite, i) {
@@ -720,6 +754,7 @@ var render = function() {
           {
             staticClass:
               "favorite-menu-list bca-nav-favorite-list bca-collapse",
+            style: "display:" + _vm.favoriteBoxOpened,
             attrs: { id: "favoriteBody" }
           },
           [
