@@ -20,7 +20,7 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 
 /**
- * Class Favorite
+ * Class FavoritesTable
  */
 class FavoritesTable extends AppTable
 {

@@ -19,7 +19,7 @@ use BcFavorite\Service\FavoriteServiceInterface;
 use Exception;
 
 /**
- * Class Favorite
+ * Class FavoritesController
  */
 class FavoritesController extends BcApiController
 {
