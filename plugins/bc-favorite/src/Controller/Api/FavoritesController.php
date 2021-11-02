@@ -155,7 +155,12 @@ class FavoritesController extends BcApiController
      */
     public function save_favorite_box($open = '')
     {
-        $this->request->getSession()->write('Baser.favorite_box_opened', $open);
+        if ($open === '1' || $open === '') {
+            $this->request->getSession()->write('Baser.favorite_box_opened', $open);
+        } else {
+            $this->setResponse($this->response->withStatus(400));
+        }
+        $this->viewBuilder()->setOption('serialize', []);
     }
 
 }

@@ -159,4 +159,56 @@ class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->assertEquals(0, $query->count());
     }
 
+    /**
+     * testSave_favorite_box
+     *
+     * @return void
+     */
+    public function testSave_favorite_box()
+    {
+        $this->post('/baser/api/bc-favorite/favorites/save_favorite_box.json?token=' . $this->accessToken);
+        $this->assertEquals('', $this->_requestSession->read('Baser.favorite_box_opened'));
+        $this->post('/baser/api/bc-favorite/favorites/save_favorite_box/1.json?token=' . $this->accessToken);
+        $a = $this->_requestSession->read('Baser.favorite_box_opened');
+        $this->assertEquals('1', $this->_requestSession->read('Baser.favorite_box_opened'));
+    }
+    /**
+     * beforeFilter
+     */
+    public function testBeforeFilter()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * [ADMIN] よく使う項目を追加する（AJAX）
+     */
+    public function testAdmin_ajax_add()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * [ADMIN] よく使う項目編集
+     */
+    public function testAdmin_ajax_edit()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * [ADMIN] 削除
+     */
+    public function testAdmin_ajax_delete()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * [ADMIN] 並び替えを更新する
+     */
+    public function testAdmin_update_sort()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
 }
