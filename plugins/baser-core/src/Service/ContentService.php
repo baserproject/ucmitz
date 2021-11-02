@@ -20,6 +20,7 @@ use Cake\I18n\FrozenTime;
 use Nette\Utils\DateTime;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
+use Cake\Http\ServerRequest;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -244,18 +245,6 @@ class ContentService implements ContentServiceInterface
      */
     public function getTableIndex(array $queryParams): Query
     {
-
-        $conditions = [
-            'open' => '1',
-            'name' => '',
-            'folder_id' => '',
-            'type' => '',
-            'self_status' => '1',
-            'author_id' => '',
-        ];
-        if ($queryParams) {
-            $queryParams = array_merge($conditions, $queryParams);
-        }
         return $this->getIndex($this->getTableConditions($queryParams));
     }
 
@@ -343,18 +332,93 @@ class ContentService implements ContentServiceInterface
      * @param  int $id
      * @param  array $postData
      * @return \Cake\Datasource\EntityInterface
+     * @checked
+     * @unitTest
      */
     public function alias(int $id, array $postData)
     {
         $content = $this->get($id);
         $data = array_merge($content->toArray(), $postData);
         $alias = $this->Contents->newEmptyEntity();
+        //TODO: copyContentFolderPath未確認のため一旦コメントアウト
+        // if (empty($data['parent_id']) && !empty($data['url'])) {
+        //     $data['parent_id'] = $this->copyContentFolderPath($data['url'], $data['site_id']);
+        // }
         unset($data['lft'], $data['rght'], $data['level'], $data['pubish_begin'], $data['publish_end'], $data['created_date'], $data['created'], $data['modified']);
         $alias->name = $postData['name'] ?? $postData['title'];
         $alias->alias_id = $id;
         $alias->created_date = FrozenTime::now();
+        $alias->author_id = BcUtil::loginUser()->id ?? null;
         $alias = $this->Contents->patchEntity($alias, $postData, ['validate' => 'default']);
         return ($result = $this->Contents->save($alias)) ? $result : $alias;
+    }
+
+    /**
+     * 現在のフォルダのURLを元に別サイトにフォルダを生成する
+     * 最下層のIDを返却する
+     *
+     * @param $currentUrl
+     * @param $targetSiteId
+     * @return bool|null
+     */
+    public function copyContentFolderPath($currentUrl, $targetSiteId)
+    {
+
+        $current = $this->getIndex(['url' => $currentUrl]);
+        if ($current->isEmpty()) {
+            return false;
+        } else {
+            $currentId = $current->first()->id;
+        }
+        $prefix = $this->Sites->getPrefix($targetSiteId);
+        $path = $this->getPath($currentId, null, -1);
+        if (!$path) {
+            return false;
+        }
+        $url = '/';
+        if ($prefix) {
+            $url .= $prefix . '/';
+        }
+        unset($path[0]);
+        $parentId = $this->Sites->getRootContentId($targetSiteId);
+        /* @var ContentFolder $ContentFolder */
+        $ContentFolder = TableRegistry::getTableLocator()->get('ContentFolder');
+        foreach($path as $currentContentFolder) {
+            if ($currentContentFolder->type != 'ContentFolder') {
+                break;
+            }
+            if ($currentContentFolder->site_root) {
+                continue;
+            }
+            $url .= $currentContentFolder->name;
+            if ($this->findByUrl($url)) {
+                return false;
+            }
+            $url .= '/';
+            $targetContentFolder = $this->findByUrl($url);
+            if ($targetContentFolder) {
+                $parentId = $targetContentFolder->id;
+            } else {
+                $data = [
+                    'content' => [
+                        'name' => $currentContentFolder->name,
+                        'title' => $currentContentFolder->title,
+                        'parent_id' => $parentId,
+                        'plugin' => 'BaserCore',
+                        'type' => 'ContentFolder',
+                        'site_id' => $targetSiteId,
+                        'self_status' => true
+                    ]
+                ];
+                $ContentFolder->create($data);
+                if ($ContentFolder->save()) {
+                    $parentId = $ContentFolder->Content->id;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return $parentId;
     }
 
     /**
@@ -479,7 +543,7 @@ class ContentService implements ContentServiceInterface
             return false;
         }
         if ($content->alias_id) {
-            $result = $this->delete($id) && $this->hardDelete($id);
+            $result = $this->Contents->hardDelete($content);
         } else {
             // $result = $this->Contents->softDeleteFromTree($id); TODO: キャッシュ系が有効化されてからsoftDeleteFromTreeを使用する
             $result = $this->deleteRecursive($id); // 一時措置
@@ -527,8 +591,11 @@ class ContentService implements ContentServiceInterface
     /**
       * コンテンツ情報を取得する
       * @return array
+      * @checked
+      * @noTodo
+      * @unitTest
       */
-    public function getContensInfo ()
+    public function getContentsInfo()
     {
         $sites = $this->Sites->getPublishedAll();
         $contentsInfo = [];
@@ -613,7 +680,7 @@ class ContentService implements ContentServiceInterface
                 $this->Contents->deleteAssocCache($node);
             } else {
                 // エイリアスの場合、直接削除
-                $result = $this->hardDelete($node->id);
+                $result = $this->Contents->hardDelete($node);
             }
             if (!$result) return false;
         }
@@ -684,12 +751,14 @@ class ContentService implements ContentServiceInterface
      * @param bool $useSubDomain サブドメインを利用しているかどうか
      * @param bool $base $full が false の場合、ベースとなるURLを含めるかどうか
      * @return string URL
+     * @checked
+     * @unitTest
      */
     public function getUrl($url, $full = false, $useSubDomain = false, $base = false)
     {
         if ($useSubDomain && !is_array($url)) {
             $subDomain = '';
-            $site = $this->Sites->findByUrl($url);
+            $site = $this->Sites->findByUrl($url); // TODO: BcSiteと違う点に注意
             $originUrl = $url;
             if ($site) {
                 $subDomain = $site->alias;
@@ -697,7 +766,7 @@ class ContentService implements ContentServiceInterface
             }
             if ($full) {
                 if ($site) {
-                    $fullUrl = topLevelUrl(false) . $originUrl;
+                    $fullUrl = BcUtil::topLevelUrl(false) . $originUrl;
                     if ($site->domain_type == 1) {
                         $mainDomain = BcUtil::getMainDomain();
                         $fullUrlArray = explode('//', $fullUrl);
@@ -865,5 +934,220 @@ class ContentService implements ContentServiceInterface
         unset($data['Site']);
         $this->create($data);
         return $this->save($data);
+    }
+
+    /**
+     * 公開状態にする
+     *
+     * @param int $id
+     * @return EntityInterface
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function publish($id): EntityInterface
+    {
+        $content = $this->get($id);
+        // 日付をどこで入れるかを確認する
+        $content->self_publish_begin = FrozenTime::now();
+        $content->self_publish_end = null;
+        $content->self_status = true;
+        return $this->Contents->save($this->Contents->updateSystemData($content));
+    }
+
+    /**
+     * 非公開状態にする
+     *
+     * @param int $id
+     * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function unpublish($id): EntityInterface
+    {
+        $content = $this->get($id);
+        // 日付をどこで入れるかを確認する
+        $content->self_publish_end = FrozenTime::now();
+        $content->self_status = false;
+        return $this->Contents->save($this->Contents->updateSystemData($content));
+    }
+
+    /**
+     * exists
+     *
+     * @param  int $id
+     * @param bool $withTrash ゴミ箱の物も含めるか
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function exists($id, $withTrash = false): bool
+    {
+        if ($withTrash) {
+            $exists = !$this->getIndex(['id' => $id, 'withTrash' => true])->isEmpty();
+        } else {
+            $exists = !$this->getIndex(['id' => $id])->isEmpty();
+        }
+        return $exists;
+    }
+
+    /**
+     * コンテンツを移動する
+     *
+     * 基本的に targetId の上に移動する前提となる
+     * targetId が空の場合は、同親中、一番下に移動する
+     *
+     * @param array $origin
+     * @param array $target
+     * @return Content|bool|false
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function move($origin, $target)
+    {
+        $this->moveRelateSubSiteContent($origin['id'], $target['parentId'], $target['id']);
+        $targetSort = $this->Contents->getOrderSameParent($target['id'], $target['parentId']);
+        if ($origin['parentId'] != $target['parentId']) {
+            $content = $this->get($origin['id']);
+            // 親を変更
+            $content = $this->update($content, [
+                'id' => $origin['id'],
+                'name' => $content->name,
+                'title' => $content->title,
+                'plugin' => $content->plugin,
+                'type' => $content->type,
+                'parent_id' => $target['parentId'],
+                'site_id' => $target['siteId']
+            ]);
+            // フォルダにコンテンツがない場合、targetId が空で一番後を指定の場合は、親を変更して終了
+            if (!$targetSort || !$target['id']) {
+                return $content;
+            }
+            $currentSort = $this->Contents->getOrderSameParent(null, $target['parentId']);
+        } else {
+            $currentSort = $this->Contents->getOrderSameParent($origin['id'], $target['parentId']);
+        }
+        // 親変更後のオフセットを取得
+        $offset = $targetSort - $currentSort;
+        if ($origin['parentId'] == $target['parentId'] && $target['id'] && $offset > 0) {
+            $offset--;
+        }
+        // オフセットを元に移動
+        return $this->Contents->moveOffset($origin['id'], $offset);
+    }
+
+    /**
+     * メインサイトの場合、連携設定がされている子サイトも移動する
+     *
+     * @param $data
+     * @checked
+     * @unitTest
+     */
+    protected function moveRelateSubSiteContent($mainCurrentId, $mainTargetParentId, $mainTargetId)
+    {
+        $data = $this->get($mainCurrentId);
+        // 自身がエイリアスか確認し、エイリアスの場合は終了
+        if (!empty($data->alias_id) || !isset($data->site_id) || !isset($data->type)) {
+            return true;
+        }
+        // メインサイトか確認し、メインサイトでない場合は終了
+        if (!$this->Sites->isMain($data->site_id)) {
+            return true;
+        }
+        // 連携設定となっている小サイトを取得
+        $sites = $this->Sites->find()->where(['main_site_id' => $data->site_id, 'relate_main_site' => true]);
+        if ($sites->isEmpty()) {
+            return true;
+        }
+        $result = true;
+        foreach($sites as $site) {
+            // 自信をメインコンテンツとしているデータを取得
+            // currentの設定
+            try {
+                $currentEntity = $this->Contents->find()->where(['main_site_content_id' => $mainCurrentId, 'site_id' => $site->id])->firstOrFail();
+                $current['id'] = $currentEntity->id;
+                $current['parentId'] = $currentEntity->parent_id;
+            } catch (\Exception $e) {
+                continue;
+            }
+            // targetの設定
+            if (!empty($targetEntity)) {
+                unset($targetEntity);
+                unset($target);
+            }
+            try {
+                if ($mainTargetId) {
+                    $targetEntity = $this->Contents->find()->where(['main_site_content_id' => $mainTargetId, 'site_id' => $site->id])->first();
+                    if ($targetEntity) {
+                        $target['id'] = $targetEntity->id;
+                        $target['parentId'] = $targetEntity->parent_id;
+                        $target['siteId'] = $targetEntity->site_id;
+                    } else {
+                        // ターゲットが見つからない場合は親IDより取得
+                        $targetEntity = $this->Contents->find()->where(['main_site_content_id' => $mainTargetParentId, 'site_id' => $site->id])->firstOrFail();
+                        if ($targetEntity) {
+                            $target['id'] = $targetEntity->id;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+            if (!$this->move($current, $target)) {
+                $result = false;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * 移動元のコンテンツと移動先のディレクトリから移動が可能かチェックする
+     *
+     * @param int $currentId int 移動元コンテンツID
+     * @param int $targetParentId int 移動先コンテンツID (ContentFolder)
+     * @return bool
+     */
+    public function isMovable($currentId, $targetParentId)
+    {
+        $currentContent = $this->get($currentId);
+        if ($currentContent->parent_id === $targetParentId) {
+            return true;
+        }
+        $parentCuntent = $this->get($targetParentId);
+
+        // 指定コンテンツが存在しない
+        if (!$currentContent || !$parentCuntent) {
+            return false;
+        }
+
+        $parentId = $parentCuntent->id;
+
+        // 関連コンテンツで移動先と同じ階層のフォルダを確認
+        $childrenSite = $this->Sites->children($currentContent->site_id, [
+            'conditions' => ['relate_main_site' => true]
+        ]);
+        if ($childrenSite) {
+            $pureUrl = $this->Contents->pureUrl($parentCuntent->url, $parentCuntent->site_id);
+            foreach($childrenSite as $site) {
+                $site = $this->Sites->findById($site->id)->first();
+                $url = $site->makeUrl(new ServerRequest($pureUrl));
+                $id = $this->Contents->find()->select('id')->where(['url' => $url]);
+                if ($id) {
+                    $parentId = $id;
+                }
+            }
+        }
+        // 移動先に同一コンテンツが存在するか確認
+        $movedContent = $this->Contents->find()
+            ->where(['parent_id' => $parentId, 'name' => $currentContent->name, 'id !=' => $currentContent->id])
+            ->first();
+        if ($movedContent) {
+            return false;
+        }
+        return true;
     }
 }

@@ -160,11 +160,11 @@ class ContentServiceTest extends BcTestCase
         return [
             [[
                 'site_id' => 1,
-            ], 14],
+            ], 15],
             [[
                 'site_id' => 1,
                 'withTrash' => true,
-            ], 16],
+            ], 17],
             [[
                 'site_id' => 1,
                 'open' => '1',
@@ -173,7 +173,7 @@ class ContentServiceTest extends BcTestCase
                 'type' => 'ContentFolder',
                 'self_status' => '1',
                 'author_id' => '',
-            ], 6],
+            ], 7],
             [[
                 'site_id' => 1,
                 'open' => '1',
@@ -206,15 +206,15 @@ class ContentServiceTest extends BcTestCase
         // softDeleteの場合
         $request = $this->getRequest('/?status=1');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
-        $this->assertEquals(14, $contents->all()->count());
+        $this->assertEquals(15, $contents->all()->count());
         // ゴミ箱を含むの場合
         $request = $this->getRequest('/?status=1&withTrash=true');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
-        $this->assertEquals(16, $contents->all()->count());
+        $this->assertEquals(17, $contents->all()->count());
         // 否定の場合
         $request = $this->getRequest('/?status=1&type!=Page');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
-        $this->assertEquals(8, $contents->all()->count());
+        $this->assertEquals(9, $contents->all()->count());
     }
     /**
      * testGetTrashIndex
@@ -323,7 +323,7 @@ class ContentServiceTest extends BcTestCase
      */
     public function testDeleteAll(): void
     {
-        $this->assertEquals(15, $this->ContentService->deleteAll());
+        $this->assertEquals(16, $this->ContentService->deleteAll());
         $contents = $this->ContentService->getIndex();
         $this->assertEquals(0, $contents->all()->count());
     }
@@ -341,9 +341,9 @@ class ContentServiceTest extends BcTestCase
         $this->assertTrue($this->ContentService->treeDelete(6));
         $query = $this->ContentService->getTrashIndex(['name' => 'service']);
         $this->assertEquals(4, $query->count());
-        // エイリアスがある場合
-        // TODO: $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        // $result = $this->ContentService->treeDelete(14);
+        // エイリアスがある場合物理削除
+        $result = $this->ContentService->treeDelete(22);
+        $this->assertFalse($this->ContentService->exists(22, true));
     }
 
     /**
@@ -375,7 +375,7 @@ class ContentServiceTest extends BcTestCase
      */
     public function testGetContentsInfo()
     {
-        $result = $this->ContentService->getContensInfo();
+        $result = $this->ContentService->getContentsInfo();
         $this->assertTrue(isset($result[0]['unpublished']));
         $this->assertTrue(isset($result[0]['published']));
         $this->assertTrue(isset($result[0]['total']));
@@ -413,6 +413,9 @@ class ContentServiceTest extends BcTestCase
         foreach ($children as $child) {
             $this->assertNotEmpty($this->ContentService->getTrash($child->id));
         }
+        // エイリアスを子に持つ場合
+        $this->assertTrue($this->ContentService->deleteRecursive(21));
+        $this->assertFalse($this->ContentService->exists(22, true)); // エイリアス
     }
 
     /**
@@ -465,7 +468,6 @@ class ContentServiceTest extends BcTestCase
      */
     public function testGetUrl($host, $userAgent, $url, $full, $useSubDomain, $expects)
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
         if ($userAgent) {
@@ -474,7 +476,7 @@ class ContentServiceTest extends BcTestCase
         if ($host) {
             Configure::write('BcEnv.host', $host);
         }
-        Router::setRequestInfo($this->_getRequest('/m/'));
+        // Router::setRequestInfo($this->_getRequest('/m/'));
         $result = $this->ContentService->getUrl($url, $full, $useSubDomain);
         $this->assertEquals($result, $expects);
         Configure::write('BcEnv.siteUrl', $siteUrl);
@@ -483,6 +485,7 @@ class ContentServiceTest extends BcTestCase
     public function getUrlDataProvider()
     {
         return [
+            //TODO: another.comがそもそもSiteに無いため一旦コメントアウト
             // ノーマルURL
             ['main.com', '', '/', false, false, '/'],
             ['main.com', '', '/index', false, false, '/'],
@@ -492,10 +495,10 @@ class ContentServiceTest extends BcTestCase
             ['sub.main.com', '', '/sub/', false, true, '/'],
             ['sub.main.com', '', '/sub/index', false, true, '/'],
             ['sub.main.com', '', '/sub/news/archives/1', false, true, '/news/archives/1'],
-            ['another.com', '', '/another.com/', false, true, '/'],
-            ['another.com', '', '/another.com/index', false, true, '/'],
-            ['another.com', '', '/another.com/news/archives/1', false, true, '/news/archives/1'],
-            ['another.com', 'iPhone', '/another.com/s/news/archives/1', false, true, '/news/archives/1'],
+            // ['another.com', '', '/another.com/', false, true, '/'],
+            // ['another.com', '', '/another.com/index', false, true, '/'],
+            // ['another.com', '', '/another.com/news/archives/1', false, true, '/news/archives/1'],
+            // ['another.com', 'iPhone', '/another.com/s/news/archives/1', false, true, '/news/archives/1'],
             // フルURL
             ['main.com', '', '/', true, false, 'http://main.com/'],
             ['main.com', '', '/index', true, false, 'http://main.com/'],
@@ -505,10 +508,10 @@ class ContentServiceTest extends BcTestCase
             ['sub.main.com', '', '/sub/', true, true, 'http://sub.main.com/'],
             ['sub.main.com', '', '/sub/index', true, true, 'http://sub.main.com/'],
             ['sub.main.com', '', '/sub/news/archives/1', true, true, 'http://sub.main.com/news/archives/1'],
-            ['another.com', '', '/another.com/', true, true, 'http://another.com/'],
-            ['another.com', '', '/another.com/index', true, true, 'http://another.com/'],
-            ['another.com', '', '/another.com/news/archives/1', true, true, 'http://another.com/news/archives/1'],
-            ['another.com', 'iPhone', '/another.com/s/news/archives/1', true, true, 'http://another.com/news/archives/1'],
+            // ['another.com', '', '/another.com/', true, true, 'http://another.com/'],
+            // ['another.com', '', '/another.com/index', true, true, 'http://another.com/'],
+            // ['another.com', '', '/another.com/news/archives/1', true, true, 'http://another.com/news/archives/1'],
+            // ['another.com', 'iPhone', '/another.com/s/news/archives/1', true, true, 'http://another.com/news/archives/1'],
         ];
     }
 
@@ -625,5 +628,98 @@ class ContentServiceTest extends BcTestCase
         $this->assertTrue($this->ContentService->deleteAlias(5));
         // ゴミ箱行きではなくちゃんと削除されてるか確認
         $this->assertTrue($this->ContentService->getIndex(['withTrash' => true, 'id' => 5])->isEmpty());
+    }
+
+    /**
+     * Test publish
+     *
+     * @return void
+     */
+    public function testPublish()
+    {
+        $contents = $this->getTableLocator()->get('Contents');
+
+        $content = $contents->find()->order(['id' => 'ASC'])->first();
+        $content->status = false;
+        $contents->save($content);
+
+        $content = $this->ContentService->publish($content->id);
+        $this->assertTrue($content->self_status);
+    }
+
+    /**
+     * Test unpublish
+     *
+     * @return void
+     */
+    public function testUnpublish()
+    {
+        $contents = $this->getTableLocator()->get('Contents');
+
+        $content = $contents->find()->order(['id' => 'ASC'])->first();
+        $content->status = true;
+        $contents->save($content);
+
+        $content = $this->ContentService->unpublish($content->id);
+        $this->assertFalse($content->self_status);
+    }
+
+    /**
+     * testExists
+     *
+     * @return void
+     */
+    public function testExists()
+    {
+        $this->assertTrue($this->ContentService->exists(1));
+        $this->assertFalse($this->ContentService->exists(100));
+    }
+
+    /**
+     * testMove
+     *
+     * @return void
+     */
+    public function testMove()
+    {
+        // 移動元のエンティティ
+        $originEntity = $this->ContentService->getIndex(['parent_id' => 1])->order('lft')->first();
+        $origin = [
+            'id' => $originEntity->id,
+            'parentId' => $originEntity->parent_id
+        ];
+        // target idが指定されてない場合 親要素内の最後に移動
+        $target1 = [
+            'id' => "",
+            'parentId' => "1",
+            'siteId' => "1",
+        ];
+        $result = $this->ContentService->move($origin, $target1);
+        $lastEntity = $this->ContentService->getIndex(['parent_id' => 1])->order('lft')->last();
+        $this->assertEquals($result->title, $originEntity->title);
+        $this->assertEquals($result->title, $lastEntity->title);
+        // targetIdが指定されてる場合
+        // 対象が同じ要素の2番目のエンティティなので、直前つまり最初に移動
+        $target2 = [
+            'id' => "10",
+            'parentId' => "1",
+            'siteId' => "1",
+        ];
+        $result = $this->ContentService->move($origin, $target2);
+        $firstEntity = $this->ContentService->getIndex(['parent_id' => 1])->order('lft')->first();
+        $this->assertEquals($result->title, $originEntity->title);
+        $this->assertEquals($result->title, $firstEntity->title);
+    }
+
+    /**
+     * メインサイトの場合、連携設定がされている子サイトも移動する
+     *
+     *  @return void
+     *  @todo 子サイトが複数ある状況のテストを追加する
+     */
+    public function testMoveRelateSubSiteContent()
+    {
+        $result = $this->execPrivateMethod($this->ContentService, 'moveRelateSubSiteContent', ['12', '6', '']);
+        $this->assertTrue($result);
     }
 }

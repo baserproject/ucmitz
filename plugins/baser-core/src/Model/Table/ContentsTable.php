@@ -130,7 +130,7 @@ class ContentsTable extends AppTable
             'Model.afterValidate' => ['callable' => 'afterValidate'],
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
             'Model.afterMarshal' => 'afterMarshal',
-            // 'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
+            'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
             'Model.beforeDelete' => ['callable' => 'beforeDelete', 'passParams' => true, 'priority' => 1],
             // 'Model.afterDelete' => ['callable' => 'afterDelete'],
         ];
@@ -491,31 +491,31 @@ class ContentsTable extends AppTable
     }
 
     /**
-     * After Save
+     * afterSave
      *
-     * @param bool $created
-     * @param array $options
+     * @param  EventInterface $event
+     * @param  EntityInterface $entity
+     * @param  ArrayObject $options
      * @return void
      */
     public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
-        // TODO: 代替措置
-        $this->deleteAssocCache($this->data);
-        if ($this->updatingSystemData) {
-            $this->updateSystemData($this->data);
-        }
-        if ($this->updatingRelated) {
-            // ゴミ箱から戻す場合、 type の定義がないが問題なし
-            if (!empty($this->data['Content']['type']) && $this->data['Content']['type'] == 'ContentFolder') {
-                $this->updateChildren($this->data['Content']['id']);
-            }
-            $this->updateRelateSubSiteContent($this->data);
-            if (!empty($this->data['Content']['parent_id']) && $this->beforeSaveParentId != $this->data['Content']['parent_id']) {
-                $SiteConfig = ClassRegistry::init('SiteConfig');
-                $SiteConfig->updateContentsSortLastModified();
-                $this->beforeSaveParentId = null;
-            }
-        }
+        // if ($this->updatingSystemData) {
+        //     $this->updateSystemData($entity);
+        // }
+        // TODO: 未実装のため一旦コメントアウト
+        // if ($this->updatingRelated) {
+        //     // ゴミ箱から戻す場合、 type の定義がないが問題なし
+        //     if (!empty($entity->type) && $entity->type == 'ContentFolder') {
+        //         $this->updateChildren($entity->id);
+        //     }
+        //     $this->updateRelateSubSiteContent($entity);
+        //     if (!empty($entity->parent_id) && $this->beforeSaveParentId != $entity->parent_id) {
+        //         $SiteConfig = TableRegistry::getTableLocator()->get('BaserCore.SiteConfig');
+        //         $SiteConfig->updateContentsSortLastModified();
+        //         $this->beforeSaveParentId = null;
+        //     }
+        // }
     }
 
     /**
@@ -900,72 +900,71 @@ class ContentsTable extends AppTable
      *
      * URL / 公開状態 / メインサイトの関連コンテンツID
      *
-     * @param array $data
-     * @return mixed
+     * @param Content $content
+     * @return Content
      */
-    public function updateSystemData($data)
+    public function updateSystemData($content)
     {
-        if (empty($data['Content']['name'])) {
-            if ($data['Content']['id'] != 1) {
+        if (empty($content->name)) {
+            if ($content->id != 1) {
                 return false;
             }
         }
-
-        $site = $this->Sites->find('first', ['conditions' => ['Site.id' => $data['Content']['site_id']]]);
-
         // URLを更新
-        $data['Content']['url'] = $this->createUrl($data['Content']['id'], $data['Content']['plugin'], $data['Content']['type']);
+        // TODO: 動作しないので一旦コメントアウト
+        // $content->url = $this->createUrl($content->id, $content->plugin, $content->type);
 
         // 親フォルダの公開状態に合わせて公開状態を更新（自身も含める）
-        if (isset($data['Content']['self_status'])) {
-            $data['Content']['status'] = $data['Content']['self_status'];
+        if (isset($content->self_status)) {
+            $content->status = $content->self_status;
         }
         // null の場合、isset で判定できないので array_key_exists を利用
-        if (array_key_exists('self_publish_begin', $data['Content'])) {
-            $data['Content']['publish_begin'] = $data['Content']['self_publish_begin'];
+        if (isset($content->self_publish_begin)) {
+            $content->publish_begin = $content->self_publish_begin;
         }
-        if (array_key_exists('self_publish_end', $data['Content'])) {
-            $data['Content']['publish_end'] = $data['Content']['self_publish_end'];
+        if (isset($content->self_publish_end)) {
+            $content->publish_end = $content->self_publish_end;
         }
-        if (!empty($data['Content']['parent_id'])) {
-            $parent = $this->find('first', [
-                'fields' => ['name', 'status', 'publish_begin', 'publish_end'],
-                'conditions' => ['Content.id' => $data['Content']['parent_id']],
-                'recursive' => -1
-            ]);
-            if (!$parent['Content']['status'] || $parent['Content']['publish_begin'] || $parent['Content']['publish_begin']) {
-                $data['Content']['status'] = $parent['Content']['status'];
-                $data['Content']['publish_begin'] = $parent['Content']['publish_begin'];
-                $data['Content']['publish_end'] = $parent['Content']['publish_end'];
+        if (!empty($content->parent_id)) {
+            $parent = $this->find()->select(['name', 'status', 'publish_begin', 'publish_end'])->where(['id' => $content->parent_id])->first();
+            if (!$parent->status || $parent->publish_begin || $parent->publish_begin) {
+                $content->status = $parent->status;
+                $content->publish_begin = $parent->publish_begin;
+                $content->publish_end = $parent->publish_end;
             }
         }
 
         // 主サイトの関連コンテンツIDを更新
-        if ($site) {
+        if ($content->site) {
             // 主サイトの同一階層のコンテンツを特定
-            $prefix = $site['Site']['name'];
-            if ($site['Site']['alias']) {
-                $prefix = $site['Site']['alias'];
+            $prefix = $content->site->name;
+            if ($content->site->alias) {
+                $prefix = $content->site->alias;
             }
-            $url = preg_replace('/^\/' . preg_quote($prefix, '/') . '\//', '/', $data['Content']['url']);
-            $mainSitePrefix = $this->Sites->getPrefix($site['Site']['main_site_id']);
+            $url = preg_replace('/^\/' . preg_quote($prefix, '/') . '\//', '/', $content->url);
+            // TODO: 一時的にtry catchにしてる部分を修正する
+            try {
+                $mainSitePrefix = $this->Sites->getPrefix($content->site->main_site_id);
+            } catch (\InvalidArgumentException $e) {
+                $mainSitePrefix = false;
+            }
             if ($mainSitePrefix) {
                 $url = '/' . $mainSitePrefix . $url;
             }
-            $mainSiteContentId = $this->field('id', [
-                'site_id' => $site['Site']['main_site_id'],
-                'url' => $url
-            ]);
-            // main_site_content_id を更新
-            if ($mainSiteContentId) {
-                $data['Content']['main_site_content_id'] = $mainSiteContentId;
-            } else {
-                $data['Content']['main_site_content_id'] = null;
-            }
+            // TODO: ワーニングになるため、一旦コメントアウト
+            // try {
+            //     $mainSiteContent = $this->find()->select(['id'])->where(['site_id' => $content->site->main_site_id, 'url' => $url])->first()->id >> false;
+            // }  catch (\InvalidArgumentException $e) {
+            //     $mainSiteContentId = false;
+            // }
+            // // main_site_content_id を更新
+            // if ($mainSiteContentId) {
+            //     $content->main_site_content_id = $mainSiteContentId;
+            // } else {
+            //     $content->main_site_content_id = null;
+            // }
         }
-        $data = $this->save($data, ['validate' => false, 'callbacks' => false]);
-        $this->data = $data;
-        return (bool)($data);
+        return $this->save($content, ['validate' => false, 'callbacks' => false]);
     }
 
     /**
@@ -1063,71 +1062,6 @@ class ContentsTable extends AppTable
     }
 
     /**
-     * 現在のフォルダのURLを元に別サイトにフォルダを生成する
-     * 最下層のIDを返却する
-     *
-     * @param $currentUrl
-     * @param $targetSiteId
-     * @return bool|null
-     */
-    public function copyContentFolderPath($currentUrl, $targetSiteId)
-    {
-        $currentId = $this->field('id', ['Content.url' => $currentUrl]);
-        if (!$currentId) {
-            return false;
-        }
-        $prefix = $this->Sites->getPrefix($targetSiteId);
-        $path = $this->getPath($currentId, null, -1);
-        if (!$path) {
-            return false;
-        }
-        $url = '/';
-        if ($prefix) {
-            $url .= $prefix . '/';
-        }
-        unset($path[0]);
-        $parentId = $this->Sites->getRootContentId($targetSiteId);
-        /* @var ContentFolder $ContentFolder */
-        $ContentFolder = ClassRegistry::init('ContentFolder');
-        foreach($path as $currentContentFolder) {
-            if ($currentContentFolder['Content']['type'] != 'ContentFolder') {
-                break;
-            }
-            if ($currentContentFolder['Content']['site_root']) {
-                continue;
-            }
-            $url .= $currentContentFolder['Content']['name'];
-            if ($this->find('first', ['conditions' => ['Content.url' => $url], 'recursive' => -1])) {
-                return false;
-            }
-            $url .= '/';
-            $targetContentFolder = $this->find('first', ['conditions' => ['Content.url' => $url], 'recursive' => -1]);
-            if ($targetContentFolder) {
-                $parentId = $targetContentFolder['Content']['id'];
-            } else {
-                $data = [
-                    'Content' => [
-                        'name' => $currentContentFolder['Content']['name'],
-                        'title' => $currentContentFolder['Content']['title'],
-                        'parent_id' => $parentId,
-                        'plugin' => 'BaserCore',
-                        'type' => 'ContentFolder',
-                        'site_id' => $targetSiteId,
-                        'self_status' => true
-                    ]
-                ];
-                $ContentFolder->create($data);
-                if ($ContentFolder->save()) {
-                    $parentId = $ContentFolder->Content->id;
-                } else {
-                    return false;
-                }
-            }
-        }
-        return $parentId;
-    }
-
-    /**
      * 公開済の conditions を取得
      *
      * @return array 公開条件（conditions 形式）
@@ -1175,15 +1109,13 @@ class ContentsTable extends AppTable
                 $fields[$key] = 'self_' . $field;
             }
         }
-
         $allowPublish = (int)$data[$fields['status']];
-
         // 期限を設定している場合に条件に該当しない場合は強制的に非公開とする
-        if (($data[$fields['publish_begin']] != 0 && $data[$fields['publish_begin']] >= date('Y-m-d H:i:s')) ||
-            ($data[$fields['publish_end']] != 0 && $data[$fields['publish_end']] <= date('Y-m-d H:i:s'))) {
+        $invalidBegin = $data[$fields['publish_begin']] instanceof FrozenTime && $data[$fields['publish_begin']]->isFuture();
+        $invalidEnd = $data[$fields['publish_end']] instanceof FrozenTime  && $data[$fields['publish_end']]->isPast();
+        if ($invalidBegin || $invalidEnd) {
             $allowPublish = false;
         }
-
         return $allowPublish;
     }
 
@@ -1237,66 +1169,6 @@ class ContentsTable extends AppTable
             if ($publishEnd < date('Y-m-d H:i:s')) {
                 return false;
             }
-        }
-        return true;
-    }
-
-    /**
-     * 移動元のコンテンツと移動先のディレクトリから移動が可能かチェックする
-     *
-     * @param $currentId int 移動元コンテンツID
-     * @param $targetParentId int 移動先コンテンツID (ContentFolder)
-     * @return bool
-     */
-    public function isMovable($currentId, $targetParentId)
-    {
-        $currentContent = $this->find('first', [
-            'conditions' => ['id' => $currentId],
-            'recursive' => -1
-        ]);
-        if ($currentContent['Content']['parent_id'] === $targetParentId) {
-            return true;
-        }
-        $parentCuntent = $this->find('first', [
-            'conditions' => ['id' => $targetParentId],
-            'recursive' => -1
-        ]);
-
-        // 指定コンテンツが存在しない
-        if (!$currentContent || !$parentCuntent) {
-            return false;
-        }
-
-        $parentId[] = $parentCuntent['Content']['id'];
-
-        // 関連コンテンツで移動先と同じ階層のフォルダを確認
-        $childrenSite = $this->Sites->children($currentContent['Content']['site_id'], [
-            'conditions' => ['relate_main_site' => true]
-        ]);
-        if ($childrenSite) {
-            $pureUrl = $this->pureUrl($parentCuntent['Content']['url'], $parentCuntent['Content']['site_id']);
-            $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
-            foreach($childrenSite as $site) {
-                $site = $sites->findById($site['Site']['id'])->first();
-                $url = $site->makeUrl(new CakeRequest($pureUrl));
-                $id = $this->field('id', ['url' => $url]);
-                if ($id) {
-                    $parentId[] = $id;
-                }
-            }
-        }
-
-        // 移動先に同一コンテンツが存在するか確認
-        $movedContent = $this->find('first', [
-            'conditions' => [
-                'parent_id' => $parentId,
-                'name' => $currentContent['Content']['name'],
-                'id !=' => $currentContent['Content']['id']
-            ],
-            'recursive' => -1
-        ]);
-        if ($movedContent) {
-            return false;
         }
         return true;
     }
@@ -1357,181 +1229,6 @@ class ContentsTable extends AppTable
             $parentTemplate = 'default';
         }
         return $parentTemplate;
-    }
-
-    /**
-     * コンテンツを移動する
-     *
-     * 基本的に targetId の上に移動する前提となる
-     * targetId が空の場合は、同親中、一番下に移動する
-     *
-     * @param $currentId
-     * @param $type
-     * @param $targetSiteId
-     * @param $targetParentId
-     * @param $targetId
-     * @return array|bool|false
-     */
-    public function move($currentId, $currentParentId, $targetSiteId, $targetParentId, $targetId)
-    {
-        $this->moveRelateSubSiteContent($currentId, $targetParentId, $targetId);
-        $targetSort = $this->getOrderSameParent($targetId, $targetParentId);
-        if ($currentParentId != $targetParentId) {
-            $data = $this->find('first', [
-                'conditions' => ['Content.id' => $currentId],
-                'recursive' => -1
-            ]);
-            // 親を変更
-            $data = $this->save(['Content' => [
-                'id' => $currentId,
-                'name' => $data['Content']['name'],
-                'title' => $data['Content']['title'],
-                'plugin' => $data['Content']['plugin'],
-                'type' => $data['Content']['type'],
-                'parent_id' => $targetParentId,
-                'site_id' => $targetSiteId
-            ]], false);
-            // フォルダにコンテンツがない場合、targetId が空で一番後を指定の場合は、親を変更して終了
-            if (!$targetSort || !$targetId) {
-                return $data;
-            }
-            $currentSort = $this->getOrderSameParent(null, $targetParentId);
-        } else {
-            $currentSort = $this->getOrderSameParent($currentId, $targetParentId);
-        }
-        // 親変更後のオフセットを取得
-        $offset = $targetSort - $currentSort;
-        if ($currentParentId == $targetParentId && $targetId && $offset > 0) {
-            $offset--;
-        }
-        // オフセットを元に移動
-        return $this->moveOffset($currentId, $offset);
-    }
-
-    /**
-     * メインサイトの場合、連携設定がされている子サイトも移動する
-     *
-     * @param $data
-     */
-    public function moveRelateSubSiteContent($mainCurrentId, $mainTargetParentId, $mainTargetId)
-    {
-        // 他のデータを更新する為、一旦退避
-        $dataTmp = $this->data;
-        $idTmp = $this->id;
-        $data = $this->find('first', ['conditions' => ['Content.id' => $mainCurrentId], 'recursive' => -1]);
-        // 自身がエイリアスか確認し、エイリアスの場合は終了
-        if (!empty($data['Content']['alias_id']) || !isset($data['Content']['site_id']) || !isset($data['Content']['type'])) {
-            return true;
-        }
-        // メインサイトか確認し、メインサイトでない場合は終了
-        if (!$this->Sites->isMain($data['Content']['site_id'])) {
-            return true;
-        }
-        // 連携設定となっている小サイトを取得
-        $sites = $this->Sites->find('all', ['conditions' => ['Site.main_site_id' => $data['Content']['site_id'], 'relate_main_site' => true]]);
-        if (!$sites) {
-            return true;
-        }
-        $result = true;
-        foreach($sites as $site) {
-            // 自信をメインコンテンツとしているデータを取得
-            $current = $this->find('first', ['conditions' => ['Content.main_site_content_id' => $mainCurrentId, 'Content.site_id' => $site['Site']['id']], 'recursive' => -1]);
-            if (!$current) {
-                continue;
-            }
-            $currentId = $current['Content']['id'];
-            $currentParentId = $current['Content']['parent_id'];
-            $target = null;
-            $targetId = "";
-            $targetParentId = "";
-            if ($mainTargetId) {
-                $target = $this->find('first', ['conditions' => ['Content.main_site_content_id' => $mainTargetId, 'Content.site_id' => $site['Site']['id']], 'recursive' => -1]);
-                if ($target) {
-                    $targetId = $target['Content']['id'];
-                    $targetParentId = $target['Content']['parent_id'];
-                }
-            }
-            if (!$target) {
-                // ターゲットが見つからない場合は親IDより取得
-                $target = $this->find('first', ['conditions' => ['Content.main_site_content_id' => $mainTargetParentId, 'Content.site_id' => $site['Site']['id']], 'recursive' => -1]);
-                if ($target) {
-                    $targetParentId = $target['Content']['id'];
-                }
-            }
-            if (!$target) {
-                continue;
-            }
-            $targetSiteId = $target['Content']['site_id'];
-            if (!$this->move($currentId, $currentParentId, $targetSiteId, $targetParentId, $targetId)) {
-                $result = false;
-            }
-        }
-        // 退避したデータを戻す
-        $this->data = $dataTmp;
-        $this->id = $idTmp;
-        return $result;
-    }
-
-    /**
-     * オフセットを元にコンテンツを移動する
-     *
-     * @param $id
-     * @param $offset
-     * @return array|false
-     */
-    public function moveOffset($id, $offset)
-    {
-        $offset = (int)$offset;
-        if ($offset > 0) {
-            $result = $this->moveDown($id, abs($offset));
-        } elseif ($offset < 0) {
-            $result = $this->moveUp($id, abs($offset));
-        } else {
-            $result = true;
-        }
-        if ($result) {
-            return $this->find('first', [
-                'conditions' => ['Content.id' => $id],
-                'recursive' => -1
-            ]);
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * 同じ階層における並び順を取得
-     *
-     * id が空の場合は、一番最後とみなす
-     *
-     * @param $id
-     * @param $parentId
-     * @return bool|int|null|string
-     */
-    public function getOrderSameParent($id, $parentId)
-    {
-        $contents = $this->find('all', [
-            'fields' => ['Content.id', 'Content.parent_id', 'Content.title'],
-            'order' => 'lft',
-            'conditions' => ['Content.parent_id' => $parentId],
-            'recursive' => -1
-        ]);
-        $order = null;
-        if ($contents) {
-            if ($id) {
-                foreach($contents as $key => $data) {
-                    if ($id == $data['Content']['id']) {
-                        $order = $key + 1;
-                        break;
-                    }
-                }
-            } else {
-                return count($contents);
-            }
-        } else {
-            return false;
-        }
-        return $order;
     }
 
     /**
@@ -1785,4 +1482,60 @@ class ContentsTable extends AppTable
         return $content;
     }
 
+    /**
+     * 同じ階層における並び順を取得
+     *
+     * id が空の場合は、一番最後とみなす
+     *
+     * @param string $id
+     * @param int $parentId
+     * @return bool|int|null
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getOrderSameParent($id, $parentId)
+    {
+        $contents = $this->find()->select(['id', 'parent_id', 'title'])->where(['parent_id' => $parentId])->order('lft');
+        $order = null;
+        if (!$contents->isEmpty()) {
+            if ($id) {
+                foreach($contents as $key => $data) {
+                    if ($id == $data->id) {
+                        $order = $key + 1;
+                        break;
+                    }
+                }
+            } else {
+                return $contents->all()->count();
+            }
+        } else {
+            return false;
+        }
+        return $order;
+    }
+
+    /**
+     * オフセットを元にコンテンツを移動する
+     *
+     * @param $id
+     * @param $offset
+     * @return Content|bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function moveOffset($id, $offset)
+    {
+        $offset = (int)$offset;
+        $content = $this->get($id);
+        if ($offset > 0) {
+            $result = $this->moveDown($content, abs($offset));
+        } elseif ($offset < 0) {
+            $result = $this->moveUp($content, abs($offset));
+        } else {
+            $result = true;
+        }
+        return $result ? $content : false;
+    }
 }
