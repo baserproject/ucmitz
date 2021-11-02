@@ -74,6 +74,7 @@ module.exports = {
                 this.favoriteBoxOpened = 'none';
                 this.ariaExpanded = 'true';
                 // TODO: 保存処理を追加
+                var url = $.bcUtil.apiBaseUrl + 'bc-favorite/favorites/save_favorite_box';
                 // $.ajax({type: "GET", url: $("#SaveFavoriteBoxUrl").html() + '/'});
             } else {
                 // ボタンの制御

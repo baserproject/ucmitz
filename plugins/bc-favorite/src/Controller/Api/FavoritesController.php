@@ -148,4 +148,14 @@ class FavoritesController extends BcApiController
         exit();
     }
 
+    /**
+     * よく使う項目の表示状態を保存する
+     *
+     * @param mixed $open 1 Or ''
+     */
+    public function save_favorite_box($open = '')
+    {
+        $this->request->getSession()->write('Baser.favorite_box_opened', $open);
+    }
+
 }
