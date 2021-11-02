@@ -167,10 +167,12 @@ class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
     public function testSave_favorite_box()
     {
         $this->post('/baser/api/bc-favorite/favorites/save_favorite_box.json?token=' . $this->accessToken);
-        $this->assertEquals('', $this->_requestSession->read('Baser.favorite_box_opened'));
+        $this->assertResponseOk();
+        $this->assertEquals('', $_SESSION['Baser']['favorite_box_opened']);
         $this->post('/baser/api/bc-favorite/favorites/save_favorite_box/1.json?token=' . $this->accessToken);
-        $a = $this->_requestSession->read('Baser.favorite_box_opened');
-        $this->assertEquals('1', $this->_requestSession->read('Baser.favorite_box_opened'));
+        $this->assertEquals('1', $_SESSION['Baser']['favorite_box_opened']);
+        $this->post('/baser/api/bc-favorite/favorites/save_favorite_box/xxxxxxxxxxxxxxxxx.json?token=' . $this->accessToken);
+        $this->assertResponseFailure();
     }
     /**
      * beforeFilter
