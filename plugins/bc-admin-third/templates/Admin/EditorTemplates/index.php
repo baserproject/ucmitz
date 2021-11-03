@@ -14,8 +14,8 @@
  * [ADMIN] エディタテンプレートー一覧
  */
 $this->BcBaser->js([
-  'admin/libs/jquery.baser_ajax_data_list',
-  'admin/libs/baser_ajax_data_list_config',
+  'vendor/jquery.baser_ajax_data_list',
+  'vendor/baser_ajax_data_list_config',
 ]);
 $this->BcAdmin->addAdminMainBodyHeaderLinks([
   'url' => ['action' => 'add'],

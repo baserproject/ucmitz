@@ -21,8 +21,8 @@ $this->BcBaser->i18nScript([
   'confirmTitle1' => __d('baser', '初期データ読込')
 ], ['escape' => false]);
 $this->BcBaser->js([
-  'admin/libs/jquery.baser_ajax_data_list',
-  'admin/libs/baser_ajax_data_list_config',
+  'vendor/jquery.baser_ajax_data_list',
+  'vendor/baser_ajax_data_list_config',
   'admin/themes/index'
 ]);
 ?>

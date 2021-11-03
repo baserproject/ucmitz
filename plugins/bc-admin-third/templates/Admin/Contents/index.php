@@ -82,7 +82,7 @@ $this->BcBaser->js('admin/contents/index.bundle', false, [
 ]);
 $this->BcBaser->js([
   'vendor/jquery.baser_ajax_data_list',
-  'admin/libs/baser_ajax_data_list_config',
+  'vendor/baser_ajax_data_list_config',
 ]);
 $this->BcBaser->css('../js/vendor/jquery.jstree-3.3.8/themes/proton/style.min', ['block' => true]);
 echo $this->BcAdminForm->control('BcManageContent', ['type' => 'hidden', 'value' => $this->BcContents->getJsonItems()]);
