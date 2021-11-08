@@ -171,6 +171,7 @@ class ContentsController extends BcAdminAppController
                     case 1:
                         return $contentService->getTreeIndex($this->request->getQueryParams());
                     case 2:
+                        $a = $contentService->getTableIndex($this->request->getQueryParams())->toArray();
                         return $this->paginate($contentService->getTableIndex($this->request->getQueryParams()));
                     default:
                         return $contentService->getEmptyIndex();

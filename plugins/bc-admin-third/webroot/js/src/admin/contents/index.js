@@ -104,12 +104,12 @@ $(function () {
     // ここで検索処理を登録する代わりに basreAjaxDataList側のイベントを削除
     $("#BtnSearchSubmit").click(function () {
         contentsIndexSearchOpened = true;
-        $("input[name='ViewSetting[list_type]']:eq(1)").prop('checked', true);
+        $("input[name='ViewSetting[list_type]']:eq(2)").prop('checked', true);
         loadView();
         return false;
     });
     $._data($("#BtnSearchSubmit").get(0)).events.click.shift();
-    $._data($("#ContentIndexForm").get(0)).events.submit.shift();
+    // $._data($("#ContentIndexForm").get(0)).events.submit.shift();
 
     $("#BtnOpenTree").click(function () {
         $.bcTree.jsTree.open_all();

@@ -23,6 +23,9 @@ use BaserCore\View\BcAdminAppView;
 
 <?= $this->BcAdminForm->create(null, ['type' => 'get', 'url' => ['action' => 'index'], 'id' => 'ContentIndexForm'], ) ?>
 <?= $this->BcAdminForm->control('open', ['type' => 'hidden', 'value' => true]) ?>
+<!-- NOTE: list_typeとsite_idが足りないため補完する -->
+<?= $this->BcAdminForm->control('list_type', ['type' => 'hidden', 'value' => 2]) ?>
+<?= $this->BcAdminForm->control('site_id', ['type' => 'hidden', 'value' => $contents->first()->site_id]) ?>
 <p class="bca-search__input-list">
 	<span class="bca-search__input-item">
 		<?= $this->BcAdminForm->label('folder_id', __d('baser', 'フォルダ'), ['class' => 'bca-search__input-item-label']) ?>
@@ -48,9 +51,14 @@ use BaserCore\View\BcAdminAppView;
   <? # echo $this->BcSearchBox->dispatchShowField($this->request); ?>
 </p>
 <div class="button bca-search__btns">
-  <div
-    class="bca-search__btns-item"><?php $this->BcBaser->link(__d('baser', '検索'), "javascript:void(0)", ['id' => 'BtnSearchSubmit', 'class' => 'bca-btn', 'data-bca-btn-type' => 'search']) ?></div>
-  <div
-    class="bca-search__btns-item"><?php $this->BcBaser->link(__d('baser', 'クリア'), "javascript:void(0)", ['id' => 'BtnSearchClear', 'class' => 'bca-btn', 'data-bca-btn-type' => 'clear']) ?></div>
+<?php echo $this->BcAdminForm->submit(__d('baser', '検索'), [
+      'class' => 'button bca-btn',
+      'data-bca-btn-type' => 'save',
+      'data-bca-btn-size' => 'lg',
+      'data-bca-btn-width' => 'lg',
+      'div' => false
+    ]) ?>
+  <div  class="bca-search__btns-item"><?php #$this->BcBaser->link(__d('baser', '検索'), "javascript:void(0)", ['id' => 'BtnSearchSubmit', 'class' => 'bca-btn', 'data-bca-btn-type' => 'search']) ?></div>
+  <div class="bca-search__btns-item"><?php $this->BcBaser->link(__d('baser', 'クリア'), "javascript:void(0)", ['id' => 'BtnSearchClear', 'class' => 'bca-btn', 'data-bca-btn-type' => 'clear']) ?></div>
 </div>
 <?= $this->BcAdminForm->end() ?>

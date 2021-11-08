@@ -194,7 +194,6 @@ class ContentService implements ContentServiceInterface
      * @param string $type
      * @return Query
      * @checked
-     * @noTodo
      * @unitTest
      */
     public function getIndex(array $queryParams=[], ?string $type="all"): Query
@@ -224,6 +223,13 @@ class ContentService implements ContentServiceInterface
                 $query = $query->andWhere(['Contents.' . $key => $value]);
             } elseif ($key[-1] === '!' && in_array($key = mb_substr($key, 0, -1), $columns)) {
                 $query = $query->andWhere(['Contents.' . $key . " IS NOT " => $value]);
+            } elseif ($key[-1] === '<' || $key[-1] === '>') {
+                // TODO: gt lt時のクエリ文字列の仕様を見直す
+                $operator = mb_substr($key, -2, 2);
+                $key = mb_substr($key, 0, -2);
+                if (in_array($key, $columns)) {
+                    $query = $query->andWhere(['Contents.' . $key . $operator => $value]);
+                }
             }
         }
 
@@ -272,7 +278,6 @@ class ContentService implements ContentServiceInterface
      * @param array $options
      * @return array|bool
      * @checked
-
      * @unitTest
      */
     public function getContentFolderList($siteId = null, $options = [])
@@ -295,7 +300,7 @@ class ContentService implements ContentServiceInterface
         if (!empty($options['conditions'])) {
             $conditions = array_merge($conditions, $options['conditions']);
         }
-        $folders = $this->Contents->find('treeList')->where([$conditions]);
+        $folders = $this->Contents->find('treeList', ['valuePath' => 'title'])->where([$conditions]);
         if ($folders) {
             return $this->convertTreeList($folders->all()->toArray());
         }

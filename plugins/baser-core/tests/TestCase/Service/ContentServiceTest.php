@@ -215,6 +215,11 @@ class ContentServiceTest extends BcTestCase
         $request = $this->getRequest('/?status=1&type!=Page');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
         $this->assertEquals(9, $contents->all()->count());
+        // 大なり小なりの場合
+        // TODO: gt lt時のクエリ文字列の仕様を見直す
+        // $request = $this->getRequest('/?status=1&lft= >15&rght= >8');
+        // $contents = $this->ContentService->getIndex($request->getQueryParams());
+        // $this->assertEquals(9, $contents->all()->count());
     }
     /**
      * testGetTrashIndex
