@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "93fc3c0a56b113016986454ed86ae4ef",
+    "content-hash": "3f9dd8bb7d8c436a7d4cee7d9c5ae577",
     "packages": [
         {
             "name": "cakephp/authentication",
@@ -562,12 +562,12 @@
             "version": "v2.0.5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/imo-tikuwa/cakephp3-soft-delete.git",
+                "url": "https://github.com/imo-tikuwa/cakephp-soft-delete.git",
                 "reference": "77e972f7fb342435a032899b1f567aad79d08788"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/imo-tikuwa/cakephp3-soft-delete/zipball/77e972f7fb342435a032899b1f567aad79d08788",
+                "url": "https://api.github.com/repos/imo-tikuwa/cakephp-soft-delete/zipball/77e972f7fb342435a032899b1f567aad79d08788",
                 "reference": "77e972f7fb342435a032899b1f567aad79d08788",
                 "shasum": ""
             },
@@ -599,6 +599,7 @@
                 "plugin",
                 "soft"
             ],
+            "abandoned": "imo-tikuwa/cakephp-soft-delete",
             "time": "2021-02-04T14:42:09+00:00"
         },
         {
