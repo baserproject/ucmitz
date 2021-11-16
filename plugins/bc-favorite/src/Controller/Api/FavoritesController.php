@@ -163,4 +163,17 @@ class FavoritesController extends BcApiController
         $this->viewBuilder()->setOption('serialize', []);
     }
 
+    /**
+     * よく使う項目の表示状態を取得する
+     *
+     * @return  1 Or ''
+     */
+    public function get_favorite_box_opened()
+    {
+        $result = $this->request->getSession()->read('Baser.favorite_box_opened');
+        $this->set([
+            'result' => $result
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['result']);
+    }
 }

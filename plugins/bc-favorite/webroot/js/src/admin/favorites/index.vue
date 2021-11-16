@@ -2,7 +2,7 @@
     <div>
         <h2 class="bca-nav-favorite-title">
             <button type="button" id="btn-favorite-expand" class="bca-collapse__btn bca-nav-favorite-title-button"
-                    data-bca-collapse="favorite-collapse" data-bca-target="#favoriteBody" aria-expanded="ariaExpanded"
+                    data-bca-collapse="favorite-collapse" data-bca-target="#favoriteBody" :aria-expanded="ariaExpanded"
                     aria-controls="favoriteBody" @click="changeOpenFavorite">
             {{ i18Favorite }} <i class="bca-icon--chevron-down bca-nav-favorite-title-icon"></i>
             </button>
@@ -41,10 +41,10 @@
 <script>
 import axios from "axios";
 
-module.exports = {
+export default {
     data:function () {
         return {
-            favoriteBoxOpened: "block",
+            favoriteBoxOpened: "none",
             i18Favorite: 'testest2',
             favorites: [{id: 1, name: 'name', url: 'url', fullUrl: 'fullUrl'}],
             i18NoData: 'nodata',
@@ -64,30 +64,30 @@ module.exports = {
          * initFavorite
          */
         initFavorite: function() {
-            if (this.favoriteBoxOpened == 'open') {
-                $(target).show();
-            } else {
-                $(target).hide();
-            }
+            var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/get_favorite_box_opened.json";
+            axios.get(url).then(function (response) {
+                if (response.data.result === "1") {
+                    this.favoriteBoxOpened = "block";
+                    this.ariaExpanded = 'false';
+                } else {
+                    this.favoriteBoxOpened = 'none';
+                    this.ariaExpanded = 'true';
+                }
+            }.bind(this));
         },
         changeOpenFavorite: function() {
             if (this.favoriteBoxOpened == 'block') {
                 // ボタンの制御
                 this.favoriteBoxOpened = 'none';
                 this.ariaExpanded = 'true';
-                // TODO: 保存処理を追加
-                // var url = $.bcUtil.apiBaseUrl + 'bc-favorite/favorites/save_favorite_box';
-                // $.ajax({type: "GET", url: $("#SaveFavoriteBoxUrl").html() + '/'});
-                axios.post('/baser/api/bc-favorite/favorites/save_favorite_box.json', {
-                    headers: {},
-                    data: {}
-                });
+                var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/save_favorite_box.json";
+                axios.post(url);
             } else {
                 // ボタンの制御
                 this.favoriteBoxOpened = 'block';
                 this.ariaExpanded = 'false';
-                // TODO: 保存処理を追加
-                // $.ajax({type: "GET", url: $("#SaveFavoriteBoxUrl").html() + '/1'});
+                var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/save_favorite_box/1.json";
+                axios.post(url);
             }
         },
     },
