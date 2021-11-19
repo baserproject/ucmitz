@@ -11,33 +11,34 @@
 
 namespace BaserCore;
 
-use Authentication\AuthenticationService;
-use Authentication\AuthenticationServiceInterface;
-use Authentication\AuthenticationServiceProviderInterface;
-use Authentication\Middleware\AuthenticationMiddleware;
-use BaserCore\Middleware\BcAdminMiddleware;
-use BaserCore\ServiceProvider\BcServiceProvider;
-use BaserCore\Utility\BcUtil;
-use Cake\Core\Configure;
-use Cake\Core\ContainerInterface;
-use Cake\Core\PluginApplicationInterface;
-use Cake\Event\EventManager;
-use Cake\Http\Middleware\CsrfProtectionMiddleware;
-use Cake\Http\MiddlewareQueue;
-use Cake\Http\ServerRequestFactory;
-use Cake\ORM\TableRegistry;
-use Cake\Routing\Route\InflectedRoute;
-use Cake\Routing\RouteBuilder;
-use Cake\Routing\Router;
-use Cake\Utility\Security;
 use Exception;
-use Psr\Http\Message\ServerRequestInterface;
-use BaserCore\Annotation\UnitTest;
-use BaserCore\Annotation\NoTodo;
-use BaserCore\Annotation\Checked;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+use Cake\Utility\Security;
+use Cake\ORM\TableRegistry;
+use Cake\Event\EventManager;
+use BaserCore\Utility\BcUtil;
+use Cake\Http\MiddlewareQueue;
+use Cake\Routing\RouteBuilder;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use Cake\Core\ContainerInterface;
+use BaserCore\Annotation\UnitTest;
+use Cake\Http\ServerRequestFactory;
+use Cake\Routing\Route\DashedRoute;
+use Cake\Routing\Route\InflectedRoute;
+use Authentication\AuthenticationService;
+use Cake\Core\PluginApplicationInterface;
+use BaserCore\Middleware\BcAdminMiddleware;
+use Psr\Http\Message\ServerRequestInterface;
+use BaserCore\ServiceProvider\BcServiceProvider;
+use Authentication\AuthenticationServiceInterface;
+use Cake\Http\Middleware\CsrfProtectionMiddleware;
+use Authentication\Middleware\AuthenticationMiddleware;
+use Authentication\AuthenticationServiceProviderInterface;
 
 /**
  * Class plugin
@@ -284,8 +285,16 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             $property->setAccessible(true);
             $property->setValue($collection, []);
         }
-
         $routes->connect('/*', [], ['routeClass' => 'BaserCore.BcContentsRoute']);
+
+        // cakephp-debug-kit用ルート
+        if (Configure::read('debug')) {
+            // addPluginにてroutesオプションを有効にしても読み込めないため下記で代用
+            $debugKitConfig = dirname(CORE_PATH) . "/debug_kit/config/routes.php";
+            if (is_file($debugKitConfig)) {
+                require $debugKitConfig;
+            }
+        }
 
         $routes->prefix(
             'Admin',
