@@ -184,19 +184,19 @@ class UsersController extends BcAdminAppController
      */
     public function add(UserServiceInterface $userService)
     {
+        $user = $userService->getNew();
         if ($this->request->is('post')) {
-            $user = $userService->create($this->request->getData());
-            if (!$user->getErrors()) {
+            try {
+                $user = $userService->create($user, $this->request->getData());
                 // EVENT Users.afterAdd
                 $this->dispatchLayerEvent('afterAdd', [
                     'user' => $user
                 ]);
                 $this->BcMessage->setSuccess(__d('baser', 'ユーザー「{0}」を追加しました。', $user->name));
                 return $this->redirect(['action' => 'edit', $user->id]);
+            } catch (\Exception $e) {
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
-            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
-        } else {
-            $user = $userService->getNew();
         }
         $this->set('user', $user);
     }

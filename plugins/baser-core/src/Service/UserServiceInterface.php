@@ -50,7 +50,7 @@ interface UserServiceInterface
      * @param array $postData
      * @return EntityInterface
      */
-    public function create(array $postData);
+    public function create(EntityInterface $user, array $postData);
 
     /**
      * 編集する

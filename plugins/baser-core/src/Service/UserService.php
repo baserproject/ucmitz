@@ -118,11 +118,10 @@ class UserService implements UserServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function create(array $postData)
+    public function create(EntityInterface $user, array $postData)
     {
-        $user = $this->Users->newEmptyEntity();
         $user = $this->Users->patchEntity($user, $postData, ['validate' => 'new']);
-        return ($result = $this->Users->save($user))? $result : $user;
+        return $this->Users->saveOrFail($user);
     }
 
     /**
