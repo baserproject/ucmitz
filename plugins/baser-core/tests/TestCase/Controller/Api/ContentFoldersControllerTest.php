@@ -34,6 +34,7 @@ class ContentFoldersControllerTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.Sites',
+        'plugin.BaserCore.SiteConfigs',
     ];
 
     /**
@@ -91,6 +92,7 @@ class ContentFoldersControllerTest extends BcTestCase
      */
     public function testAdd()
     {
+        $this->loginAdmin($this->getRequest());
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         $data = [

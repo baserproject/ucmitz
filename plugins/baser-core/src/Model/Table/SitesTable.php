@@ -12,22 +12,24 @@
 namespace BaserCore\Model\Table;
 
 use ArrayObject;
-use BaserCore\Event\BcEventDispatcherTrait;
+use Cake\Core\Configure;
+use Cake\ORM\TableRegistry;
 use BaserCore\Model\AppTable;
-use BaserCore\Model\Entity\Site;
-use BaserCore\Service\SiteConfigTrait;
-use BaserCore\Utility\BcAbstractDetector;
-use BaserCore\Utility\BcAgent;
 use BaserCore\Utility\BcLang;
 use BaserCore\Utility\BcUtil;
-use Cake\Core\Configure;
-use Cake\Datasource\EntityInterface;
-use Cake\Datasource\ResultSetInterface;
-use Cake\Event\Event;
+use BaserCore\Utility\BcAgent;
+use Cake\Event\EventInterface;
 use Cake\Validation\Validator;
-use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
+use BaserCore\Model\Entity\Site;
 use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use Cake\Datasource\EntityInterface;
+use BaserCore\Utility\BcContainerTrait;
+use Cake\Datasource\ResultSetInterface;
+use BaserCore\Utility\BcAbstractDetector;
+use BaserCore\Event\BcEventDispatcherTrait;
+use BaserCore\Service\SiteConfigServiceInterface;
 
 /**
  * Class Site
@@ -43,7 +45,7 @@ class SitesTable extends AppTable
      * Trait
      */
     use BcEventDispatcherTrait;
-    use SiteConfigTrait;
+    use BcContainerTrait;
 
     /**
      * 保存時にエイリアスが変更されたかどうか
@@ -110,7 +112,7 @@ class SitesTable extends AppTable
         $validator
             ->scalar('alias')
             ->maxLength('alias', 50, __d('baser', 'エイリアスは50文字以内で入力してください。'))
-            ->notEmptyString('alias', __d('baser', 'サイト名を入力してください。'))
+            ->notEmptyString('alias', __d('baser', 'エイリアスを入力してください。'))
             ->add('alias', [
                 'aliasUnique' => [
                     'rule' => 'validateUnique',
@@ -286,15 +288,17 @@ class SitesTable extends AppTable
     /**
      * メインサイトかどうか判定する
      *
-     * @param $id
+     * @param int $id
      * @return bool
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function isMain($id)
+    public function isMain(int $id)
     {
-        return is_null($this->find()->where(['id' => $id])->first()->main_site_id);
+        // return is_null($this->find()->where(['id' => $id])->first()->main_site_id);
+        // NOTE: 上記だと、メインサイトを持つかどうかのメソッドになってるため
+        return !$this->find()->where(['main_site_id' => $id])->isEmpty();
     }
 
     /**
@@ -320,12 +324,12 @@ class SitesTable extends AppTable
     /**
      * After Save
      *
-     * @param Event $event
+     * @param EventInterface $event
      * @param EntityInterface $entity
      * @param ArrayObject $options
      * @checked
      */
-    public function afterSave(Event $event, EntityInterface $entity, ArrayObject $options)
+    public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         // TODO 未確認のため暫定措置
         // >>>
@@ -365,12 +369,12 @@ class SitesTable extends AppTable
     /**
      * After Delete
      *
-     * @param Event $event
+     * @param EventInterface $event
      * @param EntityInterface $entity
      * @param ArrayObject $options
      * @checked
      */
-    public function afterDelete(Event $event, EntityInterface $entity, ArrayObject $options)
+    public function afterDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         // TODO 未確認のため暫定措置
         // >>>
@@ -411,6 +415,8 @@ class SitesTable extends AppTable
      */
     public function getPrefix($id)
     {
+        if (is_null($id)) return '';
+
         $site = $this->find()->select(['name', 'alias'])->where(['id' => $id])->first();
         if (!$site) {
             return false;
@@ -426,15 +432,19 @@ class SitesTable extends AppTable
      * サイトのルートとなるコンテンツIDを取得する
      *
      * @param $id
-     * @return mixed
+     * @return int
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getRootContentId($id)
     {
         if ($id == 0) {
             return 1;
         }
-        $Content = ClassRegistry::init('Content');
-        return $Content->field('id', ['Content.site_root' => true, 'Content.site_id' => $id]);
+        $Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+        // NOTE: なければ1を返す
+        return $Contents->find()->select(['id'])->where(['Contents.site_root' => true, 'Contents.site_id' => $id])->first()->id ?? 1;
     }
 
     /**
@@ -444,6 +454,7 @@ class SitesTable extends AppTable
      * @param string $url
      * @return EntityInterface
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function findByUrl($url)
@@ -526,7 +537,7 @@ class SitesTable extends AppTable
         BcAbstractDetector $lang = null
     )
     {
-
+        $SiteConfigService = $this->getService(SiteConfigServiceInterface::class);
         $currentSite = $this->findByUrl($url);
         $sites = $this->find()->all();
 
@@ -539,7 +550,7 @@ class SitesTable extends AppTable
 
         // 言語の一致するサイト候補に絞り込む
         $langSubSites = [];
-        if ($lang && $this->getSiteConfig('use_site_lang_setting')) {
+        if ($lang && $SiteConfigService->getValue('use_site_lang_setting')) {
             foreach($sites as $site) {
                 if (!$site->status) {
                     continue;
@@ -557,7 +568,7 @@ class SitesTable extends AppTable
         } else {
             $subSites = $sites;
         }
-        if ($agent && $this->getSiteConfig('use_site_device_setting')) {
+        if ($agent && $SiteConfigService->getValue('use_site_device_setting')) {
             foreach($subSites as $subSite) {
                 if (!$subSite->status) {
                     continue;
@@ -732,7 +743,7 @@ class SitesTable extends AppTable
     /**
      * Before Save
      *
-     * @param Event $event
+     * @param EventInterface $event
      * @param EntityInterface $entity
      * @param ArrayObject $options
      * @return bool
@@ -740,7 +751,7 @@ class SitesTable extends AppTable
      * @noTodo
      * @unitTest
      */
-    public function beforeSave(Event $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
         // エイリアスに変更があったかチェックする
         if ($entity->id && $entity->alias) {

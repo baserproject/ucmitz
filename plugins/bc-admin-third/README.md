@@ -17,6 +17,7 @@ npm install
 ### ファイル監視
 bc-admin-third ディレクトリの直下で、gulp を実行し、ファイル監視を開始します。
 ```shell script
+cd plugins/bc-admin-third
 gulp
 ```
 監視対象は、`/webroot/js/src/` 配下の javascript ファイルとなります。
@@ -43,5 +44,14 @@ npm でインストールできないものは、`/webroot/js/vendor/` フォル
 `bootstrap` の読み込みにおいて jQueryが必要となるため、`package.json` に定義しているが、こちらを利用する場合に、`vendor` い配置した jQuery プラグインがうまく動作しない。
 （どうやら、プラグインで読み込む `$` と、endpoint で参照する `$` が別のインスタンスを指している様子。
 解決方法が分からないため、vendor に配置した jquery を、テンプレートから直接読み込んでいる。
+
+### Javascriptファイルの移行について
+
+admin/vendorsをvendor/直下に移行
+
+admin/libsにおいてajaxでhtmlを取得する処理は廃止し、json化していく予定
+- baser_ajax_batch_config.js
+- baser_ajax_data_list_config.js
+- baser_ajax_data_list.js
 
 

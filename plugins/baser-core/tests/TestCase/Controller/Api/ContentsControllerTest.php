@@ -15,6 +15,10 @@ use Cake\Core\Configure;
 use BaserCore\Service\ContentService;
 use Cake\TestSuite\IntegrationTestTrait;
 
+/**
+ * ContentsControllerTest
+ * @property ContentService $ContentService
+ */
 class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
 {
 
@@ -133,14 +137,16 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     public function testDelete()
     {
         // 子要素を持たない場合
-        $this->post('/baser/api/baser-core/contents/delete/4.json?token=' . $this->accessToken);
+        $data = ['contentId' => 4];
+        $this->post('/baser/api/baser-core/contents/delete.json?token=' . $this->accessToken, $data);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals("コンテンツ: indexを削除しました。", $result->message);
         $this->get('/baser/api/baser-core/contents/view/4.json?token=' . $this->accessToken);
         $this->assertResponseError();
         // 子要素を持つ場合
-        $this->post('/baser/api/baser-core/contents/delete/6.json?token=' . $this->accessToken);
+        $data = ['contentId' => 6];
+        $this->post('/baser/api/baser-core/contents/delete.json?token=' . $this->accessToken, $data);
         $this->assertResponseOk();
         $this->get('/baser/api/baser-core/contents/view/6.json?token=' . $this->accessToken); // 親要素削除チェック
         $this->assertResponseError();
@@ -193,6 +199,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->post("/baser/api/baser-core/contents/edit/${id}.json?token=" . $this->accessToken, $data->toArray());
         $this->assertResponseSuccess();
         $query = $this->ContentService->getIndex(['name' => 'ControllerEdit']);
+        $a = $query->toArray();
         $this->assertEquals(1, $query->count());
     }
 
@@ -211,15 +218,25 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
 
     /**
      * testChange_status
-     *
+     * NOTE: publishとunPublishのテストを同じ場所に書くとupdateDataが走らないため分離
      * @return void
      */
-    public function testChange_status()
+    public function testChange_status_toUnpublish()
     {
         $data = ['id' => 1, 'status' => 'unpublish'];
         $this->patch("/baser/api/baser-core/contents/change_status.json?token=" . $this->accessToken, $data);
         $this->assertResponseOk();
         $this->assertFalse($this->ContentService->get($data['id'])->status);
+    }
+
+    /**
+     * testChange_status
+     *
+     * @return void
+     */
+    public function testChange_status_toPublish()
+    {
+        $this->ContentService->update($this->ContentService->get(1), ['status' => false]);
         $data = ['id' => 1, 'status' => 'publish'];
         $this->patch("/baser/api/baser-core/contents/change_status.json?token=" . $this->accessToken, $data);
         $this->assertResponseOk();
@@ -270,11 +287,11 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     }
 
     /**
-     * testadd_alias
+     * testAdd_alias
      *
      * @return void
      */
-    public function testadd_alias()
+    public function testAdd_alias()
     {
         $content = $this->ContentService->get(1);
         $data = [
@@ -314,9 +331,13 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testExists_content_by_url()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        $this->get("/baser/api/baser-core/contents/exists_content_by_url.json?token=" . $this->accessToken);
-        $this->assertResponseOk();
+        $this->post("/baser/api/baser-core/contents/exists_content_by_url.json?token=" . $this->accessToken);
+        $this->assertResponseFailure();
+        $this->assertEquals('無効な処理です。', json_decode($this->_response->getBody())->message);
+        $this->post("/baser/api/baser-core/contents/exists_content_by_url.json?token=" . $this->accessToken, ['url' => 'aaaa']);
+        $this->assertResponseError();
+        $this->assertEquals('データが見つかりません', json_decode($this->_response->getBody())->message);
+        $this->post("/baser/api/baser-core/contents/exists_content_by_url.json?token=" . $this->accessToken, ['url' => '/service/service2']);
     }
 
     /**
@@ -347,7 +368,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
             ]
         ];
         $this->patch("/baser/api/baser-core/contents/move.json?token=" . $this->accessToken, $data);
-        $this->assertEquals("コンテンツ「${title}」の配置を移動しました。\n/service/service1 > /service/service1", json_decode($this->_response->getBody())->message);
+        $this->assertEquals("コンテンツ「${title}」の配置を移動しました。\n/service/service1 > /service1", json_decode($this->_response->getBody())->message);
         $service2Left = $this->ContentService->get(($originEntity->id + $targetEntity->id) / 2)->lft;
         $this->assertGreaterThan($service2Left, json_decode($this->_response->getBody())->content->lft);
     }

@@ -17,6 +17,8 @@ use Cake\ORM\TableRegistry;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Service\ContentService;
+use BaserCore\Model\Table\SiteConfigsTable;
 use BaserCore\Service\ContentServiceInterface;
 
 /**
@@ -92,35 +94,33 @@ class ContentsController extends BcApiController
      * コンテンツ情報削除(論理削除)
      * ※ 子要素があれば、子要素も削除する
      * @param ContentServiceInterface $contentService
-     * @param $id
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function delete(ContentServiceInterface $contentService, $id)
+    public function delete(ContentServiceInterface $contentService)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $contents = $contentService->get($id);
+        $id = $this->request->getData('contentId');
+        $content = $contentService->get($id);
         $children = $contentService->getChildren($id);
         try {
-            $text = "コンテンツ: " . $contents->name . "を削除しました。";
-            if ($children && $contentService->treeDelete($id)) {
-                $contents = array_merge([$contents], $children->toArray());
-                foreach ($children as $child) {
-                    $text .= "\nコンテンツ: " . $child->name . "を削除しました。";
+            if($contentService->deleteRecursive($id)) {
+                $text = "コンテンツ: " . $content->name . "を削除しました。";
+                if ($children) {
+                    $content = array_merge([$content], $children->toArray());
+                    foreach ($children as $child) {
+                        $text .= "\nコンテンツ: " . $child->name . "を削除しました。";
+                    }
                 }
                 $message = __d('baser', $text);
-            } elseif ($contentService->delete($id)) {
-                $message = __d('baser', $text);
+                $this->set(['content' => $content]);
             }
         } catch (Exception $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
         }
-        $this->set([
-            'message' => $message,
-            'contents' => $contents
-        ]);
+        $this->set(['message' => $message]);
         $this->viewBuilder()->setOption('serialize', ['contents', 'message']);
     }
 
@@ -142,7 +142,7 @@ class ContentsController extends BcApiController
                 $message = __d('baser', 'ゴミ箱: {0} を削除しました。', $trash->name);
             }
         } catch (Exception $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
         }
         $this->set([
@@ -173,7 +173,7 @@ class ContentsController extends BcApiController
             }
             $message = __d('baser', $text);
         } catch (Exception $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
         }
         $this->set([
@@ -228,7 +228,7 @@ class ContentsController extends BcApiController
                 $message = __d('baser', 'ゴミ箱の復元に失敗しました');
             }
         } catch (Exception $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
         }
         $this->set([
@@ -262,7 +262,7 @@ class ContentsController extends BcApiController
                         break;
                 }
             } catch (\Exception $e) {
-                $this->setResponse($this->response->withStatus(400));
+                $this->setResponse($this->response->withStatus(500));
                 $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
             }
         } else {
@@ -408,16 +408,27 @@ class ContentsController extends BcApiController
 
     /**
      * 指定したURLのパス上のコンテンツでフォルダ以外が存在するか確認
-     *
-     * @return mixed
+     * @param  ContentServiceInterface $contentService
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function exists_content_by_url()
+    public function exists_content_by_url(ContentServiceInterface $contentService)
     {
-        return; // TODO: 未実装のため確認必
+        $this->request->allowMethod(['post']);
         if (!$this->request->getData('url')) {
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', "無効な処理です。");
+        } else {
+            if ($contentService->existsContentByUrl($this->request->getData('url'))) {
+                $this->setResponse($this->response->withStatus(200));
+            } else {
+                $this->setResponse($this->response->withStatus(404));
+                $message = __d('baser', "データが見つかりません");
+            }
         }
-        return $this->Content->existsContentByUrl($this->request->getData('url'));
+        if(!empty($message)) $this->set(['message' => $message]);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
     /**
@@ -425,6 +436,7 @@ class ContentsController extends BcApiController
      * @param  ContentServiceInterface $contentService
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function move(ContentServiceInterface $contentService)
@@ -433,7 +445,7 @@ class ContentsController extends BcApiController
         $siteConfig = TableRegistry::getTableLocator()->get('BaserCore.SiteConfigs');
         if (empty($this->request->getData())) {
             $message = __d('baser', '無効な処理です。');
-            $this->setResponse($this->response->withStatus(500));
+            $this->setResponse($this->response->withStatus(400));
         } elseif(!$contentService->exists($this->request->getData('origin.id'))) {
             $message = __d('baser', 'データが存在しません。');
             $this->setResponse($this->response->withStatus(500));
@@ -445,13 +457,28 @@ class ContentsController extends BcApiController
             $this->setResponse($this->response->withStatus(500));;
         } else {
             // 正常系
-            // // EVENT Contents.beforeMove
-            // $event = $this->dispatchLayerEvent('beforeMove', [
-            //     'data' => $this->request->getData()
-            // ]);
-            // if ($event !== false) {
-            //     $this->request->getData() = $event->getResult() === true? $event->getData('data') : $event->getResult();
-            // }
+            $message = $this->execMove($contentService, $siteConfig);
+        }
+        $this->set(['message' => $message]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'url', 'content']);
+    }
+
+    /**
+     * execMove
+     *
+     * @param  ContentService $contentService
+     * @param  SiteConfigsTable $siteConfig
+     * @return string
+     */
+    protected function execMove($contentService, $siteConfig)
+    {
+            // EVENT Contents.beforeMove
+            $beforeEvent = $this->dispatchLayerEvent('beforeMove', [
+                'request' => $this->request
+            ]);
+            if ($beforeEvent !== false) {
+                $this->request = ($beforeEvent->getResult() === null || $beforeEvent->getResult() === true)? $beforeEvent->getData('request') : $beforeEvent->getResult();
+            }
             $content = $contentService->get($this->request->getData('origin.id'));
             $beforeUrl = $content->url;
             try {
@@ -460,10 +487,13 @@ class ContentsController extends BcApiController
                     // 親が違う場合は、Contentモデルで更新してくれるが同じ場合更新しない仕様のためここで更新する
                     $siteConfig->updateContentsSortLastModified();
                 }
-                // // EVENT Contents.afterAdd
-                // $this->dispatchLayerEvent('afterMove', [
-                //     'data' => $result
-                // ]);
+                // EVENT Contents.afterMove
+                $afterEvent = $this->dispatchLayerEvent('afterMove', [
+                    'result' => $result
+                ]);
+                if ($afterEvent !== false) {
+                    $this->request = ($afterEvent->getResult() === null || $afterEvent->getResult() === true)? $afterEvent->getData('result') : $afterEvent->getResult();
+                }
                 $message = sprintf(__d('baser', "コンテンツ「%s」の配置を移動しました。\n%s > %s"), $result->title, urldecode($beforeUrl), urldecode($result->url));
                 $url = $contentService->getUrlById($result->id, true);
                 $this->set(['url' => $url]);
@@ -472,8 +502,6 @@ class ContentsController extends BcApiController
                 $message = __d('baser', 'データ保存中にエラーが発生しました。' . $e->getMessage());
                 $this->setResponse($this->response->withStatus(500));
             }
-        }
-        $this->set(['message' => $message]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'url', 'content']);
+            return $message;
     }
 }

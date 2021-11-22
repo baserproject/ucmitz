@@ -11,9 +11,9 @@
 
 namespace BaserCore\Service;
 
+use Cake\ORM\Query;
 use BaserCore\Model\Entity\Site;
 use Cake\Datasource\EntityInterface;
-use Cake\ORM\Query;
 
 interface SiteServiceInterface
 {
@@ -94,13 +94,6 @@ interface SiteServiceInterface
      * @return Query
      */
     public function findById($id): Query;
-
-    /**
-     * サイト全体の設定値を取得する
-     * @param string $name
-     * @return mixed
-     */
-    public function getSiteConfig($name);
 
     /**
      * 言語リストを取得

@@ -122,7 +122,6 @@ class ContentServiceTest extends BcTestCase
         $request = $this->getRequest()->withQueryParams([
             'site_id' => 1,
             'open' => '1',
-            'folder_id' => '6',
             'name' => 'テスト',
             'type' => 'ContentFolder',
             'self_status' => '1',
@@ -135,8 +134,6 @@ class ContentServiceTest extends BcTestCase
             'title LIKE' => '%テスト%',
             ],
             'name' => 'テスト',
-            'rght <' => (int) 15,
-            'lft >' => (int) 8,
             'self_status' => '1',
             'type' => 'ContentFolder',
             'site_id' => 1,
@@ -160,11 +157,11 @@ class ContentServiceTest extends BcTestCase
         return [
             [[
                 'site_id' => 1,
-            ], 15],
+            ], 16],
             [[
                 'site_id' => 1,
                 'withTrash' => true,
-            ], 17],
+            ], 19],
             [[
                 'site_id' => 1,
                 'open' => '1',
@@ -215,6 +212,10 @@ class ContentServiceTest extends BcTestCase
         $request = $this->getRequest('/?status=1&type!=Page');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
         $this->assertEquals(9, $contents->all()->count());
+        // フォルダIDを指定する場合
+        $request = $this->getRequest('/?status=1&folder_id=6');
+        $contents = $this->ContentService->getIndex($request->getQueryParams());
+        $this->assertEquals(3, $contents->all()->count());
     }
     /**
      * testGetTrashIndex
@@ -242,21 +243,21 @@ class ContentServiceTest extends BcTestCase
         $result = $this->ContentService->getContentFolderList($siteId);
         $this->assertEquals(
             [
-                1 => "",
-                6 => "　　　└service",
-                18 => '　　　　　　└ツリー階層削除用フォルダー(親)',
+                1 => "baserCMSサンプル",
+                6 => "　　　└サービス",
+                18 => '　　　└ツリー階層削除用フォルダー(親)',
                 19 => '　　　　　　└ツリー階層削除用フォルダー(子)',
-                20 => '　　　　　　└ツリー階層削除用フォルダー(孫)',
-                21 => '　　　　　　└testEdit',
+                20 => '　　　　　　　　　└ツリー階層削除用フォルダー(孫)',
+                21 => '　　　└testEdit',
             ],
         $result);
         $result = $this->ContentService->getContentFolderList($siteId, ['conditions' => ['site_root' => false]]);
         $this->assertEquals([
-            6 => 'service',
-            18 => '　　　└ツリー階層削除用フォルダー(親)',
+            6 => 'サービス',
+            18 => 'ツリー階層削除用フォルダー(親)',
             19 => '　　　└ツリー階層削除用フォルダー(子)',
-            20 => '　　　└ツリー階層削除用フォルダー(孫)',
-            21 => '　　　└testEdit',
+            20 => '　　　　　　└ツリー階層削除用フォルダー(孫)',
+            21 => 'testEdit',
         ], $result);
     }
 
@@ -280,6 +281,12 @@ class ContentServiceTest extends BcTestCase
         $this->assertTrue($this->ContentService->delete(14));
         $contents = $this->ContentService->getTrash(14);
         $this->assertNotNull($contents->deleted_date);
+        // aliasの場合
+        $content = $this->ContentService->get(5);
+        $this->ContentService->update($content, ['alias_id' => 5]);
+        $this->assertTrue($this->ContentService->delete(5));
+        // ゴミ箱行きではなくちゃんと削除されてるか確認
+        $this->assertTrue($this->ContentService->getIndex(['withTrash' => true, 'id' => 5])->isEmpty());
     }
 
     /**
@@ -329,24 +336,6 @@ class ContentServiceTest extends BcTestCase
     }
 
     /**
-     * testTreeDelete
-     *
-     * @return void
-     */
-    public function testTreeDelete()
-    {
-        // エンティティが存在しない場合
-        $this->assertFalse($this->ContentService->treeDelete(0));
-        // エイリアス出ない場合
-        $this->assertTrue($this->ContentService->treeDelete(6));
-        $query = $this->ContentService->getTrashIndex(['name' => 'service']);
-        $this->assertEquals(4, $query->count());
-        // エイリアスがある場合物理削除
-        $result = $this->ContentService->treeDelete(22);
-        $this->assertFalse($this->ContentService->exists(22, true));
-    }
-
-    /**
      * testRestore
      *
      * @return void
@@ -393,8 +382,7 @@ class ContentServiceTest extends BcTestCase
 
     /**
      * 再帰的に削除
-     *
-     * エイリアスの場合
+     * エイリアスの場合物理削除
      */
     public function testDeleteRecursive()
     {
@@ -416,6 +404,9 @@ class ContentServiceTest extends BcTestCase
         // エイリアスを子に持つ場合
         $this->assertTrue($this->ContentService->deleteRecursive(21));
         $this->assertFalse($this->ContentService->exists(22, true)); // エイリアス
+        // エンティティが存在しない場合
+        $this->expectExceptionMessage('idが指定されてません');
+        $this->assertFalse($this->ContentService->deleteRecursive(0));
     }
 
     /**
@@ -485,7 +476,7 @@ class ContentServiceTest extends BcTestCase
     public function getUrlDataProvider()
     {
         return [
-            //TODO: another.comがそもそもSiteに無いため一旦コメントアウト
+            //NOTE: another.comがそもそもSiteに無いため一旦コメントアウト
             // ノーマルURL
             ['main.com', '', '/', false, false, '/'],
             ['main.com', '', '/index', false, false, '/'],
@@ -558,21 +549,6 @@ class ContentServiceTest extends BcTestCase
     }
 
     /**
-     */
-    public function testTrashReturn()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 再帰的にゴミ箱より元に戻す
-     */
-    public function testTrashReturnRecursive()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
      * コピーする
      *
      * @dataProvider copyDataProvider
@@ -614,20 +590,6 @@ class ContentServiceTest extends BcTestCase
         $expected = $this->ContentService->Contents->find()->last();
         $this->assertEquals($expected->name, $result->name);
         $this->assertEquals($content->id, $result->alias_id);
-    }
-    /**
-     * testAliasDelete
-     *
-     * @return void
-     */
-    public function testAliasDelete()
-    {
-        $this->assertFalse($this->ContentService->deleteAlias(5));
-        $content = $this->ContentService->get(5);
-        $this->ContentService->update($content, ['alias_id' => 5]);
-        $this->assertTrue($this->ContentService->deleteAlias(5));
-        // ゴミ箱行きではなくちゃんと削除されてるか確認
-        $this->assertTrue($this->ContentService->getIndex(['withTrash' => true, 'id' => 5])->isEmpty());
     }
 
     /**
@@ -721,5 +683,50 @@ class ContentServiceTest extends BcTestCase
     {
         $result = $this->execPrivateMethod($this->ContentService, 'moveRelateSubSiteContent', ['12', '6', '']);
         $this->assertTrue($result);
+    }
+
+    /**
+     * 公開状態を取得する
+     */
+    public function testIsAllowPublish()
+    {
+        $content = $this->ContentService->get(1);
+        $this->assertTrue($this->ContentService->isAllowPublish($content));
+    }
+
+    /**
+     * サイトルートコンテンツを取得する
+     *
+     * @param int $siteId
+     * @param mixed $expects 期待するコンテントのid (存在しない場合はから配列)
+     * @dataProvider getSiteRootDataProvider
+     */
+    public function testGetSiteRoot($siteId, $expects)
+    {
+        $result = $this->ContentService->getSiteRoot($siteId);
+        if ($result) {
+            $result = $result->id;
+        }
+
+        $this->assertEquals($expects, $result);
+    }
+
+    public function getSiteRootDataProvider()
+    {
+        return [
+            [1, 1],
+            [7, null],        // 存在しないsiteId
+        ];
+    }
+
+    /**
+     * 指定したURLのパス上のコンテンツでフォルダ以外が存在するか確認
+     */
+    public function testExistsContentByUrl()
+    {
+        $content = $this->ContentService->get(6);
+        $this->assertFalse($this->ContentService->existsContentByUrl($content->url));
+        $content = $this->ContentService->get(12);
+        $this->assertTrue($this->ContentService->existsContentByUrl($content->url));
     }
 }

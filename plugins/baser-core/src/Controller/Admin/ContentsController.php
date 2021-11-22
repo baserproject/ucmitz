@@ -24,7 +24,6 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Model\Table\SitesTable;
 use BaserCore\Model\Table\UsersTable;
-use BaserCore\Service\SiteConfigTrait;
 use BaserCore\Model\Table\ContentsTable;
 use Cake\Http\Exception\NotFoundException;
 use BaserCore\Model\Table\SiteConfigsTable;
@@ -32,6 +31,7 @@ use BaserCore\Service\SiteServiceInterface;
 use BaserCore\Model\Table\ContentFoldersTable;
 use BaserCore\Service\BcAdminServiceInterface;
 use BaserCore\Service\ContentServiceInterface;
+use BaserCore\Service\SiteConfigServiceInterface;
 use BaserCore\Controller\Component\BcMessageComponent;
 use BaserCore\Controller\Component\BcAdminContentsComponent;
 
@@ -56,11 +56,6 @@ use BaserCore\Controller\Component\BcAdminContentsComponent;
 class ContentsController extends BcAdminAppController
 {
     /**
-     * SiteConfigTrait
-     */
-    use SiteConfigTrait;
-
-    /**
      * initialize
      * @return void
      * @checked
@@ -78,6 +73,7 @@ class ContentsController extends BcAdminAppController
      *
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function beforeFilter(EventInterface $event)
@@ -89,20 +85,18 @@ class ContentsController extends BcAdminAppController
         $this->loadModel('BaserCore.Users');
         $this->loadModel('BaserCore.Contents');
         $this->Security->setConfig('unlockedActions', ['delete', 'batch']);
-        // TODO 未実装のためコメントアウト
-        /* >>>
-        // $this->BcAuth->allow('view');
-        <<< */
     }
 
     /**
      * コンテンツ一覧
-     * @param integer $parentId
-     * @param void
+     * @param  ContentServiceInterface $contentService
+     * @param  SiteServiceInterface $siteService
+     * @param  SiteConfigServiceInterface $siteConfigService
      * @checked
+     * @noTodo
      * @unitTest
      */
-    public function index(ContentServiceInterface $contentService, SiteServiceInterface $siteService)
+    public function index(ContentServiceInterface $contentService, SiteServiceInterface $siteService, SiteConfigServiceInterface $siteConfigService)
     {
         $currentSiteId = $this->request->getAttribute('currentSite')->id;
         $sites = $siteService->getList();
@@ -117,7 +111,7 @@ class ContentsController extends BcAdminAppController
         $currentListType = $this->request->getQuery('list_type') ?? 1;
         $this->setViewConditions('Contents', ['default' => [
             'query' => [
-                'num' => $siteService->getSiteConfig('admin_list_num'),
+                'num' => $siteConfigService->getValue('admin_list_num'),
                 'site_id' => $currentSiteId,
                 'list_type' => $currentListType,
                 'sort' => 'id',
@@ -127,9 +121,8 @@ class ContentsController extends BcAdminAppController
         if($this->request->getParam('action') == "index") {
             switch($this->request->getQuery('list_type')) {
                 case 1:
-                    // TODO: 未実装
                     // 並び替え最終更新時刻をリセット
-                    // $this->SiteConfigs->resetContentsSortLastModified();
+                    $siteConfigService->resetValue('contents_sort_last_modified');
                     break;
                 case 2:
                     $this->request = $this->request->withQueryParams(
@@ -216,13 +209,14 @@ class ContentsController extends BcAdminAppController
      *
      * @param  ContentServiceInterface $contentService
      * @param  SiteServiceInterface $siteService
+     * @param  SiteConfigServiceInterface $siteConfigService
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function trash_index(ContentServiceInterface $contentService, SiteServiceInterface $siteService)
+    public function trash_index(ContentServiceInterface $contentService, SiteServiceInterface $siteService, SiteConfigServiceInterface $siteConfigService)
     {
-        $this->setAction('index', $contentService, $siteService);
+        $this->setAction('index', $contentService, $siteService, $siteConfigService);
         $this->render('index');
     }
 
@@ -342,62 +336,48 @@ class ContentsController extends BcAdminAppController
     }
 
     /**
-     * コンテンツ削除（論理削除）
-     *  @param  ContentServiceInterface $contentService
-     * @return Response|null
-     * @checked
-     * @unitTest
-     */
-    public function delete(ContentServiceInterface $contentService)
-    {
+	 * コンテンツ削除（論理削除）
+     * @param  ContentServiceInterface $contentService
+	 */
+	public function delete(ContentServiceInterface $contentService)
+	{
         $this->disableAutoRender();
-        // コンテンツIDチェック
-        if($this->request->is('ajax')) {
-            $useFlashMessage = false;
-            if (empty($id = $this->request->getData('contentId'))) {
-                $this->ajaxError(500, __d('baser', '無効な処理です。'));
+        $this->viewBuilder()->disableAutoLayout();
+		if (empty($this->request->getData())) {
+			$this->notFound();
+		}
+        if ($this->request->is(['post', 'put', 'delete'])) {
+            // TODO: ページ実装時に汎用化する
+            $data = $this->request->getData('Content') ?? $this->request->getData('ContentFolder.content');
+            $id = $data['id'];
+            // EVENT Contents.beforeDelete
+            $beforeEvent = $this->dispatchLayerEvent('beforeDelete', [
+                'id' => $id
+            ]);
+            if ($beforeEvent !== false) {
+                $id = ($beforeEvent->getResult() === null || $beforeEvent->getResult() === true)? $beforeEvent->getData('id') : $beforeEvent->getResult();
             }
-        } else {
-            $useFlashMessage = true;
-            if (empty($id = $this->request->getData('Content.id'))) {
-                $this->notFound();
-            }
-        }
-        // TODO:
-        // EVENT Contents.beforeDelete
-        // $this->dispatchLayerEvent('beforeDelete', [
-        //     'data' => $id
-        // ]);
-        try {
             $content = $contentService->get($id);
-            if ($content->alias_id) {
-                $result = $contentService->deleteAlias($id);
-            } else {
+            if ($contentService->delete($id)) {
+                // EVENT Contents.afterDelete
+                $afterEvent = $this->dispatchLayerEvent('afterDelete', [
+                    'content' => $content
+                ]);
+                if ($afterEvent !== false) {
+                    $content = ($afterEvent->getResult() === null || $afterEvent->getResult() === true)? $afterEvent->getData('content') : $afterEvent->getResult();
+                }
                 $typeName = Configure::read('BcContents.items.' . $content->plugin . '.' . $content->type . '.title');
-                $result = $contentService->treeDelete($id);
-            }
-        } catch (\Exception $e) {
-            $result = false;
-            $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
-        }
-        // TODO:
-        // EVENT Contents.afterDelete
-        // $this->dispatchLayerEvent('afterDelete', [
-        //     'data' => $id
-        // ]);
-        if ($result) {
-            $trashMessage = $typeName . sprintf(__d('baser', '「%s」をゴミ箱に移動しました。'), $content->title);
-            $aliasMessage = sprintf(__d('baser', '%s のエイリアス「%s」を削除しました。'), $typeName, $content->title);
-            $this->BcMessage->setSuccess($content->alias_id ? $aliasMessage : $trashMessage, true, $useFlashMessage);
-        } else {
-            if($this->request->is('ajax')) {
-                $this->ajaxError(500, __d('baser', '削除中にエラーが発生しました。'));
+                $trashMessage = $typeName . sprintf(__d('baser', '「%s」をゴミ箱に移動しました。'), $content->title);
+                $aliasMessage = sprintf(__d('baser', '%s のエイリアス「%s」を削除しました。'), $typeName, $content->title);
+                $this->BcMessage->setSuccess($content->alias_id ? $aliasMessage : $trashMessage, true);
+                $this->redirect(['action' => 'index']);
             } else {
                 $this->BcMessage->setError('削除中にエラーが発生しました。');
             }
+        } else {
+            $this->BcMessage->setError('不正なリクエストです。');
         }
-        return $this->redirect(['action' => 'index']);
-    }
+	}
 
     /**
      * batch
