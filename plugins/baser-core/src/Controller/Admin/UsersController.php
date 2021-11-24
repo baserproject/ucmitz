@@ -156,7 +156,7 @@ class UsersController extends BcAdminAppController
     public function index(UserServiceInterface $userService): void
     {
         $this->setViewConditions('User', ['default' => ['query' => [
-            'num' => $userService->getSiteConfig('admin_list_num'),
+            'limit' => $userService->getSiteConfig('admin_list_num'),
             'sort' => 'id',
             'direction' => 'asc',
         ]]]);

@@ -40,15 +40,12 @@ class DblogsController extends BcAdminAppController
     public function index(DblogServiceInterface $DblogService, UserServiceInterface $userService)
     {
         $this->setViewConditions('Dblog', ['default' => ['query' => [
-            'num' => $userService->getSiteConfig('admin_list_num'),
+            'limit' => $userService->getSiteConfig('admin_list_num'),
             'sort' => 'id',
             'direction' => 'desc',
         ]]]);
 
         $queryParams = $this->request->getQueryParams();
-        if (!empty($queryParams['num'])) {
-            $this->paginate['limit'] = $queryParams['num'];
-        }
 
         $this->set('dblogs', $this->paginate($DblogService->getIndex($queryParams)));
         $this->request = $this->request->withParsedBody($this->request->getQuery());

@@ -34,7 +34,7 @@ class SitesController extends BcAdminAppController
     public function index(SiteServiceInterface $siteService)
     {
         $this->setViewConditions('Site', ['default' => ['query' => [
-            'num' => $siteService->getSiteConfig('admin_list_num'),
+            'limit' => $siteService->getSiteConfig('admin_list_num'),
             'sort' => 'id',
             'direction' => 'asc',
         ]]]);
