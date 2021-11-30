@@ -11,7 +11,7 @@
 
 namespace BcFavorite\Event;
 
-use Cake\Event\Event;
+use Cake\Event\EventInterface;
 
 /**
  * BcFavoriteViewEventListener
@@ -23,15 +23,28 @@ class BcFavoriteViewEventListener extends \BaserCore\Event\BcViewEventListener
      * Event
      * @var string[]
      */
-    public $events = ['beforeAdminMenu'];
+    public $events = ['beforeAdminMenu', 'beforeContentsMenu'];
 
     /**
      * 管理画面メニュー上部
      */
-    public function beforeAdminMenu(Event $event) {
+    public function beforeAdminMenu(EventInterface $event)
+    {
         /* @var \BaserCore\View\BcAdminAppView $viewClass */
         $viewClass = $event->getSubject();
         echo $viewClass->element('BcFavorite.favorite_menu');
     }
 
+    /**
+     * beforeContentsMenu
+     *
+     * @param  EventInterface $event
+     * @return void
+     */
+    public function beforeContentsMenu(EventInterface $event)
+    {
+        $contentsMenu = $event->getData('contentsMenu');
+        $contentsMenu[] = 'aaa';
+        $event->setData('contentsMenu', $contentsMenu);
+    }
 }
