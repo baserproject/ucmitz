@@ -10,7 +10,7 @@
 
         <ul v-if="favorites.length" :style="'display:' + favoriteBoxOpened" class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
             <li v-for="(favorite, i) in favorites" :key="i" :id="'FavoriteRow' + favorite.name" class="bca-nav-favorite-list-item">
-                <a :href="favorite.url" :title="favorite.fullUrl"><span class="bca-nav-favorite-list-item-label">{{favorite.name}}</span></a>
+                <a :href="baseUrl + favorite.url" :title="favorite.url"><span class="bca-nav-favorite-list-item-label">{{favorite.name}}</span></a>
                 <input type="hidden" :value="favorite.id" class="favorite-id"  :name="'id' + '.' + favorite.id" />
                 <input type="hidden" :value="favorite.name" class="favorite-name"  :name="'name' + '.' + favorite.id" />
                 <input type="hidden" :value="favorite.url" class="favorite-url"  :name="'url' + '.' + favorite.id" />
@@ -46,7 +46,7 @@ export default {
         return {
             favoriteBoxOpened: "none",
             i18Favorite: 'testest2',
-            favorites: [{id: 1, name: 'name', url: 'url', fullUrl: 'fullUrl'}],
+            favorites: [],
             i18NoData: 'nodata',
             registerUrl: '',
             i18Title: 'title',
@@ -54,6 +54,7 @@ export default {
             i18Edit: 'edit',
             i18Delete: 'delete',
             ariaExpanded: 'true',
+            baseUrl: $.bcUtil.baseUrl,
         }
     },
     /**
@@ -64,6 +65,12 @@ export default {
          * initFavorite
          */
         initFavorite: function() {
+            // 一覧呼び出し
+            const indexUrl = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/index.json";
+            axios.get(indexUrl).then(function (response) {
+                this.favorites = response.data.favorites;
+            }.bind(this));
+            // 開閉
             var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/get_favorite_box_opened.json";
             axios.get(url).then(function (response) {
                 if (response.data.result === "1") {
@@ -91,7 +98,6 @@ export default {
             }
         },
     },
-
     mounted: function() {
         this.initFavorite();
     }

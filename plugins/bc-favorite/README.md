@@ -14,15 +14,15 @@ composer require baserproject/bc-favorite
   - [x] コントローラー実装
   - [x] コントローラーのテスト
 - [x] Admin/Controller を移行する→廃止
-- [ ] View を移行
+- [x] View を移行
   - Vue.js と APIで作成する
   - [x] メニューの上にイベントディスパッチャーを作る
-  - [ ] BcFavoriteから上記イベントを横取りしてお気に入り一覧を表示
+  - [x] BcFavoriteから上記イベントを横取りしてお気に入り一覧を表示
     - [x] 開閉ボタンの実装
       - [x] 開閉状態の保存処理を実装する
-    - [ ] お気に入りのテンプレートを vue.js 化して読み込む
-      - [ ] favorite_menu-navの中外をvue化する
-    - [ ] APIでJSONを取得して vue.js でレンダリング
+    - [x] お気に入りのテンプレートを vue.js 化して読み込む
+      - [x] favorite_menu-navの中外をvue化する
+    - [x] APIでJSONを取得して vue.js でレンダリング
   - [ ] 追加
   - [ ] 編集
   - [ ] 削除
