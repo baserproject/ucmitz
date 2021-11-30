@@ -1596,6 +1596,7 @@ class BcAppController extends AppController
      * @param string $message
      * @return \Cake\Datasource\EntityInterface
      * @checked
+     * @unitTest
      * @noTodo
      */
     protected function saveDblog($message)
