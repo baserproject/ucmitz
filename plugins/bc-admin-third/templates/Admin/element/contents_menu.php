@@ -42,16 +42,12 @@ if ($globalEvent !== false) {
           </li>
         <?php endforeach; ?>
       <?php endif; ?>
-
-      <li class="bca-content-menu__item">
-        <?php // TODO: button要素に変更 ?>
-        <?php $this->BcBaser->link(__d('baser', 'お気に入りに追加'), 'javascript:void(0)', ['id' => 'BtnFavoriteAdd', 'data-bca-fn' => 'BtnFavoriteAdd', 'class' => 'bca-content-menu__link bca-icon--plus-square']) ?></li>
       <?php if ($isHelp): ?>
         <li class="bca-content-menu__item">
           <?php // TODO: button要素に変更 ?>
-          <?php $this->BcBaser->link(__d('baser', 'ヘルプ'), 'javascript:void(0)', ['id' => 'BtnMenuHelp', 'class' => 'bca-content-menu__link bca-icon--help']) ?></li>
+          <?php $this->BcBaser->link(__d('baser', 'ヘルプ'), 'javascript:void(0)', ['id' => 'BtnMenuHelp', 'class' => 'bca-content-menu__link bca-icon--help']) ?>
+        </li>
       <?php endif ?>
-
       <?php if ($isSuperUser): ?>
         <li class="bca-content-menu__item">
           <?php $this->BcBaser->element('permission') ?>

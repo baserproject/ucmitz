@@ -16,8 +16,10 @@
 $(function () {
     $("body").append($("#FavoritesMenu"));
     $("#BtnFavoriteAdd").click(function () {
-        $("#FavoriteDialog").dialog('option', 'position', {my: "center", at: "center", of: window});
-        $('#FavoriteDialog').dialog('open');
+        $("#FavoriteDialog").dialog({
+            position: {my: "center", at: "center", of: window}
+        });
+        $('#FavoriteDialog').dialog();
         return false;
     });
     $("#BtnFavoriteHelp").bt({
@@ -96,14 +98,14 @@ $(function () {
             $("#FavoriteName").val('');
             $("#FavoriteUrl").val('');
         },
-        buttons: {
-            cancel: {
+        buttons: [
+            {
                 text: bcI18n.commonCancel,
                 click: function () {
                     $(this).dialog('close');
                 }
             },
-            save: {
+            {
                 text: bcI18n.commonSave,
                 click: function () {
                     var submitUrl = $("#FavoriteAjaxForm").attr('action');
@@ -160,7 +162,7 @@ $(function () {
                     }
                 }
             }
-        }
+        ]
     });
 
     /**
