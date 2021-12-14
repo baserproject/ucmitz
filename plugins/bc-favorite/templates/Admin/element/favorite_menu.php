@@ -1,4 +1,6 @@
 <?php
+
+use BaserCore\Utility\BcUtil;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
  * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
@@ -14,7 +16,8 @@
  * [ADMIN] よく使う項目
  */
 $this->BcBaser->js('BcFavorite.admin/favorites/main.bundle', true);
+$user = BcUtil::loginUser();
 ?>
 <nav id="FavoriteMenu" class="bca-nav-favorite">
-    <favorite-index />
+    <favorite-index user-id="<?php echo $user->id ?>" />
 </nav>

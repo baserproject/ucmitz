@@ -21,9 +21,11 @@
         </ul>
 
         <div id="FavoriteDialog" title="お気に入り登録" style="display:none">
-            <form :action="registerUrl" method="POST">
+            <form :action="registerUrl" method="POST" id="FavoriteAjaxForm">
                 <input type="hidden" name="id" />
+                <input type="hidden" name="user_id" :value="userId" />
                 <dl>
+                    <!-- TDDO: ucmitz favorite-nameをnameに変更する? -->
                     <dt><label for="favorite-name">{{ i18Title }}</label></dt>
                     <dd><input class="required" type="text" size=30 name="favorite-name" /></dd>
                     <dt><label for="favorite-url" />{{ i18Url }}</dt>
@@ -48,7 +50,7 @@ export default {
             i18Favorite: 'testest2',
             favorites: [],
             i18NoData: 'nodata',
-            registerUrl: '',
+            registerUrl: $.bcUtil.apiBaseUrl + "bc-favorite/favorites/add.json",
             i18Title: 'title',
             i18Url: 'url',
             i18Edit: 'edit',
@@ -57,6 +59,7 @@ export default {
             baseUrl: $.bcUtil.baseUrl,
         }
     },
+    props: ['userId'],
     /**
      * Methods
      */

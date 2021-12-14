@@ -27,7 +27,7 @@ $(function () {
                 width: '360px',
                 modal: true,
                 open: function (event, ui) {
-                    if ($(".favorite-menu-list .selected").size() == 0) {
+                    if ($(".favorite-menu-list .selected").length == 0) {
                         $(this).dialog('option', 'title', bcI18n.favoriteTitle1);
                         $("#FavoriteName").val($("#CurrentPageName").html());
                         $("#FavoriteUrl").val($("#CurrentPageUrl").html());
@@ -37,7 +37,7 @@ $(function () {
                         $("#FavoriteName").val($(".favorite-menu-list .selected .favorite-name").val());
                         $("#FavoriteUrl").val($(".favorite-menu-list .selected .favorite-url").val());
                     }
-                    $("#FavoriteAjaxForm").submit();
+                    // $("#FavoriteAjaxForm").submit();
                     $("#FavoriteName").focus();
 
                 },
@@ -57,13 +57,15 @@ $(function () {
                         text: bcI18n.commonSave,
                         click: function () {
                             var submitUrl = $("#FavoriteAjaxForm").attr('action');
-                            if (!$("#FavoriteId").val()) {
-                                submitUrl += '_add';
-                            } else {
-                                submitUrl += '_edit/' + $("#FavoriteId").val();
-                            }
+
+                            // TODO: ucmitz 振り分け処理を一旦コメントアウト
+                            // if (!$("#FavoriteId").val()) {
+                            //     submitUrl += '_add';
+                            // } else {
+                            //     submitUrl += '_edit/' + $("#FavoriteId").val();
+                            // }
                             var favoriteId = $("#FavoriteId").val();
-                            if ($("#FavoriteAjaxForm").valid()) {
+                            // if ($("#FavoriteAjaxForm").valid()) {
                                 $.bcToken.check(function () {
                                     $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
                                     return $("#FavoriteAjaxForm").ajaxSubmit({
@@ -107,7 +109,7 @@ $(function () {
                                         }
                                     });
                                 }, {useUpdate: false, hideLoader: false});
-                            }
+                            // }
                         }
                     }
                 ]
@@ -157,10 +159,10 @@ $(function () {
     /**
      * バリデーション
      */
-    $("#FavoriteAjaxForm").validate();
-    $("#FavoriteAjaxForm").submit(function () {
-        return false
-    });
+    // $("#FavoriteAjaxForm").validate();
+    // $("#FavoriteAjaxForm").submit(function () {
+    //     return false
+    // });
 
     /**
      * 並び替え開始時イベント

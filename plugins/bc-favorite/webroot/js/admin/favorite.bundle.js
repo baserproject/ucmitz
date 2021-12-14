@@ -123,7 +123,7 @@ $(function () {
       width: '360px',
       modal: true,
       open: function open(event, ui) {
-        if ($(".favorite-menu-list .selected").size() == 0) {
+        if ($(".favorite-menu-list .selected").length == 0) {
           $(this).dialog('option', 'title', bcI18n.favoriteTitle1);
           $("#FavoriteName").val($("#CurrentPageName").html());
           $("#FavoriteUrl").val($("#CurrentPageUrl").html());
@@ -132,9 +132,9 @@ $(function () {
           $("#FavoriteId").val($(".favorite-menu-list .selected .favorite-id").val());
           $("#FavoriteName").val($(".favorite-menu-list .selected .favorite-name").val());
           $("#FavoriteUrl").val($(".favorite-menu-list .selected .favorite-url").val());
-        }
+        } // $("#FavoriteAjaxForm").submit();
 
-        $("#FavoriteAjaxForm").submit();
+
         $("#FavoriteName").focus();
       },
       close: function close() {
@@ -150,68 +150,65 @@ $(function () {
       }, {
         text: bcI18n.commonSave,
         click: function click() {
-          var submitUrl = $("#FavoriteAjaxForm").attr('action');
+          var submitUrl = $("#FavoriteAjaxForm").attr('action'); // TODO: ucmitz 振り分け処理を一旦コメントアウト
+          // if (!$("#FavoriteId").val()) {
+          //     submitUrl += '_add';
+          // } else {
+          //     submitUrl += '_edit/' + $("#FavoriteId").val();
+          // }
 
-          if (!$("#FavoriteId").val()) {
-            submitUrl += '_add';
-          } else {
-            submitUrl += '_edit/' + $("#FavoriteId").val();
-          }
+          var favoriteId = $("#FavoriteId").val(); // if ($("#FavoriteAjaxForm").valid()) {
 
-          var favoriteId = $("#FavoriteId").val();
+          $.bcToken.check(function () {
+            $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
+            return $("#FavoriteAjaxForm").ajaxSubmit({
+              url: submitUrl,
+              beforeSend: function beforeSend() {
+                $("#Waiting").show();
+              },
+              success: function success(response, status) {
+                if (response) {
+                  if ($("#FavoriteId").val()) {
+                    var currentLi = $("#FavoriteId" + favoriteId).parent();
+                    currentLi.after(response);
+                    currentLi.remove();
+                  } else {
+                    var favoriteRowId = 1;
 
-          if ($("#FavoriteAjaxForm").valid()) {
-            $.bcToken.check(function () {
-              $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
-              return $("#FavoriteAjaxForm").ajaxSubmit({
-                url: submitUrl,
-                beforeSend: function beforeSend() {
-                  $("#Waiting").show();
-                },
-                success: function success(response, status) {
-                  if (response) {
-                    if ($("#FavoriteId").val()) {
-                      var currentLi = $("#FavoriteId" + favoriteId).parent();
-                      currentLi.after(response);
-                      currentLi.remove();
-                    } else {
-                      var favoriteRowId = 1;
-
-                      if ($(".favorite-menu-list li.no-data").length == 1) {
-                        $(".favorite-menu-list li.no-data").remove();
-                      }
-
-                      if ($(".favorite-menu-list li").length) {
-                        favoriteRowId = Number($(".favorite-menu-list li:last").attr('id').replace('FavoriteRow', '')) + 1;
-                      }
-
-                      $(".favorite-menu-list li:last").attr('id', 'FavoriteRow' + favoriteRowId);
-                      $(".favorite-menu-list").append(response);
+                    if ($(".favorite-menu-list li.no-data").length == 1) {
+                      $(".favorite-menu-list li.no-data").remove();
                     }
 
-                    initFavoriteList();
-                    $("#FavoriteDialog").dialog('close');
-                  } else {
-                    alert(bcI18n.commonSaveFailedMessage);
+                    if ($(".favorite-menu-list li").length) {
+                      favoriteRowId = Number($(".favorite-menu-list li:last").attr('id').replace('FavoriteRow', '')) + 1;
+                    }
+
+                    $(".favorite-menu-list li:last").attr('id', 'FavoriteRow' + favoriteRowId);
+                    $(".favorite-menu-list").append(response);
                   }
-                },
-                error: function error(XMLHttpRequest, textStatus) {
-                  if (XMLHttpRequest.responseText) {
-                    alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.responseText);
-                  } else {
-                    alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.statusText);
-                  }
-                },
-                complete: function complete() {
-                  $("#Waiting").hide();
-                  $.bcToken.key = null;
+
+                  initFavoriteList();
+                  $("#FavoriteDialog").dialog('close');
+                } else {
+                  alert(bcI18n.commonSaveFailedMessage);
                 }
-              });
-            }, {
-              useUpdate: false,
-              hideLoader: false
+              },
+              error: function error(XMLHttpRequest, textStatus) {
+                if (XMLHttpRequest.responseText) {
+                  alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.responseText);
+                } else {
+                  alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.statusText);
+                }
+              },
+              complete: function complete() {
+                $("#Waiting").hide();
+                $.bcToken.key = null;
+              }
             });
-          }
+          }, {
+            useUpdate: false,
+            hideLoader: false
+          }); // }
         }
       }]
     });
@@ -263,11 +260,11 @@ $(function () {
   /**
    * バリデーション
    */
+  // $("#FavoriteAjaxForm").validate();
+  // $("#FavoriteAjaxForm").submit(function () {
+  //     return false
+  // });
 
-  $("#FavoriteAjaxForm").validate();
-  $("#FavoriteAjaxForm").submit(function () {
-    return false;
-  });
   /**
    * 並び替え開始時イベント
    */
