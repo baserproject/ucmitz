@@ -101,7 +101,7 @@ class AppControllerTest extends BcTestCase
         $site = $sites->find()->first();
 
         return [
-            [null, 'BaserCore.App', null],
+            [['Site', null], 'BaserCore.App', null],
             [['Site', $site], 'BaserCore.App', $site->theme],
             [['_ext', 'json'], null, null]
         ];
