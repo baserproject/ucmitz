@@ -48,6 +48,7 @@ class AppController extends BaseController
      * @param EventInterface $event
      * @return \Cake\Http\Response|void|null
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function beforeRender(EventInterface $event): void
