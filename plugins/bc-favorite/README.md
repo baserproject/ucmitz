@@ -23,7 +23,7 @@ composer require baserproject/bc-favorite
     - [x] お気に入りのテンプレートを vue.js 化して読み込む
       - [x] favorite_menu-navの中外をvue化する
     - [x] APIでJSONを取得して vue.js でレンダリング
-  - [ ] 追加
+  - [ ] 追加 (作成中)
   - [ ] 編集
   - [ ] 削除
   - [ ] 並び替え

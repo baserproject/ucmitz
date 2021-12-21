@@ -27,9 +27,9 @@
                 <dl>
                     <!-- TDDO: ucmitz favorite-nameをnameに変更する? -->
                     <dt><label for="favorite-name">{{ i18Title }}</label></dt>
-                    <dd><input class="required" type="text" size=30 name="favorite-name" /></dd>
+                    <dd><input class="required" type="text" size=30 name="name" /></dd>
                     <dt><label for="favorite-url" />{{ i18Url }}</dt>
-                    <dd><input class="required" type="text" size=30 name="favorite-url" /></dd>
+                    <dd><input class="required" type="text" size=30 name="url" /></dd>
                 </dl>
             </form>
         </div>
@@ -69,10 +69,7 @@ export default {
          */
         initFavorite: function() {
             // 一覧呼び出し
-            const indexUrl = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/index.json";
-            axios.get(indexUrl).then(function (response) {
-                this.favorites = response.data.favorites;
-            }.bind(this));
+            this.refresh();
             // 開閉
             var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/get_favorite_box_opened.json";
             axios.get(url).then(function (response) {
@@ -100,6 +97,14 @@ export default {
                 axios.post(url);
             }
         },
+        refresh: function() {
+            // 一覧呼び出し
+            const indexUrl = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/index.json";
+            axios.get(indexUrl).then(function (response) {
+                this.favorites = response.data.favorites;
+            }.bind(this));
+        },
+
     },
     mounted: function() {
         this.initFavorite();
