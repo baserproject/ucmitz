@@ -12,9 +12,6 @@
  * よく使う項目の処理を行う
  */
 
-import FavoriteIndex from './favorites/index.vue';
-// import app from './favorites/main.js';
-
 $(function () {
     $("body").append($("#FavoritesMenu"));
 
@@ -75,34 +72,11 @@ $(function () {
                                         beforeSend: function () {
                                             $("#Waiting").show();
                                         },
-                                        success: function (response, status) {
-
-                                            FavoriteIndex.methods.refresh();
-                                            // app.$children[0].refresh();
+                                        success: function () {
+                                            document.querySelector('#FavoriteMenu').__vue__.$children[0].refresh();
+                                            // TODO ucmitz 未精査
+                                            // initFavoriteList();
                                             $("#FavoriteDialog").dialog('close');
-
-                                            // if (response) {
-
-                                            //     if ($("#FavoriteId").val()) {
-                                            //         var currentLi = $("#FavoriteId" + favoriteId).parent();
-                                            //         currentLi.after(response);
-                                            //         currentLi.remove();
-                                            //     } else {
-                                            //         var favoriteRowId = 1;
-                                            //         if ($(".favorite-menu-list li.no-data").length == 1) {
-                                            //             $(".favorite-menu-list li.no-data").remove();
-                                            //         }
-                                            //         if ($(".favorite-menu-list li").length) {
-                                            //             favoriteRowId = Number($(".favorite-menu-list li:last").attr('id').replace('FavoriteRow', '')) + 1;
-                                            //         }
-                                            //         $(".favorite-menu-list li:last").attr('id', 'FavoriteRow' + favoriteRowId);
-                                            //         $(".favorite-menu-list").append(response);
-                                            //     }
-                                            //     initFavoriteList();
-                                            //     $("#FavoriteDialog").dialog('close');
-                                            // } else {
-                                            //     alert(bcI18n.commonSaveFailedMessage);
-                                            // }
                                         },
                                         error: function (XMLHttpRequest, textStatus) {
                                             if (XMLHttpRequest.responseText) {

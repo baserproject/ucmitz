@@ -16,7 +16,7 @@ class CreateFavorites extends AbstractMigration
     {
         $table = $this->table('favorites', ['id' => false]);
         $table
-            ->addColumn('id', 'integer', ['null' => false, 'default' => null, 'limit' => 8])
+            ->addColumn('id', 'integer', ['autoIncrement' => true, 'null' => false, 'default' => null, 'limit' => 8])
             ->addPrimaryKey(['id'])
             ->addColumn('user_id', 'integer', ['null' => true, 'default' => null, 'limit' => 8])
             ->addColumn('name', 'string', ['null' => true, 'default' => null, 'limit' => null])

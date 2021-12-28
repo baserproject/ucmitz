@@ -24,9 +24,12 @@ composer require baserproject/bc-favorite
       - [x] favorite_menu-navの中外をvue化する
     - [x] APIでJSONを取得して vue.js でレンダリング
   - [ ] 追加 (作成中)
+    - [ ] リアルタイムバリデーション
+    - [ ] サーバーバリデーション
   - [ ] 編集
   - [ ] 削除
   - [ ] 並び替え
+    - [ ] initFavoriteList() の精査
 - [x] BcEventDispatcher::dispatch() の class の指定の仕様検討
   - dispatchメソッドの呼び出し側で class を指定しないように設定可能だった
 

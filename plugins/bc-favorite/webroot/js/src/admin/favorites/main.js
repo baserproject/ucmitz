@@ -11,7 +11,6 @@
 // import Vue from 'vue'
 import Vue from 'vue/dist/vue.js'
 import FavoriteIndex from './index.vue'
-// var app
 
 $(function () {
 	new Vue({
@@ -21,7 +20,3 @@ $(function () {
 		},
 	})
 })
-
-// export {
-//     app as default
-// };
