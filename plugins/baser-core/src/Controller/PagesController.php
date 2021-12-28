@@ -11,28 +11,27 @@
 
 namespace BaserCore\Controller;
 
+use BaserCore\Controller\Component\BcFrontContentsComponent;
+use BaserCore\Model\Table\PagesTable;
 use Cake\Utility\Text;
 use Cake\Core\Configure;
 use Cake\Filesystem\File;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
-use BaserCore\Annotation\NoTodo;
 use BaserCore\Model\Entity\Page;
-use BaserCore\Annotation\Checked;
-use BaserCore\Annotation\UnitTest;
-use BaserCore\Model\Table\PagesTable;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Http\Exception\NotFoundException;
-use BaserCore\Service\ContentFolderService;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\View\Exception\MissingViewException;
 use BaserCore\Service\ContentFolderServiceInterface;
-use BaserCore\Controller\Component\BcAdminContentsComponent;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * PagesController
  * @property PagesTable $Pages
- * @property BcAdminContentsComponent $BcAdminContents
+ * @property BcFrontContentsComponent $BcFrontContents
  */
 class PagesController extends AppController
 {
@@ -43,32 +42,6 @@ class PagesController extends AppController
      */
     use BcContainerTrait;
 
-	/**
-	 * ヘルパー
-	 *
-	 * @var array
-	 */
-	// TODO ucmitz 未移行
-	/* >>>
-	public $helpers = [
-		'Html', 'Session', 'BcGooglemaps',
-		'BcXml', 'BcText',
-		'BcFreeze', 'BcPage'
-	];
-	<<< */
-
-	/**
-	 * コンポーネント
-	 *
-	 * @var array
-	 * @deprecated useViewCache 5.0.0 since 4.0.0
-	 *    CakePHP3では、ビューキャッシュは廃止となるため、別の方法に移行する
-	 */
-	// TODO ucmitz 未移行
-	/* >>>
-	public $components = ['BcAuth', 'Cookie', 'BcAuthConfigure', 'BcEmail', 'BcAdminContents' => ['useForm' => true, 'useViewCache' => true]];
-    <<< */
-
     /**
      * initialize
      * @return void
@@ -76,7 +49,7 @@ class PagesController extends AppController
     public function initialize(): void
     {
         parent::initialize();
-        $this->loadComponent('BaserCore.BcAdminContents');
+        $this->loadComponent('BaserCore.BcFrontContents');
     }
 
 	/**
@@ -88,7 +61,6 @@ class PagesController extends AppController
 	 *   or MissingViewException in debug mode.
      * @checked
      * @noTodo
-     * @unitTest
 	 */
 	public function display()
 	{
@@ -138,7 +110,7 @@ class PagesController extends AppController
 		if ($this->request->getData()) {
 			// POSTパラメータのコードに含まれるscriptタグをそのままHTMLに出力するとブラウザによりXSSと判定される
 			// 一度データをセッションに退避する
-			if ($this->BcAdminContents->preview === 'default') {
+			if ($this->BcFrontContents->preview === 'default') {
 				$sessionKey = __CLASS__ . '_preview_default_' . $this->request->getData('Content.entity_id');
 				$this->request = $this->request->withParsedBody($this->Content->saveTmpFiles($this->request->getData(), mt_rand(0, 99999999)));
 				$this->Session->write($sessionKey, $this->request->getData());
@@ -159,7 +131,7 @@ class PagesController extends AppController
 				return;
 			}
 
-			if ($this->BcAdminContents->preview === 'draft') {
+			if ($this->BcFrontContents->preview === 'draft') {
 				$this->request = $this->request->withParsedBody($this->Content->saveTmpFiles($this->request->getData(), mt_rand(0, 99999999)));
 				$this->request->withParam('Content.eyecatch', $this->request->getData('Content.eyecatch'));
 				$uuid = $this->_createPreviewTemplate($this->request->getData());
@@ -170,7 +142,7 @@ class PagesController extends AppController
 		} else {
 
 			// プレビューアクセス
-			if ($this->BcAdminContents->preview === 'default') {
+			if ($this->BcFrontContents->preview === 'default') {
 				$sessionKey = __CLASS__ . '_preview_default_' . $this->request->getParam('Content.entity_id');
 				$previewData = $this->request->getSession()->read($sessionKey);
 				$this->request->withParam('Content.eyecatch', $previewData['Content']['eyecatch']);
@@ -184,26 +156,28 @@ class PagesController extends AppController
 			}
 
 			// 草稿アクセス
-			if ($this->BcAdminContents->preview === 'draft') {
+			if ($this->BcFrontContents->preview === 'draft') {
 				$data = $this->Page->find('first', ['conditions' => ['Page.id' => $this->request->getParam('Content.entity_id')]]);
 				$uuid = $this->_createPreviewTemplate($data, true);
+				// TODO ucmitz previewTemplate 不要
 				$this->set('previewTemplate', TMP . 'pages_preview_' . $uuid . Configure::read('BcApp.templateExt'));
 				$previewCreated = true;
 			}
 		}
 
 		$page = $this->Pages->find()->where(['Pages.id' => $this->request->getParam('Content.entity_id')])->first();
+
 		/* @var Page $page */
 		$template = $page->page_template;
-		$pagePath = implode('/', $path);
 		if (!$template) {
             $contentFolderService = $this->getService(ContentFolderServiceInterface::class); // 一時措置
 			$template = $contentFolderService->getParentTemplate($this->request->getParam('Content.id'), 'page');
 		}
-		$this->set('pagePath', $pagePath);
+
+        $this->set('pageContent', $page->contents);
 
 		try {
-			$this->render('/Pages/templates/' . $template);
+			$this->render('/Pages/' . $template);
 			if ($previewCreated) {
 				@unlink(TMP . 'pages_preview_' . $uuid . Configure::read('BcApp.templateExt'));
 			}

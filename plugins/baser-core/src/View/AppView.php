@@ -34,12 +34,25 @@ class AppView extends View
     /**
      * initialize
      * @checked
+     * @unitTest
      * @noTodo
      */
     public function initialize(): void
     {
         parent::initialize();
+        // TODO ucmitz 未移行のため暫定措置
+        // >>>
+//        $this->loadHelper('BaserCore.BcHtml');
+//        $this->loadHelper('BaserCore.BcForm');
+//        $this->loadHelper('BaserCore.BcWidgetArea');
+//        $this->loadHelper('BaserCore.BcXml');
+//        $this->loadHelper('BaserCore.BcArray');
+//        $this->loadHelper('BaserCore.BcXml');
+//        $this->loadHelper('BaserCore.BcXml');
+//        $this->loadHelper('BaserCore.BcXml');
+        // <<<
         $this->loadHelper('BaserCore.BcPage');
+        $this->loadHelper('BaserCore.BcBaser');
     }
 
     /**

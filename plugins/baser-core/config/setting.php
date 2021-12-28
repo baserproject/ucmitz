@@ -60,8 +60,22 @@ return [
         'adminGroupId' => 1,
         /**
          * コアパッケージ名
+         * プラグイン一覧に表示しないようにする
          */
-        'core' => ['baser-core', 'bc-admin-third'],
+        'core' => ['baser-core', 'bc-admin-third', 'bc-front'],
+        /**
+         * デフォルトフロントテーマ
+         */
+        'defaultFrontTheme' => 'bc-front',
+        /**
+         * デフォルト管理画面テーマ
+         */
+        'defaultAdminTheme' => 'bc-admin-third',
+        /**
+         * 管理画面をカスタマイズするためのテーマ
+         * アッパーキャメルケースで指定する
+         */
+        'customAdminTheme' => '',
         /**
          * コアプラグイン
          */
@@ -420,6 +434,39 @@ return [
                     ],
                     'icon' => 'bca-icon--folder',
                 ],
+                'Page' => [
+                    'title' => __d('baser', '固定ページ'),
+                    'multiple' => true,
+                    'preview' => true,
+                    'icon' => 'bca-icon--file',
+                    'omitViewAction' => true,
+                    'routes' => [
+                        'add' => [
+                            'admin' => true,
+                            'controller' => 'Pages',
+                            'action' => 'ajax_add'
+                        ],
+                        'edit' => [
+                            'admin' => true,
+                            'controller' => 'Pages',
+                            'action' => 'edit'
+                        ],
+                        'delete' => [
+                            'admin' => true,
+                            'controller' => 'Pages',
+                            'action' => 'delete'
+                        ],
+                        'view' => [
+                            'controller' => 'Pages',
+                            'action' => 'display'
+                        ],
+                        'copy' => [
+                            'admin' => true,
+                            'controller' => 'Pages',
+                            'action' => 'ajax_copy'
+                        ]
+                    ]
+                ],
                 'ContentAlias' => [
                     'multiple' => true,
                     'title' => __d('baser', 'エイリアス'),
@@ -464,39 +511,6 @@ return [
                         ]
                     ],
                     'icon' => 'bca-icon--link',
-                ],
-                'Page' => [
-                    'title' => __d('baser', '固定ページ'),
-                    'multiple' => true,
-                    'preview' => true,
-                    'icon' => 'bca-icon--file',
-                    'omitViewAction' => true,
-                    'routes' => [
-                        'add' => [
-                            'admin' => true,
-                            'controller' => 'Pages',
-                            'action' => 'ajax_add'
-                        ],
-                        'edit' => [
-                            'admin' => true,
-                            'controller' => 'Pages',
-                            'action' => 'edit'
-                        ],
-                        'delete' => [
-                            'admin' => true,
-                            'controller' => 'Pages',
-                            'action' => 'delete'
-                        ],
-                        'view' => [
-                            'controller' => 'Pages',
-                            'action' => 'display'
-                        ],
-                        'copy' => [
-                            'admin' => true,
-                            'controller' => 'Pages',
-                            'action' => 'ajax_copy'
-                        ]
-                    ]
                 ]
             ]
         ]

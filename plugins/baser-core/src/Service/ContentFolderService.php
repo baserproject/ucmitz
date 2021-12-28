@@ -19,16 +19,15 @@ use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\Note;
 use Cake\Datasource\EntityInterface;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Model\Table\ContentFoldersTable;
-use BaserCore\Service\ContentServiceInterface;
-use BaserCore\Service\ContentFolderServiceInterface;
+
 /**
  * Class ContentFolderService
  * @package BaserCore\Service
  * @property ContentFoldersTable $ContentFolders
- * @property ContentsTable $Contents
  */
 class ContentFolderService implements ContentFolderServiceInterface
 {
@@ -91,11 +90,10 @@ class ContentFolderService implements ContentFolderServiceInterface
      */
     public function getIndex(array $queryParams=[]): Query
     {
-        $options = [];
-        if (!empty($queryParams['num'])) {
-            $options = ['limit' => $queryParams['num']];
+        $query = $this->ContentFolders->find('all')->contain('Contents');
+        if (!empty($queryParams['limit'])) {
+            $query->limit($queryParams['limit']);
         }
-        $query = $this->ContentFolders->find('all', $options)->contain('Contents');
         if (!empty($queryParams['folder_template'])) {
             $query->where(['folder_template LIKE' => '%' . $queryParams['folder_template'] . '%']);
         }
@@ -127,6 +125,7 @@ class ContentFolderService implements ContentFolderServiceInterface
      * @return bool
      * @checked
      * @unitTest
+     * @noTodo
      */
     public function delete($id)
     {
@@ -148,7 +147,7 @@ class ContentFolderService implements ContentFolderServiceInterface
     {
         $options = array_merge(['associated' => ['Contents' => ['validate' => 'default']]], $options);
         $contentFolder = $this->ContentFolders->patchEntity($target, $contentFolderData, $options);
-        return ($result = $this->ContentFolders->save($contentFolder))? $result : $contentFolder;
+        return ($result = $this->ContentFolders->save($contentFolder, ['atomic' => false]))? $result : $contentFolder;
     }
 
     /**

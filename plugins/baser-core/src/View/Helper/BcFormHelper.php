@@ -13,19 +13,22 @@ namespace BaserCore\View\Helper;
 
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Inflector;
 use BaserCore\Annotation\NoTodo;
 use Cake\View\Helper\FormHelper;
+use Cake\Datasource\EntityInterface;
+use BaserCore\View\Helper\BcUploadHelper;
+use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
-use Cake\Datasource\EntityInterface;
-use BaserCore\Event\BcEventDispatcherTrait;
-use Cake\Utility\Inflector;
+use BaserCore\Annotation\Note;
 
 /**
  * FormHelper 拡張クラス
  *
  * @package Baser.View.Helper
  * @property BcHtmlHelper $BcHtml
+ * @property BcUploadHelper $BcUpload
  */
 class BcFormHelper extends FormHelper
 {
@@ -100,7 +103,7 @@ class BcFormHelper extends FormHelper
      */
     public function dispatchAfterForm($type = ''): string
     {
-        // TODO 未実装のため代替措置
+        // TODO ucmitz 未実装のため代替措置
         // >>>
         return '';
         // <<<
@@ -783,7 +786,7 @@ DOC_END;
     public function checkbox($fieldName, $options = [])
     {
 
-        // TODO 未実装のため代替措置
+        // TODO ucmitz 未実装のため代替措置
         // >>>
         return parent::checkbox($fieldName, $options);
         // <<<
@@ -815,7 +818,7 @@ DOC_END;
 
         $options += ['value' => 1, 'required' => false];
         $options = $this->_initInputField($fieldName, $options) + ['hiddenField' => true];
-        $value = current($this->value($valueOptions));
+        $value = current($this->getSourceValue($valueOptions));
         $output = '';
 
         if ((!isset($options['checked']) && !empty($value) && $value == $options['value']) ||
@@ -874,7 +877,7 @@ DOC_END;
     public function hidden($fieldName, $options = []): string
     {
 
-        // TODO 未実装のため代替措置
+        // TODO ucmitz 未実装のため代替措置
         // >>>
         return parent::hidden($fieldName, $options);
         // <<<
@@ -921,7 +924,7 @@ DOC_END;
             $multiple = true;
             $options['id'] = null;
             if (!isset($options['value'])) {
-                $value = $this->value($fieldName);
+                $value = $this->getSourceValue($fieldName);
             } else {
                 $value = $options['value'];
             }
@@ -1040,7 +1043,7 @@ DOC_END;
         $year = $month = $day = $hour = $min = $meridian = null;
 
         if (empty($attributes['value'])) {
-            $attributes = $this->value($attributes, $fieldName);
+            $attributes = $this->getSourceValue($attributes, $fieldName);
         }
 
         if ($attributes['value'] === null && $attributes['empty'] != true) {
@@ -1280,7 +1283,7 @@ DOC_END;
      */
     public function select($fieldName, $options = [], $attributes = []): string
     {
-        // TODO 未実装のため代替措置
+        // TODO ucmitz 未実装のため代替措置
         // >>>
         return parent::select($fieldName, $options, $attributes);
         // <<<
@@ -1804,7 +1807,7 @@ DOC_END;
         if (isset($attributes['value'])) {
             $value = $attributes['value'];
         } else {
-            $value = $this->value($fieldName);
+            $value = $this->getSourceValue($fieldName);
         }
 
         $disabled = [];
@@ -2069,7 +2072,7 @@ DOC_END;
     public function wyear($fieldName, $minYear = null, $maxYear = null, $selected = null, $attributes = [], $showEmpty = true)
     {
 
-        if ((empty($selected) || $selected === true) && $value = $this->value($fieldName)) {
+        if ((empty($selected) || $selected === true) && $value = $this->getSourceValue($fieldName)) {
             if (is_array($value)) {
                 if (isset($value['year'])) {
                     $selected = $value['year'];
@@ -2090,8 +2093,8 @@ DOC_END;
         if (strlen($selected) > 4 || $selected === 'now') {
 
             $wareki = $this->BcTime->convertToWareki(date('Y-m-d', strtotime($selected)));
-            if (!is_null($this->value($fieldName))) {
-                $wareki = $this->BcTime->convertToWareki($this->value($fieldName));
+            if (!is_null($this->getSourceValue($fieldName))) {
+                $wareki = $this->BcTime->convertToWareki($this->getSourceValue($fieldName));
             }
 
             $w = $this->BcTime->wareki($wareki);
@@ -2101,7 +2104,7 @@ DOC_END;
         } elseif ($selected === false) {
             $selected = null;
         } elseif (strpos($selected, '-') === false) {
-            $wareki = $this->BcTime->convertToWareki($this->value($fieldName));
+            $wareki = $this->BcTime->convertToWareki($this->getSourceValue($fieldName));
             if ($wareki) {
                 $w = $this->BcTime->wareki($wareki);
                 $wyear = $this->BcTime->wyear($wareki);
@@ -2260,20 +2263,18 @@ DOC_END;
      */
     public function file($fieldName, $options = []): string
     {
-        // TODO 未実装のため代替措置
-        // >>>
-        return parent::file($fieldName, $options);
-        // <<<
 
         $options = $this->_initInputField($fieldName, $options);
-        $entity = $this->entity();
-        $modelName = $this->model();
-        $Model = ClassRegistry::init($modelName);
-        if (empty($Model->Behaviors->BcUpload)) {
+        // TODO: テーブル名を取得する
+        $table = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+        if (!$table->hasBehavior('BcUpload')) {
             return parent::file($fieldName, $options);
         }
-        $fieldName = implode('.', $entity);
+        // $fieldName = implode('.', $entity);
 
+        // NOTE: idが出力されなくなったため、以前のIDが出力されるよう変更
+        // "Contact.upload" -> "ContactUpload"
+        $id = implode(array_map(function($field) { return Inflector::camelize($field); }, explode('.', $fieldName)));
         $options = array_merge([
             'imgsize' => 'medium', // 画像サイズ
             'rel' => '', // rel属性
@@ -2290,7 +2291,8 @@ DOC_END;
             'deleteLabel' => [],
             'figure' => [],
             'img' => ['class' => ''],
-            'figcaption' => []
+            'figcaption' => [],
+            'id' => $id
         ], $options);
 
         $linkOptions = [
@@ -2332,7 +2334,7 @@ DOC_END;
         $fileTag = parent::file($fieldName, $options);
 
         if (empty($options['value'])) {
-            $value = $this->value($fieldName);
+            $value = $this->getSourceValue($fieldName);
         } else {
             $value = $options['value'];
         }
@@ -2342,8 +2344,8 @@ DOC_END;
         if ($fileLinkTag && $linkOptions['delCheck'] && (is_string($value) || empty($value['session_key']))) {
             $delCheckTag = $this->Html->tag('span', $this->checkbox($fieldName . '_delete', $deleteCheckboxOptions) . $this->label($fieldName . '_delete', __d('baser', '削除する'), $deleteLabelOptions), $deleteSpanOptions);
         }
-        $hiddenValue = $this->value($fieldName . '_');
-        $fileValue = $this->value($fieldName);
+        $hiddenValue = $this->getSourceValue($fieldName . '_');
+        $fileValue = $this->getSourceValue($fieldName);
 
         $hiddenTag = '';
         if ($fileLinkTag) {

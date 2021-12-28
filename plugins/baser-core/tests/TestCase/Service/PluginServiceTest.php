@@ -101,9 +101,10 @@ class PluginServiceTest extends BcTestCase
             // 普通の場合 | DBに登録されてるプラグインとプラグインファイル全て
             ["0", 'BcTest', "5"],
             // ソートモードの場合 | DBに登録されてるプラグインのみ
-            ["1", 'BcBlog', "2"],
+            ["1", 'BcBlog', "3"],
         ];
     }
+
     /**
      * test install
      */

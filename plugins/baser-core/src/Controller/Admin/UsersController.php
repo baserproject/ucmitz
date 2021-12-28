@@ -32,8 +32,6 @@ use Authentication\Controller\Component\AuthenticationComponent;
  * Class UsersController
  * @package BaserCore\Controller\Admin
  * @property UsersTable $Users
- * @property AuthenticationComponent $Authentication
- * @property BcMessageComponent $BcMessage
  */
 class UsersController extends BcAdminAppController
 {
@@ -157,7 +155,7 @@ class UsersController extends BcAdminAppController
     public function index(UserServiceInterface $userService, SiteConfigServiceInterface $siteConfigService): void
     {
         $this->setViewConditions('User', ['default' => ['query' => [
-            'num' => $siteConfigService->getValue('admin_list_num'),
+            'limit' => $siteConfigService->getValue('admin_list_num'),
             'sort' => 'id',
             'direction' => 'asc',
         ]]]);
@@ -186,20 +184,20 @@ class UsersController extends BcAdminAppController
     public function add(UserServiceInterface $userService)
     {
         if ($this->request->is('post')) {
-            $user = $userService->create($this->request->getData());
-            if (!$user->getErrors()) {
+            try {
+                $user = $userService->create($this->request->getData());
                 // EVENT Users.afterAdd
                 $this->dispatchLayerEvent('afterAdd', [
                     'user' => $user
                 ]);
                 $this->BcMessage->setSuccess(__d('baser', 'ユーザー「{0}」を追加しました。', $user->name));
                 return $this->redirect(['action' => 'edit', $user->id]);
+            } catch (\Exception $e) {
+                $user = $e->getEntity();
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
-            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
-        } else {
-            $user = $userService->getNew();
         }
-        $this->set('user', $user);
+        $this->set('user', $user ?? $userService->getNew());
     }
 
     /**
@@ -221,14 +219,17 @@ class UsersController extends BcAdminAppController
         }
         $user = $userService->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $user = $userService->update($user, $this->request->getData());
-            if (!$user->getErrors()) {
+            try {
+                $user = $userService->update($user, $this->request->getData());
                 $this->dispatchLayerEvent('afterEdit', [
                     'user' => $user
                 ]);
+                if($userService->isSelf($id)) {
+                    $userService->reLogin($this->request, $this->response);
+                }
                 $this->BcMessage->setSuccess(__d('baser', 'ユーザー「{0}」を更新しました。', $user->name));
                 return $this->redirect(['action' => 'edit', $user->id]);
-            } else {
+            } catch (\Exception $e) {
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
         }

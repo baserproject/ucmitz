@@ -12,7 +12,6 @@
 namespace BaserCore\View\Helper;
 
 use BaserCore\Event\BcEventDispatcherTrait;
-use BaserCore\Service\BcAdminServiceInterface;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Service\DblogServiceInterface;
@@ -22,6 +21,7 @@ use Cake\View\Helper;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\Note;
 
 /**
  * Class BcAdminHelper
@@ -42,31 +42,6 @@ class BcAdminHelper extends Helper
      * @var string[]
      */
     public $helpers = ['BcBaser'];
-
-    /**
-     * 管理システムグローバルメニューの利用可否確認
-     *
-     * @return bool
-     */
-    public function isAdminGlobalmenuUsed()
-    {
-        return true;
-        // TODO 要コード確認
-        /* >>>
-        if (!BC_INSTALLED) {
-            return false;
-        }
-        if (Configure::read('BcRequest.isUpdater')) {
-            return false;
-        }
-        $user = $this->_View->get('user');
-        if (!$user) {
-            return false;
-        }
-        $UserGroup = ClassRegistry::init('UserGroup');
-        return $UserGroup->isAdminGlobalmenuUsed($user['user_group_id']);
-        <<< */
-    }
 
     /**
      * ログインユーザーがシステム管理者かチェックする
@@ -241,7 +216,7 @@ class BcAdminHelper extends Helper
         $adminMenuGroups = $this->getAdminMenuGroups();
         if($adminMenuGroups === false) return null;
 
-        // TODO : 要実装 BcUtil::loginUserGroup()で代用可能?
+        // TODO ucmitz : 要実装 BcUtil::loginUserGroup()で代用可能?
         // if(empty($this->_View->viewVars['user']['user_group_id'])) {
         //     return null;
         // }

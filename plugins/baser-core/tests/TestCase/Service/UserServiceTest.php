@@ -33,7 +33,8 @@ class UserServiceTest extends BcTestCase
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.UserGroups',
-        'plugin.BaserCore.LoginStores'
+        'plugin.BaserCore.LoginStores',
+        'plugin.BaserCore.Sites',
     ];
 
     /**
@@ -94,13 +95,13 @@ class UserServiceTest extends BcTestCase
         $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals('baser operator', $users->first()->name);
 
-        $request = $this->getRequest('/?num=1');
-        $users = $this->Users->getIndex($request->getQueryParams());
-        $this->assertEquals(1, $users->all()->count());
-
         $request = $this->getRequest('/?name=baser');
         $users = $this->Users->getIndex($request->getQueryParams());
         $this->assertEquals(3, $users->all()->count());
+
+        $request = $this->getRequest('/?limit=1');
+        $users = $this->Users->getIndex($request->getQueryParams());
+        $this->assertEquals(1, $users->all()->count());
     }
 
     /**
@@ -132,8 +133,12 @@ class UserServiceTest extends BcTestCase
         $request = $this->getRequest('/');
         $request = $request->withParsedBody([
             'name' => 'ucmitz',
+            'user_groups' => ['_ids' => [1]]
         ]);
         $user = $this->Users->get(1);
+        $this->expectException('Cake\ORM\Exception\PersistenceFailedException');
+        $this->Users->update($user, $request->getData());
+        $this->loginAdmin($request);
         $this->Users->update($user, $request->getData());
         $request = $this->getRequest('/?name=ucmitz');
         $users = $this->Users->getIndex($request->getQueryParams());
@@ -256,6 +261,33 @@ class UserServiceTest extends BcTestCase
         $users->delete($user);
         $deleteRealaodUser = $this->Users->reload($request);
         $this->assertFalse($deleteRealaodUser);
+    }
+
+    /**
+     * Test isSelf
+     * @param int $loginId
+     * @param int $postId
+     * @param bool $expected
+     * @dataProvider isSelfUpdateDataProvider
+     */
+    public function testIsSelf($loginId, $postId, $expected)
+    {
+        $request = $this->getRequest();
+        if ($loginId) {
+            $this->loginAdmin($request, $loginId);
+        }
+        $result = $this->Users->isSelf($postId);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function isSelfUpdateDataProvider()
+    {
+        return [
+            [null, null, false], // 新規登録
+            [null, 1, false],    // 更新
+            [1, 1, true],        // 自身を更新
+            [1, 2, false]        // 他人を更新
+        ];
     }
 
 }

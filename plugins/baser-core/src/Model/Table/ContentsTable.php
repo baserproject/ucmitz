@@ -13,11 +13,8 @@ namespace BaserCore\Model\Table;
 
 use ArrayObject;
 use Cake\Core\Plugin;
-use Cake\Event\Event;
 use Cake\Utility\Hash;
 use Cake\Core\Configure;
-use Cake\Database\Query;
-use Cake\Routing\Router;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
@@ -28,6 +25,7 @@ use Cake\Validation\Validator;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\Note;
 use BaserCore\Model\Entity\Content;
 use Cake\Datasource\EntityInterface;
 use Cake\Datasource\ConnectionManager;
@@ -53,26 +51,25 @@ class ContentsTable extends AppTable
      */
     public function initialize(array $config): void
     {
-        FrozenTime::setToStringFormat('yyyy-MM-dd HH:mm:ss');
+        FrozenTime::setToStringFormat('yyyy/MM/dd HH:mm:ss');
         parent::initialize($config);
         $this->addBehavior('Tree', ['level' => 'level']);
-        // TODO: BcUploadBehavior 未追加
-        // $this->addBehavior('BcUpload', [
-        //     'saveDir' => "contents",
-        //     'fields' => [
-        //         'eyecatch' => [
-        //             'type' => 'image',
-        //             'namefield' => 'id',
-        //             'nameadd' => true,
-        //             'nameformat' => '%08d',
-        //             'subdirDateFormat' => 'Y/m',
-        //             //'imageresize' => array('width' => '800', 'height' => '800'),
-        //             'imagecopy' => [
-        //                 'thumb' => ['suffix' => '_thumb', 'width' => '300', 'height' => '300'],
-        //                 'medium' => ['suffix' => '_midium', 'width' => '800', 'height' => '800']
-        //             ]
-        //         ]
-        //     ]]);
+        $this->addBehavior('BaserCore.BcUpload', [
+            'saveDir' => "contents",
+            'fields' => [
+                'eyecatch' => [
+                    'type' => 'image',
+                    'namefield' => 'id',
+                    'nameadd' => true,
+                    'nameformat' => '%08d',
+                    'subdirDateFormat' => 'Y/m',
+                    //'imageresize' => array('width' => '800', 'height' => '800'),
+                    'imagecopy' => [
+                        'thumb' => ['suffix' => '_thumb', 'width' => '300', 'height' => '300'],
+                        'medium' => ['suffix' => '_midium', 'width' => '800', 'height' => '800']
+                    ]
+                ]
+            ]]);
         $this->belongsTo('Sites', [
             'className' => 'BaserCore.Sites',
             'foreignKey' => 'site_id',
@@ -81,6 +78,7 @@ class ContentsTable extends AppTable
             'className' => 'BaserCore.Users',
             'foreignKey' => 'author_id',
         ]);
+        $this->addBehavior('Timestamp');
     }
 
     /**
@@ -132,7 +130,6 @@ class ContentsTable extends AppTable
      * @param Validator $validator
      * @return Validator
      * @checked
-     * @noTodo
      * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
@@ -208,14 +205,15 @@ class ContentsTable extends AppTable
             ]
         ]);
         $validator
-        ->allowEmptyDateTime('created_date')
-        ->add('created_date', [
-            'checkDate' => [
-                'rule' => ['checkDate'],
-                'provider' => 'bc',
-                'message' => __d('baser', '作成日に不正な文字列が入っています。')
-            ]
-        ]);
+        ->allowEmptyDateTime('created_date');
+        // TODO: %Y-%m-%d形式か%Y/%m/%d形式か判断して、書き換える
+        // ->add('created_date', [
+        //     'checkDate' => [
+        //         'rule' => ['checkDate'],
+        //         'provider' => 'bc',
+        //         'message' => __d('baser', '作成日に不正な文字列が入っています。')
+        //     ]
+        // ]);
         $validator
         ->allowEmptyDateTime('modified_date')
         ->add('modified_date', [
@@ -632,6 +630,7 @@ class ContentsTable extends AppTable
      * @param Content $data
      * @return bool
      * @checked
+     * @note(value="TODO内容を荒川さんに確認")
      */
     protected function updateRelateSubSiteContent($data)
     {
@@ -650,7 +649,7 @@ class ContentsTable extends AppTable
         if ($sites->isEmpty()) {
             return true;
         }
-        // TODO: コンテンツないのに通ってしまうため内部コンテンツがあるかを確認し、なければ処理を終了するよう一時措置
+        // TODO ucmitz: コンテンツないのに通ってしまうため内部コンテンツがあるかを確認し、なければ処理を終了するよう一時措置
         if ($this->find()->where(['site_id' => $sites->first()->id])->isEmpty()) {
             return true;
         }
@@ -665,7 +664,7 @@ class ContentsTable extends AppTable
             return true;
         }
 
-        // TODO: 未確認
+        // TODO ucmitz: 未確認
         // $CreateModel = $this;
         // if ($isContentFolder) {
         //     $CreateModel = TableRegistry::getTableLocator()->get('BaserCore.ContentFolder');
@@ -883,6 +882,7 @@ class ContentsTable extends AppTable
      * @return mixed URL | false
      * @checked
      * @unitTest
+     * @note(value="TODO内容を荒川さんに確認")
      */
     public function createUrl($id)
     {
@@ -909,7 +909,7 @@ class ContentsTable extends AppTable
                     ->execute()
                     ->fetchAll('assoc');
                 if ($content) {
-                    // TODO: $content[0][0]がなぜ必要か未確認
+                    // TODO ucmitz: $content[0][0]がなぜ必要か未確認
                     $content = isset($content[0]) ? $content[0] : $content[0][0];
                 } else {
                     return false;
@@ -1143,10 +1143,11 @@ class ContentsTable extends AppTable
      * @return    bool
      * @checked
      * @unitTest
+     * @note(value="TODO内容を荒川さんに確認")
      */
     public function isPublish($status, $publishBegin, $publishEnd)
     {
-        // TODO: frozenTime形式に移行するべき
+        // TODO ucmitz: frozenTime形式に移行するべき
         if (!$status) {
             return false;
         }
@@ -1170,6 +1171,7 @@ class ContentsTable extends AppTable
      * @param array $newData 新しいコンテンツデータ
      * @checked
      * @unitTest
+     * @note(value="TODO内容を荒川さんに確認")
      */
     public function isChangedStatus($id, $newData)
     {
@@ -1178,7 +1180,7 @@ class ContentsTable extends AppTable
         } catch(\Cake\Datasource\Exception\RecordNotFoundException $e) {
             return true;
         }
-        // TODO: PagesController使用時に再確認する
+        // TODO ucmitz: PagesController使用時に再確認する
         $beforeStatus = $this->isPublish($before->self_status,  $before->self_publish_begin, $before->self_publish_end);
         $afterStatus = $this->isPublish($newData['self_status'], $newData['self_publish_begin'], $newData['self_publish_end']);
         if ($beforeStatus != $afterStatus || $before->title  != $newData['title'] || $before->url != $newData['url']) {
@@ -1499,7 +1501,7 @@ class ContentsTable extends AppTable
      *
      * @param $id
      * @param $offset
-     * @return Content|bool
+     * @return EntityInterface|bool
      * @checked
      * @noTodo
      * @unitTest

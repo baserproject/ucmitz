@@ -64,14 +64,15 @@ class AnalyseControllerTest extends BcTestCase
         $path = ROOT . DS . 'plugins' . DS . 'baser-core';
         $result = $this->execPrivateMethod($this->Controller, 'getList', [$path]);
         $expected = [
-            "file" => "content_folders.php",
-            "path" => "/plugins/baser-core/config/Schema/content_folders.php",
+            "file" => "paths.php",
+            "path" => "/plugins/baser-core/config/paths.php",
             "class" => "",
             "method" => "",
-            "checked" => false,
-            "unitTest" => false,
-            "noTodo" => false,
-            "note" => ""
+            "checked" => true,
+            "unitTest" => true,
+            "noTodo" => true,
+            "note" => "",
+            'type' => 'config'
         ];
         $this->assertContains($expected, $result);
     }

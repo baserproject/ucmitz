@@ -89,11 +89,12 @@ class UserService implements UserServiceInterface
      */
     public function getIndex(array $queryParams): Query
     {
-        $options = [];
-        if (!empty($queryParams['num'])) {
-            $options = ['limit' => $queryParams['num']];
+        $query = $this->Users->find('all')->contain('UserGroups');
+
+        if (!empty($queryParams['limit'])) {
+            $query->limit($queryParams['limit']);
         }
-        $query = $this->Users->find('all', $options)->contain('UserGroups');
+
         if (!empty($queryParams['user_group_id'])) {
             $query->matching('UserGroups', function($q) use ($queryParams) {
                 return $q->where(['UserGroups.id' => $queryParams['user_group_id']]);
@@ -109,6 +110,7 @@ class UserService implements UserServiceInterface
      * ユーザー登録
      * @param array $data
      * @return \Cake\Datasource\EntityInterface
+     * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
      * @noTodo
      * @unitTest
@@ -117,7 +119,7 @@ class UserService implements UserServiceInterface
     {
         $user = $this->Users->newEmptyEntity();
         $user = $this->Users->patchEntity($user, $postData, ['validate' => 'new']);
-        return ($result = $this->Users->save($user))? $result : $user;
+        return $this->Users->saveOrFail($user);
     }
 
     /**
@@ -125,14 +127,21 @@ class UserService implements UserServiceInterface
      * @param EntityInterface $target
      * @param array $postData
      * @return EntityInterface
+     * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
      * @noTodo
      * @unitTest
      */
     public function update(EntityInterface $target, array $postData)
     {
+        if(empty($postData['login_user_id'])) {
+            $loginUser = BcUtil::loginUser();
+            if(!empty($loginUser['id'])) {
+                $postData['login_user_id'] = (string) $loginUser['id'];
+            }
+        }
         $user = $this->Users->patchEntity($target, $postData);
-        return ($result = $this->Users->save($target))? $result : $user;
+        return $this->Users->saveOrFail($user);
     }
 
     /**
@@ -415,6 +424,17 @@ class UserService implements UserServiceInterface
             return false;
         }
         return true;
+    }
+
+    /**
+     * ログインユーザー自身のIDか確認
+     * @param int $id
+     * @return mixed
+     */
+    public function isSelf(?int $id)
+    {
+        $loginUser = BcUtil::loginUser();
+        return (!empty($id) && !empty($loginUser->id) && $loginUser->id === $id);
     }
 
 }

@@ -29,6 +29,7 @@ use Cake\ORM\TableRegistry;
 use Cake\Routing\Route\InflectedRoute;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
+use Cake\Utility\Inflector;
 use Cake\Utility\Security;
 use Exception;
 use Psr\Http\Message\ServerRequestInterface;
@@ -36,7 +37,6 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use ReflectionClass;
-use ReflectionMethod;
 use ReflectionProperty;
 
 /**
@@ -62,7 +62,8 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
 
         $application->addPlugin('Authentication');
         $application->addPlugin('Migrations');
-        $application->addPlugin('BcAdminThird');
+        $application->addPlugin(Inflector::camelize(Configure::read('BcApp.defaultAdminTheme'), '-'));
+        $application->addPlugin(Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-'));
 
         $plugins = BcUtil::getEnablePlugins();
         if ($plugins) {
@@ -72,6 +73,26 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                 }
             }
         }
+        $this->setupDefaultTemplatesPath();
+    }
+
+    /**
+     * デフォルトテンプレートを設定する
+     * @checked
+     * @unitTest
+     * @noTodo
+     */
+    public function setupDefaultTemplatesPath()
+    {
+        if(BcUtil::isAdminSystem()) {
+            $template = Configure::read('BcApp.defaultAdminTheme');
+        } else {
+            $template = Configure::read('BcApp.defaultFrontTheme');
+        }
+        Configure::write('App.paths.templates', array_merge(
+            [ROOT . DS . 'plugins' . DS . $template . DS . 'templates' . DS],
+            Configure::read('App.paths.templates')
+        ));
     }
 
     /**
@@ -82,6 +103,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * @return bool
      * @unitTest
      * @checked
+     * @noTodo
      */
     function loadPlugin(PluginApplicationInterface $application, $plugin, $priority)
     {
@@ -218,11 +240,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'finder' => 'available'
                     ],
                 ]);
-                // ログインセッションを保有している際も認証済とする
-                // Webの管理画面よりAPIにアクセスできるようにするため
-                $service->loadAuthenticator('Authentication.Session', [
-                    'sessionKey' => $authSetting['sessionKey'],
-                ]);
                 break;
 
             default:
@@ -269,6 +286,12 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      */
     public function routes($routes): void
     {
+
+        // migrations コマンドの場合は実行しない
+        if(isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] === 'migrations') {
+            parent::routes($routes);
+            return;
+        }
 
         $request = Router::getRequest();
         if(!$request) {

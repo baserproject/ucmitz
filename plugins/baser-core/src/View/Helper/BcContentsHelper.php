@@ -12,26 +12,22 @@
 namespace BaserCore\View\Helper;
 
 use Exception;
-use Cake\View\View;
-use Cake\ORM\Entity;
 use Cake\View\Helper;
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use BaserCore\Utility\BcUtil;
-use BaserCore\Annotation\NoTodo;
-use BaserCore\Annotation\Checked;
-use BaserCore\Annotation\UnitTest;
-use BaserCore\Model\Entity\Content;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Service\PermissionService;
 use BaserCore\Event\BcEventDispatcherTrait;
-use BaserCore\Model\Table\PermissionsTable;
 use BaserCore\Service\ContentServiceInterface;
 use BaserCore\Service\PermissionServiceInterface;
-
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\Note;
 
 /**
  * コンテンツヘルパ
@@ -143,7 +139,8 @@ class BcContentsHelper extends Helper
             }
             // disabled
 			if(!empty($item['url']['add'])) {
-				$item['addDisabled'] = !($this->PermissionService->check($item['url']['add'], $user->user_groups[0]->id));
+                // TODO ucmitz: ユーザグループを配列で全て渡すよう変更が必要
+				$item['addDisabled'] = !($this->PermissionService->check($item['url']['add'], [$user->user_groups[0]->id]));
 			} else {
 				$item['addDisabled'] = true;
 			}
@@ -161,7 +158,7 @@ class BcContentsHelper extends Helper
      * @checked
      * @unitTest
      */
-    public function isActionAvailable($type, $action, $entityId)
+    public function isActionAvailable($type, $action, $entityId) : bool
     {
         $user = BcUtil::loginUser('Admin');
         if (!isset($this->getConfig('items')[$type]['url'][$action])) {
@@ -171,12 +168,13 @@ class BcContentsHelper extends Helper
         if (isset($user->user_groups)) {
             $userGroups = $user->user_groups;
             foreach ($userGroups as $group) {
-                if ($this->PermissionService->check($url, $group->id)) {
+                // TODO ucmitz: ユーザグループを配列で全て渡すよう変更が必要
+                if ($this->PermissionService->check($url, [$group->id])) {
                     return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 
     /**
@@ -221,6 +219,11 @@ class BcContentsHelper extends Helper
      */
     public function _getIconUrl($plugin, $type, $file, $suffix = null)
     {
+        // TODO ucmitz 未実装のため代替措置
+        // >>>
+        return '';
+        // <<<
+
         $imageBaseUrl = Configure::read('App.imageBaseUrl');
         if ($file) {
             $file = $plugin . '.' . $file;
