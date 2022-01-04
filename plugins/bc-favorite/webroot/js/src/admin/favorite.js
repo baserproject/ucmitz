@@ -69,6 +69,9 @@ $(function () {
                                     $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
                                     return $("#FavoriteAjaxForm").ajaxSubmit({
                                         url: submitUrl,
+                                        headers: {
+                                            "Authorization": $.bcJwt.accessToken,
+                                        },
                                         beforeSend: function () {
                                             $("#Waiting").show();
                                         },
@@ -141,10 +144,10 @@ $(function () {
     /**
      * バリデーション
      */
-    // $("#FavoriteAjaxForm").validate();
-    // $("#FavoriteAjaxForm").submit(function () {
-    //     return false
-    // });
+    $("#FavoriteAjaxForm").validate();
+    $("#FavoriteAjaxForm").submit(function () {
+        return false
+    });
 
     /**
      * 並び替え開始時イベント

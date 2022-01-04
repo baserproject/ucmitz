@@ -21,17 +21,7 @@
         </ul>
 
         <div id="FavoriteDialog" title="お気に入り登録" style="display:none">
-            <form :action="registerUrl" method="POST" id="FavoriteAjaxForm">
-                <input type="hidden" name="id" />
-                <input type="hidden" name="user_id" :value="userId" />
-                <dl>
-                    <!-- TDDO: ucmitz favorite-nameをnameに変更する? -->
-                    <dt><label for="favorite-name">{{ i18Title }}</label></dt>
-                    <dd><input class="required" type="text" size=30 name="name" /></dd>
-                    <dt><label for="favorite-url" />{{ i18Url }}</dt>
-                    <dd><input class="required" type="text" size=30 name="url" /></dd>
-                </dl>
-            </form>
+            <favorite-form ref="FavoriteForm" :user-id="userId" />
         </div>
         <ul id="FavoritesMenu" class="context-menu" style="display:none">
             <li class="edit"><a href="#FavoriteEdit">{{ i18Edit }}</a></li>
@@ -42,6 +32,7 @@
 
 <script>
 import axios from "axios";
+import FavoriteForm from "./form.vue";
 
 export default {
     data:function () {
@@ -60,6 +51,9 @@ export default {
         }
     },
     props: ['userId'],
+    components: {
+    FavoriteForm
+    },
     /**
      * Methods
      */
@@ -72,7 +66,11 @@ export default {
             this.refresh();
             // 開閉
             var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/get_favorite_box_opened.json";
-            axios.get(url).then(function (response) {
+            axios.get(url, {
+                headers: {
+                    "Authorization": $.bcJwt.accessToken,
+                }
+            }).then(function (response) {
                 if (response.data.result === "1") {
                     this.favoriteBoxOpened = "block";
                     this.ariaExpanded = 'false';
@@ -88,19 +86,31 @@ export default {
                 this.favoriteBoxOpened = 'none';
                 this.ariaExpanded = 'true';
                 var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/save_favorite_box.json";
-                axios.post(url);
+                axios.post(url, {}, {
+                    headers: {
+                        "Authorization": $.bcJwt.accessToken,
+                    }
+                });
             } else {
                 // ボタンの制御
                 this.favoriteBoxOpened = 'block';
                 this.ariaExpanded = 'false';
                 var url = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/save_favorite_box/1.json";
-                axios.post(url);
+                axios.post(url, {}, {
+                    headers: {
+                        "Authorization": $.bcJwt.accessToken,
+                    }
+                });
             }
         },
         refresh: function() {
             // 一覧呼び出し
             const indexUrl = $.bcUtil.apiBaseUrl + "bc-favorite/favorites/index.json";
-            axios.get(indexUrl).then(function (response) {
+            axios.get(indexUrl, {
+                headers: {
+                    "Authorization": $.bcJwt.accessToken,
+                }
+            }).then(function (response) {
                 this.favorites = response.data.favorites;
             }.bind(this));
         },

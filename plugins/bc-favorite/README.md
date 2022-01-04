@@ -25,6 +25,11 @@ composer require baserproject/bc-favorite
     - [x] APIでJSONを取得して vue.js でレンダリング
   - [ ] 追加 (作成中)
     - [ ] リアルタイムバリデーション
+      - [x] フォーム切り出し(切り分けた状態での保存は完了その他動作未確認)
+      - [ ] validationの設定
+      - 要件
+        - nameとurl必須のみ
+        - 既存値設定
     - [ ] サーバーバリデーション
   - [ ] 編集
   - [ ] 削除
