@@ -16,11 +16,12 @@ use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Event\EventManager;
 use BaserCore\Utility\BcUtil;
+use BaserCore\Annotation\Note;
 use Cake\Controller\Component;
 use BaserCore\Annotation\NoTodo;
+use BaserCore\Error\BcException;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
-use BaserCore\Annotation\Note;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Event\BcContentsEventListener;
 use BaserCore\Service\ContentServiceInterface;
@@ -101,6 +102,9 @@ class BcAdminContentsComponent extends Component
     /**
      * コンテンツ保存フォームを設定する
      * @return void
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function settingForm()
     {
@@ -109,13 +113,12 @@ class BcAdminContentsComponent extends Component
 
         if ($entityName === "content") {
             $content = $controller->viewBuilder()->getVar($entityName);
-            $contentPath = Inflector::classify($entityName) . ".";
         } else {
             $associated = $controller->viewBuilder()->getVar($entityName);
             $content = $associated->content;
-            $contentPath = Inflector::classify($entityName) . ".content.";
         }
-        $theme = $content->site->theme;
+        $site = $content->site;
+        $theme = $site->theme;
 
         $templates = array_merge(
             BcUtil::getTemplateList('Layouts', '', $theme),
@@ -134,30 +137,44 @@ class BcAdminContentsComponent extends Component
         if (Configure::read('BcApp.autoUpdateContentCreatedDate')) {
             $content->modified_date = date('Y-m-d H:i:s');
         }
-
         $siteList = $this->Sites->find('list', ['fields' => ['id', 'display_name']]);
         $controller->set('sites', $siteList);
         $controller->set('mainSiteDisplayName', $this->SiteConfigService->getValue('main_site_display_name'));
-        $controller->set('mainSiteId', $content->site->main_site_id);
+        $controller->set('mainSiteId', $site->main_site_id);
         $controller->set('relatedContents', $this->Sites->getRelatedContents($content->id));
         $related = false;
-        if (($content->site->relate_main_site && $content->main_site_content_id && $content->alias_id) ||
-            $content->site->relate_main_site && $content->main_site_content_id && $content->type == 'ContentFolder') {
+        if (($site->relate_main_site && $content->main_site_content_id && $content->alias_id) ||
+            $site->relate_main_site && $content->main_site_content_id && $content->type == 'ContentFolder') {
             $related = true;
         }
-        $disableEditContent = false;
-
         if (!$entityName === "content") $associated->content = $content;
-
-        if (!BcUtil::isAdminUser() || ($content->site->relate_main_site && $content->main_site_content_id &&
-                ($content->alias_id || $content->type == 'ContentFolder'))) {
-            $disableEditContent = true;
-        }
-
+        // ContentController以外の場合適切にformIdを生成するためcontentEntitiesを確認
+        if ($controller->getName() !== 'Contents') $this->checkContentEntities($controller);
         $controller->set('content', $content);
-        $controller->set('contentPath', $contentPath);
         $controller->set('currentSiteId', $content->site_id);
-        $controller->set('disableEditContent', $disableEditContent);
         $controller->set('related', $related);
+        $controller->set('publishLink', $this->ContentService->getUrl($content->url, true, $site->useSubDomain));
+    }
+
+    /**
+     * 適切にContentEntitiesが設定されてるか確認する
+     *
+     * @return void
+     * @throws BcException
+     * @checked
+     * @unitTest
+     * @noTodo
+     */
+    protected function checkContentEntities($controller)
+    {
+        $entities = $controller->viewBuilder()->getVar('contentEntities');
+        if (is_array($entities) && count($entities) === 2 && array_key_exists('Content', $entities)) {
+            if (array_key_first($entities) === 'Content') {
+                $entities = array_reverse($entities);
+                $controller->set('contentEntities', $entities);
+            }
+        } else {
+            throw new BcException(__d('baser', 'contentEntitiesが適切に設定されていません'));
+        }
     }
 }

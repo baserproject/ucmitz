@@ -47,6 +47,7 @@ class ContentsTable extends AppTable
      * @param array $config テーブル設定
      * @return void
      * @checked
+     * @noTodo
      * @unitTest
      */
     public function initialize(array $config): void
@@ -117,7 +118,6 @@ class ContentsTable extends AppTable
             // 'Model.beforeFind' => ['callable' => 'beforeFind', 'passParams' => true],
             // 'Model.afterFind' => ['callable' => 'afterFind', 'passParams' => true],
             'Model.beforeMarshal' => 'beforeMarshal',
-            'Model.afterValidate' => ['callable' => 'afterValidate'],
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
             'Model.afterMarshal' => 'afterMarshal',
             'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
@@ -319,7 +319,7 @@ class ContentsTable extends AppTable
                     $data['content']['exclude_search'] = 0;
                 }
                 if (!isset($data['content']['author_id'])) {
-                    $user = BcUtil::loginUser('Admin');
+                    $user = BcUtil::loginUser();
                     $data['content']['author_id'] = $user['id'];
                 }
             } else {
@@ -357,18 +357,6 @@ class ContentsTable extends AppTable
         $columns = ConnectionManager::get('default')->getSchemaCollection()->describe($this->getTable())->columns();
         foreach ($columns as $field) {
             if ($entity->get($field) instanceof FrozenTime) $entity->set($field, $entity->get($field)->__toString());
-        }
-    }
-
-    /**
-     * After Validate
-     */
-    public function afterValidate()
-    {
-        parent::afterValidate();
-        // 新規追加の際、name は、title より自動設定される為、バリデーションエラーが発生してもエラーメッセージを表示しない
-        if (empty($this->data['Content']['id']) && !empty($this->validationErrors['name'])) {
-            unset($this->validationErrors['name']);
         }
     }
 
@@ -630,7 +618,6 @@ class ContentsTable extends AppTable
      * @param Content $data
      * @return bool
      * @checked
-     * @note(value="TODO内容を荒川さんに確認")
      */
     protected function updateRelateSubSiteContent($data)
     {
@@ -649,7 +636,7 @@ class ContentsTable extends AppTable
         if ($sites->isEmpty()) {
             return true;
         }
-        // TODO ucmitz: コンテンツないのに通ってしまうため内部コンテンツがあるかを確認し、なければ処理を終了するよう一時措置
+        // 連携サイトに紐づくコンテンツがない場合は終了
         if ($this->find()->where(['site_id' => $sites->first()->id])->isEmpty()) {
             return true;
         }
@@ -882,7 +869,7 @@ class ContentsTable extends AppTable
      * @return mixed URL | false
      * @checked
      * @unitTest
-     * @note(value="TODO内容を荒川さんに確認")
+     * @noTodo
      */
     public function createUrl($id)
     {
@@ -909,8 +896,7 @@ class ContentsTable extends AppTable
                     ->execute()
                     ->fetchAll('assoc');
                 if ($content) {
-                    // TODO ucmitz: $content[0][0]がなぜ必要か未確認
-                    $content = isset($content[0]) ? $content[0] : $content[0][0];
+                    $content = $content[0];
                 } else {
                     return false;
                 }
@@ -1005,9 +991,9 @@ class ContentsTable extends AppTable
                 $url = '/' . $mainSitePrefix . $url;
             }
             // main_site_content_id を更新
-            if ($site->main_site_id) {
+            if (!$content->isNew() && $site->main_site_id) {
                 $mainSiteContent = $this->find()->select(['id'])->where(['site_id' => $site->main_site_id, 'url' => $url])->first();
-                $content->main_site_content_id = $mainSiteContent->id;
+                $content->main_site_content_id = $mainSiteContent->id ?? null;
             } else {
                 $content->main_site_content_id = null;
             }
@@ -1143,13 +1129,19 @@ class ContentsTable extends AppTable
      * @return    bool
      * @checked
      * @unitTest
-     * @note(value="TODO内容を荒川さんに確認")
+     * @noTodo
      */
     public function isPublish($status, $publishBegin, $publishEnd)
     {
-        // TODO ucmitz: frozenTime形式に移行するべき
         if (!$status) {
             return false;
+        }
+        // FrozenTimeの場合は変換
+        if ($publishBegin instanceof FrozenTime) {
+            $publishBegin = $publishBegin->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        }
+        if ($publishEnd instanceof FrozenTime) {
+            $publishEnd = $publishEnd->i18nFormat('yyyy-MM-dd HH:mm:ss');
         }
         if ($publishBegin && $publishBegin != '0000-00-00 00:00:00') {
             if ($publishBegin > date('Y-m-d H:i:s')) {
@@ -1169,9 +1161,10 @@ class ContentsTable extends AppTable
      *
      * @param int $id コンテンツID
      * @param array $newData 新しいコンテンツデータ
+     * @return bool
      * @checked
      * @unitTest
-     * @note(value="TODO内容を荒川さんに確認")
+     * @noTodo
      */
     public function isChangedStatus($id, $newData)
     {
@@ -1180,7 +1173,6 @@ class ContentsTable extends AppTable
         } catch(\Cake\Datasource\Exception\RecordNotFoundException $e) {
             return true;
         }
-        // TODO ucmitz: PagesController使用時に再確認する
         $beforeStatus = $this->isPublish($before->self_status,  $before->self_publish_begin, $before->self_publish_end);
         $afterStatus = $this->isPublish($newData['self_status'], $newData['self_publish_begin'], $newData['self_publish_end']);
         if ($beforeStatus != $afterStatus || $before->title  != $newData['title'] || $before->url != $newData['url']) {

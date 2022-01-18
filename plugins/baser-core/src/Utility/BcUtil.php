@@ -16,20 +16,21 @@ use BcAuthComponent;
 use Cake\Cache\Cache;
 use Cake\Core\Plugin;
 use Cake\Core\Configure;
-use Cake\Http\ServerRequestFactory;
 use Cake\Routing\Router;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Database\Exception;
+use BaserCore\Annotation\Note;
+use BaserCore\Annotation\NoTodo;
 use BaserCore\Model\Entity\User;
-use Cake\Datasource\ConnectionManager;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use Cake\Http\ServerRequestFactory;
+use Cake\Datasource\ConnectionManager;
+use Authentication\Authenticator\Result;
 use BaserCore\Service\SiteConfigServiceInterface;
-use BaserCore\Annotation\NoTodo;
-use BaserCore\Annotation\Note;
 
 /**
  * Class BcUtil
@@ -47,17 +48,25 @@ class BcUtil
      * 認証領域を指定してログインユーザーのデータを取得する
      * セッションクラスが設定されていない場合にはスーパーグローバル変数を利用する
      *
-     * @return mixed Entity|null
+     * @return User|false
      * @checked
      * @noTodo
      * @unitTest
      */
-    public static function loginUser($prefix = 'Admin')
+    public static function loginUser()
     {
         if (!$request = Router::getRequest()) {
             return false;
         }
-        return $request->getAttribute('authenticationResult')->getData() ?? null;
+        $authenticator =  $request->getAttribute('authentication');
+        /** @var Result $result */
+        $result = $authenticator->getResult();
+        if (isset($result) && $result->isValid()) {
+            $user = $result->getData();
+            return $user;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -356,7 +365,7 @@ class BcUtil
     public static function isAdminUser($user = null): bool
     {
         /** @var User $User */
-        $loginUser = $user ?? self::loginUser('Admin');
+        $loginUser = $user ?? self::loginUser();
         return ($loginUser)? $loginUser->isAdmin() : false;
     }
 
@@ -384,7 +393,7 @@ class BcUtil
      */
     public static function authSessionKey($prefix = 'admin')
     {
-        return Configure::read('BcAuthPrefix.' . $prefix . '.sessionKey');
+        return Configure::read('BcPrefixAuth.' . $prefix . '.sessionKey');
     }
 
     /**
@@ -1059,4 +1068,107 @@ class BcUtil
             return false;
         }
     }
+
+    /**
+     * サイトの設置URLを取得する
+     *
+     * index.phpは含まない
+     *
+     * @return    string
+     */
+    public static function siteUrl()
+    {
+        $baseUrl = preg_replace('/' . preg_quote(basename($_SERVER['SCRIPT_FILENAME']), '/') . '\/$/', '', BcUtil::baseUrl());
+        $topLevelUrl = BcUtil::topLevelUrl(false);
+        if ($topLevelUrl) {
+            return $topLevelUrl . $baseUrl;
+        } else {
+            return '';
+        }
+    }
+
+
+    /**
+     * WebサイトのベースとなるURLを取得する
+     *
+     * コントローラーが初期化される前など {$this->base} が利用できない場合に利用する
+     * / | /index.php/ | /subdir/ | /subdir/index.php/
+     *
+     * ※ プログラムフォルダ内の画像やCSSの読み込み時もbootstrap.php で呼び出されるのでサーバーキャッシュは利用しない
+     *
+     * @return string ベースURL
+     */
+    public static function baseUrl()
+    {
+
+        $baseUrl = Configure::read('App.baseUrl');
+        if ($baseUrl) {
+            if (!preg_match('/\/$/', $baseUrl)) {
+                $baseUrl .= '/';
+            }
+        } else {
+            $script = $_SERVER['SCRIPT_FILENAME'];
+            if (BcUtil::isConsole()) {
+                $script = str_replace('app' . DS . 'Console' . DS . 'cake.php', '', $script);
+            }
+            $script = str_replace(['\\', '/'], DS, $script);
+            $docroot = BcUtil::docRoot();
+            $script = str_replace($docroot, '', $script);
+            if (BC_DEPLOY_PATTERN == 1) {
+                $baseUrl = preg_replace('/' . preg_quote('app' . DS . 'webroot' . DS . 'index.php', '/') . '/', '', $script);
+                $baseUrl = preg_replace('/' . preg_quote('app' . DS . 'webroot' . DS . 'test.php', '/') . '/', '', $baseUrl);
+                // ↓ Windows Azure 対策 SCRIPT_FILENAMEに期待した値が入ってこない為
+                $baseUrl = preg_replace('/index\.php/', '', $baseUrl);
+            } elseif (BC_DEPLOY_PATTERN == 2) {
+                $baseUrl = preg_replace('/' . preg_quote(basename($_SERVER['SCRIPT_FILENAME']), '/') . '/', '', $script);
+            }
+            $baseUrl = preg_replace("/index$/", '', $baseUrl);
+        }
+
+        $baseUrl = str_replace(DS, '/', $baseUrl);
+        if (!$baseUrl) {
+            $baseUrl = '/';
+        }
+        return $baseUrl;
+
+    }
+
+    /**
+     * ドキュメントルートを取得する
+     *
+     * サブドメインの場合など、$_SERVER['DOCUMENT_ROOT'] が正常に取得できない場合に利用する
+     * UserDir に対応
+     *
+     * @return string   ドキュメントルートの絶対パス
+     */
+    public static function docRoot()
+    {
+
+        if (empty($_SERVER['SCRIPT_NAME'])) {
+            return '';
+        }
+
+        if (BcUtil::isConsole()) {
+            $script = $_SERVER['SCRIPT_NAME'];
+            return str_replace('app' . DS . 'Console' . DS . 'cake.php', '', $script);
+        }
+
+        if (strpos($_SERVER['SCRIPT_NAME'], '.php') === false) {
+            // さくらの場合、/index を呼びだすと、拡張子が付加されない
+            $scriptName = $_SERVER['SCRIPT_NAME'] . '.php';
+        } else {
+            $scriptName = $_SERVER['SCRIPT_NAME'];
+        }
+        $path = explode('/', $scriptName);
+        krsort($path);
+        // WINDOWS環境の場合、SCRIPT_NAMEのDIRECTORY_SEPARATORがスラッシュの場合があるので
+        // スラッシュに一旦置換してスラッシュベースで解析
+        $docRoot = str_replace('\\', '/', $_SERVER['SCRIPT_FILENAME']);
+        foreach($path as $value) {
+            $reg = "/\/" . $value . "$/";
+            $docRoot = preg_replace($reg, '', $docRoot);
+        }
+        return str_replace('/', DS, $docRoot);
+    }
+
 }

@@ -59,8 +59,10 @@ class UserService implements UserServiceInterface
     {
         return $this->Users->newEntity([
             'user_groups' => [
-                '_ids' => [1]
-            ]]);
+                '_ids' => [1],
+            ]], [
+                'validate' => false,
+            ]);
     }
 
     /**
@@ -411,7 +413,7 @@ class UserService implements UserServiceInterface
     {
         $prefix = $request->getParam('prefix');
         $sessionUser = BcUtil::loginUser($prefix);
-        if ($sessionUser === null) {
+        if ($sessionUser === false) {
             return true;
         }
         try {

@@ -17,9 +17,14 @@ use Cake\Core\Plugin;
 use Cake\Core\Configure;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
+use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
 use BaserCore\TestSuite\BcTestCase;
+use Authentication\AuthenticationService;
 use BaserCore\Service\ContentFolderService;
+use Authentication\Authenticator\FormAuthenticator;
+use Authentication\Identifier\IdentifierCollection;
+use Authentication\Authenticator\SessionAuthenticator;
 
 /**
  * TODO: $this->getRequest();などをsetupに統一する
@@ -88,7 +93,7 @@ class BcUtilTest extends BcTestCase
             // ログインしている状況
             [true, 1],
             // ログインしていない状況
-            [false, null]
+            [false, false]
         ];
     }
 
@@ -328,6 +333,9 @@ class BcUtilTest extends BcTestCase
         $session = $this->request->getSession();
         $user = $this->getUser($id);
         $session->write($sessionKey, $user);
+        if ($expect) {
+            $this->loginAdmin($this->getRequest(), $id);
+        }
         $result = BcUtil::isAdminUser();
         $this->assertEquals($expect, $result);
     }
@@ -680,6 +688,7 @@ class BcUtilTest extends BcTestCase
         $result = BcUtil::getDomain($target);
         $this->assertEquals($expected, $result);
     }
+
     public function getDomainDataProvider()
     {
         return [
@@ -735,7 +744,7 @@ class BcUtilTest extends BcTestCase
         $this->assertEquals('/baser/admin', $result);
         // $regex = trueの場合
         $result = BcUtil::getPrefix(true);
-        $this->assertRegExp('/^(|\/)' . $result .'/', '/baser/admin');
+        $this->assertRegExp('/^(|\/)' . $result . '/', '/baser/admin');
     }
 
 
@@ -857,6 +866,82 @@ class BcUtilTest extends BcTestCase
             $_SERVER['HTTPS'] = 'on';
             $this->assertRegExp('/^https:\/\//', BcUtil::topLevelUrl());
         }
+    }
+
+    /**
+     * サイトの設置URLを取得する
+     */
+    public function testSiteUrl()
+    {
+        if (BcUtil::isConsole()) {
+            $this->assertEquals('http://localhost/', BcUtil::siteUrl());
+        } else {
+            $topLevelUrl = BcUtil::topLevelUrl(false);
+
+            Configure::write('App.baseUrl', '/test/');
+            $this->assertEquals($topLevelUrl . '/test/', BcUtil::siteUrl());
+
+            Configure::write('App.baseUrl', '/test/index.php');
+            $this->assertEquals($topLevelUrl . '/test/', BcUtil::siteUrl());
+
+            Configure::write('App.baseUrl', '/test/hoge/');
+            $this->assertEquals($topLevelUrl . '/test/hoge/', BcUtil::siteUrl());
+        }
+    }
+
+    /**
+     * WebサイトのベースとなるURLを取得する
+     * TODO BC_DEPLOY_PATTERNで分岐した場合のテストの追加
+     *
+     * @param string $script App.baseUrlの値
+     * @param string $script $_SERVER['SCRIPT_FILENAME']の値
+     * @param string $expect 期待値
+     * @dataProvider baseUrlDataProvider
+     */
+    public function testBaseUrl($baseUrl, $expect)
+    {
+        // 初期化
+        Configure::write('App.baseUrl', $baseUrl);
+        if (BcUtil::isConsole()) {
+            $_SERVER['SCRIPT_FILENAME'] = APP . 'Console' . DS . 'cake.php';
+            $_SERVER['SCRIPT_NAME'] = APP . 'Console' . DS . 'cake.php';
+        }
+        $result = BcUtil::baseUrl();
+        $this->assertEquals($expect, $result, 'WebサイトのベースとなるURLを正しく取得できません');
+
+    }
+
+    public function baseUrlDataProvider()
+    {
+        return [
+            ['/hoge/test', '/hoge/test/'],
+            [null, '/'],
+            ['/hoge/test', '/hoge/test/'],
+            [null, '/'],
+        ];
+    }
+
+    /**
+     * ドキュメントルートを取得する
+     */
+    public function testDocRoot()
+    {
+        $_SERVER['SCRIPT_FILENAME'] = WWW_ROOT . 'test.php';
+
+        if (BcUtil::isConsole()) {
+            $expected = str_replace('app' . DS . 'Console' . DS . 'cake.php', '', $_SERVER['SCRIPT_NAME']);
+
+        } else {
+            $path = explode('/', $_SERVER['SCRIPT_NAME']);
+            krsort($path);
+            $expected = $_SERVER['SCRIPT_FILENAME'];
+            foreach($path as $value) {
+                $reg = "/\/" . $value . "$/";
+                $expected = preg_replace($reg, '', $expected);
+            }
+        }
+        $result = BcUtil::docRoot();
+        $this->assertEquals($expected, $result);
     }
 
 }

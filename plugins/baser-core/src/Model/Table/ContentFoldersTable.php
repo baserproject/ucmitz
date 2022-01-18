@@ -119,15 +119,11 @@ class ContentFoldersTable extends AppTable
      * @param EntityInterface $entity
      * @param ArrayObject $options
      * @checked
-     * @note(value="TODO内容を荒川さんに確認")
+     * @noTodo
      */
     public function afterMove(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
-        // TODO ucmitz: movePageTemplatesがなくなったので、一時措置
         return true;
-        // if (!empty($event->getData('data.Content')) && $event->getData('data.Content.type') == 'ContentFolder') {
-        //     $this->movePageTemplates($event->getData('data.Content.url'));
-        // }
     }
 
     /**
@@ -158,7 +154,7 @@ class ContentFoldersTable extends AppTable
      * @param bool
      * @checked
      * @unitTest
-     * @note(value="TODO内容を荒川さんに確認")
+     * @note(value="SearchIndexTableを復元できてないため一部テスト未実装")
      */
     public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
@@ -166,7 +162,7 @@ class ContentFoldersTable extends AppTable
             $this->isMovableTemplate = true;
         }
         if (!empty($options['reconstructSearchIndices']) && $this->beforeStatus !== $entity->content->status) {
-            // TODO ucmitz: テスト未実装
+            // TODO ucmitz: SearchIndexTableを復元できてないため一部テスト未実装
             $searchIndexModel = TableRegistry::getTableLocator()->get('SearchIndex');
             $searchIndexModel->reconstruct($entity->content->id);
         }
