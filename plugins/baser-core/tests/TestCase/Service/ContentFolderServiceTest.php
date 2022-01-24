@@ -80,10 +80,11 @@ class ContentFolderServiceTest extends BcTestCase
     public function testGet()
     {
         $contentFolder = $this->ContentFolderService->get(1);
-        $this->assertEquals('フォルダーテンプレート1', $contentFolder->folder_template);
+        $this->assertEquals('baserCMSサンプル', $contentFolder->folder_template);
         $this->assertEquals(1, $contentFolder->content->entity_id);
         $this->assertEquals('メインサイト', $contentFolder->content->site->display_name);
     }
+
     /**
      * Test getTrash
      *
@@ -95,6 +96,10 @@ class ContentFolderServiceTest extends BcTestCase
         $this->assertEquals('削除済みフォルダー(親)', $contentFolder->folder_template);
         $this->assertEquals(10, $contentFolder->content->entity_id);
         $this->assertEquals('メインサイト', $contentFolder->content->site->display_name);
+        // 論理削除されているコンテンツに紐付いている場合
+        $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
+        $this->expectExceptionMessage('Record not found in table "contents"');
+        $this->ContentFolderService->getTrash(1);
     }
 
     /**
@@ -105,8 +110,8 @@ class ContentFolderServiceTest extends BcTestCase
     public function testGetIndex()
     {
         $contentFolders = $this->ContentFolderService->getIndex();
-        $this->assertEquals('フォルダーテンプレート1', $contentFolders->first()->folder_template);
-        $this->assertEquals(6, $contentFolders->count());
+        $this->assertEquals('baserCMSサンプル', $contentFolders->first()->folder_template);
+        $this->assertEquals(8, $contentFolders->count());
     }
     /**
      * Test create
@@ -162,5 +167,59 @@ class ContentFolderServiceTest extends BcTestCase
         $result = $this->ContentFolderService->update($oldContentFolder, $newContentFolder->toArray());
         $this->assertEquals("testUpdate", $result->folder_template);
         $this->assertEquals("contentFolderTestUpdate", $result->content->name);
+    }
+
+    /**
+     * 親のテンプレートを取得する
+     * @param  int $id
+     * @param  string $type
+     * @param  string $expected
+     * @return void
+     * @dataProvider getParentTemplateDataProvider
+     */
+    public function testGetParentTemplate($id, $type, $expected)
+    {
+        $this->assertEquals($expected, $this->ContentFolderService->getParentTemplate($id, $type));
+    }
+
+    public function getParentTemplateDataProvider()
+    {
+        return [
+            [1, 'folder', 'default'],
+             // 親フォルダ（サービス）のfolder_templateを取得できるか確認
+            [11, 'folder', 'サービスフォルダー'],
+            [1, 'page', 'default'],
+            // 親フォルダ（サービス）のpage_templateを取得できるか確認
+            [11, 'page', 'サービスページ'],
+        ];
+    }
+
+
+    /**
+     * 親のテンプレートを取得する
+     * @param  int $id
+     * @param  string $plugins
+     * @param  string $expected
+     * @return void
+     *
+     * @dataProvider getFolderTemplateListDataProvider
+     */
+    public function testGetFolderTemplateList($id, $plugins, $expected)
+    {
+        $result = $this->ContentFolderService->getFolderTemplateList($id, $plugins);
+        $this->assertEquals($expected,  $result);
+    }
+
+    public function getFolderTemplateListDataProvider()
+    {
+        return [
+            // idが1ならgetParentTemplateに関しての処理を飛ばす
+            [1, '', []],
+            [4, '', ['' => "親フォルダの設定に従う（baserCMSサンプル）"]],
+            // 親フォルダ（サービス）のfolder_templateを取得できるか確認
+            [11, '', ['' => "親フォルダの設定に従う（サービスフォルダー）"]],
+            // プラグインが存在する場合
+            [4, 'BcFront', ['' => "親フォルダの設定に従う（baserCMSサンプル）", 'default' => 'default']],
+        ];
     }
 }

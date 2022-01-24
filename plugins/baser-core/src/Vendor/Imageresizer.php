@@ -1,11 +1,12 @@
 <?php
 /**
- * 画像のリサイズを行う
+ * baserCMS :  Based Website Development Project <https://basercms.net>
+ * Copyright (c) baserCMS User Community <https://basercms.net/community/>
  *
- * @filesource
- * @copyright        Copyright (c) 2007, Catchup
- * @link                https://basercms.net
- * @license            MIT License
+ * @copyright     Copyright (c) baserCMS User Community
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       http://basercms.net/license/index.html MIT License
  */
 
 namespace BaserCore\Vendor;
@@ -35,13 +36,6 @@ class Imageresizer
         $srcWidth = $imginfo[0];
         $srcHeight = $imginfo[1];
         $image_type = $imginfo[2];
-
-        /* 処理できる画像は、縦×横のピクセル数が1,900,000程度迄の場合があった。*/
-        /* アイデュのサーバーでは問題なかった */
-        /*if($srcWidth > 1600 || $srcHeight > 1200){
-            unlink($imgPath);
-            return false;
-        }*/
 
         // 元となる画像のオブジェクトを生成
         switch($image_type) {

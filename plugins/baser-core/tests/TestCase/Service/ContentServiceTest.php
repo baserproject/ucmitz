@@ -41,6 +41,9 @@ class ContentServiceTest extends BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.ContentFolders',
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.UsersUserGroups',
     ];
 
         /**
@@ -62,6 +65,7 @@ class ContentServiceTest extends BcTestCase
      */
     public function tearDown(): void
     {
+        Router::reload();
         unset($this->ContentService);
         parent::tearDown();
     }
@@ -157,7 +161,7 @@ class ContentServiceTest extends BcTestCase
         return [
             [[
                 'site_id' => 1,
-            ], 16],
+            ], 15],
             [[
                 'site_id' => 1,
                 'withTrash' => true,
@@ -203,7 +207,7 @@ class ContentServiceTest extends BcTestCase
         // softDeleteの場合
         $request = $this->getRequest('/?status=1');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
-        $this->assertEquals(15, $contents->all()->count());
+        $this->assertEquals(14, $contents->all()->count());
         // ゴミ箱を含むの場合
         $request = $this->getRequest('/?status=1&withTrash=true');
         $contents = $this->ContentService->getIndex($request->getQueryParams());
@@ -330,7 +334,7 @@ class ContentServiceTest extends BcTestCase
      */
     public function testDeleteAll(): void
     {
-        $this->assertEquals(16, $this->ContentService->deleteAll());
+        $this->assertEquals(15, $this->ContentService->deleteAll());
         $contents = $this->ContentService->getIndex();
         $this->assertEquals(0, $contents->all()->count());
     }
@@ -578,7 +582,8 @@ class ContentServiceTest extends BcTestCase
      */
     public function testAlias()
     {
-        $request = $this->getRequest('/');
+        $request = $this->loginAdmin($this->getRequest('/'));
+        Router::setRequest($request);
         $request = $request->withParsedBody([
             'parent_id' => '1',
             'plugin' => 'BaserCore',
@@ -728,5 +733,37 @@ class ContentServiceTest extends BcTestCase
         $this->assertFalse($this->ContentService->existsContentByUrl($content->url));
         $content = $this->ContentService->get(12);
         $this->assertTrue($this->ContentService->existsContentByUrl($content->url));
+    }
+
+    /**
+     * タイトル、URL、公開状態が更新されているか確認する
+     * @dataProvider isChangedStatusDataProvider
+     */
+    public function testIsChangedStatus($id, $newData, $expected)
+    {
+        $this->assertEquals($expected, $this->ContentService->isChangedStatus($id, $newData));
+    }
+
+    public function isChangedStatusDataProvider()
+    {
+        return [
+            // idが存在しない場合はtrueを返す
+            [
+                100, [], true
+            ],
+            [
+                1,
+                [
+                    "self_status" => "1",
+                    "self_publish_begin_date" => "2022/01/04",
+                    "self_publish_begin_time" => "00:00:00",
+                    "self_publish_begin" => "2022-01-04 00:00:00",
+                    "self_publish_end_date" => "2022/01/07",
+                    "self_publish_end_time" => "00:00:00",
+                    "self_publish_end" => "2022-01-07 00:00:00"
+                ],
+                true
+            ]
+        ];
     }
 }

@@ -63,8 +63,6 @@ class ContentsTable extends AppTable
                     'namefield' => 'id',
                     'nameadd' => true,
                     'nameformat' => '%08d',
-                    'subdirDateFormat' => 'Y/m',
-                    //'imageresize' => array('width' => '800', 'height' => '800'),
                     'imagecopy' => [
                         'thumb' => ['suffix' => '_thumb', 'width' => '300', 'height' => '300'],
                         'medium' => ['suffix' => '_midium', 'width' => '800', 'height' => '800']
@@ -1157,41 +1155,19 @@ class ContentsTable extends AppTable
     }
 
     /**
-     * タイトル、URL、公開状態が更新されているか確認する
+     * 親のテンプレートを取得する
      *
-     * @param int $id コンテンツID
-     * @param array $newData 新しいコンテンツデータ
-     * @return bool
+     * @param $id
      * @checked
      * @unitTest
      * @noTodo
      */
-    public function isChangedStatus($id, $newData)
-    {
-        try {
-        $before = $this->get($id);
-        } catch(\Cake\Datasource\Exception\RecordNotFoundException $e) {
-            return true;
-        }
-        $beforeStatus = $this->isPublish($before->self_status,  $before->self_publish_begin, $before->self_publish_end);
-        $afterStatus = $this->isPublish($newData['self_status'], $newData['self_publish_begin'], $newData['self_publish_end']);
-        if ($beforeStatus != $afterStatus || $before->title  != $newData['title'] || $before->url != $newData['url']) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 親のテンプレートを取得する
-     *
-     * @param $id
-     */
     public function getParentTemplate($id)
     {
-        $contents = $this->getPath($id, null, -1);
+        $contents = $this->find('path', ['for' => $id])->contain(['Sites'])->all()->toArray();
         $contents = array_reverse($contents);
         unset($contents[0]);
-        $parentTemplates = Hash::extract($contents, '{n}.Content.layout_template');
+        $parentTemplates = Hash::extract($contents, '{n}.layout_template');
         $parentTemplate = '';
         foreach($parentTemplates as $parentTemplate) {
             if ($parentTemplate) {
