@@ -19,7 +19,6 @@
         <ul :style="'display:' + favoriteBoxOpened" v-else class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
             <li  class="no-data"><small>{{ i18NoData }}</small></li>
         </ul>
-
         <div id="FavoriteDialog" title="お気に入り登録" style="display:none">
             <favorite-form ref="FavoriteForm" :user-id="userId" />
         </div>

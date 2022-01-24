@@ -11,6 +11,9 @@
 // import Vue from 'vue'
 import Vue from 'vue/dist/vue.js'
 import FavoriteIndex from './index.vue'
+import Vuelidate from 'vuelidate'
+
+Vue.use(Vuelidate)
 
 $(function () {
 	new Vue({

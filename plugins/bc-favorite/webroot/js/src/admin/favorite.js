@@ -64,6 +64,7 @@ $(function () {
                             //     submitUrl += '_edit/' + $("#FavoriteId").val();
                             // }
                             var favoriteId = $("#FavoriteId").val();
+                            const favoriteIndex = document.querySelector('#FavoriteMenu').__vue__.$children[0];
                             // if ($("#FavoriteAjaxForm").valid()) {
                                 $.bcToken.check(function () {
                                     $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
@@ -72,11 +73,12 @@ $(function () {
                                         headers: {
                                             "Authorization": $.bcJwt.accessToken,
                                         },
-                                        beforeSend: function () {
+                                        beforeSend: function (e) {
                                             $("#Waiting").show();
+                                            e.preventDefault();
                                         },
                                         success: function () {
-                                            document.querySelector('#FavoriteMenu').__vue__.$children[0].refresh();
+                                            favoriteIndex.refresh();
                                             // TODO ucmitz 未精査
                                             // initFavoriteList();
                                             $("#FavoriteDialog").dialog('close');

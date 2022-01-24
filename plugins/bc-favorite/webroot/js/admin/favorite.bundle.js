@@ -157,7 +157,10 @@ $(function () {
           //     submitUrl += '_edit/' + $("#FavoriteId").val();
           // }
 
-          var favoriteId = $("#FavoriteId").val(); // if ($("#FavoriteAjaxForm").valid()) {
+          var favoriteId = $("#FavoriteId").val();
+
+          var favoriteIndex = document.querySelector('#FavoriteMenu').__vue__.$children[0]; // if ($("#FavoriteAjaxForm").valid()) {
+
 
           $.bcToken.check(function () {
             $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
@@ -166,13 +169,13 @@ $(function () {
               headers: {
                 "Authorization": $.bcJwt.accessToken
               },
-              beforeSend: function beforeSend() {
+              beforeSend: function beforeSend(e) {
                 $("#Waiting").show();
+                e.preventDefault();
               },
               success: function success() {
-                document.querySelector('#FavoriteMenu').__vue__.$children[0].refresh(); // TODO ucmitz 未精査
+                favoriteIndex.refresh(); // TODO ucmitz 未精査
                 // initFavoriteList();
-
 
                 $("#FavoriteDialog").dialog('close');
               },
