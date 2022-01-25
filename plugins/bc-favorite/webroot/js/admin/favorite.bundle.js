@@ -150,16 +150,24 @@ $(function () {
       }, {
         text: bcI18n.commonSave,
         click: function click() {
-          var submitUrl = $("#FavoriteAjaxForm").attr('action'); // TODO: ucmitz 振り分け処理を一旦コメントアウト
+          var submitUrl = $("#FavoriteAjaxForm").attr('action');
+          var favoriteId = $("#FavoriteId").val();
+
+          var favoriteIndex = document.querySelector('#FavoriteMenu').__vue__.$children[0];
+
+          var favoriteForm = favoriteIndex.$refs.FavoriteForm;
+
+          if (favoriteForm.$v.$invalid) {
+            $("#Waiting").hide();
+            alert('入力内容を確認してください');
+            return false;
+          } // TODO: ucmitz 振り分け処理を一旦コメントアウト
           // if (!$("#FavoriteId").val()) {
           //     submitUrl += '_add';
           // } else {
           //     submitUrl += '_edit/' + $("#FavoriteId").val();
           // }
-
-          var favoriteId = $("#FavoriteId").val();
-
-          var favoriteIndex = document.querySelector('#FavoriteMenu').__vue__.$children[0]; // if ($("#FavoriteAjaxForm").valid()) {
+          // if ($("#FavoriteAjaxForm").valid()) {
 
 
           $.bcToken.check(function () {
@@ -168,10 +176,6 @@ $(function () {
               url: submitUrl,
               headers: {
                 "Authorization": $.bcJwt.accessToken
-              },
-              beforeSend: function beforeSend(e) {
-                $("#Waiting").show();
-                e.preventDefault();
               },
               success: function success() {
                 favoriteIndex.refresh(); // TODO ucmitz 未精査

@@ -26,7 +26,10 @@ composer require baserproject/bc-favorite
   - [ ] 追加 (作成中)
     - [ ] リアルタイムバリデーション
       - [x] フォーム切り出し(切り分けた状態での保存は完了その他動作未確認)
-      - [ ] validationの設定
+      - [s] validationの設定
+        - [x] FavoriteFormのref取得
+        - [x] form.vueでのバリデーション結果受け渡し
+    - [ ] 初期値をフォームに入力した状態にする
       - 要件
         - nameとurl必須のみ
         - 既存値設定

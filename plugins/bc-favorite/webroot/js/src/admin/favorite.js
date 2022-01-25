@@ -56,15 +56,20 @@ $(function () {
                         text: bcI18n.commonSave,
                         click: function () {
                             var submitUrl = $("#FavoriteAjaxForm").attr('action');
-
+                            var favoriteId = $("#FavoriteId").val();
+                            const favoriteIndex = document.querySelector('#FavoriteMenu').__vue__.$children[0];
+                            const favoriteForm = favoriteIndex.$refs.FavoriteForm;
+                            if (favoriteForm.$v.$invalid) {
+                                $("#Waiting").hide();
+                                alert('入力内容を確認してください');
+                                return false;
+                            }
                             // TODO: ucmitz 振り分け処理を一旦コメントアウト
                             // if (!$("#FavoriteId").val()) {
                             //     submitUrl += '_add';
                             // } else {
                             //     submitUrl += '_edit/' + $("#FavoriteId").val();
                             // }
-                            var favoriteId = $("#FavoriteId").val();
-                            const favoriteIndex = document.querySelector('#FavoriteMenu').__vue__.$children[0];
                             // if ($("#FavoriteAjaxForm").valid()) {
                                 $.bcToken.check(function () {
                                     $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
@@ -72,10 +77,6 @@ $(function () {
                                         url: submitUrl,
                                         headers: {
                                             "Authorization": $.bcJwt.accessToken,
-                                        },
-                                        beforeSend: function (e) {
-                                            $("#Waiting").show();
-                                            e.preventDefault();
                                         },
                                         success: function () {
                                             favoriteIndex.refresh();

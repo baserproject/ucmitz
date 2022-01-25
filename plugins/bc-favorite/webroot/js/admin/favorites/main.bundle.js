@@ -2209,7 +2209,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "FavoriteForm",
@@ -2228,14 +2227,6 @@ __webpack_require__.r(__webpack_exports__);
     },
     url: {
       required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["required"]
-    }
-  },
-  methods: {
-    checkSubmit: function checkSubmit() {
-      // this.$v.$touch();
-      console.log('test'); // エラーの場合は送信しない
-      // if (this.$v.$pending || this.$v.$error) return;
-      // alert("送信成功");
     }
   },
   props: ['userId']
@@ -2863,17 +2854,7 @@ var render = function() {
   return _c(
     "form",
     {
-      attrs: {
-        action: _vm.registerUrl,
-        method: "POST",
-        id: "FavoriteAjaxForm"
-      },
-      on: {
-        submit: function($event) {
-          $event.preventDefault()
-          return _vm.checkSubmit.apply(null, arguments)
-        }
-      }
+      attrs: { action: _vm.registerUrl, method: "POST", id: "FavoriteAjaxForm" }
     },
     [
       _c("input", { attrs: { type: "hidden", name: "id" } }),
@@ -2909,16 +2890,21 @@ var render = function() {
             },
             domProps: { value: _vm.title },
             on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
+              input: [
+                function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.title = $event.target.value
+                },
+                function($event) {
+                  return _vm.$v.title.$touch()
                 }
-                _vm.title = $event.target.value
-              }
+              ]
             }
           }),
           _vm._v(" "),
-          !_vm.$v.title.required
+          _vm.$v.title.$error
             ? _c(
                 "div",
                 {
@@ -2954,16 +2940,21 @@ var render = function() {
             },
             domProps: { value: _vm.url },
             on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
+              input: [
+                function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.url = $event.target.value
+                },
+                function($event) {
+                  return _vm.$v.url.$touch()
                 }
-                _vm.url = $event.target.value
-              }
+              ]
             }
           }),
           _vm._v(" "),
-          !_vm.$v.url.required
+          _vm.$v.url.$error
             ? _c(
                 "div",
                 {
