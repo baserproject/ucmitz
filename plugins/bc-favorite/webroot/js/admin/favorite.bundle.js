@@ -107,6 +107,8 @@
  * よく使う項目の処理を行う
  */
 $(function () {
+  var currentPageName = $('#FavoriteScript').attr('data-current-page-name');
+  var currentPageUrl = $('#FavoriteScript').attr('data-current-page-url');
   $("body").append($("#FavoritesMenu"));
   /**
    * ダイアログを初期化
@@ -125,8 +127,8 @@ $(function () {
       open: function open(event, ui) {
         if ($(".favorite-menu-list .selected").length == 0) {
           $(this).dialog('option', 'title', bcI18n.favoriteTitle1);
-          $("#FavoriteName").val($("#CurrentPageName").html());
-          $("#FavoriteUrl").val($("#CurrentPageUrl").html());
+          $("#FavoriteName").val(currentPageName);
+          $("#FavoriteUrl").val(currentPageUrl);
         } else {
           $(this).dialog('option', 'title', bcI18n.favoriteTitle2);
           $("#FavoriteId").val($(".favorite-menu-list .selected .favorite-id").val());

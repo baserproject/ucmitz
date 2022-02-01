@@ -13,6 +13,10 @@
  */
 
 $(function () {
+
+    var currentPageName = $('#FavoriteScript').attr('data-current-page-name');
+    var currentPageUrl = $('#FavoriteScript').attr('data-current-page-url');
+
     $("body").append($("#FavoritesMenu"));
 
     /**
@@ -28,8 +32,8 @@ $(function () {
                 open: function (event, ui) {
                     if ($(".favorite-menu-list .selected").length == 0) {
                         $(this).dialog('option', 'title', bcI18n.favoriteTitle1);
-                        $("#FavoriteName").val($("#CurrentPageName").html());
-                        $("#FavoriteUrl").val($("#CurrentPageUrl").html());
+                        $("#FavoriteName").val(currentPageName);
+                        $("#FavoriteUrl").val(currentPageUrl);
                     } else {
                         $(this).dialog('option', 'title', bcI18n.favoriteTitle2);
                         $("#FavoriteId").val($(".favorite-menu-list .selected .favorite-id").val());

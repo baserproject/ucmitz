@@ -6,13 +6,18 @@
             <!-- TDDO: ucmitz favorite-nameをnameに変更する? -->
             <dt><label for="favorite-name">{{ i18Title }}</label></dt>
             <dd>
-                <input class="required" type="text" v-model="title" placeholder="タイトル" size=30 name="name" @input="$v.title.$touch()" />
+                <input class="required" type="text" v-model="title" id="FavoriteName" placeholder="タイトル" size=30 name="name" />
                 <div class="invalid-feedback" v-if="$v.title.$error" style="color:red">必須です</div>
             </dd>
             <dt><label for="favorite-url" />{{ i18Url }}</dt>
             <dd>
-                <input class="required" type="text" v-model="url" placeholder="URL" size=30 name="url" @input="$v.url.$touch()" />
+                <input class="required" type="text" v-model="url" id="FavoriteUrl" placeholder="URL" size=30 name="url"/>
                 <div class="invalid-feedback" v-if="$v.url.$error" style="color:red">必須です</div>
+            </dd>
+            <dt><label for="favorite-url" />{{ i18Url }}</dt>
+            <dd>
+                <input class="required" type="text" v-model="aaa" id="FavoriteAaa" placeholder="aaa" size=30 name="aaa" value="bbb" />
+                <div class="invalid-feedback" v-if="$v.aaa.$error" style="color:red">必須です</div>
             </dd>
         </dl>
     </form>
@@ -30,11 +35,13 @@ export default {
             i18Url: 'url',
             title: this.title,
             url: this.url,
+            aaa: 'ccc'
         }
     },
     validations: {
         title: { required },
-        url: { required }
+        url: { required },
+        aaa: {}
     },
     props: ['userId'],
 }

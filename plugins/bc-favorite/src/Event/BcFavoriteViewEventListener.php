@@ -72,7 +72,11 @@ class BcFavoriteViewEventListener extends \BaserCore\Event\BcViewEventListener
             return;
         }
         $view = $event->getSubject();
-        $view->BcBaser->js('BcFavorite.admin/favorite.bundle', false);
+        $view->BcBaser->js('BcFavorite.admin/favorite.bundle', false, [
+            'id' => 'FavoriteScript',
+            'data-current-page-name' => h($view->BcAdmin->getTitle()),
+            'data-current-page-url' => h($view->getRequest()->getRequestTarget()),
+        ]);
     }
 
 }

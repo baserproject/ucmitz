@@ -309,6 +309,16 @@ class BcAdminHelper extends Helper
     }
 
     /**
+     * getTitle
+     * @checked
+     * @noTodo
+     */
+    public function getTitle(): string
+    {
+        return h($this->_View->get('title'));
+    }
+
+    /**
      * Title
      * @checked
      * @noTodo
@@ -316,7 +326,7 @@ class BcAdminHelper extends Helper
      */
     public function title(): void
     {
-        echo h($this->_View->fetch('title'));
+        echo $this->getTitle();
     }
 
     /**
