@@ -7,7 +7,7 @@
             {{ i18Favorite }} <i class="bca-icon--chevron-down bca-nav-favorite-title-icon"></i>
             </button>
         </h2>
-
+        <button class="bca-btn" type="button" @click="openModal">オープン</button>
         <ul v-if="favorites.length" :style="'display:' + favoriteBoxOpened" class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
             <li v-for="(favorite, i) in favorites" :key="i" :id="'FavoriteRow' + favorite.name" class="bca-nav-favorite-list-item">
                 <a :href="baseUrl + favorite.url" :title="favorite.url"><span class="bca-nav-favorite-list-item-label">{{favorite.name}}</span></a>
@@ -19,8 +19,14 @@
         <ul :style="'display:' + favoriteBoxOpened" v-else class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
             <li  class="no-data"><small>{{ i18NoData }}</small></li>
         </ul>
-        <div id="FavoriteDialog" title="お気に入り登録" style="display:none">
-            <favorite-form ref="FavoriteForm" :user-id="userId" />
+        <div id="FavoriteDialog" title="お気に入り登録">
+            <modal ref="modalFavoriteForm" @modal-opened="" :scrollable="false" hidden>
+                <favorite-form ref="FavoriteForm" :user-id="userId" />
+                <template slot="footer">
+                    <button class="bca-btn" type="button" @click="$refs.modalDirection.closeModal()">キャンセル</button>&nbsp;
+                    <button class="bca-btn" type="button" @click="">確定</button>
+                </template>
+            </modal>
         </div>
         <ul id="FavoritesMenu" class="context-menu" style="display:none">
             <li class="edit"><a href="#FavoriteEdit">{{ i18Edit }}</a></li>
@@ -29,9 +35,11 @@
     </div>
 </template>
 
+
 <script>
 import axios from "axios";
 import FavoriteForm from "./form.vue";
+import Modal from '../../common/modal.vue';
 
 export default {
     data:function () {
@@ -51,7 +59,8 @@ export default {
     },
     props: ['userId'],
     components: {
-    FavoriteForm
+        FavoriteForm,
+        Modal
     },
     /**
      * Methods
@@ -112,6 +121,10 @@ export default {
             }).then(function (response) {
                 this.favorites = response.data.favorites;
             }.bind(this));
+        },
+
+        openModal: function(index) {
+          this.$refs.modalFavoriteForm.openModal(index);
         },
 
     },

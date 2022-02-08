@@ -14,11 +14,6 @@
                 <input class="required" type="text" v-model="url" id="FavoriteUrl" placeholder="URL" size=30 name="url"/>
                 <div class="invalid-feedback" v-if="$v.url.$error" style="color:red">必須です</div>
             </dd>
-            <dt><label for="favorite-url" />{{ i18Url }}</dt>
-            <dd>
-                <input class="required" type="text" v-model="aaa" id="FavoriteAaa" placeholder="aaa" size=30 name="aaa" value="bbb" />
-                <div class="invalid-feedback" v-if="$v.aaa.$error" style="color:red">必須です</div>
-            </dd>
         </dl>
     </form>
 </template>
@@ -35,15 +30,13 @@ export default {
             i18Url: 'url',
             title: this.title,
             url: this.url,
-            aaa: 'ccc'
         }
     },
     validations: {
         title: { required },
-        url: { required },
-        aaa: {}
+        url: { required }
     },
-    props: ['userId'],
+    props: ['userId']
 }
 </script>
 

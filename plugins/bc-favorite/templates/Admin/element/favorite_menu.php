@@ -14,8 +14,10 @@ use BaserCore\Utility\BcUtil;
 
 /**
  * [ADMIN] よく使う項目
+ * @var \BaserCore\View\BcAdminAppView $this
  */
 $this->BcBaser->js('BcFavorite.admin/favorites/main.bundle', true);
+$this->BcBaser->css('BcFavorite.admin/favorite');
 $user = BcUtil::loginUser();
 ?>
 <nav id="FavoriteMenu" class="bca-nav-favorite">
