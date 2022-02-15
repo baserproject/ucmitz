@@ -6,13 +6,17 @@
             <!-- TDDO: ucmitz favorite-nameをnameに変更する? -->
             <dt><label for="favorite-name">{{ i18Title }}</label></dt>
             <dd>
-                <input class="required" type="text" v-model="title" id="FavoriteName" placeholder="タイトル" size=30 name="name" />
-                <div class="invalid-feedback" v-if="$v.title.$error" style="color:red">必須です</div>
+                <span class="bca-textbox">
+                    <input class="required" type="text" v-model="title" id="FavoriteName" placeholder="タイトル" size=30 name="name" @input="formUpdated" />
+                </span>
+                <div class="invalid-feedback" v-if="$v.title.$invalid" style="color:red">必須です</div>
             </dd>
             <dt><label for="favorite-url" />{{ i18Url }}</dt>
             <dd>
-                <input class="required" type="text" v-model="url" id="FavoriteUrl" placeholder="URL" size=30 name="url"/>
-                <div class="invalid-feedback" v-if="$v.url.$error" style="color:red">必須です</div>
+                <span class="bca-textbox">
+                    <input class="required" type="text" v-model="url" id="FavoriteUrl" placeholder="URL" size=30 name="url" @input="formUpdated" />
+                </span>
+                <div class="invalid-feedback" v-if="$v.url.$invalid" style="color:red">必須です</div>
             </dd>
         </dl>
     </form>
@@ -32,11 +36,20 @@ export default {
             url: this.url,
         }
     },
+    mounted() {
+        this.title = this.currentPageName;
+        this.url = this.currentPageUrl;
+    },
+    methods: {
+        formUpdated: function() {
+            this.$emit("formUpdated", this.$v.$invalid);
+        },
+    },
     validations: {
         title: { required },
         url: { required }
     },
-    props: ['userId']
+    props: ['userId', 'currentPageName', 'currentPageUrl']
 }
 </script>
 

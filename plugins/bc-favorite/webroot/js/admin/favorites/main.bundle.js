@@ -2171,10 +2171,10 @@ module.exports = {
 /*!*****************************************!*\
   !*** ./node_modules/axios/package.json ***!
   \*****************************************/
-/*! exports provided: name, version, description, main, scripts, repository, keywords, author, license, bugs, homepage, devDependencies, browser, jsdelivr, unpkg, typings, dependencies, bundlesize, default */
+/*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, browser, bugs, bundlesize, dependencies, description, devDependencies, homepage, jsdelivr, keywords, license, main, name, repository, scripts, typings, unpkg, version, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"name\":\"axios\",\"version\":\"0.21.4\",\"description\":\"Promise based HTTP client for the browser and node.js\",\"main\":\"index.js\",\"scripts\":{\"test\":\"grunt test\",\"start\":\"node ./sandbox/server.js\",\"build\":\"NODE_ENV=production grunt build\",\"preversion\":\"npm test\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\",\"postversion\":\"git push && git push --tags\",\"examples\":\"node ./examples/server.js\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"fix\":\"eslint --fix lib/**/*.js\"},\"repository\":{\"type\":\"git\",\"url\":\"https://github.com/axios/axios.git\"},\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"author\":\"Matt Zabriskie\",\"license\":\"MIT\",\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"homepage\":\"https://axios-http.com\",\"devDependencies\":{\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.3.0\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^23.0.0\",\"grunt-karma\":\"^4.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^4.0.2\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^6.3.2\",\"karma-chrome-launcher\":\"^3.1.0\",\"karma-firefox-launcher\":\"^2.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^4.3.6\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.8\",\"karma-webpack\":\"^4.0.2\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^8.2.1\",\"sinon\":\"^4.5.0\",\"terser-webpack-plugin\":\"^4.2.3\",\"typescript\":\"^4.0.5\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^4.44.2\",\"webpack-dev-server\":\"^3.11.0\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"jsdelivr\":\"dist/axios.min.js\",\"unpkg\":\"dist/axios.min.js\",\"typings\":\"./index.d.ts\",\"dependencies\":{\"follow-redirects\":\"^1.14.0\"},\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}]}");
+module.exports = JSON.parse("{\"_args\":[[\"axios@0.21.4\",\"/home/humuhimi/catchup_project/ucmitz/plugins/bc-favorite\"]],\"_from\":\"axios@0.21.4\",\"_id\":\"axios@0.21.4\",\"_inBundle\":false,\"_integrity\":\"sha1-xnuQ3AVo5cHPKwuFjEO6KOLtpXU=\",\"_location\":\"/axios\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"axios@0.21.4\",\"name\":\"axios\",\"escapedName\":\"axios\",\"rawSpec\":\"0.21.4\",\"saveSpec\":null,\"fetchSpec\":\"0.21.4\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmmirror.com/axios/download/axios-0.21.4.tgz?cache=0&sync_timestamp=1632807675914&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Faxios%2Fdownload%2Faxios-0.21.4.tgz\",\"_spec\":\"0.21.4\",\"_where\":\"/home/humuhimi/catchup_project/ucmitz/plugins/bc-favorite\",\"author\":{\"name\":\"Matt Zabriskie\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}],\"dependencies\":{\"follow-redirects\":\"^1.14.0\"},\"description\":\"Promise based HTTP client for the browser and node.js\",\"devDependencies\":{\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.3.0\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^23.0.0\",\"grunt-karma\":\"^4.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^4.0.2\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^6.3.2\",\"karma-chrome-launcher\":\"^3.1.0\",\"karma-firefox-launcher\":\"^2.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^4.3.6\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.8\",\"karma-webpack\":\"^4.0.2\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^8.2.1\",\"sinon\":\"^4.5.0\",\"terser-webpack-plugin\":\"^4.2.3\",\"typescript\":\"^4.0.5\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^4.44.2\",\"webpack-dev-server\":\"^3.11.0\"},\"homepage\":\"https://axios-http.com\",\"jsdelivr\":\"dist/axios.min.js\",\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"license\":\"MIT\",\"main\":\"index.js\",\"name\":\"axios\",\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/axios/axios.git\"},\"scripts\":{\"build\":\"NODE_ENV=production grunt build\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"examples\":\"node ./examples/server.js\",\"fix\":\"eslint --fix lib/**/*.js\",\"postversion\":\"git push && git push --tags\",\"preversion\":\"npm test\",\"start\":\"node ./sandbox/server.js\",\"test\":\"grunt test\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\"},\"typings\":\"./index.d.ts\",\"unpkg\":\"dist/axios.min.js\",\"version\":\"0.21.4\"}");
 
 /***/ }),
 
@@ -2209,6 +2209,10 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "FavoriteForm",
@@ -2221,6 +2225,15 @@ __webpack_require__.r(__webpack_exports__);
       url: this.url
     };
   },
+  mounted: function mounted() {
+    this.title = this.currentPageName;
+    this.url = this.currentPageUrl;
+  },
+  methods: {
+    formUpdated: function formUpdated() {
+      this.$emit("formUpdated", this.$v.$invalid);
+    }
+  },
   validations: {
     title: {
       required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["required"]
@@ -2229,7 +2242,7 @@ __webpack_require__.r(__webpack_exports__);
       required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["required"]
     }
   },
-  props: ['userId']
+  props: ['userId', 'currentPageName', 'currentPageUrl']
 });
 
 /***/ }),
@@ -2301,10 +2314,11 @@ __webpack_require__.r(__webpack_exports__);
       i18Edit: 'edit',
       i18Delete: 'delete',
       ariaExpanded: 'true',
-      baseUrl: $.bcUtil.baseUrl
+      baseUrl: $.bcUtil.baseUrl,
+      formError: false
     };
   },
-  props: ['userId'],
+  props: ['userId', 'currentPageName', 'currentPageUrl'],
   components: {
     FavoriteForm: _form_vue__WEBPACK_IMPORTED_MODULE_1__["default"],
     Modal: _common_modal_vue__WEBPACK_IMPORTED_MODULE_2__["default"]
@@ -2314,6 +2328,10 @@ __webpack_require__.r(__webpack_exports__);
    * Methods
    */
   methods: {
+    formUpdated: function formUpdated(formError) {
+      this.formError = formError;
+    },
+
     /**
      * initFavorite
      */
@@ -2936,121 +2954,127 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function () {
+var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   return _c(
     "form",
     {
-      attrs: {
-        action: _vm.registerUrl,
-        method: "POST",
-        id: "FavoriteAjaxForm",
-      },
+      attrs: { action: _vm.registerUrl, method: "POST", id: "FavoriteAjaxForm" }
     },
     [
       _c("input", { attrs: { type: "hidden", name: "id" } }),
       _vm._v(" "),
       _c("input", {
         attrs: { type: "hidden", name: "user_id" },
-        domProps: { value: _vm.userId },
+        domProps: { value: _vm.userId }
       }),
       _vm._v(" "),
       _c("dl", [
         _c("dt", [
           _c("label", { attrs: { for: "favorite-name" } }, [
-            _vm._v(_vm._s(_vm.i18Title)),
-          ]),
+            _vm._v(_vm._s(_vm.i18Title))
+          ])
         ]),
         _vm._v(" "),
         _c("dd", [
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.title,
-                expression: "title",
-              },
-            ],
-            staticClass: "required",
-            attrs: {
-              type: "text",
-              id: "FavoriteName",
-              placeholder: "タイトル",
-              size: "30",
-              name: "name",
-            },
-            domProps: { value: _vm.title },
-            on: {
-              input: function ($event) {
-                if ($event.target.composing) {
-                  return
+          _c("span", { staticClass: "bca-textbox" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.title,
+                  expression: "title"
                 }
-                _vm.title = $event.target.value
+              ],
+              staticClass: "required",
+              attrs: {
+                type: "text",
+                id: "FavoriteName",
+                placeholder: "タイトル",
+                size: "30",
+                name: "name"
               },
-            },
-          }),
+              domProps: { value: _vm.title },
+              on: {
+                input: [
+                  function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.title = $event.target.value
+                  },
+                  _vm.formUpdated
+                ]
+              }
+            })
+          ]),
           _vm._v(" "),
-          _vm.$v.title.$error
+          _vm.$v.title.$invalid
             ? _c(
                 "div",
                 {
                   staticClass: "invalid-feedback",
-                  staticStyle: { color: "red" },
+                  staticStyle: { color: "red" }
                 },
                 [_vm._v("必須です")]
               )
-            : _vm._e(),
+            : _vm._e()
         ]),
         _vm._v(" "),
         _c("dt", [
           _c("label", { attrs: { for: "favorite-url" } }),
-          _vm._v(_vm._s(_vm.i18Url)),
+          _vm._v(_vm._s(_vm.i18Url))
         ]),
         _vm._v(" "),
         _c("dd", [
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.url,
-                expression: "url",
-              },
-            ],
-            staticClass: "required",
-            attrs: {
-              type: "text",
-              id: "FavoriteUrl",
-              placeholder: "URL",
-              size: "30",
-              name: "url",
-            },
-            domProps: { value: _vm.url },
-            on: {
-              input: function ($event) {
-                if ($event.target.composing) {
-                  return
+          _c("span", { staticClass: "bca-textbox" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.url,
+                  expression: "url"
                 }
-                _vm.url = $event.target.value
+              ],
+              staticClass: "required",
+              attrs: {
+                type: "text",
+                id: "FavoriteUrl",
+                placeholder: "URL",
+                size: "30",
+                name: "url"
               },
-            },
-          }),
+              domProps: { value: _vm.url },
+              on: {
+                input: [
+                  function($event) {
+                    if ($event.target.composing) {
+                      return
+                    }
+                    _vm.url = $event.target.value
+                  },
+                  _vm.formUpdated
+                ]
+              }
+            })
+          ]),
           _vm._v(" "),
-          _vm.$v.url.$error
+          _vm.$v.url.$invalid
             ? _c(
                 "div",
                 {
                   staticClass: "invalid-feedback",
-                  staticStyle: { color: "red" },
+                  staticStyle: { color: "red" }
                 },
                 [_vm._v("必須です")]
               )
-            : _vm._e(),
-        ]),
-      ]),
+            : _vm._e()
+        ])
+      ])
     ]
   )
 }
@@ -3072,7 +3096,7 @@ render._withStripped = true
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function () {
+var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -3088,17 +3112,17 @@ var render = function () {
             "data-bca-collapse": "favorite-collapse",
             "data-bca-target": "#favoriteBody",
             "aria-expanded": _vm.ariaExpanded,
-            "aria-controls": "favoriteBody",
+            "aria-controls": "favoriteBody"
           },
-          on: { click: _vm.changeOpenFavorite },
+          on: { click: _vm.changeOpenFavorite }
         },
         [
           _vm._v("\n        " + _vm._s(_vm.i18Favorite) + " "),
           _c("i", {
-            staticClass: "bca-icon--chevron-down bca-nav-favorite-title-icon",
-          }),
+            staticClass: "bca-icon--chevron-down bca-nav-favorite-title-icon"
+          })
         ]
-      ),
+      )
     ]),
     _vm._v(" "),
     _c(
@@ -3106,7 +3130,7 @@ var render = function () {
       {
         staticClass: "bca-btn",
         attrs: { type: "button" },
-        on: { click: _vm.openModal },
+        on: { click: _vm.openModal }
       },
       [_vm._v("オープン")]
     ),
@@ -3118,15 +3142,15 @@ var render = function () {
             staticClass:
               "favorite-menu-list bca-nav-favorite-list bca-collapse",
             style: "display:" + _vm.favoriteBoxOpened,
-            attrs: { id: "favoriteBody" },
+            attrs: { id: "favoriteBody" }
           },
-          _vm._l(_vm.favorites, function (favorite, i) {
+          _vm._l(_vm.favorites, function(favorite, i) {
             return _c(
               "li",
               {
                 key: i,
                 staticClass: "bca-nav-favorite-list-item",
-                attrs: { id: "FavoriteRow" + favorite.name },
+                attrs: { id: "FavoriteRow" + favorite.name }
               },
               [
                 _c(
@@ -3134,35 +3158,35 @@ var render = function () {
                   {
                     attrs: {
                       href: _vm.baseUrl + favorite.url,
-                      title: favorite.url,
-                    },
+                      title: favorite.url
+                    }
                   },
                   [
                     _c(
                       "span",
                       { staticClass: "bca-nav-favorite-list-item-label" },
                       [_vm._v(_vm._s(favorite.name))]
-                    ),
+                    )
                   ]
                 ),
                 _vm._v(" "),
                 _c("input", {
                   staticClass: "favorite-id",
                   attrs: { type: "hidden", name: "id" + "." + favorite.id },
-                  domProps: { value: favorite.id },
+                  domProps: { value: favorite.id }
                 }),
                 _vm._v(" "),
                 _c("input", {
                   staticClass: "favorite-name",
                   attrs: { type: "hidden", name: "name" + "." + favorite.id },
-                  domProps: { value: favorite.name },
+                  domProps: { value: favorite.name }
                 }),
                 _vm._v(" "),
                 _c("input", {
                   staticClass: "favorite-url",
                   attrs: { type: "hidden", name: "url" + "." + favorite.id },
-                  domProps: { value: favorite.url },
-                }),
+                  domProps: { value: favorite.url }
+                })
               ]
             )
           }),
@@ -3174,30 +3198,38 @@ var render = function () {
             staticClass:
               "favorite-menu-list bca-nav-favorite-list bca-collapse",
             style: "display:" + _vm.favoriteBoxOpened,
-            attrs: { id: "favoriteBody" },
+            attrs: { id: "favoriteBody" }
           },
           [
             _c("li", { staticClass: "no-data" }, [
-              _c("small", [_vm._v(_vm._s(_vm.i18NoData))]),
-            ]),
+              _c("small", [_vm._v(_vm._s(_vm.i18NoData))])
+            ])
           ]
         ),
     _vm._v(" "),
     _c(
       "div",
-      { attrs: { id: "FavoriteDialog", title: "お気に入り登録" } },
+      {
+        staticClass: "ui-widget",
+        attrs: { id: "FavoriteDialog", title: "お気に入り登録" }
+      },
       [
         _c(
           "modal",
           {
             ref: "modalFavoriteForm",
             attrs: { scrollable: false, hidden: "" },
-            on: { "modal-opened": function ($event) {} },
+            on: { "modal-opened": function($event) {} }
           },
           [
             _c("favorite-form", {
               ref: "FavoriteForm",
-              attrs: { "user-id": _vm.userId },
+              attrs: {
+                "user-id": _vm.userId,
+                "current-page-url": _vm.currentPageUrl,
+                "current-page-name": _vm.currentPageName
+              },
+              on: { formUpdated: _vm.formUpdated }
             }),
             _vm._v(" "),
             _c("template", { slot: "footer" }, [
@@ -3207,10 +3239,10 @@ var render = function () {
                   staticClass: "bca-btn",
                   attrs: { type: "button" },
                   on: {
-                    click: function ($event) {
+                    click: function($event) {
                       return _vm.$refs.modalDirection.closeModal()
-                    },
-                  },
+                    }
+                  }
                 },
                 [_vm._v("キャンセル")]
               ),
@@ -3219,15 +3251,15 @@ var render = function () {
                 "button",
                 {
                   staticClass: "bca-btn",
-                  attrs: { type: "button" },
-                  on: { click: function ($event) {} },
+                  attrs: { type: "button", disabled: false ? undefined : "" },
+                  on: { click: function($event) {} }
                 },
                 [_vm._v("確定")]
-              ),
-            ]),
+              )
+            ])
           ],
           2
-        ),
+        )
       ],
       1
     ),
@@ -3237,22 +3269,22 @@ var render = function () {
       {
         staticClass: "context-menu",
         staticStyle: { display: "none" },
-        attrs: { id: "FavoritesMenu" },
+        attrs: { id: "FavoritesMenu" }
       },
       [
         _c("li", { staticClass: "edit" }, [
           _c("a", { attrs: { href: "#FavoriteEdit" } }, [
-            _vm._v(_vm._s(_vm.i18Edit)),
-          ]),
+            _vm._v(_vm._s(_vm.i18Edit))
+          ])
         ]),
         _vm._v(" "),
         _c("li", { staticClass: "delete" }, [
           _c("a", { attrs: { href: "#FavoriteDelete" } }, [
-            _vm._v(_vm._s(_vm.i18Delete)),
-          ]),
-        ]),
+            _vm._v(_vm._s(_vm.i18Delete))
+          ])
+        ])
       ]
-    ),
+    )
   ])
 }
 var staticRenderFns = []
@@ -3273,7 +3305,7 @@ render._withStripped = true
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
-var render = function () {
+var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
@@ -3284,13 +3316,13 @@ var render = function () {
           {
             staticClass: "modal modal-overlay",
             on: {
-              click: function ($event) {
+              click: function($event) {
                 if ($event.target !== $event.currentTarget) {
                   return null
                 }
                 return _vm.closeModal.apply(null, arguments)
-              },
-            },
+              }
+            }
           },
           [
             _c("div", { staticClass: "modal-window" }, [
@@ -3305,24 +3337,24 @@ var render = function () {
                 "footer",
                 { staticClass: "modal-footer" },
                 [
-                  _vm._t("footer", function () {
+                  _vm._t("footer", function() {
                     return [
                       _c(
                         "button",
                         {
                           attrs: { type: "button" },
-                          on: { click: _vm.closeModal },
+                          on: { click: _vm.closeModal }
                         },
                         [_vm._v("Close")]
-                      ),
+                      )
                     ]
-                  }),
+                  })
                 ],
                 2
-              ),
-            ]),
+              )
+            ])
           ]
-        ),
+        )
       ])
     : _vm._e()
 }

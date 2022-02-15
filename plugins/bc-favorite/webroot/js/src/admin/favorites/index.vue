@@ -19,12 +19,12 @@
         <ul :style="'display:' + favoriteBoxOpened" v-else class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
             <li  class="no-data"><small>{{ i18NoData }}</small></li>
         </ul>
-        <div id="FavoriteDialog" title="お気に入り登録">
+        <div id="FavoriteDialog" title="お気に入り登録" class="ui-widget">
             <modal ref="modalFavoriteForm" @modal-opened="" :scrollable="false" hidden>
-                <favorite-form ref="FavoriteForm" :user-id="userId" />
+                <favorite-form ref="FavoriteForm" :user-id="userId" :current-page-url="currentPageUrl" :current-page-name="currentPageName" @formUpdated="formUpdated" />
                 <template slot="footer">
                     <button class="bca-btn" type="button" @click="$refs.modalDirection.closeModal()">キャンセル</button>&nbsp;
-                    <button class="bca-btn" type="button" @click="">確定</button>
+                    <button class="bca-btn" type="button" @click="" :disabled="false ? 'disabled' : ''">確定</button>
                 </template>
             </modal>
         </div>
@@ -55,9 +55,10 @@ export default {
             i18Delete: 'delete',
             ariaExpanded: 'true',
             baseUrl: $.bcUtil.baseUrl,
+            formError: false,
         }
     },
-    props: ['userId'],
+    props: ['userId', 'currentPageName', 'currentPageUrl'],
     components: {
         FavoriteForm,
         Modal
@@ -66,6 +67,10 @@ export default {
      * Methods
      */
     methods: {
+
+        formUpdated: function(formError) {
+            this.formError = formError;
+        },
         /**
          * initFavorite
          */

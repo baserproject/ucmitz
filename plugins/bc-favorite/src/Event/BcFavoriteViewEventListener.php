@@ -14,6 +14,10 @@ namespace BcFavorite\Event;
 use BaserCore\Utility\BcUtil;
 use BaserCore\View\Helper\BcBaserHelper;
 use Cake\Event\EventInterface;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\Note;
 
 /**
  * BcFavoriteViewEventListener
@@ -65,6 +69,7 @@ class BcFavoriteViewEventListener extends \BaserCore\Event\BcViewEventListener
      * beforeRender
      *
      * @param EventInterface $event
+     * @note(value="できたら、favorite_menuに移動する")
      */
     public function beforeRender(EventInterface $event)
     {
@@ -72,11 +77,8 @@ class BcFavoriteViewEventListener extends \BaserCore\Event\BcViewEventListener
             return;
         }
         $view = $event->getSubject();
-        $view->BcBaser->js('BcFavorite.admin/favorite.bundle', false, [
-            'id' => 'FavoriteScript',
-            'data-current-page-name' => h($view->BcAdmin->getTitle()),
-            'data-current-page-url' => h($view->getRequest()->getRequestTarget()),
-        ]);
+        $view->set('currentPageName', h($view->BcAdmin->getTitle()));
+        $view->set('currentPageUrl', h($view->getRequest()->getRequestTarget()));
     }
 
 }
