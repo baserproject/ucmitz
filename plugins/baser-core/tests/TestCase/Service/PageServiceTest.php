@@ -33,6 +33,8 @@ class PageServiceTest extends BcTestCase
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Users',
+        'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.ContentFolders',
     ];
 
@@ -46,6 +48,7 @@ class PageServiceTest extends BcTestCase
         parent::setUp();
         $this->PageService = new PageService();
         $this->Pages = $this->getTableLocator()->get('Pages');
+        $this->Contents = $this->getTableLocator()->get('Contents');
     }
 
     /**
@@ -91,11 +94,24 @@ class PageServiceTest extends BcTestCase
      */
     public function testCreate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        $this->getRequest();
-        $Page = $this->PageService->create('Test Message');
+        $this->loginAdmin($this->getRequest('/'));
+        $data = [
+            'cotnents' => '<p>test</p>',
+            'draft' => '<p>test</p>',
+            'page_template' => 'test',
+            'content' => [
+                "parent_id" => "1",
+                "title" => "新しい フォルダー",
+                "plugin" => 'BaserCore',
+                "type" => "ContentFolder",
+                "site_id" => "0",
+                "alias_id" => "",
+                "entity_id" => "",
+            ],
+        ];
+        $Page = $this->PageService->create($data);
         $savedPage = $this->Pages->get($Page->id);
-        $this->assertEquals('Test Message', $savedPage->message);
+        $this->assertEquals('test', $savedPage->page_template);
     }
 
     /**
@@ -103,18 +119,45 @@ class PageServiceTest extends BcTestCase
      */
     public function testGetIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        $request = $this->getRequest('/');
-        $Pages = $this->PageService->getIndex($request->getQueryParams());
-        $this->assertEquals('Pages test message1', $Pages->first()->message);
+        // 条件無しで一覧を取得した場合
+        $pages = $this->PageService->getIndex();
+        $this->assertEquals(6, $pages->all()->count());
+        $this->assertRegExp('/<section class="mainHeadline">/', $pages->first()->contents);
+        // 条件無しで数を制限し、一覧を取得した場合
+        $pages2 = $this->PageService->getIndex(['limit' => 3]);
+        $this->assertEquals(3, $pages2->all()->count());
+        // // 条件ありで一覧を取得した場合
+        $pages = $this->PageService->getIndex(['contents' => 'mainHeadline']);
+        $this->assertEquals(1, $pages->all()->count());
+    }
 
-        $request = $this->getRequest('/?message=message2');
-        $Pages = $this->PageService->getIndex($request->getQueryParams());
-        $this->assertEquals('Pages test message2', $Pages->first()->message);
+    /**
+     * Test update
+     */
+    public function testUpdate()
+    {
+        // containsScriptを通すためアドミンとしてログイン
+        $this->loginAdmin($this->getRequest());
+        $newPage = $this->PageService->get(2);
+        $newPage->draft = "testUpdate";
+        $oldPage = $this->PageService->get(2);
+        $result = $this->PageService->update($oldPage, $newPage->toArray());
+        $this->assertEquals("testUpdate", $result->draft);
+    }
 
-        $request = $this->getRequest('/?user_id=3');
-        $Pages = $this->PageService->getIndex($request->getQueryParams());
-        $this->assertEquals('Pages test message3', $Pages->first()->message);
+    /**
+     * Test delete
+     *
+     * @return void
+     */
+    public function testDelete()
+    {
+        $content = $this->Contents->find()->where(['type' => 'Page'])->first();
+        $this->assertTrue($this->PageService->delete($content->entity_id));
+        $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
+        $this->PageService->get($content->entity_id);
+        $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
+        $this->Contents->get($content->id);
     }
 
 
@@ -125,22 +168,21 @@ class PageServiceTest extends BcTestCase
      * @param string $contents 本文
      * @param string $title タイトル
      * @param string $description 説明文
-     * @param string $code コード
      * @param array $expected 期待値
      * @param string $message テストが失敗した時に表示されるメッセージ
      * @dataProvider addBaserPageTagDataProvider
      */
-    public function testAddBaserPageTag($id, $contents, $title, $description, $code, $expected, $message = null)
+    public function testAddBaserPageTag($id, $contents, $title, $description, $expected, $message = null)
     {
-        $result = $this->PageService->addBaserPageTag($id, $contents, $title, $description, $code);
+        $result = $this->PageService->addBaserPageTag($id, $contents, $title, $description);
         $this->assertRegExp('/' . $expected . '/s', $result, $message);
     }
 
     public function addBaserPageTagDataProvider()
     {
         return [
-            [1, 'contentdayo', 'titledayo', 'descriptiondayo', 'codedayo',
-                "<!-- BaserPageTagBegin -->.*setTitle\('titledayo'\).*setDescription\('descriptiondayo'\).*setPageEditLink\(1\).*codedayo.*contentdayo",
+            [1, 'contentdayo', 'titledayo', 'descriptiondayo',
+                "<!-- BaserPageTagBegin -->.*setTitle\('titledayo'\).*setDescription\('descriptiondayo'\).*setPageEditLink\(1\).*contentdayo",
                 '本文にbaserが管理するタグを追加できません'],
         ];
     }
@@ -167,6 +209,47 @@ class PageServiceTest extends BcTestCase
             [4, 'BcFront', ['' => '親フォルダの設定に従う（default）']],
             [4, ['BcFront', 'BaserCore'], ['' => '親フォルダの設定に従う（default）']],
             [11, ['BcFront', 'BcAdminThrid'], ['' => '親フォルダの設定に従う（サービスページ）', 'default' => 'default']]
+        ];
+    }
+
+        /**
+     * ページデータをコピーする
+     *
+     * @param array $postData 送信するデータ
+     * @dataProvider copyDataProvider
+     */
+    public function testCopy($postData)
+    {
+        $this->loginAdmin($this->getRequest());
+        $result = $this->PageService->copy($postData);
+        $page = $this->PageService->get($result->id);
+        $this->assertStringContainsString("_2", $page->content->name);
+        $this->assertEquals("hoge1", $page->content->title);
+        $this->assertEquals(10, $page->content->author_id);
+    }
+
+    public function copyDataProvider()
+    {
+        return [
+            [
+                [
+                'contentId' =>4,
+                'entityId' =>2,
+                'parentId' =>1,
+                'title' => 'hoge1',
+                'authorId' => 10,
+                'siteId' =>1
+                ],
+            ],
+            // [
+            //     [
+            //     'contentId' =>3,
+            //     'parentId' =>1,
+            //     'title' => 'hoge',
+            //     'authorId' =>1,
+            //     'siteId' =>0
+            //     ],
+            // ],
         ];
     }
 }

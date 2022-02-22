@@ -34,6 +34,7 @@ $base = $attributes['base'];
     'vendor/jquery-ui/jquery-ui.min',
     'vendor/jquery.timepicker',
     '../js/vendor/jquery-contextMenu-2.2.0/jquery.contextMenu.min.css',
+    'vendor/jquery-colorbox/colorbox',
     'admin/style'
   ]) ?>
   <?= $this->fetch('css') ?>

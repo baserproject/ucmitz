@@ -126,24 +126,12 @@ class BcUploadHelper  extends Helper
         } else {
             $value = $options['value'];
         }
-        if (is_array($value)) {
-            if (empty($value['session_key']) && empty($value['name'])) {
-                $context = $this->BcAdminForm->context();
-                $data = $context->entity()[Inflector::singularize($this->table->getAlias())];
-                if (!empty($data->$field)) {
-                    $value = $data->$field;
-                } else {
-                    $value = '';
-                }
-            } else {
-                if (isset($value['session_key'])) {
-                    $tmp = true;
-                    $value = str_replace('/', '_', $value['session_key']);
-                    $basePath = '/uploads/tmp/';
-                } else {
-                    return false;
-                }
-            }
+
+        $sessionKey = $this->BcAdminForm->getSourceValue($fieldName . '_tmp');
+        if ($sessionKey) {
+            $tmp = true;
+            $value = str_replace('/', '_', $sessionKey);
+            $basePath = '/uploads/tmp/';
         }
 
         /* ファイルのパスを取得 */
@@ -164,7 +152,7 @@ class BcUploadHelper  extends Helper
                 } else {
                     $figcaptionOptions['class'] = 'file-name';
                 }
-                if ($uploadSettings['type'] == 'image' || in_array($ext, $this->table->getBehavior('BcUpload')->imgExts)) {
+                if ($uploadSettings['type'] == 'image' || in_array($ext, $this->table->getBehavior('BcUpload')->BcFileUploader[$this->table->getAlias()]->imgExts)) {
                     $imgOptions = array_merge([
                         'imgsize' => $options['imgsize'],
                         'rel' => $options['rel'],
@@ -288,13 +276,11 @@ class BcUploadHelper  extends Helper
         if (empty($linkOptions['class'])) {
             unset($linkOptions['class']);
         }
-        if (is_array($fileName)) {
-            if (isset($fileName['session_key'])) {
-                $fileName = $fileName['session_key'];
-                $options['tmp'] = true;
-            } else {
-                return '';
-            }
+
+        $sessionKey = $this->BcAdminForm->getSourceValue($fieldName . '_tmp');
+        if ($sessionKey) {
+            $fileName = $sessionKey;
+            $options['tmp'] = true;
         }
 
         if ($options['noimage']) {
@@ -313,7 +299,7 @@ class BcUploadHelper  extends Helper
         }
 
         $fileUrl = '/files/' . str_replace(DS, '/', $settings['saveDir']) . '/';
-        $saveDir = $this->table->getSaveDir($this->table->getAlias(), false, $options['limited']);
+        $saveDir = $this->table->getSaveDir(false, $options['limited']);
 
         if (isset($settings['fields'][$field]['imagecopy'])) {
             $copySettings = $settings['fields'][$field]['imagecopy'];
@@ -454,7 +440,7 @@ class BcUploadHelper  extends Helper
      */
     protected function getBcUploadSetting()
     {
-        return $this->table->getBehavior('BcUpload')->getSettings($this->table->getAlias());
+        return $this->table->getSettings();
     }
 
     /**
@@ -468,7 +454,7 @@ class BcUploadHelper  extends Helper
      */
     protected function setBcUploadSetting($settings)
     {
-        $this->table->getBehavior('BcUpload')->setSettings($this->table->getAlias(), $settings);
+        $this->table->setSettings($settings);
     }
 
     /**

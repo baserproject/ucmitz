@@ -11,13 +11,23 @@
 namespace BaserCore\View\Helper;
 
 use Cake\View\Helper;
+use Cake\Routing\Asset;
+use Cake\Core\Configure;
+use Cake\Utility\Inflector;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\View\Helper\BcHtmlHelper;
 use BaserCore\Event\BcEventDispatcherTrait;
+
 
 
 /**
  * Class BcCkeditorHelper
  *
  * @package Baser.View.Helper
+ * @property BcAdminFormHelper $BcAdminForm
+ * @property BcHtmlHelper $BcHtml
  */
 class BcCkeditorHelper extends Helper
 {
@@ -30,7 +40,7 @@ class BcCkeditorHelper extends Helper
      * ヘルパー
      * @var array
      */
-    public $helpers = ['BcHtml', 'BcForm', 'JqueryEngine'];
+    public $helpers = ['BcHtml', 'BcAdminForm', 'Url'];
 
     /**
      * スクリプト
@@ -89,42 +99,45 @@ class BcCkeditorHelper extends Helper
     ];
 
     /**
-     * BcCkeditorHelper constructor.
-     * @param View $View
-     * @param array $settings
+     * initialize
+     *
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    // public function __construct(View $View, $settings = [])
-    // {
-    //     parent::__construct($View, $settings);
-    //     $this->style = [
-    //         ['name' => __d('baser', '青見出し') . '(h3)',
-    //             'element' => 'h3',
-    //             'styles' => ['color' => 'Blue']],
-    //         ['name' => __d('baser', '赤見出し') . '(h3)',
-    //             'element' => 'h3',
-    //             'styles' => ['color' => 'Red']],
-    //         ['name' => __d('baser', '黄マーカー') . '(span)',
-    //             'element' => 'span',
-    //             'styles' => ['background-color' => 'Yellow']],
-    //         ['name' => __d('baser', '緑マーカー') . '(span)',
-    //             'element' => 'span',
-    //             'styles' => ['background-color' => 'Lime']],
-    //         ['name' => __d('baser', '大文字') . '(big)',
-    //             'element' => 'big'],
-    //         ['name' => __d('baser', '小文字') . '(small)',
-    //             'element' => 'small'],
-    //         ['name' => __d('baser', 'コード') . '(code)',
-    //             'element' => 'code'],
-    //         ['name' => __d('baser', '削除文') . '(del)',
-    //             'element' => 'del'],
-    //         ['name' => __d('baser', '挿入文') . '(ins)',
-    //             'element' => 'ins'],
-    //         ['name' => __d('baser', '引用') . '(cite)',
-    //             'element' => 'cite'],
-    //         ['name' => __d('baser', 'インライン') . '(q)',
-    //             'element' => 'q']
-    //     ];
-    // }
+    public function initialize($config): void
+    {
+        $this->style = [
+            ['name' => __d('baser', '青見出し') . '(h3)',
+                'element' => 'h3',
+                'styles' => ['color' => 'Blue']],
+            ['name' => __d('baser', '赤見出し') . '(h3)',
+                'element' => 'h3',
+                'styles' => ['color' => 'Red']],
+            ['name' => __d('baser', '黄マーカー') . '(span)',
+                'element' => 'span',
+                'styles' => ['background-color' => 'Yellow']],
+            ['name' => __d('baser', '緑マーカー') . '(span)',
+                'element' => 'span',
+                'styles' => ['background-color' => 'Lime']],
+            ['name' => __d('baser', '大文字') . '(big)',
+                'element' => 'big'],
+            ['name' => __d('baser', '小文字') . '(small)',
+                'element' => 'small'],
+            ['name' => __d('baser', 'コード') . '(code)',
+                'element' => 'code'],
+            ['name' => __d('baser', '削除文') . '(del)',
+                'element' => 'del'],
+            ['name' => __d('baser', '挿入文') . '(ins)',
+                'element' => 'ins'],
+            ['name' => __d('baser', '引用') . '(cite)',
+                'element' => 'cite'],
+            ['name' => __d('baser', 'インライン') . '(q)',
+                'element' => 'q']
+        ];
+        parent::initialize($config);
+    }
 
     /**
      * CKEditor のスクリプトを構築する
@@ -199,10 +212,12 @@ class BcCkeditorHelper extends Helper
      * @param string $fieldName
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    function _build($fieldName, $options = [])
+    protected function buildTmpScript($fieldName, $options = [])
     {
-
         $options = array_merge([
             'editorLanguage' => 'ja', // 言語
             'editorSkin' => 'moono', // スキン
@@ -271,7 +286,7 @@ class BcCkeditorHelper extends Helper
         }
         $options = $_options;
 
-        $jscode = $model = $domId = '';
+        $jscode = $model = $editorDomId = $publishAreaId = $draftAreaId = '';
         if (strpos($fieldName, '.')) {
             [$model, $field] = explode('.', $fieldName);
         } else {
@@ -283,57 +298,28 @@ class BcCkeditorHelper extends Helper
             $field .= '_tmp';
             $fieldName .= '_tmp';
         }
+        $dom = explode('.', $fieldName);
 
-        $domId = $this->domId($fieldName);
+        $editorDomId = Inflector::camelize($dom[0]) . Inflector::camelize($dom[1]);
 
         if (!$this->_script) {
             $this->_script = true;
-            $this->BcHtml->script('vendor/ckeditor/ckeditor.js', ["inline" => false]);
+            $this->BcHtml->script(['vendor/ckeditor/ckeditor'], ["block" => true]);
+            $this->BcHtml->script(['admin/pages/applyCkeditor.bundle'], ["block" => true]);
         }
 
         if ($editorUseDraft) {
             $lastBar = $options['toolbar'][count($options['toolbar']) - 1];
-            $lastBar = am($lastBar, ['-', 'Publish', '-', 'Draft']);
+            $lastBar = array_merge($lastBar, ['-', 'Publish', '-', 'Draft']);
             if (!$editorDisableCopyDraft) {
-                $lastBar = am($lastBar, ['-', 'CopyDraft']);
+                $lastBar = array_merge($lastBar, ['-', 'CopyDraft']);
             }
             if (!$editorDisableCopyPublish) {
-                $lastBar = am($lastBar, ['-', 'CopyPublish']);
+                $lastBar = array_merge($lastBar, ['-', 'CopyPublish']);
             }
             $options['toolbar'][count($options['toolbar']) - 1] = $lastBar;
         }
-
-        $this->BcHtml->scriptBlock("var editor_" . $field . ";", ["inline" => false]);
-        $jscode = "$(window).load(function(){";
-        if (!$this->inited) {
-            $jscode .= "CKEDITOR.addStylesSet('basercms'," . $this->JqueryEngine->object($this->style) . ");";
-            $this->inited = true;
-        } else {
-            $jscode .= '';
-        }
-        if (!$this->_initedStyles && $editorStyles) {
-            foreach($editorStyles as $key => $style) {
-                $jscode .= "CKEDITOR.addStylesSet('" . $key . "'," . $this->JqueryEngine->object($style) . ");";
-            }
-            $this->_initedStyles = true;
-        }
-
-        if ($editorUseTemplates) {
-            $jscode .= "CKEDITOR.config.templates_files = [ '" . $this->url(['admin' => true, 'plugin' => null, 'controller' => 'editor_templates', 'action' => 'js']) . "' ];";
-        }
-        $jscode .= "CKEDITOR.config.allowedContent = true;";
-        $jscode .= "CKEDITOR.config.extraPlugins = 'draft,showprotected';";
-        $jscode .= "CKEDITOR.config.stylesCombo_stylesSet = '" . $editorStylesSet . "';";
-        $jscode .= "CKEDITOR.config.protectedSource.push( /<\?[\s\S]*?\?>/g );";
-        $jscode .= 'CKEDITOR.dtd.$removeEmpty["i"] = false;'; //　空「i」タグを消さないようにする
-        $jscode .= 'CKEDITOR.dtd.$removeEmpty["span"] = false;'; //　空「span」タグを消さないようにする
-
-        if ($editorEnterBr) {
-            $jscode .= "CKEDITOR.config.enterMode = CKEDITOR.ENTER_BR;";
-        }
-
-        // $this->webroot で、フロントテーマのURLを取得できるようにするため、
-        // 一旦テーマをフロントのテーマに切り替える
+        // themeの設定
         $theme = $this->theme;
         $theme = Configure::read('BcSite.theme');
         if ($theme) {
@@ -344,14 +330,18 @@ class BcCkeditorHelper extends Helper
         if ($theme) {
             $themeEditorCsses[] = [
                 'path' => BASER_THEMES . Configure::read('BcSite.theme') . DS . 'css' . DS . 'editor.css',
-                'url' => $this->webroot('/css/editor.css')
+                'url' => $this->Url->webroot('/css/editor.css')
             ];
         }
         $themeEditorCsses[] = [
             'path' => BASER_VIEWS . 'webroot' . DS . 'css' . DS . 'admin' . DS . 'ckeditor' . DS . 'contents.css',
-            'url' => $this->webroot('/css/admin/ckeditor/contents.css')
+            'url' => $this->Url->webroot('/css/admin/ckeditor/contents.css')
         ];
-
+        foreach($themeEditorCsses as $key => $themeEditorCss) {
+            if (!file_exists($themeEditorCss['path'])) {
+                unset($themeEditorCsses[$key]);
+            }
+        }
         if ($theme) {
             $sitePrefix = '';
             if (!empty($this->request->getData('Site.name'))) {
@@ -360,80 +350,51 @@ class BcCkeditorHelper extends Helper
             if ($sitePrefix) {
                 array_unshift($themeEditorCsses, [
                     'path' => BASER_THEMES . Configure::read('BcSite.theme') . DS . 'css' . DS . $sitePrefix . DS . 'editor.css',
-                    'url' => $this->webroot('/css/' . $sitePrefix . '/editor.css')
+                    'url' => $this->Url->webroot('/css/' . $sitePrefix . '/editor.css')
                 ]);
             }
         }
-
         $this->theme = $theme;
-
-        foreach($themeEditorCsses as $themeEditorCss) {
-            if (file_exists($themeEditorCss['path'])) {
-                $jscode .= "CKEDITOR.config.contentsCss = ['" . $themeEditorCss['url'] . "'];";
-                break;
-            }
-        }
-
-        $jscode .= "editor_" . $field . " = CKEDITOR.replace('" . $domId . "'," . $this->JqueryEngine->object($options) . ");";
-        $jscode .= "editor_{$field}.on('pluginsLoaded', function(event) {";
-        if ($editorUseDraft) {
-            if ($draftAreaId) {
-                $jscode .= "editor_{$field}.draftDraftAreaId = '{$draftAreaId}';";
-            }
-            if ($publishAreaId) {
-                $jscode .= "editor_{$field}.draftPublishAreaId = '{$publishAreaId}';";
-            }
-            if ($editorReadOnlyPublish) {
-                $jscode .= "editor_{$field}.draftReadOnlyPublish = true;";
-            }
-        }
-
-        $jscode .= " });";
-        $draftMode = 'publish';
         $fieldCamelize = Inflector::camelize($field);
-        if ($editorUseDraft) {
-            $jscode .= "editor_{$field}.on('instanceReady', function(event) {";
-            if ($editorDisableDraft) {
-                $jscode .= "editor_{$field}.execCommand('changePublish');";
-                $jscode .= "editor_{$field}.execCommand('disableDraft');";
+        $draftMode = $editorDisablePublish ? 'draft' :  'publish';
+        // applyCkeditor.jsで使う変数のみ定義する
+        $jscode;
+        $stringVars = [
+            'ckeditorField' => "editor_{$field}",
+            'editorStylesSet' => $editorStylesSet,
+            'editorEnterBr' => $editorEnterBr,
+            'editorDomId' => $editorDomId,
+            'editorUseDraft' => $editorUseDraft,
+            'draftAreaId' => $draftAreaId,
+            'publishAreaId' => $publishAreaId,
+            'editorReadonlyPublish' => $editorReadOnlyPublish,
+            'editorDisableDraft' => $editorDisableDraft,
+            'editorDisablePublish' => $editorDisablePublish,
+            'fieldCamelize' => $fieldCamelize,
+        ];
+        foreach ($stringVars as $varName => $varValue) {
+            if (is_bool($varValue)) {
+                $varValue = $varValue ? 1 : 0;
+                $jscode .= "var {$varName}={$varValue};\n";
+            } else {
+                $jscode .= "var {$varName}='{$varValue}';\n";
             }
-            if ($editorDisablePublish) {
-                $jscode .= "editor_{$field}.execCommand('changeDraft');";
-                $jscode .= "editor_{$field}.execCommand('disablePublish');";
-                $draftMode = 'draft';
-            }
-            $jscode .= <<< EOL
-    editor_{$field}.on( 'beforeCommandExec', function( ev ){
-    	if(ev.data.name === 'changePublish' || ev.data.name === 'copyPublish') {
-    		$("#DraftMode{$fieldCamelize}").val('publish');
-    	} else if(ev.data.name === 'changeDraft' || ev.data.name === 'copyDraft') {
-    		$("#DraftMode{$fieldCamelize}").val('draft');
-    	}
-    });
-EOL;
-            $jscode .= " });";
+        }
+        if ($editorUseTemplates) {
+            $editorUrl = $this->Url->build(['plugin' => 'BaserCore', 'prefix' => 'Admin', 'controller' => 'editor_templates', 'action' => 'js']);
+            $jscode .= "var editorUrl='{$editorUrl}';";
+        }
+        $arrayVars = [
+            'initialStyle' => $this->style,
+            'editorStyle' => $editorStyles,
+            'themeEditorCsses' => $themeEditorCsses,
+            'editorOptions' => $options,
+        ];
+        foreach ($arrayVars as $varName => $varValue) {
+            $jscode .= "var {$varName}=" . json_encode($varValue) .  ";\n";
         }
 
-        $jscode .= "editor_{$field}.on('instanceReady', function(event) {";
-        $jscode .= "if(editor_{$field}.getCommand('maximize').uiItems.length > 0) {";
-
-        // ツールバーの表示を切り替え
-        $jscode .= <<< EOL
-editor_{$field}.getCommand('maximize').on( 'state' , function( e )
-    {
-        if(this.state == 1) {
-			$("#ToolBar").hide();
-		} else {
-			$("#ToolBar").show();
-		}
-    });
-EOL;
-
-        $jscode .= "}";
-        $jscode .= " });";
-        $jscode .= "});";
-
-        return $this->BcHtml->scriptBlock($jscode) . '<input type="hidden" id="DraftMode' . $fieldCamelize . '" value="' . $draftMode . '">';
+        return $this->BcHtml->scriptBlock($jscode, ['type' => 'text/javascript', 'block' => true]) . '<input type="hidden" id="DraftMode' . $fieldCamelize . '" value="' . $draftMode . '">';
     }
 
     /**
@@ -442,14 +403,18 @@ EOL;
      * @param string $fieldName エディタのid, nameなどの名前を指定
      * @param array $options
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function editor($fieldName, $options = [])
     {
-
         if (!empty($options['editorUseDraft']) && !empty($options['editorDraftField']) && strpos($fieldName, '.')) {
             [$model] = explode('.', $fieldName);
             $inputFieldName = $fieldName . '_tmp';
-            $hidden = $this->BcForm->hidden($fieldName) . $this->BcForm->hidden($model . '.' . $options['editorDraftField']);
+            $hiddenIdElement = pluginSplit($fieldName);
+            $hiddenId = $hiddenIdElement[0] . Inflector::camelize($hiddenIdElement[1]);
+            $hidden = $this->BcAdminForm->hidden($fieldName, ['id' => $hiddenId]) . $this->BcAdminForm->hidden($model . '.' . $options['editorDraftField'] , ['id' => $hiddenIdElement[0] . 'Draft']);
         } else {
             $inputFieldName = $fieldName;
             $hidden = '';
@@ -461,7 +426,8 @@ EOL;
                 $_options[$key] = $option;
             }
         }
-        return $this->BcAdminForm->control($inputFieldName, $_options) . $hidden . $this->_build($fieldName, $options);
+        $textIdElement = pluginSplit($inputFieldName);
+        $_options['id'] = $textIdElement[0] . Inflector::camelize($textIdElement[1]);
+        return $this->BcAdminForm->control($inputFieldName, $_options) . $hidden . $this->buildTmpScript($fieldName, $options);
     }
-
 }
