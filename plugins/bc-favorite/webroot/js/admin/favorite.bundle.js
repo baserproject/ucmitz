@@ -150,58 +150,7 @@ $(function () {
           $(this).dialog('close');
         }
       }, {
-        text: bcI18n.commonSave,
-        click: function click() {
-          var submitUrl = $("#FavoriteAjaxForm").attr('action');
-          var favoriteId = $("#FavoriteId").val();
-
-          var favoriteIndex = document.querySelector('#FavoriteMenu').__vue__.$children[0];
-
-          var favoriteForm = favoriteIndex.$refs.FavoriteForm;
-
-          if (favoriteForm.$v.$invalid) {
-            $("#Waiting").hide();
-            alert('入力内容を確認してください');
-            return false;
-          } // TODO: ucmitz 振り分け処理を一旦コメントアウト
-          // if (!$("#FavoriteId").val()) {
-          //     submitUrl += '_add';
-          // } else {
-          //     submitUrl += '_edit/' + $("#FavoriteId").val();
-          // }
-          // if ($("#FavoriteAjaxForm").valid()) {
-
-
-          $.bcToken.check(function () {
-            $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
-            return $("#FavoriteAjaxForm").ajaxSubmit({
-              url: submitUrl,
-              headers: {
-                "Authorization": $.bcJwt.accessToken
-              },
-              success: function success() {
-                favoriteIndex.refresh(); // TODO ucmitz 未精査
-                // initFavoriteList();
-
-                $("#FavoriteDialog").dialog('close');
-              },
-              error: function error(XMLHttpRequest, textStatus) {
-                if (XMLHttpRequest.responseText) {
-                  alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.responseText);
-                } else {
-                  alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.statusText);
-                }
-              },
-              complete: function complete() {
-                $("#Waiting").hide();
-                $.bcToken.key = null;
-              }
-            });
-          }, {
-            useUpdate: false,
-            hideLoader: false
-          }); // }
-        }
+        text: bcI18n.commonSave
       }]
     });
     return false;

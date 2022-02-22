@@ -2174,7 +2174,7 @@ module.exports = {
 /*! exports provided: _args, _from, _id, _inBundle, _integrity, _location, _phantomChildren, _requested, _requiredBy, _resolved, _spec, _where, author, browser, bugs, bundlesize, dependencies, description, devDependencies, homepage, jsdelivr, keywords, license, main, name, repository, scripts, typings, unpkg, version, default */
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_args\":[[\"axios@0.21.4\",\"/home/humuhimi/catchup_project/ucmitz/plugins/bc-favorite\"]],\"_from\":\"axios@0.21.4\",\"_id\":\"axios@0.21.4\",\"_inBundle\":false,\"_integrity\":\"sha1-xnuQ3AVo5cHPKwuFjEO6KOLtpXU=\",\"_location\":\"/axios\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"axios@0.21.4\",\"name\":\"axios\",\"escapedName\":\"axios\",\"rawSpec\":\"0.21.4\",\"saveSpec\":null,\"fetchSpec\":\"0.21.4\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmmirror.com/axios/download/axios-0.21.4.tgz?cache=0&sync_timestamp=1632807675914&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Faxios%2Fdownload%2Faxios-0.21.4.tgz\",\"_spec\":\"0.21.4\",\"_where\":\"/home/humuhimi/catchup_project/ucmitz/plugins/bc-favorite\",\"author\":{\"name\":\"Matt Zabriskie\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}],\"dependencies\":{\"follow-redirects\":\"^1.14.0\"},\"description\":\"Promise based HTTP client for the browser and node.js\",\"devDependencies\":{\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.3.0\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^23.0.0\",\"grunt-karma\":\"^4.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^4.0.2\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^6.3.2\",\"karma-chrome-launcher\":\"^3.1.0\",\"karma-firefox-launcher\":\"^2.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^4.3.6\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.8\",\"karma-webpack\":\"^4.0.2\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^8.2.1\",\"sinon\":\"^4.5.0\",\"terser-webpack-plugin\":\"^4.2.3\",\"typescript\":\"^4.0.5\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^4.44.2\",\"webpack-dev-server\":\"^3.11.0\"},\"homepage\":\"https://axios-http.com\",\"jsdelivr\":\"dist/axios.min.js\",\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"license\":\"MIT\",\"main\":\"index.js\",\"name\":\"axios\",\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/axios/axios.git\"},\"scripts\":{\"build\":\"NODE_ENV=production grunt build\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"examples\":\"node ./examples/server.js\",\"fix\":\"eslint --fix lib/**/*.js\",\"postversion\":\"git push && git push --tags\",\"preversion\":\"npm test\",\"start\":\"node ./sandbox/server.js\",\"test\":\"grunt test\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\"},\"typings\":\"./index.d.ts\",\"unpkg\":\"dist/axios.min.js\",\"version\":\"0.21.4\"}");
+module.exports = JSON.parse("{\"_args\":[[\"axios@0.21.4\",\"/Volumes/Projects/ucmitz/plugins/bc-favorite\"]],\"_from\":\"axios@0.21.4\",\"_id\":\"axios@0.21.4\",\"_inBundle\":false,\"_integrity\":\"sha1-xnuQ3AVo5cHPKwuFjEO6KOLtpXU=\",\"_location\":\"/axios\",\"_phantomChildren\":{},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"axios@0.21.4\",\"name\":\"axios\",\"escapedName\":\"axios\",\"rawSpec\":\"0.21.4\",\"saveSpec\":null,\"fetchSpec\":\"0.21.4\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmmirror.com/axios/download/axios-0.21.4.tgz?cache=0&sync_timestamp=1632807675914&other_urls=https%3A%2F%2Fregistry.npmmirror.com%2Faxios%2Fdownload%2Faxios-0.21.4.tgz\",\"_spec\":\"0.21.4\",\"_where\":\"/Volumes/Projects/ucmitz/plugins/bc-favorite\",\"author\":{\"name\":\"Matt Zabriskie\"},\"browser\":{\"./lib/adapters/http.js\":\"./lib/adapters/xhr.js\"},\"bugs\":{\"url\":\"https://github.com/axios/axios/issues\"},\"bundlesize\":[{\"path\":\"./dist/axios.min.js\",\"threshold\":\"5kB\"}],\"dependencies\":{\"follow-redirects\":\"^1.14.0\"},\"description\":\"Promise based HTTP client for the browser and node.js\",\"devDependencies\":{\"coveralls\":\"^3.0.0\",\"es6-promise\":\"^4.2.4\",\"grunt\":\"^1.3.0\",\"grunt-banner\":\"^0.6.0\",\"grunt-cli\":\"^1.2.0\",\"grunt-contrib-clean\":\"^1.1.0\",\"grunt-contrib-watch\":\"^1.0.0\",\"grunt-eslint\":\"^23.0.0\",\"grunt-karma\":\"^4.0.0\",\"grunt-mocha-test\":\"^0.13.3\",\"grunt-ts\":\"^6.0.0-beta.19\",\"grunt-webpack\":\"^4.0.2\",\"istanbul-instrumenter-loader\":\"^1.0.0\",\"jasmine-core\":\"^2.4.1\",\"karma\":\"^6.3.2\",\"karma-chrome-launcher\":\"^3.1.0\",\"karma-firefox-launcher\":\"^2.1.0\",\"karma-jasmine\":\"^1.1.1\",\"karma-jasmine-ajax\":\"^0.1.13\",\"karma-safari-launcher\":\"^1.0.0\",\"karma-sauce-launcher\":\"^4.3.6\",\"karma-sinon\":\"^1.0.5\",\"karma-sourcemap-loader\":\"^0.3.8\",\"karma-webpack\":\"^4.0.2\",\"load-grunt-tasks\":\"^3.5.2\",\"minimist\":\"^1.2.0\",\"mocha\":\"^8.2.1\",\"sinon\":\"^4.5.0\",\"terser-webpack-plugin\":\"^4.2.3\",\"typescript\":\"^4.0.5\",\"url-search-params\":\"^0.10.0\",\"webpack\":\"^4.44.2\",\"webpack-dev-server\":\"^3.11.0\"},\"homepage\":\"https://axios-http.com\",\"jsdelivr\":\"dist/axios.min.js\",\"keywords\":[\"xhr\",\"http\",\"ajax\",\"promise\",\"node\"],\"license\":\"MIT\",\"main\":\"index.js\",\"name\":\"axios\",\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/axios/axios.git\"},\"scripts\":{\"build\":\"NODE_ENV=production grunt build\",\"coveralls\":\"cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js\",\"examples\":\"node ./examples/server.js\",\"fix\":\"eslint --fix lib/**/*.js\",\"postversion\":\"git push && git push --tags\",\"preversion\":\"npm test\",\"start\":\"node ./sandbox/server.js\",\"test\":\"grunt test\",\"version\":\"npm run build && grunt version && git add -A dist && git add CHANGELOG.md bower.json package.json\"},\"typings\":\"./index.d.ts\",\"unpkg\":\"dist/axios.min.js\",\"version\":\"0.21.4\"}");
 
 /***/ }),
 
@@ -2189,6 +2189,8 @@ module.exports = JSON.parse("{\"_args\":[[\"axios@0.21.4\",\"/home/humuhimi/catc
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuelidate/lib/validators */ "./node_modules/vuelidate/lib/validators/index.js");
 /* harmony import */ var vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
 //
 //
 //
@@ -2213,6 +2215,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "FavoriteForm",
@@ -2232,6 +2236,62 @@ __webpack_require__.r(__webpack_exports__);
   methods: {
     formUpdated: function formUpdated() {
       this.$emit("formUpdated", this.$v.$invalid);
+    },
+    formSubmit: function formSubmit() {
+      var registerUrl = this.registerUrl;
+      var userId = this.userId;
+      var title = this.title;
+      var url = this.url;
+      $.bcToken.check(function () {
+        $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
+        axios__WEBPACK_IMPORTED_MODULE_1___default.a.post(registerUrl, {
+          user_id: userId,
+          name: title,
+          url: url
+        }, {
+          headers: {
+            "Authorization": $.bcJwt.accessToken
+          }
+        }).then(function (response) {
+          if (response.data) {
+            $("#Waiting").hide();
+            $.bcToken.key = null; // TODO: モーダルのクローズがうまくいってない
+
+            this.$emit("formSubmited");
+          }
+        }.bind(this))["catch"](function (error) {// this.isError = true
+          // if(error.response.status === 401) {
+          //     this.message = 'アカウント名、パスワードが間違っています。'
+          // } else {
+          //     this.message = error.response.data.message
+          // }
+        }.bind(this)); //     return $("#FavoriteAjaxForm").ajaxSubmit({
+        //         url: submitUrl,
+        //         headers: {
+        //             "Authorization": $.bcJwt.accessToken,
+        //         },
+        //         success: function () {
+        //             favoriteIndex.refresh();
+        //             // TODO ucmitz 未精査
+        //             // initFavoriteList();
+        //             $("#FavoriteDialog").dialog('close');
+        //         },
+        //         error: function (XMLHttpRequest, textStatus) {
+        //             if (XMLHttpRequest.responseText) {
+        //                 alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.responseText);
+        //             } else {
+        //                 alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.statusText);
+        //             }
+        //         },
+        //         complete: function () {
+        //             $("#Waiting").hide();
+        //             $.bcToken.key = null;
+        //         }
+        //     });
+      }, {
+        useUpdate: false,
+        hideLoader: false
+      });
     }
   },
   validations: {
@@ -2242,7 +2302,7 @@ __webpack_require__.r(__webpack_exports__);
       required: vuelidate_lib_validators__WEBPACK_IMPORTED_MODULE_0__["required"]
     }
   },
-  props: ['userId', 'currentPageName', 'currentPageUrl']
+  props: ['id', 'userId', 'currentPageName', 'currentPageUrl']
 });
 
 /***/ }),
@@ -2390,6 +2450,9 @@ __webpack_require__.r(__webpack_exports__);
     },
     openModal: function openModal(index) {
       this.$refs.modalFavoriteForm.openModal(index);
+    },
+    formSubmited: function formSubmited() {
+      this.$refs.modalFavoriteForm.closeModal();
     }
   },
   mounted: function mounted() {
@@ -2964,12 +3027,17 @@ var render = function() {
       attrs: { action: _vm.registerUrl, method: "POST", id: "FavoriteAjaxForm" }
     },
     [
-      _c("input", { attrs: { type: "hidden", name: "id" } }),
+      _c("input", {
+        attrs: { type: "hidden", name: "id" },
+        domProps: { value: _vm.id }
+      }),
       _vm._v(" "),
       _c("input", {
         attrs: { type: "hidden", name: "user_id" },
         domProps: { value: _vm.userId }
       }),
+      _vm._v(" "),
+      _c("input", { attrs: { type: "hidden", name: "_csrfToken" } }),
       _vm._v(" "),
       _c("dl", [
         _c("dt", [
@@ -3218,8 +3286,7 @@ var render = function() {
           "modal",
           {
             ref: "modalFavoriteForm",
-            attrs: { scrollable: false, hidden: "" },
-            on: { "modal-opened": function($event) {} }
+            attrs: { scrollable: false, hidden: "" }
           },
           [
             _c("favorite-form", {
@@ -3229,7 +3296,10 @@ var render = function() {
                 "current-page-url": _vm.currentPageUrl,
                 "current-page-name": _vm.currentPageName
               },
-              on: { formUpdated: _vm.formUpdated }
+              on: {
+                formUpdated: _vm.formUpdated,
+                formSubmited: _vm.formSubmited
+              }
             }),
             _vm._v(" "),
             _c("template", { slot: "footer" }, [
@@ -3240,7 +3310,7 @@ var render = function() {
                   attrs: { type: "button" },
                   on: {
                     click: function($event) {
-                      return _vm.$refs.modalDirection.closeModal()
+                      return _vm.$refs.modalFavoriteForm.closeModal()
                     }
                   }
                 },
@@ -3251,8 +3321,12 @@ var render = function() {
                 "button",
                 {
                   staticClass: "bca-btn",
-                  attrs: { type: "button", disabled: false ? undefined : "" },
-                  on: { click: function($event) {} }
+                  attrs: { type: "button", disabled: _vm.formError },
+                  on: {
+                    click: function($event) {
+                      return _vm.$refs.FavoriteForm.formSubmit()
+                    }
+                  }
                 },
                 [_vm._v("確定")]
               )

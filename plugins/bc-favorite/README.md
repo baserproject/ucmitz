@@ -40,9 +40,11 @@ composer require baserproject/bc-favorite
     - [ ] ダイアログ関連をVueに移植する
       - [x] jQueryのコードをVueに移植
       - [x] 初期値設定
-      - [ ] バリデーション
-        - [ ] invalid時は保存ボタンをdisable化
+      - [x] バリデーション
+        - [x] invalid時は保存ボタンをdisable化
       - [ ] 保存
+        - [ ] 保存後、ダイアログを閉じる
+        - [ ] お気に入り一覧の再表示
       - [ ] デザインを他のダイアログに合わせる
     - [ ] サーバーバリデーション
   - [ ] 編集

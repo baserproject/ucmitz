@@ -20,11 +20,11 @@
             <li  class="no-data"><small>{{ i18NoData }}</small></li>
         </ul>
         <div id="FavoriteDialog" title="お気に入り登録" class="ui-widget">
-            <modal ref="modalFavoriteForm" @modal-opened="" :scrollable="false" hidden>
-                <favorite-form ref="FavoriteForm" :user-id="userId" :current-page-url="currentPageUrl" :current-page-name="currentPageName" @formUpdated="formUpdated" />
+            <modal ref="modalFavoriteForm" :scrollable="false" hidden>
+                <favorite-form ref="FavoriteForm" :user-id="userId" :current-page-url="currentPageUrl" :current-page-name="currentPageName" @formUpdated="formUpdated" @formSubmited="formSubmited" />
                 <template slot="footer">
-                    <button class="bca-btn" type="button" @click="$refs.modalDirection.closeModal()">キャンセル</button>&nbsp;
-                    <button class="bca-btn" type="button" @click="" :disabled="false ? 'disabled' : ''">確定</button>
+                    <button class="bca-btn" type="button" @click="$refs.modalFavoriteForm.closeModal()">キャンセル</button>&nbsp;
+                    <button class="bca-btn" type="button" @click="$refs.FavoriteForm.formSubmit()" :disabled="formError">確定</button>
                 </template>
             </modal>
         </div>
@@ -127,11 +127,12 @@ export default {
                 this.favorites = response.data.favorites;
             }.bind(this));
         },
-
         openModal: function(index) {
           this.$refs.modalFavoriteForm.openModal(index);
         },
-
+        formSubmited: function() {
+          this.$refs.modalFavoriteForm.closeModal();
+        },
     },
     mounted: function() {
         this.initFavorite();
