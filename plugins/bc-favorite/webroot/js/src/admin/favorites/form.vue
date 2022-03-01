@@ -51,6 +51,7 @@ export default {
             let userId = this.userId;
             let title = this.title;
             let url = this.url;
+            let favoriteForm = this
             $.bcToken.check(function () {
                 $('#FavoriteAjaxForm input[name="_csrfToken"]').val($.bcToken.key);
                 axios.post(registerUrl, {
@@ -61,12 +62,14 @@ export default {
                     headers: {
                         "Authorization": $.bcJwt.accessToken,
                     }
-                }).then(function (response) {
+                }
+                ).then(function (response) {
                     if (response.data) {
                         $("#Waiting").hide();
                         $.bcToken.key = null;
+                        console.log('form');
                         // TODO: モーダルのクローズがうまくいってない
-                        this.$emit("formSubmited");
+                        favoriteForm.$emit("formSubmitted", null);
                     }
                 }.bind(this))
                 .catch(function (error) {
@@ -76,7 +79,7 @@ export default {
                     // } else {
                     //     this.message = error.response.data.message
                     // }
-                }.bind(this));
+                });
 
                 //     return $("#FavoriteAjaxForm").ajaxSubmit({
                 //         url: submitUrl,

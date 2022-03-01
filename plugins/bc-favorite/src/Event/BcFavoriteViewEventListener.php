@@ -29,7 +29,7 @@ class BcFavoriteViewEventListener extends \BaserCore\Event\BcViewEventListener
      * Event
      * @var string[]
      */
-    public $events = ['beforeAdminMenu', 'beforeContentsMenu', 'beforeRender'];
+    public $events = ['beforeAdminMenu', 'beforeContentsMenu', 'afterRender'];
 
     /**
      * 管理画面メニュー上部
@@ -71,7 +71,7 @@ class BcFavoriteViewEventListener extends \BaserCore\Event\BcViewEventListener
      * @param EventInterface $event
      * @note(value="できたら、favorite_menuに移動する")
      */
-    public function beforeRender(EventInterface $event)
+    public function afterRender(EventInterface $event)
     {
         if(!BcUtil::isAdminSystem()) {
             return;

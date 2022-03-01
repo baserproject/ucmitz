@@ -16,12 +16,13 @@
                 <input type="hidden" :value="favorite.url" class="favorite-url"  :name="'url' + '.' + favorite.id" />
             </li>
         </ul>
+
         <ul :style="'display:' + favoriteBoxOpened" v-else class="favorite-menu-list bca-nav-favorite-list bca-collapse" id="favoriteBody">
             <li  class="no-data"><small>{{ i18NoData }}</small></li>
         </ul>
         <div id="FavoriteDialog" title="お気に入り登録" class="ui-widget">
             <modal ref="modalFavoriteForm" :scrollable="false" hidden>
-                <favorite-form ref="FavoriteForm" :user-id="userId" :current-page-url="currentPageUrl" :current-page-name="currentPageName" @formUpdated="formUpdated" @formSubmited="formSubmited" />
+                <favorite-form ref="FavoriteForm" :user-id="userId" :current-page-url="currentPageUrl" :current-page-name="currentPageName" @formUpdated="formUpdated" @formSubmitted="formSubmitted" />
                 <template slot="footer">
                     <button class="bca-btn" type="button" @click="$refs.modalFavoriteForm.closeModal()">キャンセル</button>&nbsp;
                     <button class="bca-btn" type="button" @click="$refs.FavoriteForm.formSubmit()" :disabled="formError">確定</button>
@@ -130,7 +131,7 @@ export default {
         openModal: function(index) {
           this.$refs.modalFavoriteForm.openModal(index);
         },
-        formSubmited: function() {
+        formSubmitted: function() {
           this.$refs.modalFavoriteForm.closeModal();
         },
     },
