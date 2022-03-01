@@ -29,6 +29,7 @@ if [ ! -e '/var/www/shared/docker/check' ]; then
     chown www-data.www-data /var/www/html/config/jwt.key
     chmod 777 -R /var/www/html/tmp
     chmod 777 -R /var/www/html/logs
+    chmod 604 /var/www/shared/config/jwt.key
     touch /var/www/shared/docker/check
     echo "container setup is complete"
 fi

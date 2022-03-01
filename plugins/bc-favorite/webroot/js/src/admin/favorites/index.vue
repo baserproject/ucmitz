@@ -126,13 +126,15 @@ export default {
                 }
             }).then(function (response) {
                 this.favorites = response.data.favorites;
+                // initFavoriteList();
             }.bind(this));
         },
         openModal: function(index) {
           this.$refs.modalFavoriteForm.openModal(index);
         },
         formSubmitted: function() {
-          this.$refs.modalFavoriteForm.closeModal();
+            this.refresh();
+            this.$refs.modalFavoriteForm.closeModal();
         },
     },
     mounted: function() {

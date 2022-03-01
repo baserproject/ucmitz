@@ -39,13 +39,13 @@ composer require baserproject/bc-favorite
         - [x] invalid時は保存ボタンをdisable化
       - [x] 保存
         - [x] 保存後、ダイアログを閉じる
-        - [ ] お気に入り一覧の再表示
-      - [ ] デザインを他のダイアログに合わせる
+        - [x] お気に入り一覧の再表示
     - [ ] サーバーバリデーション
   - [ ] 編集
   - [ ] 削除
   - [ ] 並び替え
     - [ ] initFavoriteList() の精査
+  - [ ] デザインを他のダイアログに合わせる
 - [x] BcEventDispatcher::dispatch() の class の指定の仕様検討
   - dispatchメソッドの呼び出し側で class を指定しないように設定可能だった
 

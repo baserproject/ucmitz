@@ -2257,39 +2257,15 @@ __webpack_require__.r(__webpack_exports__);
           if (response.data) {
             $("#Waiting").hide();
             $.bcToken.key = null;
-            console.log('form'); // TODO: モーダルのクローズがうまくいってない
-
-            favoriteForm.$emit("formSubmitted", null);
+            favoriteForm.$emit("formSubmitted");
           }
-        }.bind(this))["catch"](function (error) {// this.isError = true
-          // if(error.response.status === 401) {
-          //     this.message = 'アカウント名、パスワードが間違っています。'
+        }.bind(this))["catch"](function (error) {// TODO ucmitz
+          // if (XMLHttpRequest.responseText) {
+          //     alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.responseText);
           // } else {
-          //     this.message = error.response.data.message
+          //     alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.statusText);
           // }
-        }); //     return $("#FavoriteAjaxForm").ajaxSubmit({
-        //         url: submitUrl,
-        //         headers: {
-        //             "Authorization": $.bcJwt.accessToken,
-        //         },
-        //         success: function () {
-        //             favoriteIndex.refresh();
-        //             // TODO ucmitz 未精査
-        //             // initFavoriteList();
-        //             $("#FavoriteDialog").dialog('close');
-        //         },
-        //         error: function (XMLHttpRequest, textStatus) {
-        //             if (XMLHttpRequest.responseText) {
-        //                 alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.responseText);
-        //             } else {
-        //                 alert(bcI18n.favoriteAlertMessage2 + '\n\n' + XMLHttpRequest.statusText);
-        //             }
-        //         },
-        //         complete: function () {
-        //             $("#Waiting").hide();
-        //             $.bcToken.key = null;
-        //         }
-        //     });
+        });
       }, {
         useUpdate: false,
         hideLoader: false
@@ -2448,13 +2424,14 @@ __webpack_require__.r(__webpack_exports__);
           "Authorization": $.bcJwt.accessToken
         }
       }).then(function (response) {
-        this.favorites = response.data.favorites;
+        this.favorites = response.data.favorites; // initFavoriteList();
       }.bind(this));
     },
     openModal: function openModal(index) {
       this.$refs.modalFavoriteForm.openModal(index);
     },
     formSubmitted: function formSubmitted() {
+      this.refresh();
       this.$refs.modalFavoriteForm.closeModal();
     }
   },
