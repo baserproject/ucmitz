@@ -65,9 +65,11 @@ class FavoritesController extends BcApiController
     {
         $this->request->allowMethod(['post', 'delete']);
         $favorite = $favorites->create($this->request->getData());
-        if (!$favorite->getErrors()) {
+        try {
+            $favorite = $favorites->create($this->request->getData());
             $message = __d('baser', 'お気に入り「{0}」を追加しました。', $favorite->name);
-        } else {
+        } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
+            $favorite = $e->getEntity();
             $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', '入力エラーです。内容を修正してください。');
         }

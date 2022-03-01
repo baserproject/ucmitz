@@ -85,6 +85,7 @@ class FavoriteService implements FavoriteServiceInterface
      * お気に入りを新規登録する
      * @param array $postData
      * @return EntityInterface
+     * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
      * @noTodo
      * @unitTest
@@ -94,14 +95,15 @@ class FavoriteService implements FavoriteServiceInterface
         $favorite = $this->Favorites->newEmptyEntity();
         $favorite->sort = $this->Favorites->getMax('sort', ['user_id' => $postData['user_id']]) + 1;
         $favorite = $this->Favorites->patchEntity($favorite, $postData);
-        return ($result = $this->Favorites->save($favorite))? $result : $favorite;
+        return $this->Favorites->saveOrFail($favorite);
     }
 
     /**
      * 編集する
      * @param EntityInterface $target
      * @param array $postData
-     * @return mixed
+     * @return EntityInterface
+     * @throws \Cake\ORM\Exception\PersistenceFailedExceptions
      * @checked
      * @noTodo
      * @unitTest
@@ -109,7 +111,7 @@ class FavoriteService implements FavoriteServiceInterface
     public function update(EntityInterface $target, array $postData)
     {
         $favorite = $this->Favorites->patchEntity($target, $postData);
-        return ($result = $this->Favorites->save($target))? $result : $favorite;
+        return $this->Favorites->saveOrFail($target);
     }
 
     /**

@@ -59,7 +59,7 @@ class FavoritesTable extends AppTable
      * @param Validator $validator
      * @return Validator
      * @checked
-     * @noTodo
+     * @note("titleもバリデーション入れる")
      * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
