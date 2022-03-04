@@ -17,6 +17,8 @@ use Cake\Core\Plugin;
 use Cake\Core\Configure;
 use BaserCore\Model\AppTable;
 use Cake\Utility\Inflector;
+use Cake\Validation\Validator;
+use Cake\ORM\RulesChecker;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -35,28 +37,41 @@ class PluginsTable extends AppTable
     use BcEventDispatcherTrait;
 
     /**
-     * Plugin constructor.
+     * Validation Default
      *
-     * @param bool $id
-     * @param null $table
-     * @param null $ds
+     * @param Validator $validator
+     * @return Validator
      * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function __construct($config)
+    public function validationDefault(Validator $validator): Validator
     {
-        parent::__construct($config);
-        // TODO 暫定措置
-        // >>>
-        return;
-        // <<<
-        $this->validate = [
-            'name' => [
-                ['rule' => ['alphaNumericPlus'], 'message' => __d('baser', 'プラグイン名は半角英数字、ハイフン、アンダースコアのみが利用可能です。'), 'required' => true],
-                ['rule' => ['isUnique'], 'on' => 'create', 'message' => __d('baser', '指定のプラグインは既に使用されています。')],
-                ['rule' => ['maxLength', 50], 'message' => __d('baser', 'プラグイン名は50文字以内としてください。')]],
-            'title' => [
-                ['rule' => ['maxLength', 50], 'message' => __d('baser', 'プラグインタイトルは50文字以内とします。')]]
-        ];
+        $validator
+            ->scalar('name')
+            ->add('name', [
+                'nameAlphaNumericPlus' => [
+                    'rule' => ['alphaNumericPlus'],
+                    'provider' => 'bc',
+                    'message' => __d('baser', 'プラグイン名は半角英数字、ハイフン、アンダースコアのみが利用可能です。')
+                ]])
+            ->maxLength('name', 50, __d('baser', 'プラグイン名は50文字以内としてください。'));
+        $validator
+            ->scalar('name')
+            ->maxLength('name', 50, __d('baser', 'プラグインタイトルは50文字以内とします。'));
+
+        return $validator;
+    }
+
+    /**
+     * buildRules
+     * @param RulesChecker $rules
+     * @return RulesChecker
+     */
+    public function buildRules(RulesChecker $rules): RulesChecker
+    {
+        $rules->addCreate($rules->isUnique(['name'], '指定のプラグインは既に使用されています。'));
+        return $rules;
     }
 
     /**
