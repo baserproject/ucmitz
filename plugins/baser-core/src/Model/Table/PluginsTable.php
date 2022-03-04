@@ -57,8 +57,8 @@ class PluginsTable extends AppTable
                 ]])
             ->maxLength('name', 50, __d('baser', 'プラグイン名は50文字以内としてください。'));
         $validator
-            ->scalar('name')
-            ->maxLength('name', 50, __d('baser', 'プラグインタイトルは50文字以内とします。'));
+            ->scalar('title')
+            ->maxLength('title', 50, __d('baser', 'プラグインタイトルは50文字以内とします。'));
 
         return $validator;
     }
@@ -67,6 +67,9 @@ class PluginsTable extends AppTable
      * buildRules
      * @param RulesChecker $rules
      * @return RulesChecker
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {
