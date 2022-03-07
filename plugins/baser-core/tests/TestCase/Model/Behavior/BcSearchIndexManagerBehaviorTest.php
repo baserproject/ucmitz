@@ -29,7 +29,10 @@ use BaserCore\Service\ContentServiceInterface;
 class BcSearchIndexManagerBehaviorTest extends BcTestCase
 {
 
-    public $fixtures = [];
+    public $fixtures = [
+        'plugin.BaserCore.Pages',
+        'plugin.BaserCore.SearchIndexes',
+    ];
 
     /**
      * setUp
@@ -38,6 +41,10 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->table = $this->getTableLocator()->get('BaserCore.Pages');
+        $this->table->setPrimaryKey(['id']);
+        $this->table->addBehavior('BaserCore.BcSearchIndexManager');
+        $this->BcUploadBehavior = $this->table->getBehavior('BcSearchIndexManager');
         parent::setUp();
     }
 
@@ -48,6 +55,7 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function tearDown(): void
     {
+        unset($this->table, $this->BcUploadBehavior);
         parent::tearDown();
     }
 
@@ -62,6 +70,7 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
     public function testSaveSearchIndex()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $result = $this->table->saveSearchIndex();
     }
 
     /**

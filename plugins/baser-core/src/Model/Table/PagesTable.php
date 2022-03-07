@@ -16,11 +16,13 @@ use Cake\ORM\Table;
 use Cake\Core\Configure;
 use Cake\Filesystem\File;
 use Cake\ORM\TableRegistry;
+use Cake\Utility\Inflector;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\Note;
 use Cake\Event\EventInterface;
 use Cake\Validation\Validator;
 use BaserCore\Annotation\NoTodo;
+use BaserCore\Model\Entity\Page;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use Cake\Datasource\EntityInterface;
@@ -163,38 +165,32 @@ class PagesTable extends Table
     /**
      * 検索用データを生成する
      *
-     * @param array $data
+     * @param Page $page
      * @return array|false
+     * @checked
+     * @unitTest
      */
-    public function createSearchIndex($data)
+    public function createSearchIndex($page)
     {
-        if (!isset($data['Page']['id']) || !isset($data['Content']['id'])) {
+        if (!isset($page->id) || !isset($page->content->id)) {
             return false;
         }
-        $page = $data['Page'];
-        $content = $data['Content'];
-        if (!isset($content['publish_begin'])) {
-            $content['publish_begin'] = '';
+        $content = $page->content;
+        if (!isset($content->publish_begin)) {
+            $content->publish_begin = '';
         }
-        if (!isset($content['publish_end'])) {
-            $content['publish_end'] = '';
-        }
-
-        if (!$content['title']) {
-            $content['title'] = Inflector::camelize($content['name']);
+        if (!isset($content->publish_end)) {
+            $content->publish_end = '';
         }
 
-        // $this->idに値が入ってない場合もあるので
-        if (!empty($page['id'])) {
-            $modelId = $page['id'];
-        } else {
-            $modelId = $this->id;
+        if (!$content->title) {
+            $content->title = Inflector::camelize($content->name);
         }
+        $modelId = $page->id;
 
         $host = '';
-        $url = $content['url'];
-        $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
-        $site = $sites->findById($content['site_id'])->first();
+        $url = $content->url;
+        $site = $content->site;
         if ($site->useSubDomain) {
             $host = $site->alias;
             if ($site->domainType == 1) {
@@ -203,27 +199,27 @@ class PagesTable extends Table
             $url = preg_replace('/^\/' . preg_quote($site->alias, '/') . '/', '', $url);
         }
         $parameters = explode('/', preg_replace("/^\//", '', $url));
-        $detail = $this->requestAction(['admin' => false, 'plugin' => false, 'controller' => 'pages', 'action' => 'display'], ['?' => [
-            'force' => 'true',
-            'host' => $host
-        ], 'pass' => $parameters, 'return']);
-
-        $detail = preg_replace('/<!-- BaserPageTagBegin -->.*?<!-- BaserPageTagEnd -->/is', '', $detail);
+        // TODO ucmitz: requestActionで取得したものと$page->contentsが同じものかを確認する
+        // $detail = $this->requestAction(['admin' => false, 'plugin' => false, 'controller' => 'pages', 'action' => 'display'], ['?' => [
+        //     'force' => 'true',
+        //     'host' => $host
+        // ], 'pass' => $parameters, 'return']);
+        $detail = $page->contents;
         $description = '';
-        if (!empty($content['description'])) {
-            $description = $content['description'];
+        if (!empty($content->description)) {
+            $description = $content->description;
         }
         return ['SearchIndex' => [
             'model_id' => $modelId,
             'type' => __d('baser', 'ページ'),
-            'content_id' => $content['id'],
-            'site_id' => $content['site_id'],
-            'title' => $content['title'],
+            'content_id' => $content->id,
+            'site_id' => $content->site_id,
+            'title' => $content->title,
             'detail' => $description . ' ' . $detail,
             'url' => $url,
-            'status' => $content['status'],
-            'publish_begin' => $content['publish_begin'],
-            'publish_end' => $content['publish_end']
+            'status' => $content->status,
+            'publish_begin' => $content->publish_begin,
+            'publish_end' => $content->publish_end
         ]];
     }
 

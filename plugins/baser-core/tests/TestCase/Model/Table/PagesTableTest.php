@@ -240,59 +240,25 @@ class PagesTableTest extends BcTestCase
 
     /**
      * 検索用データを生成する
-     *
-     * @param int $name ページID
-     * @param string $name ページ名
-     * @param id $categoryId ページカテゴリーID
-     * @param string $title ページタイトル
-     * @param string $url ページURL
-     * @param string $description ページ概要
-     * @param date $publish_begin 公開開始日時
-     * @param date $publish_end 公開終了日時
-     * @param date $detail 期待するページdescription
-     * @param int $status 公開状態
-     * @param string $message テストが失敗した時に表示されるメッセージ
-     * @dataProvider createContentDataProvider
      */
-    public function testCreateSearchIndex($id, $name, $categoryId, $title, $url, $description, $publish_begin, $publish_end, $status, $message = null)
+    public function testCreateSearchIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-
-        $data = [
-            'Page' => [
-                'id' => $id,
-                'name' => $name,
-                'page_category_id' => $categoryId,
-                'title' => $title,
-                'url' => $url,
-                'description' => $description,
-                'publish_begin' => $publish_begin,
-                'publish_end' => $publish_end,
-                'status' => $status,
-            ]
-        ];
-
-        $expected = ['Content' => [
-            'model_id' => $id,
+        $page = $this->Pages->find()->contain(['Contents' => ['Sites']])->first();
+        $expected = ['SearchIndex' => [
+            'model_id' => $page->id,
             'type' => 'ページ',
-            'category' => '',
-            'title' => $title,
-            'detail' => '',
-            'url' => $url,
-            'status' => $status,
+            'content_id' => $page->content->id,
+            'title' => $page->content->title,
+            'detail' => $page->content->description . ' ' . $page->contents,
+            'url' => $page->content->url,
+            'status' => $page->content->status,
+            'site_id' => $page->content->site_id,
+            'publish_begin' => $page->content->publish_begin ?? '',
+            'publish_end' => $page->content->publish_end ?? '',
         ]
         ];
-        $result = $this->Pages->createContent($data);
-        $this->assertEquals($expected, $result, $message);
-    }
-
-
-    public function createContentDataProvider()
-    {
-        return [
-            [1, 'index', null, 'index', '/index', '', null, null, true, '検索用データを正しく生成できません'],
-            [1, 'index', null, 'タイトル', '/index', '', null, null, true, '検索用データを正しく生成できません'],
-        ];
+        $result = $this->Pages->createSearchIndex($page);
+        $this->assertEquals($expected, $result, '検索用データを正しく生成できません');
     }
 
 
