@@ -47,7 +47,9 @@ class BcSearchIndexManagerBehavior extends Behavior
      */
     public function initialize(array $config): void
     {
+        $this->table = $this->table();
         $this->Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+        $this->SearchIndexes = TableRegistry::getTableLocator()->get('BaserCore.SearchIndexes');
     }
 
     /**
@@ -70,53 +72,51 @@ class BcSearchIndexManagerBehavior extends Behavior
      *        'publish_end' => '公開終了日'
      * ]]
      *
-     * @param Model $model
      * @param array $data
      * @return bool
      */
-    public function saveSearchIndex(Model $model, $data)
+    public function saveSearchIndex($data)
     {
         if (!$data) {
             return false;
         }
 
         if (!empty($data['SearchIndex']['content_id'])) {
-            $content = $this->Contents->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Content.id' => $data['SearchIndex']['content_id']], 'recursive' => 1]);
-            $data['SearchIndex']['lft'] = $content['Content']['lft'];
-            $data['SearchIndex']['rght'] = $content['Content']['rght'];
+            $content = $this->Contents->find()->select(['lft', 'rght'])->where(['id' => $data['SearchIndex']['content_id']])->first();
+            $data['SearchIndex']['lft'] = $content->lft;
+            $data['SearchIndex']['rght'] = $content->rght;
         } else {
             $data['SearchIndex']['lft'] = 0;
             $data['SearchIndex']['rght'] = 0;
         }
-        $data['SearchIndex']['model'] = $model->alias;
+        $data['SearchIndex']['model'] = Inflector::classify($this->table->getAlias());
         // タグ、空白を除外
         $data['SearchIndex']['detail'] = str_replace(["\r\n", "\r", "\n", "\t", "\s"], '', trim(strip_tags($data['SearchIndex']['detail'])));
 
         // 検索用データとして保存
-        $this->SearchIndex = ClassRegistry::init('SearchIndex');
         $before = false;
         if (!empty($data['SearchIndex']['model_id'])) {
-            $before = $this->SearchIndex->find('first', [
-                'fields' => ['SearchIndex.id', 'SearchIndex.content_id'],
-                'conditions' => [
-                    'SearchIndex.model' => $data['SearchIndex']['model'],
-                    'SearchIndex.model_id' => $data['SearchIndex']['model_id']
-                ]]);
+            $before = $this->SearchIndexes->find()
+                ->select(['id', 'content_id'])
+                ->where([
+                    'model' => $data['SearchIndex']['model'],
+                    'model_id' => $data['SearchIndex']['model_id']
+                ])->first();
         }
         if ($before) {
-            $data['SearchIndex']['id'] = $before['SearchIndex']['id'];
-            $this->SearchIndex->set($data);
+            $data['SearchIndex']['id'] = $before->id;
+            $searchIndex = $this->SearchIndexes->patchEntity($before, $data['SearchIndex']);
         } else {
             if (empty($data['SearchIndex']['priority'])) {
                 $data['SearchIndex']['priority'] = '0.5';
             }
-            $this->SearchIndex->create($data);
+            $searchIndex = $this->SearchIndexes->newEntity($data['SearchIndex']);
         }
-        $result = $this->SearchIndex->save();
+        $result = $this->SearchIndexes->save($searchIndex);
 
         // カテゴリを site_configsに保存
         if ($result) {
-            return $this->updateSearchIndexMeta($model);
+            return $this->updateSearchIndexMeta();
         }
 
         return $result;
@@ -125,25 +125,25 @@ class BcSearchIndexManagerBehavior extends Behavior
     /**
      * コンテンツデータを削除する
      *
-     * @param Model $model
+     * @param string $modelName
      * @param string $id
      */
-    public function deleteSearchIndex(Model $model, $id)
+    public function deleteSearchIndex($modelName, $id)
     {
-        $this->SearchIndex = ClassRegistry::init('SearchIndex');
-        if ($this->SearchIndex->deleteAll(['SearchIndex.model' => $model->alias, 'SearchIndex.model_id' => $id])) {
-            return $this->updateSearchIndexMeta($model);
+        if ($this->SearchIndexes->deleteAll(['model' => $modelName, 'model_id' => $id])) {
+            return $this->updateSearchIndexMeta();
         }
     }
 
     /**
      * コンテンツメタ情報を更新する
      *
-     * @param Model $model
      * @return boolean
      */
-    public function updateSearchIndexMeta(Model $model)
+    public function updateSearchIndexMeta()
     {
+        // TODO ucmitz: 一時措置
+        return;
         $db = ConnectionManager::getDataSource('default');
         $contentTypes = [];
         $searchIndexes = $this->SearchIndex->find('all', ['fields' => ['SearchIndex.type'], 'group' => ['SearchIndex.type'], 'conditions' => ['SearchIndex.status' => true]]);

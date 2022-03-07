@@ -19,7 +19,7 @@ use Laminas\Diactoros\UploadedFile;
 use BaserCore\Model\Table\PagesTable;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Model\Table\ContentsTable;
-use BaserCore\Model\Behavior\BcUploadBehavior;
+use BaserCore\Model\Behavior\BcSearchIndexManager;
 use BaserCore\Service\ContentServiceInterface;
 use BaserCore\Model\Behavior\BcSearchIndexManagerBehavior;
 
@@ -33,6 +33,9 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
 
     public $fixtures = [
         'plugin.BaserCore.Pages',
+        'plugin.BaserCore.Contents',
+        'plugin.BaserCore.Sites',
+        'plugin.BaserCore.ContentFolders',
         'plugin.BaserCore.SearchIndexes',
     ];
 
@@ -51,7 +54,7 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
         $this->table = $this->getTableLocator()->get('BaserCore.Pages');
         $this->table->setPrimaryKey(['id']);
         $this->table->addBehavior('BaserCore.BcSearchIndexManager');
-        $this->BcUploadBehavior = $this->table->getBehavior('BcSearchIndexManager');
+        $this->BcSearchIndexManager = $this->table->getBehavior('BcSearchIndexManager');
         parent::setUp();
     }
 
@@ -62,7 +65,7 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        unset($this->table, $this->BcUploadBehavior);
+        unset($this->table, $this->BcSearchIndexManager);
         parent::tearDown();
     }
 
@@ -73,7 +76,9 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function testInitialize(): void
     {
-        $this->assertNotEmpty($this->table->Contents);
+        $this->assertNotEmpty($this->BcSearchIndexManager->Contents);
+        $this->assertInstanceOf("BaserCore\Model\Table\PagesTable", $this->BcSearchIndexManager->table);
+        $this->assertNotEmpty($this->BcSearchIndexManager->SearchIndexes);
     }
 
 
@@ -86,7 +91,8 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function testSaveSearchIndex()
     {
-        $page = $this->Pages->find()->contain(['Contents' => ['Sites']])->first();
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $page = $this->table->find()->contain('Contents')->first();
         $pageSearchIndex = ['SearchIndex' => [
             'model_id' => $page->id,
             'type' => 'ページ',
@@ -99,7 +105,7 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
             'publish_begin' => $page->content->publish_begin ?? '',
             'publish_end' => $page->content->publish_end ?? '',
         ]];
-        $result = $this->table->saveSearchIndex('Page', $pageSearchIndex);
+        $result = $this->table->saveSearchIndex($pageSearchIndex);
     }
 
     /**
