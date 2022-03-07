@@ -12,12 +12,13 @@ namespace BaserCore\Model\Behavior;
 
 use ArrayObject;
 use Cake\ORM\Behavior;
+use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use Cake\Event\EventInterface;
-use Cake\Datasource\EntityInterface;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use Cake\Datasource\EntityInterface;
 
 /**
  * Class BcSearchIndexManagerBehavior
@@ -35,6 +36,19 @@ class BcSearchIndexManagerBehavior extends Behavior
      * @var SearchIndex
      */
     public $SearchIndex = null;
+
+    /**
+     * initialize
+     * @param  array $config
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function initialize(array $config): void
+    {
+        $this->Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+    }
 
     /**
      * 検索インデクスデータを登録する
@@ -67,8 +81,7 @@ class BcSearchIndexManagerBehavior extends Behavior
         }
 
         if (!empty($data['SearchIndex']['content_id'])) {
-            $Content = ClassRegistry::init('Content');
-            $content = $Content->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Content.id' => $data['SearchIndex']['content_id']], 'recursive' => 1]);
+            $content = $this->Contents->find('first', ['fields' => ['lft', 'rght'], 'conditions' => ['Content.id' => $data['SearchIndex']['content_id']], 'recursive' => 1]);
             $data['SearchIndex']['lft'] = $content['Content']['lft'];
             $data['SearchIndex']['rght'] = $content['Content']['rght'];
         } else {

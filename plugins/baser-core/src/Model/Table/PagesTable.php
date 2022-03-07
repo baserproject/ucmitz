@@ -169,6 +169,7 @@ class PagesTable extends Table
      * @return array|false
      * @checked
      * @unitTest
+     * @note(value="requestActionで取得したものと$page->contentsが同じものかを確認する")
      */
     public function createSearchIndex($page)
     {

@@ -16,10 +16,12 @@ use ReflectionClass;
 use Cake\Filesystem\File;
 use BaserCore\TestSuite\BcTestCase;
 use Laminas\Diactoros\UploadedFile;
+use BaserCore\Model\Table\PagesTable;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Model\Behavior\BcUploadBehavior;
 use BaserCore\Service\ContentServiceInterface;
+use BaserCore\Model\Behavior\BcSearchIndexManagerBehavior;
 
 /**
  * Class BcSearchIndexManagerBehavioreTest
@@ -33,6 +35,11 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
         'plugin.BaserCore.Pages',
         'plugin.BaserCore.SearchIndexes',
     ];
+
+    /**
+     * @var PagesTable|BcSearchIndexManagerBehavior
+     */
+    public $table;
 
     /**
      * setUp
@@ -59,6 +66,16 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
         parent::tearDown();
     }
 
+    /**
+     * testInitialize
+     *
+     * @return void
+     */
+    public function testInitialize(): void
+    {
+        $this->assertNotEmpty($this->table->Contents);
+    }
+
 
     /**
      * コンテンツデータを登録する
@@ -69,8 +86,20 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function testSaveSearchIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        $result = $this->table->saveSearchIndex();
+        $page = $this->Pages->find()->contain(['Contents' => ['Sites']])->first();
+        $pageSearchIndex = ['SearchIndex' => [
+            'model_id' => $page->id,
+            'type' => 'ページ',
+            'content_id' => $page->content->id,
+            'title' => $page->content->title,
+            'detail' => $page->content->description . ' ' . $page->contents,
+            'url' => $page->content->url,
+            'status' => $page->content->status,
+            'site_id' => $page->content->site_id,
+            'publish_begin' => $page->content->publish_begin ?? '',
+            'publish_end' => $page->content->publish_end ?? '',
+        ]];
+        $result = $this->table->saveSearchIndex('Page', $pageSearchIndex);
     }
 
     /**
