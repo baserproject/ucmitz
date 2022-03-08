@@ -79,6 +79,7 @@ class PagesTableTest extends BcTestCase
     {
         $this->assertTrue($this->Pages->hasBehavior('BcContents'));
         $this->assertTrue($this->Pages->hasBehavior('BcSearchIndexManager'));
+        $this->assertTrue($this->Pages->hasBehavior('Timestamp'));
     }
 
     /**

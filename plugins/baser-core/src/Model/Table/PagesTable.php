@@ -88,6 +88,8 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
         parent::initialize($config);
         $this->addBehavior('BaserCore.BcContents');
         $this->addBehavior('BaserCore.BcSearchIndexManager');
+        $this->addBehavior('Timestamp');
+        $this->Sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
     }
 
     /**
@@ -171,7 +173,7 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
      * @return array|false
      * @checked
      * @unitTest
-     * @note(value="requestActionで取得したものと$page->contentsが同じものかを確認する")
+     * @noTodo
      */
     public function createSearchIndex($page)
     {
@@ -193,7 +195,11 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
 
         $host = '';
         $url = $content->url;
-        $site = $content->site;
+        if (!$content->site) {
+            $site = $this->Sites->get($content->site_id);
+        } else {
+            $site = $content->site;
+        }
         if ($site->useSubDomain) {
             $host = $site->alias;
             if ($site->domainType == 1) {
@@ -201,12 +207,6 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
             }
             $url = preg_replace('/^\/' . preg_quote($site->alias, '/') . '/', '', $url);
         }
-        $parameters = explode('/', preg_replace("/^\//", '', $url));
-        // TODO ucmitz: requestActionで取得したものと$page->contentsが同じものかを確認する
-        // $detail = $this->requestAction(['admin' => false, 'plugin' => false, 'controller' => 'pages', 'action' => 'display'], ['?' => [
-        //     'force' => 'true',
-        //     'host' => $host
-        // ], 'pass' => $parameters, 'return']);
         $detail = $page->contents;
         $description = '';
         if (!empty($content->description)) {

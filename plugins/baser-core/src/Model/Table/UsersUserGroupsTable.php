@@ -18,5 +18,18 @@ use Cake\ORM\Table;
  */
 class UsersUserGroupsTable extends Table
 {
-
+    /**
+     * Initialize
+     *
+     * @param array $config テーブル設定
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function initialize(array $config): void
+    {
+        parent::initialize($config);
+        $this->addBehavior('Timestamp');
+    }
 }
