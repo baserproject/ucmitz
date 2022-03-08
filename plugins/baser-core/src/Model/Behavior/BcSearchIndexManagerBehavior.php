@@ -10,16 +10,13 @@
  */
 namespace BaserCore\Model\Behavior;
 
-use ArrayObject;
 use Cake\ORM\Behavior;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use BaserCore\Utility\BcUtil;
-use Cake\Event\EventInterface;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
-use Cake\Datasource\EntityInterface;
 
 /**
  * Class BcSearchIndexManagerBehavior
@@ -125,12 +122,15 @@ class BcSearchIndexManagerBehavior extends Behavior
     /**
      * コンテンツデータを削除する
      *
-     * @param string $modelName
      * @param string $id
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function deleteSearchIndex($modelName, $id)
+    public function deleteSearchIndex($id)
     {
-        if ($this->SearchIndexes->deleteAll(['model' => $modelName, 'model_id' => $id])) {
+        if ($this->SearchIndexes->deleteAll(['model' => Inflector::classify($this->table->getAlias()), 'model_id' => $id])) {
             return $this->updateSearchIndexMeta();
         }
     }

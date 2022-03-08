@@ -114,7 +114,8 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function testDeleteSearchIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertTrue($this->table->deleteSearchIndex(2));
+        $this->assertTrue($this->BcSearchIndexManager->SearchIndexes->findByModelId(2)->isEmpty());
     }
 
     /**
