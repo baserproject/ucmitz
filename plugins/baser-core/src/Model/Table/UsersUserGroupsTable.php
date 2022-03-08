@@ -12,6 +12,10 @@
 namespace BaserCore\Model\Table;
 
 use Cake\ORM\Table;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\Note;
 
 /**
  * Class UsersUserGroupsTable
