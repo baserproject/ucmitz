@@ -93,21 +93,20 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function testSaveSearchIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        $page = $this->table->find()->contain('Contents')->first();
-        $pageSearchIndex = ['SearchIndex' => [
-            'model_id' => $page->id,
-            'type' => 'ページ',
-            'content_id' => $page->content->id,
-            'title' => $page->content->title,
-            'detail' => $page->content->description . ' ' . $page->contents,
-            'url' => $page->content->url,
-            'status' => $page->content->status,
-            'site_id' => $page->content->site_id,
-            'publish_begin' => $page->content->publish_begin ?? '',
-            'publish_end' => $page->content->publish_end ?? '',
-        ]];
-        $result = $this->table->saveSearchIndex($pageSearchIndex);
+        $page = $this->table->find()->contain(['Contents' => ['Sites']])->first();
+        // 新規の場合
+        $pageSearchIndex = $this->table->createSearchIndex($page);
+        unset($pageSearchIndex['SearchIndex']['model_id']); // model_idがない場合は新規追加
+        $this->assertTrue($this->table->saveSearchIndex($pageSearchIndex['SearchIndex']));
+        // SearchIndexesが新規で追加されているかを確認
+        $this->assertCount(8, $this->BcSearchIndexManager->SearchIndexes->find()->all());
+        // 更新の場合
+        $pageSearchIndex = $this->table->createSearchIndex($page);
+        $this->assertTrue($this->table->saveSearchIndex($pageSearchIndex['SearchIndex']));
+        $searchIndex = $this->BcSearchIndexManager->SearchIndexes->findByModelId($page->id)->first();
+        $content = $this->BcSearchIndexManager->Contents->findById($page->content->id)->first();
+        // searchIndexが新規のcontentに合わせて書き換わってるかを確認する
+        $this->assertEquals($content->title, $searchIndex->title);
     }
 
     /**

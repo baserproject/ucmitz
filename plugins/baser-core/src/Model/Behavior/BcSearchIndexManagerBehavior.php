@@ -69,45 +69,48 @@ class BcSearchIndexManagerBehavior extends Behavior
      *        'publish_end' => '公開終了日'
      * ]]
      *
-     * @param array $data
+     * @param array $searchIndex
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function saveSearchIndex($data)
+    public function saveSearchIndex($searchIndex)
     {
-        if (!$data) {
+        if (!$searchIndex) {
             return false;
         }
 
-        if (!empty($data['SearchIndex']['content_id'])) {
-            $content = $this->Contents->find()->select(['lft', 'rght'])->where(['id' => $data['SearchIndex']['content_id']])->first();
-            $data['SearchIndex']['lft'] = $content->lft;
-            $data['SearchIndex']['rght'] = $content->rght;
+        if (!empty($searchIndex['content_id'])) {
+            $content = $this->Contents->find()->select(['lft', 'rght'])->where(['id' => $searchIndex['content_id']])->first();
+            $searchIndex['lft'] = $content->lft;
+            $searchIndex['rght'] = $content->rght;
         } else {
-            $data['SearchIndex']['lft'] = 0;
-            $data['SearchIndex']['rght'] = 0;
+            $searchIndex['lft'] = 0;
+            $searchIndex['rght'] = 0;
         }
-        $data['SearchIndex']['model'] = Inflector::classify($this->table->getAlias());
+        $searchIndex['model'] = Inflector::classify($this->table->getAlias());
         // タグ、空白を除外
-        $data['SearchIndex']['detail'] = str_replace(["\r\n", "\r", "\n", "\t", "\s"], '', trim(strip_tags($data['SearchIndex']['detail'])));
+        $searchIndex['detail'] = str_replace(["\r\n", "\r", "\n", "\t", "\s"], '', trim(strip_tags($searchIndex['detail'])));
 
         // 検索用データとして保存
         $before = false;
-        if (!empty($data['SearchIndex']['model_id'])) {
+        if (!empty($searchIndex['model_id'])) {
             $before = $this->SearchIndexes->find()
                 ->select(['id', 'content_id'])
                 ->where([
-                    'model' => $data['SearchIndex']['model'],
-                    'model_id' => $data['SearchIndex']['model_id']
+                    'model' => $searchIndex['model'],
+                    'model_id' => $searchIndex['model_id']
                 ])->first();
         }
         if ($before) {
-            $data['SearchIndex']['id'] = $before->id;
-            $searchIndex = $this->SearchIndexes->patchEntity($before, $data['SearchIndex']);
+            $searchIndex['id'] = $before->id;
+            $searchIndex = $this->SearchIndexes->patchEntity($before, $searchIndex);
         } else {
-            if (empty($data['SearchIndex']['priority'])) {
-                $data['SearchIndex']['priority'] = '0.5';
+            if (empty($searchIndex['priority'])) {
+                $searchIndex['priority'] = '0.5';
             }
-            $searchIndex = $this->SearchIndexes->newEntity($data['SearchIndex']);
+            $searchIndex = $this->SearchIndexes->newEntity($searchIndex);
         }
         $result = $this->SearchIndexes->save($searchIndex);
 
