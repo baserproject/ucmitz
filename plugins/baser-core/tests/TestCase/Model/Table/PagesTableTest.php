@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Model\Table;
 
+use ArrayObject;
 use Cake\Validation\Validator;
 use BaserCore\TestSuite\BcTestCase;
 
@@ -41,6 +42,7 @@ class PagesTableTest extends BcTestCase
         'plugin.BaserCore.ContentFolders',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.Pages',
+        'plugin.BaserCore.SearchIndexes',
         // 'plugin.BaserCore.Favorites'
     ];
 
@@ -54,6 +56,7 @@ class PagesTableTest extends BcTestCase
         parent::setUp();
         $config = $this->getTableLocator()->exists('Pages') ? [] : ['className' => 'BaserCore\Model\Table\PagesTable'];
         $this->Pages = $this->getTableLocator()->get('Pages', $config);
+        $this->SearchIndexes = $this->getTableLocator()->get('SearchIndexes');
     }
 
     /**
@@ -63,7 +66,7 @@ class PagesTableTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Pages);
+        unset($this->Pages, $this->SearchIndexes);
         parent::tearDown();
     }
 
@@ -75,6 +78,7 @@ class PagesTableTest extends BcTestCase
     public function testInitialize()
     {
         $this->assertTrue($this->Pages->hasBehavior('BcContents'));
+        $this->assertTrue($this->Pages->hasBehavior('BcSearchIndexManager'));
     }
 
     /**
@@ -218,11 +222,30 @@ class PagesTableTest extends BcTestCase
      * @param boolean $created
      * @param array $options
      * @return boolean
+     * @dataProvider afterSaveDataProvider
      */
-    public function testAfterSave()
+    public function testAfterSave($exclude_search, $exist)
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $page = $this->Pages->find()->contain(['Contents' => ['Sites']])->first();
+        if ($exclude_search) {
 
+            $page->content->exclude_search = $exclude_search;
+            $id = $page->id;
+            $this->assertEquals(false, $this->SearchIndexes->findByModelId($id)->isEmpty());
+        } else {
+            $id = $page->id = 100; // 存在しない新規のIDを入れた場合
+        }
+        $this->Pages->dispatchEvent('Model.afterSave', [$page, new ArrayObject()]);
+        $this->assertEquals($exist, $this->SearchIndexes->findByModelId($id)->isEmpty());
+    }
+    public function afterSaveDataProvider()
+    {
+        return [
+            // exclude_searchがある場合削除されているかを確認
+            [1, true],
+            // exclude_searchがなく、なおかつ新規の場合索引が作成されて存在するかをテスト
+            [0, false],
+        ];
     }
 
     /**
@@ -244,7 +267,7 @@ class PagesTableTest extends BcTestCase
     public function testCreateSearchIndex()
     {
         $page = $this->Pages->find()->contain(['Contents' => ['Sites']])->first();
-        $expected = ['SearchIndex' => [
+        $expected = [
             'model_id' => $page->id,
             'type' => 'ページ',
             'content_id' => $page->content->id,
@@ -255,7 +278,6 @@ class PagesTableTest extends BcTestCase
             'site_id' => $page->content->site_id,
             'publish_begin' => $page->content->publish_begin ?? '',
             'publish_end' => $page->content->publish_end ?? '',
-        ]
         ];
         $result = $this->Pages->createSearchIndex($page);
         $this->assertEquals($expected, $result, '検索用データを正しく生成できません');

@@ -96,13 +96,13 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
         $page = $this->table->find()->contain(['Contents' => ['Sites']])->first();
         // 新規の場合
         $pageSearchIndex = $this->table->createSearchIndex($page);
-        unset($pageSearchIndex['SearchIndex']['model_id']); // model_idがない場合は新規追加
-        $this->assertTrue($this->table->saveSearchIndex($pageSearchIndex['SearchIndex']));
+        unset($pageSearchIndex['model_id']); // model_idがない場合は新規追加
+        $this->assertTrue($this->table->saveSearchIndex($pageSearchIndex));
         // SearchIndexesが新規で追加されているかを確認
         $this->assertCount(8, $this->BcSearchIndexManager->SearchIndexes->find()->all());
         // 更新の場合
         $pageSearchIndex = $this->table->createSearchIndex($page);
-        $this->assertTrue($this->table->saveSearchIndex($pageSearchIndex['SearchIndex']));
+        $this->assertTrue($this->table->saveSearchIndex($pageSearchIndex));
         $searchIndex = $this->BcSearchIndexManager->SearchIndexes->findByModelId($page->id)->first();
         $content = $this->BcSearchIndexManager->Contents->findById($page->content->id)->first();
         // searchIndexが新規のcontentに合わせて書き換わってるかを確認する
