@@ -8,6 +8,7 @@
  * @since         5.0.0
  * @license       http://basercms.net/license/index.html MIT License
  */
+
 namespace BaserCore\Model\Behavior;
 
 use Cake\ORM\Behavior;

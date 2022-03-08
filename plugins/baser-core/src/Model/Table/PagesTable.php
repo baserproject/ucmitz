@@ -13,6 +13,7 @@ namespace BaserCore\Model\Table;
 
 use ArrayObject;
 use Cake\ORM\Table;
+use Cake\ORM\Entity;
 use Cake\Core\Configure;
 use Cake\Filesystem\File;
 use Cake\ORM\TableRegistry;
@@ -29,11 +30,12 @@ use Cake\Datasource\EntityInterface;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Service\ContentServiceInterface;
+use BaserCore\Model\Behavior\BcSearchIndexManagerInterface;
 
 /**
  * Class PagesTable
  */
-class PagesTable extends Table
+class PagesTable extends Table implements BcSearchIndexManagerInterface
 {
     /**
      * Trait
