@@ -37,6 +37,7 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.ContentFolders',
         'plugin.BaserCore.SearchIndexes',
+        'plugin.BaserCore.SiteConfigs',
     ];
 
     /**
@@ -77,8 +78,9 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
     public function testInitialize(): void
     {
         $this->assertNotEmpty($this->BcSearchIndexManager->Contents);
-        $this->assertInstanceOf("BaserCore\Model\Table\PagesTable", $this->BcSearchIndexManager->table);
         $this->assertNotEmpty($this->BcSearchIndexManager->SearchIndexes);
+        $this->assertNotEmpty($this->BcSearchIndexManager->SiteConfigs);
+        $this->assertInstanceOf("BaserCore\Model\Table\PagesTable", $this->BcSearchIndexManager->table);
     }
 
 
@@ -121,7 +123,9 @@ class BcSearchIndexManagerBehaviorTest extends BcTestCase
      */
     public function testUpdateSearchIndexMeta()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->BcSearchIndexManager->SiteConfigs->saveValue('content_types', '');
+        $this->assertTrue($this->table->updateSearchIndexMeta());
+        $this->assertNotEmpty($this->BcSearchIndexManager->SiteConfigs->getValue('content_types'));
     }
 
 }

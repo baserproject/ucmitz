@@ -14,6 +14,7 @@ use ArrayObject;
 use Cake\ORM\Behavior;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
+use BaserCore\Utility\BcUtil;
 use Cake\Event\EventInterface;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -29,14 +30,6 @@ use Cake\Datasource\EntityInterface;
  */
 class BcSearchIndexManagerBehavior extends Behavior
 {
-
-    /**
-     * SearchIndex Model
-     *
-     * @var SearchIndex
-     */
-    public $SearchIndex = null;
-
     /**
      * initialize
      * @param  array $config
@@ -48,8 +41,12 @@ class BcSearchIndexManagerBehavior extends Behavior
     public function initialize(array $config): void
     {
         $this->table = $this->table();
+        /** @var BaserCore\Model\Table\ContentsTable $Contents  */
         $this->Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+        /** @var BaserCore\Model\Table\SearchIndexesTable $SearchIndexes  */
         $this->SearchIndexes = TableRegistry::getTableLocator()->get('BaserCore.SearchIndexes');
+        /** @var BaserCore\Model\Table\SiteConfigsTable $SiteConfigs  */
+        $this->SiteConfigs = TableRegistry::getTableLocator()->get('BaserCore.SiteConfigs');
     }
 
     /**
@@ -139,22 +136,20 @@ class BcSearchIndexManagerBehavior extends Behavior
      * コンテンツメタ情報を更新する
      *
      * @return boolean
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function updateSearchIndexMeta()
     {
-        // TODO ucmitz: 一時措置
-        return;
-        $db = ConnectionManager::getDataSource('default');
         $contentTypes = [];
-        $searchIndexes = $this->SearchIndex->find('all', ['fields' => ['SearchIndex.type'], 'group' => ['SearchIndex.type'], 'conditions' => ['SearchIndex.status' => true]]);
+        $searchIndexes = $this->SearchIndexes->find()->select('type')->group('type')->where(['status' => true]);
         foreach($searchIndexes as $searchIndex) {
-            if ($searchIndex['SearchIndex']['type']) {
-                $contentTypes[$searchIndex['SearchIndex']['type']] = $searchIndex['SearchIndex']['type'];
+            if ($searchIndex->type) {
+                $contentTypes[$searchIndex->type] = $searchIndex->type;
             }
         }
-        $siteConfigs['SiteConfig']['content_types'] = BcUtil::serialize($contentTypes);
-        $SiteConfig = ClassRegistry::init('SiteConfig');
-        return $SiteConfig->saveKeyValue($siteConfigs);
+        return $this->SiteConfigs->saveValue('content_types', BcUtil::serialize($contentTypes));
     }
 
 }
