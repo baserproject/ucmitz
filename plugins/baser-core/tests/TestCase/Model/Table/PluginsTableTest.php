@@ -121,16 +121,37 @@ class PluginsTableTest extends BcTestCase
      * Test validationDefault
      *
      * @return void
+     * @dataProvider validationDefaultDataProvider
      */
-    public function testValidationDefault()
+    public function testValidationDefault($isValid, $data)
     {
         $validator = $this->Plugins->validationDefault(new Validator());
-        $fields = [];
-        foreach($validator->getIterator() as $key => $value) {
-            $fields[] = $key;
+        $validator->setProvider('table', $this->Plugins);
+        if ($isValid) {
+            $this->assertEmpty($validator->validate($data));
+        } else {
+            $this->assertNotEmpty($validator->validate($data));
         }
-        $this->assertEquals(['name', 'title'], $fields);
     }
+
+    public function validationDefaultDataProvider()
+    {
+        $exceedMax = "123456789012345678901234567890123456789012345678901234567890"; // 60文字
+        return [
+            // 妥当な例
+            [true, ['name' => 'aA-_1', 'title' => 'testtest']],
+            // nameがnull
+            [false, ['name' => '', 'title' => 'testtest']],
+            // nameに許可されない文字がある
+            [false, ['name' => '@@@@@', 'title' => 'testtest']],
+            // nameの文字数が長い
+            [false, ['name' => $exceedMax, 'title' => 'testtest']],
+            // titleの文字数が長い
+            [false, ['name' => 'aA-_1', 'title' => $exceedMax]],
+        ];
+    }
+
+
 
     /**
      * Test buildRules

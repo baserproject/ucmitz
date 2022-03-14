@@ -48,13 +48,14 @@ class PluginsTable extends AppTable
     public function validationDefault(Validator $validator): Validator
     {
         $validator
-            ->scalar('name')
+            ->requirePresence('name', true, __d('baser', 'プラグイン名を入力してください。'))
             ->add('name', [
                 'nameAlphaNumericPlus' => [
                     'rule' => ['alphaNumericPlus'],
                     'provider' => 'bc',
                     'message' => __d('baser', 'プラグイン名は半角英数字、ハイフン、アンダースコアのみが利用可能です。')
                 ]])
+            ->notBlank('name', true, __d('baser', 'プラグイン名を入力してください。'))
             ->maxLength('name', 50, __d('baser', 'プラグイン名は50文字以内としてください。'));
         $validator
             ->scalar('title')
