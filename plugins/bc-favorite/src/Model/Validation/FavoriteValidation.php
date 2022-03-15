@@ -48,15 +48,9 @@ class FavoriteValidation extends Validation
             return true;
         }
         $userGroups = BcUtil::loginUserGroup();
-
         if (!$userGroups) {
             return false;
         }
-        foreach($userGroups as $userGroup) {
-            if ($permissionService->check($url, $userGroup->id)) {
-                return true;
-            }
-        }
-        return false;
+        return $permissionService->check($url, array_column($userGroups, 'id'));
     }
 }

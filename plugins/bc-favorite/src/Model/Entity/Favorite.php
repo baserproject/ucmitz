@@ -9,7 +9,7 @@
  * @license       http://basercms.net/license/index.html MIT License
  */
 
-namespace BcFavorite\Model\Table;
+namespace BcFavorite\Model\Entity;
 
 use Cake\ORM\Entity as EntityAlias;
 

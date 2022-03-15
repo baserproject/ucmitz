@@ -59,12 +59,17 @@ class FavoritesTable extends AppTable
      * @param Validator $validator
      * @return Validator
      * @checked
-     * @note("titleもバリデーション入れる")
+     * @noTodo
      * @unitTest
      */
     public function validationDefault(Validator $validator): Validator
     {
         $validator->setProvider('favorite', 'BcFavorite\Model\Validation\FavoriteValidation');
+
+        $validator
+            ->scalar('name')
+            ->requirePresence('name', true, __d('baser', 'タイトルは必須です。'))
+            ->notEmptyString('name', __d('baser', 'タイトルは必須です。'));
         $validator
             ->scalar('url')
             ->add('url', 'isPermitted', [

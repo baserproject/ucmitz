@@ -33,6 +33,8 @@ class FavoritesTableTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.Permissions',
         'plugin.BaserCore.Plugins',
+        'plugin.BaserCore.Sites',
+        'plugin.BaserCore.Contents',
         'plugin.BcFavorite.Favorites',
     ];
 
@@ -49,8 +51,7 @@ class FavoritesTableTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $config = $this->getTableLocator()->exists('Favorites')? [] : ['className' => 'BcFavorite\Model\Table\FavoritesTable'];
-        $this->Favorites = $this->getTableLocator()->get('Favorites', $config);
+        $this->Favorites = $this->getTableLocator()->get('BcFavorite.Favorites');
     }
 
     public static function setUpBeforeClass(): void
@@ -77,6 +78,7 @@ class FavoritesTableTest extends BcTestCase
      */
     public function testInitialize()
     {
+        $this->loginAdmin($this->getRequest('/baser/admin'));
         $this->assertEquals('favorites', $this->Favorites->getTable());
         $this->assertEquals('name', $this->Favorites->getDisplayField());
         $this->assertEquals('id', $this->Favorites->getPrimaryKey());
@@ -92,7 +94,7 @@ class FavoritesTableTest extends BcTestCase
      */
     public function testValidationDefault($fields, $messages): void
     {
-        $this->loginAdmin($this->getRequest(), 2);
+        $this->loginAdmin($this->getRequest('/baser/admin'), 2);
         $favorite = $this->Favorites->newEntity($fields);
         $this->assertSame($messages, $favorite->getErrors());
     }
@@ -101,14 +103,20 @@ class FavoritesTableTest extends BcTestCase
     {
         return [
             [
-                ['url' => 1],
-                ['url' => ['isPermitted' => 'このURLの登録は許可されていません。']]
+                ['name' => ''],
+                ['name' => ['_empty' => 'タイトルは必須です。']]
             ],
             [
-                ['url' => '/baser/admin/favorites/add'],
+                ['url' => 1],
+                [
+                    'name' => ['_required' => 'タイトルは必須です。'],
+                    'url' => ['isPermitted' => 'このURLの登録は許可されていません。']
+                ]
+            ],
+            [
+                ['name' => 'hoge', 'url' => '/baser/admin/favorites/add'],
                 []
             ],
         ];
     }
-
 }
