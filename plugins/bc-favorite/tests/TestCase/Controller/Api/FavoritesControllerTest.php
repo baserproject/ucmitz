@@ -125,6 +125,24 @@ class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
     }
 
     /**
+     * testAddWithError
+     *
+     * @return void
+     */
+    public function testAddWithError()
+    {
+        $data = [
+            'name' => '',
+            'user_id' => '1',
+            'url' => '/baser/admin/contents/index',
+        ];
+        $this->post('/baser/api/bc-favorite/favorites/add.json?token=' . $this->accessToken, $data);
+        $this->assertResponseError();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals("タイトルは必須です。", $result->errors->name->_empty);
+    }
+
+    /**
      * Test edit method
      *
      * @return void

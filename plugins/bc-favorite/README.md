@@ -41,7 +41,7 @@ composer require baserproject/bc-favorite
         - [x] 保存後、ダイアログを閉じる
         - [x] お気に入り一覧の再表示
     - [ ] サーバーバリデーション
-      - [ ] favoriteTableのvalidationDefaultにtitleを追加する
+      - [x] favoriteTableのvalidationDefaultにtitleを追加する
       - [ ] フロントにエラーを表示する
   - [ ] 編集
   - [ ] 削除

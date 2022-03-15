@@ -64,7 +64,6 @@ class FavoritesController extends BcApiController
     public function add(FavoriteServiceInterface $favorites)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $favorite = $favorites->create($this->request->getData());
         try {
             $favorite = $favorites->create($this->request->getData());
             $message = __d('baser', 'お気に入り「{0}」を追加しました。', $favorite->name);
