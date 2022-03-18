@@ -9,10 +9,9 @@
  * @license       http://basercms.net/license/index.html MIT License
  */
 
-use Cake\Routing\Router;
-use BaserCore\View\BcAdminAppView;
 use BaserCore\Model\Entity\Content;
 use BaserCore\Model\Entity\ContentFolder;
+use BaserCore\View\BcAdminAppView;
 
 /**
  * [ADMIN] 統合コンテンツフォーム
@@ -42,7 +41,7 @@ if ($this->request->getData('Site.use_subdomain')) {
 $fullUrl = $this->BcAdminContent->getUrl($content->url, true, $site->use_subdomain);
 // $this->request->getData() では Content は取得できないため
 $this->BcBaser->js('admin/contents/edit.bundle', false, ['id' => 'AdminContentsEditScript',
-  'data-previewurl' => Router::url(["controller" => "preview", "action" => "view"]) . $previewUrl,
+  'data-previewurl' => $previewUrl,
   'data-fullurl' => $fullUrl,
   'data-current' => json_encode($this->request->getData()),
   'data-settings' => $this->BcContents->getJsonItems()

@@ -14,21 +14,11 @@ class PreviewController extends BcAdminAppController
 
     use BcContainerTrait;
 
-    /**
-     * initialize
-     *
-     * @return void
-     */
-    public function initialize(): void
-    {
-        parent::initialize();
-    }
-
-    public function view($url)
+    public function view()
     {
         $query = $this->getRequest()->getQueryParams();
-        // $url = $query['url'];
-        $request = $this->createRequest("/" . $url);
+        $url = $query['url'];
+        $request = $this->createRequest($url);
         $serviceName = $request->getParam('plugin') . '\\Service\\' . $request->getParam('controller') . Inflector::camelize($request->getParam('action')) . 'ServiceInterface';
         $service = $this->getService($serviceName);
         $this->set($service->getPreviewData($this->getRequest()));
