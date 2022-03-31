@@ -56,7 +56,6 @@ class ContentFoldersController extends BcAdminAppController
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
-        // $this->loadModel('BaserCore.Pages');
         $this->loadModel('BaserCore.ContentFolders');
         // $this->BcAuth->allow('view');
     }

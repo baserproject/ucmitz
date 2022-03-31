@@ -299,8 +299,7 @@ class BcCkeditorHelper extends Helper
             $fieldName .= '_tmp';
         }
         $dom = explode('.', $fieldName);
-
-        $editorDomId = Inflector::camelize($dom[0]) . Inflector::camelize($dom[1]);
+        $editorDomId = Inflector::dasherize($dom[0]. '-' .$dom[1]);
 
         if (!$this->_script) {
             $this->_script = true;
