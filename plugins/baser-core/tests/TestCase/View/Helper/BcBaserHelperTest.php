@@ -595,7 +595,7 @@ class BcBaserHelperTest extends BcTestCase
         ob_start();
         $this->BcBaser->contentsName();
         $result = ob_get_clean();
-        $this->assertEquals('Admin', $result);
+        $this->assertEquals('Home', $result);
     }
 
     /**
