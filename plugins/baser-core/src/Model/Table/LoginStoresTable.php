@@ -16,6 +16,9 @@ use Cake\Utility\Security;
 use Cake\ORM\Table;
 use Cake\ORM\Entity;
 use Cake\ORM\RulesChecker;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * Class LoginStoresTable
