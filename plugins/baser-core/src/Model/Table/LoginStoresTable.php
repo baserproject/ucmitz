@@ -68,6 +68,9 @@ class LoginStoresTable extends Table
      * @param string $prefix ログイン対象
      * @param int $user_id ユーザID
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function addKey(string $prefix, int $user_id): EntityInterface
     {
