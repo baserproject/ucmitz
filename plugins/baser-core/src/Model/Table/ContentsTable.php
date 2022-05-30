@@ -116,7 +116,6 @@ class ContentsTable extends AppTable
             // 'Model.afterFind' => ['callable' => 'afterFind', 'passParams' => true],
             'Model.beforeMarshal' => 'beforeMarshal',
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
-            'Model.afterMarshal' => 'afterMarshal',
             'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
             'Model.afterDelete' => 'afterDelete',
         ];
@@ -352,25 +351,6 @@ class ContentsTable extends AppTable
             $content['name'] = $this->getUniqueName($content['name'], $content['parent_id'] ?? null, $contentId);
         }
         return (array) $content;
-    }
-
-    /**
-     * afterMarshal
-     * FrozenTime形式のデータをバリデーション前にstringとして保存
-     * @param  EventInterface $event
-     * @param  EntityInterface $entity
-     * @param  ArrayObject $options
-     * @return void
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $options)
-    {
-        $columns = ConnectionManager::get('default')->getSchemaCollection()->describe($this->getTable())->columns();
-        foreach ($columns as $field) {
-            if ($entity->get($field) instanceof FrozenTime) $entity->set($field, $entity->get($field)->__toString());
-        }
     }
 
     /**
