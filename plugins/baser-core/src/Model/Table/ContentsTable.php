@@ -104,9 +104,7 @@ class ContentsTable extends AppTable
 
     /**
      * Implemented Events
-     *
-     * beforeDelete の優先順位を SoftDeleteBehaviorより高くする為に調整
-     *
+     * 
      * @return array
      * @checked
      * @noTodo
@@ -115,8 +113,6 @@ class ContentsTable extends AppTable
     public function implementedEvents(): array
     {
         return [
-            // 'Model.beforeFind' => ['callable' => 'beforeFind', 'passParams' => true],
-            // 'Model.afterFind' => ['callable' => 'afterFind', 'passParams' => true],
             'Model.beforeMarshal' => 'beforeMarshal',
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
             'Model.afterMarshal' => 'afterMarshal',
