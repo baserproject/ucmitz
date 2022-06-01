@@ -108,6 +108,9 @@ class ContentsTable extends AppTable
      * beforeDelete の優先順位を SoftDeleteBehaviorより高くする為に調整
      *
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function implementedEvents(): array
     {

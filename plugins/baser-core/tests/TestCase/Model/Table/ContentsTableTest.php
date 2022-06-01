@@ -190,7 +190,20 @@ class ContentsTableTest extends BcTestCase
      */
     public function testImplementedEvents()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // beforeDelete の優先順位を SoftDeleteBehaviorより高くする為にの配列を返す
+        $result = $this->Contents->implementedEvents();
+
+        // 期待する配列が返ってきてるか確認
+        $this->assertEquals(
+            [
+                'Model.beforeMarshal' => 'beforeMarshal',
+                'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
+                'Model.afterMarshal' => 'afterMarshal',
+                'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
+                'Model.afterDelete' => 'afterDelete',
+            ],
+            $result
+        );
     }
 
     /**
