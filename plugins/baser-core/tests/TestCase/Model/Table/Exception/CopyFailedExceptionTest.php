@@ -73,4 +73,19 @@ class CopyFailedExceptionTest extends BcTestCase
         $this->assertEquals(null, $errors);
     }
 
+    /**
+     * Test getErrors
+     */
+    public function testGetErrors()
+    {
+        $this->CopyFailedException->setErrors(['testerror1', 'testerror2']);
+        $errors = $this->CopyFailedException->getErrors();
+        $this->assertEquals(['testerror1', 'testerror2'], $errors);
+
+        $this->CopyFailedException->setErrors(null);
+        $errors = $this->CopyFailedException->getErrors();
+        $this->assertEquals(null, $errors);
+    }
+
+
 }

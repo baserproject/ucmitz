@@ -12,6 +12,9 @@
 namespace BaserCore\Model\Table\Exception;
 
 use Cake\Core\Exception\Exception;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
 
 /**
  * Class CopyFailedException
@@ -42,6 +45,9 @@ class CopyFailedException extends Exception
      * getErrors
      *
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getErrors()
     {
