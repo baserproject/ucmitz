@@ -208,6 +208,14 @@ class LoginStoresTableTest extends BcTestCase
                 $loginStore2->store_key
             ]
         ));
+
+        $errorMesage = "";
+        try {
+            $loginStore4 = $this->LoginStores->refresh('Admin', 0);
+        } catch (\Exception $e) {
+            $errorMesage = $e->getMessage();
+        }
+        $this->assertSame($errorMesage, "更新データが見つかりませんでした");
     }
 
 }
