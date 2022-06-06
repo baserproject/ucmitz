@@ -129,6 +129,9 @@ class LoginStoresTable extends Table
      *
      * @param string $key
      * @return Entity
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getEnableLoginStore($key): ?Entity
     {
@@ -153,6 +156,9 @@ class LoginStoresTable extends Table
      * @param string $prefix ログイン対象
      * @param int $user_id ユーザID
      * @return EntityInterface|null
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function refresh($prefix, $user_id): EntityInterface
     {
