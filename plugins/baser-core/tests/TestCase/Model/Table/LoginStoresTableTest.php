@@ -14,6 +14,7 @@ namespace BaserCore\Test\TestCase\Model\Table;
 use BaserCore\Model\Table\LoginStoresTable;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\TestSuite\IntegrationTestTrait;
+use Exception;
 
 /**
  * BaserCore\Model\Table\LoginStoresTable Test Case
@@ -209,13 +210,9 @@ class LoginStoresTableTest extends BcTestCase
             ]
         ));
 
-        $errorMesage = "";
-        try {
-            $loginStore4 = $this->LoginStores->refresh('Admin', 0);
-        } catch (\Exception $e) {
-            $errorMesage = $e->getMessage();
-        }
-        $this->assertSame($errorMesage, "更新データが見つかりませんでした");
+        $this->expectException(Exception::class);
+        $this->LoginStores->refresh('Admin', 0);
+
     }
 
 }
