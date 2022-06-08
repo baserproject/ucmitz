@@ -44,6 +44,9 @@ class SearchIndexesTable extends AppTable
      *
      * @param array $data
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function allowPublish($data)
     {
