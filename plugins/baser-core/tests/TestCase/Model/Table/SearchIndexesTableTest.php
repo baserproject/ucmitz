@@ -70,24 +70,28 @@ class SearchIndexesTableTest extends BcTestCase
     }
 
 	/**
+	 * 公開状態を取得する
 	 *
-	 * @testAllowPublish
-     * 
-     * @return void
+	 * @dataProvider allowPublishDataProvider
 	 */
-	public function testAllowPublish()
+	public function testAllowPublish($publish_begin, $publish_end, $status, $expected)
 	{
-        $expected = '555';
-        // 無効な期限
-        $data1['status'] = $expected;
-        $data1['publish_begin'] = date('Y-m-d', strtotime('1 day'));
-        $data1['publish_end'] = date('Y-m-d', strtotime('-1 day'));
-        $this->assertFalse($this->SearchIndexes->allowPublish($data1));
+		$data['publish_begin'] = $publish_begin;
+		$data['publish_end'] = $publish_end;
+		$data['status'] = $status;
+		$this->assertEquals($this->SearchIndexes->allowPublish($data), $expected);
+	}
 
-        // 有効な期限
-        $data2['status'] = $expected;
-        $data2['publish_begin'] = date('Y-m-d', strtotime('-1 day'));
-        $data2['publish_end'] = date('Y-m-d', strtotime('1 day'));
-        $this->assertEquals($this->SearchIndexes->allowPublish($data2), (int)$expected);
+	public function allowPublishDataProvider()
+	{
+		return [
+			['0000-00-00 00:00:00', '0000-00-00 00:00:00', false, false],
+			['0000-00-00 00:00:00', '0000-00-00 00:00:00', true, true],
+			['0000-00-00 00:00:00', date('Y-m-d H:i:s'), true, false],
+			['0000-00-00 00:00:00', date('Y-m-d H:i:s', strtotime("+1 hour")), true, true],
+			[date('Y-m-d H:i:s'), '0000-00-00 00:00:00', true, true],
+			[date('Y-m-d H:i:s', strtotime("+1 hour")), '0000-00-00 00:00:00', true, false],
+			[date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), true, false]
+		];
 	}
 }
