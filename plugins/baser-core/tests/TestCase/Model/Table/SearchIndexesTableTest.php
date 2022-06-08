@@ -73,7 +73,7 @@ class SearchIndexesTableTest extends BcTestCase
 	 *
 	 * @testAllowPublish
      * 
-     * @return false or integer
+     * @return void
 	 */
 	public function testAllowPublish()
 	{
