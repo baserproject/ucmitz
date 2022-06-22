@@ -2221,18 +2221,46 @@ class BcBaserHelperTest extends BcTestCase
     }
 
     /**
-     * URLのパラメータ情報を返す
+     * パラメータ情報を取得する
      * @return void
      */
     public function testGetParams()
     {
-        $this->BcBaser->getView()->setRequest($this->getRequest('/?name=value'));
+        $this->BcBaser->getView()->setRequest($this->getRequest('/'));
         $params = $this->BcBaser->getParams();
         $this->assertEquals('BaserCore', $params['plugin']);
+        $this->assertEquals('Pages', $params['controller']);
+        $this->assertEquals('display', $params['action']);
         $this->assertEquals(['index'], $params['pass']);
-        $this->assertEquals('value', $params['query']['name']);
-        $this->assertEquals('', $params['url']);
-        $this->assertEquals('/', $params['here']);
+    }
+
+    /**
+     * URL情報を取得する
+     * @return void
+     */
+    public function testUrlGetParams()
+    {
+        $this->BcBaser->getView()->setRequest($this->getRequest('/?a=b'));
+        $urlParams = $this->BcBaser->getUrlParams();
+        $this->assertEquals([
+            'url' => 'https://localhost/?a=b',
+            'here' => '/',
+            'webroot' => '',
+            'base' => '',
+            'query' => [
+                'a' => 'b',
+            ],
+        ], $urlParams);
+
+        $this->BcBaser->getView()->setRequest($this->getRequest('/test'));
+        $urlParams = $this->BcBaser->getUrlParams();
+        $this->assertEquals([
+            'url' => 'https://localhost/test',
+            'here' => '/test',
+            'webroot' => '',
+            'base' => '',
+            'query' => [],
+        ], $urlParams);
     }
 
     /**
