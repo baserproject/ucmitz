@@ -36,7 +36,6 @@ class BcAgentTest extends BcTestCase
     /**
      * set up
      *
-     * @return void
      */
     public function setUp(): void
     {
@@ -70,9 +69,8 @@ class BcAgentTest extends BcTestCase
 
     /**
      * test _setConfig
-     *
      */
-    public function test_setConfig()
+    public function test_setConfig(): void
     {
         $agent = new BcAgent('smartphone', $this->config);
         $this->assertEquals($this->config['agents'][0], $agent->decisionKeys[0]);
@@ -82,7 +80,7 @@ class BcAgentTest extends BcTestCase
      * test _getDefaultConfig
      *
      */
-    public function test_getDefaultConfig()
+    public function test_getDefaultConfig(): void
     {
         $agent = new BcAgent('smartphone', []);
         $this->assertFalse($agent->sessionId);
@@ -90,9 +88,8 @@ class BcAgentTest extends BcTestCase
 
     /**
      * test getDetectorRegex
-     *
      */
-    public function testGetDetectorRegex()
+    public function testGetDetectorRegex(): void
     {
         $expectRegex = '/' . implode('|', $this->config['agents']) . '/i';
         $this->assertEquals($expectRegex, $this->agent->getDetectorRegex());
@@ -101,9 +98,11 @@ class BcAgentTest extends BcTestCase
 
     /**
      * test BcAbstractDetector find
+     * @param string $name 名前
+     *
      * @dataProvider findDataProvider
      */
-    public function testFind($name)
+    public function testFind($name): void
     {
         $result = $this->agent->find($name);
         if (!is_null($result)) {
@@ -113,7 +112,7 @@ class BcAgentTest extends BcTestCase
         }
     }
 
-    public function findDataProvider()
+    public function findDataProvider(): array
     {
         return [
             ['mobile'],
@@ -124,9 +123,8 @@ class BcAgentTest extends BcTestCase
 
     /**
      * test BcAbstractDetector findAll
-     *
      */
-    public function testFindAll()
+    public function testFindAll(): void
     {
         $result = $this->agent->findAll();
 
@@ -158,10 +156,12 @@ class BcAgentTest extends BcTestCase
 
     /**
      * test BcAbstractDetector findCurrent
+     * @param string $agent ユーザーエージェント名
+     * @param string $expect 期待値
      *
      * @dataProvider findCurrentDataProvider
      */
-    public function testFindCurrent($agent, $expect)
+    public function testFindCurrent($agent, $expect): void
     {
         $_SERVER["HTTP_USER_AGENT"] = $agent;
         $result = $this->agent->findCurrent();
@@ -173,7 +173,7 @@ class BcAgentTest extends BcTestCase
         }
     }
 
-    public function findCurrentDataProvider()
+    public function findCurrentDataProvider(): array
     {
         return [
             ['Googlebot-Mobile', 'mobile'],
@@ -185,16 +185,18 @@ class BcAgentTest extends BcTestCase
 
     /**
      * test isMatchDecisionKey
+     * @param bool $expect 期待値
+     * @param string $userAgent ユーザーエージェントの文字列
      *
      * @dataProvider isMatchDecisionKeyDataProvider
      */
-    public function testIsMatchDecisionKey($expect, $userAgent)
+    public function testIsMatchDecisionKey($expect, $userAgent): void
     {
         $_SERVER['HTTP_USER_AGENT'] = $userAgent;
         $this->assertEquals($expect, $this->agent->isMatchDecisionKey());
     }
 
-    public function isMatchDecisionKeyDataProvider()
+    public function isMatchDecisionKeyDataProvider(): array
     {
         return [
             [true, 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4'],
@@ -204,6 +206,4 @@ class BcAgentTest extends BcTestCase
             [false, 'DoCoMo']
         ];
     }
-
-
 }
