@@ -2736,6 +2736,7 @@ END_FLASH;
         return [
             'url' => $this->getUrl(null, true),
             'here' => $attributes['here'],
+            'path' => $this->_View->getRequest()->getPath(),
             'webroot' => $attributes['webroot'],
             'base' => $attributes['base'],
             'query' => $this->_View->getRequest()->getQueryParams(),

@@ -2238,13 +2238,14 @@ class BcBaserHelperTest extends BcTestCase
      * URL情報を取得する
      * @return void
      */
-    public function testUrlGetParams()
+    public function testGetUrlParams()
     {
         $this->BcBaser->getView()->setRequest($this->getRequest('/?a=b'));
         $urlParams = $this->BcBaser->getUrlParams();
         $this->assertEquals([
             'url' => 'https://localhost/?a=b',
             'here' => '/',
+            'path' => '/',
             'webroot' => '',
             'base' => '',
             'query' => [
@@ -2252,13 +2253,16 @@ class BcBaserHelperTest extends BcTestCase
             ],
         ], $urlParams);
 
-        $this->BcBaser->getView()->setRequest($this->getRequest('/test'));
+        $this->BcBaser->getView()->setRequest(
+            $this->getRequest('/test', [], null, ['base' => '/baser', 'webroot' => '/baser/'])
+        );
         $urlParams = $this->BcBaser->getUrlParams();
         $this->assertEquals([
-            'url' => 'https://localhost/test',
-            'here' => '/test',
-            'webroot' => '',
-            'base' => '',
+            'url' => 'https://localhost/baser/test',
+            'here' => '/baser/test',
+            'path' => '/test',
+            'webroot' => '/baser/',
+            'base' => '/baser',
             'query' => [],
         ], $urlParams);
     }
