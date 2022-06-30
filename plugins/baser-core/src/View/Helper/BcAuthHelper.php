@@ -47,6 +47,7 @@ class BcAuthHelper extends Helper
      * @checked
      * @noTodo
      * @unitTest
+     * @doc
      */
     public function getCurrentPrefix(): string
     {
