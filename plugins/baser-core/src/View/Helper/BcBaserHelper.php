@@ -582,6 +582,9 @@ class BcBaserHelper extends Helper
      * コンテンツタイトルを取得する
      *
      * @return string コンテンツタイトル
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getContentsTitle()
     {
