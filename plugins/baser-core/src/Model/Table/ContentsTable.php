@@ -104,7 +104,7 @@ class ContentsTable extends AppTable
 
     /**
      * Implemented Events
-     * 
+     *
      * @return array
      * @checked
      * @noTodo
@@ -115,7 +115,6 @@ class ContentsTable extends AppTable
         return [
             'Model.beforeMarshal' => 'beforeMarshal',
             'Model.beforeSave' => ['callable' => 'beforeSave', 'passParams' => true],
-            'Model.afterMarshal' => 'afterMarshal',
             'Model.afterSave' => ['callable' => 'afterSave', 'passParams' => true],
             'Model.afterDelete' => 'afterDelete',
         ];
@@ -324,10 +323,10 @@ class ContentsTable extends AppTable
                 if ($user) $content['author_id'] = $user['id'];
             }
         } else {
-            if (isset($content['self_publish_begin'])) {
+            if (!empty($content['self_publish_begin'])) {
                 $content['self_publish_begin'] = new FrozenTime($content['self_publish_begin']);
             }
-            if (isset($content['self_publish_end'])) {
+            if (!empty($content['self_publish_end'])) {
                 $content['self_publish_end'] = new FrozenTime($content['self_publish_end']);
             }
             if (empty($content['modified_date'])) {
@@ -335,11 +334,8 @@ class ContentsTable extends AppTable
             } else {
                 $content['modified_date'] = new FrozenTime($content['modified_date']);
             }
-            if (isset($content['created_date'])) {
+            if (!empty($content['created_date'])) {
                 $content['created_date'] = new FrozenTime($content['created_date']);
-            }
-            if (isset($content['name'])) {
-                $content['name'] = $content['name'];
             }
         }
         // name の 重複チェック＆リネーム
@@ -351,25 +347,6 @@ class ContentsTable extends AppTable
             $content['name'] = $this->getUniqueName($content['name'], $content['parent_id'] ?? null, $contentId);
         }
         return (array) $content;
-    }
-
-    /**
-     * afterMarshal
-     * FrozenTime形式のデータをバリデーション前にstringとして保存
-     * @param  EventInterface $event
-     * @param  EntityInterface $entity
-     * @param  ArrayObject $options
-     * @return void
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function afterMarshal(EventInterface $event, EntityInterface $entity, ArrayObject $options)
-    {
-        $columns = ConnectionManager::get('default')->getSchemaCollection()->describe($this->getTable())->columns();
-        foreach ($columns as $field) {
-            if ($entity->get($field) instanceof FrozenTime) $entity->set($field, $entity->get($field)->__toString());
-        }
     }
 
     /**
@@ -1018,8 +995,12 @@ class ContentsTable extends AppTable
         $content = $this->updatePublishDate($content);
         if (!empty($content->parent_id)) {
             $parent = $this->find()->select(['name', 'status', 'publish_begin', 'publish_end'])->where(['id' => $content->parent_id])->first();
-            if (!$parent->status || $parent->publish_begin || $parent->publish_begin) {
+            // 親フォルダが非公開の場合は自身も非公開
+            if (!$parent->status) {
                 $content->status = $parent->status;
+            }
+            // 親フォルダに公開期間が設定されている場合は自身の公開期間を上書き
+            if ($parent->publish_begin || $parent->publish_end) {
                 $content->publish_begin = $parent->publish_begin;
                 $content->publish_end = $parent->publish_end;
             }
@@ -1092,7 +1073,7 @@ class ContentsTable extends AppTable
     }
 
     /**
-     * 子ノードのURLを全て更新する
+     * 子ノードのシステムデータを全て更新する
      *
      * @param $id
      * @return bool

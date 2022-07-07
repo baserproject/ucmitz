@@ -167,18 +167,8 @@ class BcAppController extends AppController
         parent::beforeRender($event);
         // TODO ucmitz 未確認
         return;
-        $favoriteBoxOpened = false;
         if (BcUtil::isAdminSystem()) {
             $this->__updateFirstAccess();
-            if (!empty($this->BcAuth) && !empty($this->request->url) && $this->request->url !== 'update') {
-                if ($this->BcAuth->user()) {
-                    if ($this->Session->check('Baser.favorite_box_opened')) {
-                        $favoriteBoxOpened = $this->Session->read('Baser.favorite_box_opened');
-                    } else {
-                        $favoriteBoxOpened = true;
-                    }
-                }
-            }
         } else {
             // テーマのヘルパーをセット
             if (BC_INSTALLED) {
@@ -204,10 +194,9 @@ class BcAppController extends AppController
         }
 
         $this->__loadDataToView();
-        $this->set('favoriteBoxOpened', $favoriteBoxOpened);
         $this->set('isSSL', $this->request->is('ssl'));
         $this->set('safeModeOn', ini_get('safe_mode'));
-        $this->set('baserVersion', $this->getBaserVersion());
+        $this->set('baserVersion', BcUtil::getVersion());
         $this->set('widgetArea', BcSiteConfig::get('widget_area'));
     }
 
@@ -268,9 +257,6 @@ class BcAppController extends AppController
         /* ログインユーザー */
         if (BC_INSTALLED && $user && $this->name !== 'Installations' && !Configure::read('BcRequest.isUpdater') && !Configure::read('BcRequest.isMaintenance') && $this->name !== 'CakeError') {
             $this->set('user', $user);
-            if ($this->request->getParam('prefix') === "Admin") {
-                $this->set('favorites', $this->Favorite->find('all', ['conditions' => ['Favorite.user_id' => $user['id']], 'order' => 'Favorite.sort', 'recursive' => -1]));
-            }
         }
 
         $currentUserAuthPrefixes = [];
@@ -285,17 +271,6 @@ class BcAppController extends AppController
           $emojiData = $this->EmojiData->find('all');
           $this->set('emoji',$this->Emoji->EmojiData($emojiData));
           } */
-    }
-
-    /**
-     * baserCMSのバージョンを取得する
-     *
-     * @param string $plugin プラグイン名
-     * @return string Baserバージョン
-     */
-    protected function getBaserVersion($plugin = '')
-    {
-        return getVersion($plugin);
     }
 
     /**
@@ -318,24 +293,6 @@ class BcAppController extends AppController
         }
 
         return $aryVersionData[0];
-    }
-
-    /**
-     * DBのバージョンを取得する
-     *
-     * @param string $plugin プラグイン名
-     * @return string
-     */
-    protected function getSiteVersion($plugin = '')
-    {
-        if (!$plugin) {
-            if (!BcSiteConfig::get('version')) {
-                return '';
-            }
-            return preg_replace("/baserCMS ([0-9.]+?[\sa-z]*)/is", "$1", BcSiteConfig::get('version'));
-        }
-        $Plugin = ClassRegistry::init('Plugin');
-        return $Plugin->field('version', ['name' => $plugin]);
     }
 
     /**

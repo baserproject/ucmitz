@@ -64,7 +64,6 @@ class BcBaserHelperTest extends BcTestCase
         // 'baser.Default.SearchIndex',
         // 'baser.Default.User',
         // 'baser.Default.UserGroup',
-        // 'baser.Default.Favorite',
         // 'baser.Default.Permission',
         // 'baser.Default.ThemeConfig',
         // 'baser.Default.WidgetArea',
@@ -1137,16 +1136,6 @@ class BcBaserHelperTest extends BcTestCase
             // [false, '/s/news/index'],
             // [false, '/s/news/index']
         ];
-    }
-
-    /**
-     * baserCMSが設置されているパスを取得する
-     * @param string $expected 期待値
-     * @return void
-     */
-    public function testGetRoot()
-    {
-        $this->assertEquals('/', $this->BcBaser->getRoot());
     }
 
     /**

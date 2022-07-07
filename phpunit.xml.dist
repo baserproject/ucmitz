@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
     colors="true"
-    processIsolation="false"
-    stopOnFailure="false"
     bootstrap="tests/bootstrap.php"
     >
     <php>
@@ -14,11 +13,11 @@
     <testsuites>
         <!-- Add plugin test suites here. -->
         <testsuite name="BaserCore">
-            <directory>./plugins/baser-core/tests/TestCase/</directory>
+            <directory>plugins/baser-core/tests/TestCase</directory>
         </testsuite>
-        <testsuite name="BcBlog">
-            <directory>./plugins/bc-blog/tests/TestCase/</directory>
-        </testsuite>
+<!--        <testsuite name="BcBlog">-->
+<!--            <directory>./plugins/bc-blog/tests/TestCase/</directory>-->
+<!--        </testsuite>-->
     </testsuites>
 
     <!-- Load extension for fixtures -->
@@ -26,13 +25,14 @@
         <extension class="Cake\TestSuite\Fixture\PHPUnitExtension"/>
     </extensions>
 
-    <!-- Setup a listener for fixtures -->
-    <listeners>
-        <listener class="Cake\TestSuite\Fixture\FixtureInjector">
-            <arguments>
-                <object class="Cake\TestSuite\Fixture\FixtureManager"/>
-            </arguments>
-        </listener>
-    </listeners>
+    <coverage>
+      <include>
+        <directory suffix=".php">src/</directory>
+        <directory suffix=".php">plugins/*/src/</directory>
+      </include>
+      <exclude>
+        <file>src/Console/Installer.php</file>
+      </exclude>
+    </coverage>
 
 </phpunit>

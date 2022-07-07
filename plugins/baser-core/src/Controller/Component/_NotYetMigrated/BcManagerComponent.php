@@ -338,7 +338,7 @@ class BcManagerComponent extends Component
         $db = $this->_getDataSource('default', $dbConfig);
         $db->truncate('plugins');
 
-        $version = getVersion();
+        $version = BcUtil::getVersion();
         $Plugin = new Plugin();
         $corePlugins = Configure::read('BcApp.corePlugins');
 
@@ -1675,9 +1675,9 @@ class BcManagerComponent extends Component
         } else {
             $corePlugins = Configure::read('BcApp.corePlugins');
             if (in_array($name, $corePlugins)) {
-                $version = getVersion();
+                $version = BcUtil::getVersion();
             } else {
-                $version = getVersion($name);
+                $version = BcUtil::getVersion($name);
             }
 
             $priority = intval($this->Plugin->getMax('priority')) + 1;
@@ -1748,12 +1748,8 @@ class BcManagerComponent extends Component
             return false;
         }
         // よく使う項目は、user_groups より生成するのでなくてもよい
-        $excludes = ['favorites.csv'];
         $targetTables = $files[1];
         foreach($coreTables as $coreTable) {
-            if (in_array($coreTable, $excludes)) {
-                continue;
-            }
             if (!in_array($coreTable, $targetTables)) {
                 return false;
             }

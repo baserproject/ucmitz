@@ -15,7 +15,6 @@ use ArrayObject;
 use Cake\ORM\Entity;
 use ReflectionClass;
 use Cake\Core\Configure;
-use Cake\ORM\Marshaller;
 use Cake\I18n\FrozenTime;
 use Cake\Validation\Validator;
 use BaserCore\Model\Entity\Content;
@@ -56,8 +55,8 @@ class ContentsTableTest extends BcTestCase
      */
     public function setUp(): void
     {
-        $this->loadFixtures('Contents', 'Sites', 'Users', 'UserGroups', 'UsersUserGroups');
         parent::setUp();
+        $this->loadFixtures('Contents', 'Sites', 'Users', 'UserGroups', 'UsersUserGroups');
         $config = $this->getTableLocator()->exists('Contents')? [] : ['className' => 'BaserCore\Model\Table\ContentsTable'];
         $this->Contents = $this->getTableLocator()->get('Contents', $config);
     }
@@ -192,7 +191,7 @@ class ContentsTableTest extends BcTestCase
     {
         $result = $this->Contents->implementedEvents();
         $this->assertTrue(is_array($result));
-        $this->assertGreaterThanOrEqual(5, count($result));
+        $this->assertGreaterThanOrEqual(4, count($result));
     }
 
     /**
@@ -305,29 +304,6 @@ class ContentsTableTest extends BcTestCase
             ['index', 0, 'index'],
             ['index', 1, 'index_2'],
         ];
-    }
-
-    /**
-     * testAfterMarshal
-     *
-     * @return void
-     */
-    public function testAfterMarshal()
-    {
-        $time = new FrozenTime();
-        $data = [
-            "name" => "test",
-            "created" => $time,
-            "parent_id" => 1,
-        ];
-        $marshall = new Marshaller($this->Contents);
-
-        $this->Contents->getEventManager()->on(
-            'Model.afterMarshal',
-            function ($event, $entity, $options) {}
-        );
-        $entity = $marshall->one($data);
-        $this->assertEquals($time->i18nFormat('yyyy/MM/dd HH:mm:ss'), $entity->created);
     }
 
     /**
@@ -666,13 +642,52 @@ class ContentsTableTest extends BcTestCase
     }
 
     /**
-     * 子ノードのURLを全て更新する
+     * 子ノードのシステムデータを全て更新する
      */
     public function testUpdateChildren()
     {
         $this->Contents->updateChildren(18);
         // 孫のurlが更新されてるか確認
         $this->assertEquals("/ツリー階層削除用フォルダー(親)/ツリー階層削除用フォルダー(子)/ツリー階層削除用フォルダー(孫)/", rawurldecode($this->Contents->get(20)->url));
+
+        // 公開状態・公開期間を更新した際に配下のコンテンツも更新される
+        //- 親更新
+        $tree1Content = $this->Contents->get(18);
+        $tree1Content->self_status = false;
+        $tree1Content->self_publish_begin = '2022-06-20 00:00:00';
+        $tree1Content->self_publish_end = '2022-06-30 00:00:00';
+        $this->Contents->save($tree1Content);
+        //- 子確認
+        $tree2Content = $this->Contents->get(19);
+        $this->assertEquals(false, $tree2Content->status);
+        $this->assertEquals('2022-06-20 00:00:00', $tree2Content->publish_begin->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        $this->assertEquals('2022-06-30 00:00:00', $tree2Content->publish_end->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        //- 孫確認
+        $tree3Content = $this->Contents->get(20);
+        $this->assertEquals(false, $tree3Content->status);
+        $this->assertEquals('2022-06-20 00:00:00', $tree3Content->publish_begin->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+        $this->assertEquals('2022-06-30 00:00:00', $tree3Content->publish_end->i18nFormat('yyyy-MM-dd HH:mm:ss'));
+
+        // 公開状態が異なる場合は非公開を優先
+        // - 孫更新
+        $tree3Content->self_status = false;
+        $this->Contents->save($tree3Content);
+        // - 親更新
+        $tree1Content->self_status = true;
+        $this->Contents->save($tree1Content);
+        // - 孫確認
+        $tree3Content = $this->Contents->get(20);
+        $this->assertEquals(false, $tree3Content->status);
+
+        // - 孫更新
+        $tree3Content->self_status = true;
+        $this->Contents->save($tree3Content);
+        // - 親更新
+        $tree1Content->self_status = false;
+        $this->Contents->save($tree1Content);
+        // - 孫確認
+        $tree3Content = $this->Contents->get(20);
+        $this->assertEquals(false, $tree3Content->status);
     }
 
     /**

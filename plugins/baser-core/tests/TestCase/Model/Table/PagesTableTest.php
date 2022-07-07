@@ -26,14 +26,7 @@ class PagesTableTest extends BcTestCase
 {
 
     public $fixtures = [
-        // 'baser.Model.Content.ContentStatusCheck',
-        // 'plugin.BaserCore.BlogContents',
-        // 'plugin.BaserCore.BlogCategorys',
-        // 'plugin.BaserCore.BlogPosts',
-        // 'plugin.BaserCore.BlogPostsBlogTags',
-        // 'plugin.BaserCore.BlogTags',
         'plugin.BaserCore.SiteConfigs',
-        // 'baser.Model.Page.PagePageModel',
         'plugin.BaserCore.Permissions',
         'plugin.BaserCore.Plugins',
         'plugin.BaserCore.Users',
@@ -43,8 +36,7 @@ class PagesTableTest extends BcTestCase
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.ContentFolders',
         'plugin.BaserCore.Pages',
-        'plugin.BaserCore.SearchIndexes',
-        // 'plugin.BaserCore.Favorites'
+        'plugin.BaserCore.SearchIndexes'
     ];
 
     /**

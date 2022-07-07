@@ -9,13 +9,17 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-use Cake\Cache\Engine\FileEngine;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\Note;
 
 /**
+ * setting
+ *
+ * カスタマイズを行う場合は、 config/setting.example.php を config/setting.php としてコピーし設定値を定義する。
+ * app.php に関するカスタマイズは、こちらには定義せず、 config/app_local.example.php に定義する。
+ *
  * @checked
  * @unitTest
  * @note(value="テーマ管理とユーティリティを実装してからメニューを表示する")
@@ -232,7 +236,26 @@ return [
                 //				]
                 //			]
             ]
-        ]],
+        ]
+     ],
+
+    /**
+     * リクエスト情報
+     */
+    'BcRequest' => [
+        // アセットファイルかどうか
+        'asset' => false,
+        // Router がロード済かどうか
+        // TODO 不要か確認
+        'routerLoaded' => false,
+        // アップデーターかどうか
+        'isUpdater' => false,
+        // メンテナンスかどうか
+        'isMaintenance' => false,
+        // インストール済かどうか
+        // TODO bootstrapの処理を見直してここで明示的に定義できるようにする
+        // 'isInstalled' => false,
+    ],
 
     /**
      * プレフィックス認証
@@ -279,39 +302,13 @@ return [
         'publicKeyPath' => CONFIG . 'jwt.pem'
     ],
     'BcLinks' => [
-        'marketThemeRss' => 'https://market.basercms.net/themes.rss',
-        'marketPluginRss' => 'https://market.basercms.net/plugins.rss',
+        'marketThemeRss' => 'https://market.basercms.net/themes.php',
+        'marketPluginRss' => 'https://market.basercms.net/plugins.php',
         'specialThanks' => 'https://basercms.net/special_thanks/special_thanks/ajax_users',
         // インストールマニュアル
         'installManual' => 'http://wiki.basercms.net/%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%82%AC%E3%82%A4%E3%83%89',
         // アップデートマニュアル
         'updateManual' => 'http://wiki.basercms.net/%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E3%82%A2%E3%83%83%E3%83%97%E3%82%AC%E3%82%A4%E3%83%89'
-    ],
-
-    /**
-     * セッション
-     */
-    'Session' => [
-        'defaults' => 'php',
-        /**
-         * セッションの有効期限（分）
-         * デフォルト：2日間
-         */
-        'timeout' => 60 * 24 * 2
-    ],
-
-    /**
-     * キャッシュ
-     */
-    'Cache' => [
-        '_bc_env_' => [
-            'className' => FileEngine::class,
-            'prefix' => 'myapp_bc_env_',
-            'path' => CACHE . 'environment' . DS,
-            'serialize' => true,
-            'duration' => '+1 years',
-            'url' => env('CACHE_BCENV_URL', null),
-        ],
     ],
 
     /**
