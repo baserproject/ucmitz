@@ -819,8 +819,6 @@ class BcBaserHelperTest extends BcTestCase
      */
     public function testSet()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-
         $this->BcBaser->set('keywords', 'baserCMS,国産,オープンソース');
         $this->assertEquals('baserCMS,国産,オープンソース', $this->BcBaser->getKeywords());
     }
@@ -1005,7 +1003,6 @@ class BcBaserHelperTest extends BcTestCase
      */
     public function testContentsTitle()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
         $this->expectOutputString('会社データ');
         $this->BcBaser->setTitle('会社データ');
         $this->BcBaser->contentsTitle();
