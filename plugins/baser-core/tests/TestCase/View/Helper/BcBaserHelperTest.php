@@ -25,7 +25,7 @@ use BaserCore\View\BcFrontAppView;
 use BaserCore\View\BcAdminAppView;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\View\Helper\BcBaserHelper;
-
+use BaserCore\Test\TestCase\View;
 
 // use BaserCore\View\BcAdminAppView;
 // use Cake\Core\Configure;
@@ -116,7 +116,7 @@ class BcBaserHelperTest extends BcTestCase
         $this->Contents = $this->getTableLocator()->get('BaserCore.Contents');
 
         // TODO: basercms4より移植
-        // $this->_View = new BcAppView();
+        $this->_View = new BcAppView();
         // $this->_View->request = $this->_getRequest('/');
         // $SiteConfig = ClassRegistry::init('SiteConfig');
         // $siteConfig = $SiteConfig->findExpanded();
@@ -1192,7 +1192,7 @@ class BcBaserHelperTest extends BcTestCase
      */
     public function testContent()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // $this->markTestIncomplete('このテストは、まだ実装されていません。');
 
         $this->expectOutputString('コンテンツ本体');
         $this->_View->assign('content', 'コンテンツ本体');
