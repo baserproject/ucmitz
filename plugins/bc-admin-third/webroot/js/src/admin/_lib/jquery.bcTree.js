@@ -127,7 +127,6 @@
             $.bcTree.treeDom = $('#ContentsTreeList');
             $.bcTree.createTree();
             $.bcTree.jsTree = $.bcTree.treeDom.jstree(true);
-            $.bcTree.jsTree.settings.core.force_text = true;
             $.bcTree.treeDom.bind("move_node.jstree", function (e, data) {
                 $.bcTree.beforeParentId = data.old_parent;
                 $.bcTree.beforePosition = data.old_position;
@@ -231,7 +230,7 @@
                         "variant": "large"
                     },
                     "multiple": false,
-                    "force_text": false,
+                    "force_text": true,
                     "check_callback": function (operation, node, node_parent, node_position, more) {
                         if (operation == 'move_node') {
                             if (!$.bcTree.config.isUseMoveContents) {
@@ -980,14 +979,16 @@
                     },
                     success: function (result) {
                         $.bcUtil.showNoticeMessage(result.message);
-                        // $.bcTree.jsTree.delete_node(node);
-                        // if (!$.bcTree.settings[data.contentType]['multiple'] && !data.alias) {
-                        // 	$.bcTree.settings[data.contentType]['exists'] = false;
-                        // }
-                        $.bcTree.refreshTree();
                         $.bcToken.key = null;
-                        // TODO 削除対象に関連づくエイリアスも削除が必要
                         $.bcTree.jsTree.delete_node(node);
+                        // エイリアス削除
+                        var nodes = $.bcTree.jsTree.get_json(null, { flat: true });
+                        for (var i = 0; i < nodes.length; i++) {
+                          if (data.contentId == nodes[i].state.contentAliasId) {
+                            $.bcTree.jsTree.delete_node(nodes[i]);
+                          }
+                        }
+                        $.bcTree.refreshTree();
                         $.bcUtil.hideLoader();
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
