@@ -1252,6 +1252,7 @@ class BcBaserHelper extends Helper
      * レイアウトテンプレートで利用する
      *
      * @return void
+     * @note(value="BcAppViewクラスが未完成なのでスキップ https://github.com/baserproject/ucmitz/issues/666")
      */
     public function content()
     {
