@@ -1083,7 +1083,6 @@ class BcBaserHelper extends Helper
      * @param string $categoryTitleOn カテゴリを表示するかどうか boolean で指定
      * @return void
      * @note(value="BaserTestCase::_getRequestがエラーを吐くためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/662")
-
      */
     public function title($separator = '｜', $categoryTitleOn = null)
     {
