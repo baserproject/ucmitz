@@ -1416,7 +1416,6 @@ class BcBaserHelper extends Helper
      * アイコン（favicon）タグを出力する
      *
      * @return void
-     * @note(value="フロント側が未完成なためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/680")
      */
     public function icon()
     {
