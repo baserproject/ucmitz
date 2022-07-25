@@ -1159,6 +1159,7 @@ class BcBaserHelper extends Helper
      *  `subDir` (boolean) エレメントのパスについてプレフィックスによるサブディレクトリを追加するかどうか
      * ※ その他のパラメータについては、View::element() を参照
      * @return void
+     * @note(value="フロントエンド側が未完成なのでスキップ https://github.com/baserproject/ucmitz/issues/664")
      */
     public function header($data = [], $options = [])
     {
@@ -1230,7 +1231,7 @@ class BcBaserHelper extends Helper
      *  `subDir` (boolean) エレメントのパスについてプレフィックスによるサブディレクトリを追加するかどうか
      * ※ その他のパラメータについては、View::element() を参照
      * @return void
-     * @note(value="assertTagsメソッドが未定義とエラーが出るのでユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/663")
+     * @note(value="ページネーションの仕様が変わっているのでユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/665")
      */
     public function pagination($name = 'default', $data = [], $options = [])
     {
@@ -1404,6 +1405,7 @@ class BcBaserHelper extends Helper
      *
      * @param array $attrib 属性
      * @return void
+     * @note(value="bcXmlHelperが未実装なのでスキップ https://github.com/baserproject/ucmitz/issues/667")
      */
     public function xmlHeader($attrib = [])
     {
