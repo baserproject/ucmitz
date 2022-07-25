@@ -1428,6 +1428,7 @@ class BcBaserHelper extends Helper
      *
      * @param string $type 出力ドキュメントタイプの文字列（初期値 : 'xhtml-trans'）
      * @return void
+     * @note(value="docTypeメソッド自体が未実装のためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/682")
      */
     public function docType($type = 'xhtml-trans')
     {
