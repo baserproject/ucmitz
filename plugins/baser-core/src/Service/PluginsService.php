@@ -131,7 +131,12 @@ class PluginsService implements PluginsServiceInterface
 
     /**
      * プラグインをアップデートする
+     * @param string $name プラグイン名
+     * @param string $connection コネクション名
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function update($name, $connection = 'default'): ?bool
     {
@@ -140,7 +145,7 @@ class PluginsService implements PluginsServiceInterface
 
         if (function_exists('ini_set')) {
             ini_set('max_execution_time', 0);
-            ini_set('memory_limit', '128M');
+            ini_set('memory_limit', '512M');
         }
         if(file_exists(LOGS . 'update.log')) {
             unlink(LOGS . 'update.log');
@@ -177,6 +182,10 @@ class PluginsService implements PluginsServiceInterface
         return $result;
     }
 
+    /**
+     * プラグインを全て無効化する
+     * @return array
+     */
     public function detachAll()
     {
         $plugins = $this->Plugins->find()->where(['status' => true])->all();
@@ -191,6 +200,10 @@ class PluginsService implements PluginsServiceInterface
         return $ids;
     }
 
+    /**
+     * 複数のIDからプラグインを有効化する
+     * @param $ids
+     */
     public function attachAllFromIds($ids)
     {
         if (!$ids) {
