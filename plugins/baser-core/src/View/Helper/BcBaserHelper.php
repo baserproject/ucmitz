@@ -1230,6 +1230,7 @@ class BcBaserHelper extends Helper
      *  `subDir` (boolean) エレメントのパスについてプレフィックスによるサブディレクトリを追加するかどうか
      * ※ その他のパラメータについては、View::element() を参照
      * @return void
+     * @note(value="assertTagsメソッドが未定義とエラーが出るのでユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/663")
      */
     public function pagination($name = 'default', $data = [], $options = [])
     {
