@@ -938,6 +938,7 @@ class BcBaserHelper extends Helper
      *  `tag` (boolean) false でタグを削除するかどうか (初期値 : true)
      *  `allowableTags` tagが falseの場合、削除しないタグを指定できる。詳しくは、php strip_tags のドキュメントを参考してください。 (初期値 : '')
      * @return string メタタグ用のタイトルを返す
+     * @note(value="BaserTestCase::_getRequestでエラーを吐くためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/661")
      */
     public function getTitle($separator = '｜', $options = [])
     {
@@ -1084,6 +1085,7 @@ class BcBaserHelper extends Helper
      * @param string $separator 区切り文字
      * @param string $categoryTitleOn カテゴリを表示するかどうか boolean で指定
      * @return void
+     * @note(value="BaserTestCase::_getRequestがエラーを吐くためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/662")
      */
     public function title($separator = '｜', $categoryTitleOn = null)
     {
@@ -1159,6 +1161,7 @@ class BcBaserHelper extends Helper
      *  `subDir` (boolean) エレメントのパスについてプレフィックスによるサブディレクトリを追加するかどうか
      * ※ その他のパラメータについては、View::element() を参照
      * @return void
+     * @note(value="フロントエンド側が未完成なのでスキップ https://github.com/baserproject/ucmitz/issues/664")
      */
     public function header($data = [], $options = [])
     {
@@ -1230,6 +1233,7 @@ class BcBaserHelper extends Helper
      *  `subDir` (boolean) エレメントのパスについてプレフィックスによるサブディレクトリを追加するかどうか
      * ※ その他のパラメータについては、View::element() を参照
      * @return void
+     * @note(value="ページネーションの仕様が変わっているのでユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/665")
      */
     public function pagination($name = 'default', $data = [], $options = [])
     {
@@ -1252,6 +1256,7 @@ class BcBaserHelper extends Helper
      * レイアウトテンプレートで利用する
      *
      * @return void
+     * @note(value="BcAppViewクラスが未完成なのでスキップ https://github.com/baserproject/ucmitz/issues/666")
      */
     public function content()
     {
@@ -1403,6 +1408,7 @@ class BcBaserHelper extends Helper
      *
      * @param array $attrib 属性
      * @return void
+     * @note(value="bcXmlHelperが未実装なのでスキップ https://github.com/baserproject/ucmitz/issues/667")
      */
     public function xmlHeader($attrib = [])
     {
@@ -1416,6 +1422,7 @@ class BcBaserHelper extends Helper
      * アイコン（favicon）タグを出力する
      *
      * @return void
+     * @note(value="フロント側が未完成なためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/680")
      */
     public function icon()
     {
@@ -1427,6 +1434,7 @@ class BcBaserHelper extends Helper
      *
      * @param string $type 出力ドキュメントタイプの文字列（初期値 : 'xhtml-trans'）
      * @return void
+     * @note(value="docTypeメソッド自体が未実装なのでユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/682")
      */
     public function docType($type = 'xhtml-trans')
     {
