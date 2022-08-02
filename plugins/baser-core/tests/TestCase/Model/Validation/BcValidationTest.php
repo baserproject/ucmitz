@@ -1,4 +1,5 @@
 <?php
+
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
  * Copyright (c) NPO baser foundation <https://baserfoundation.org/>
@@ -227,12 +228,26 @@ class BcValidationTest extends BcTestCase
 
     /**
      * Test fileCheck
-     *
+     * @checked
+     * @note(Too few arguments to functionエラーが解消できていないのでテスト未完了です)
+     * @unitTest
      * @return void
      */
-    public function testFileCheck()
+    public function testFileCheck($fileName, $fileSize, $errorCode, $expect)
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $check = [[
+            "name" => $fileName,
+            "size" => $fileSize,
+            "error" => $errorCode,
+        ]
+        ];
+        $size = 1048576;
+
+        // $_POST = ['fileCheck require $_POST' => true];
+        $result = $this->BcApp->fileCheck($check, $size);
+        $this->assertEquals($expect, $result);
+
     }
 
     /**
