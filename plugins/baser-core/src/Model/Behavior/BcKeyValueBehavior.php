@@ -23,10 +23,10 @@ class BcKeyValueBehavior extends Behavior
     /**
      * Key Value 形式のテーブルよりデータを取得して
      * １レコードとしてデータを展開する
+     * @return array
      * @checked
      * @noTodo
      * @unitTest
-     * @return array
      */
     public function getKeyValue()
     {
