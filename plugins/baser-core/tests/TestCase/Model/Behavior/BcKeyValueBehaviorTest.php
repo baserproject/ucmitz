@@ -349,4 +349,26 @@ q {}',
         }
     }
 
+    /**
+     * test getValue
+     * @return void
+     */
+    public function test_getValue(){
+        $dataDB = $this->dataCompare;
+
+        foreach ($dataDB as $item){
+            $result = $this->SiteConfigs->getValue($item["name"]);
+            $this->assertEquals($item["value"], $result);
+        }
+    }
+
+    /**
+     * test getValue false
+     * @return void
+     */
+    public function test_getValue_false(){
+        $result = $this->SiteConfigs->getValue("noValue");
+        $this->assertFalse($result);
+    }
+
 }
