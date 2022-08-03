@@ -19,6 +19,7 @@ use BaserCore\Model\AppTable;
 use BaserCore\Utility\BcUtil;
 use Cake\Validation\Validation;
 use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Note;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 
@@ -180,6 +181,9 @@ class BcValidation extends Validation
      * @link http://php.net/manual/ja/features.file-upload.errors.php
      * @checked
      * @noTodo
+     * @note(Too few arguments to functionエラーが解消できていないのでテスト未完了です)
+     * @unitTest
+
      */
     public static function fileCheck($value, $size)
     {

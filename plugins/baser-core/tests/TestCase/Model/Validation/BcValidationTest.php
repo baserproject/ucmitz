@@ -228,9 +228,6 @@ class BcValidationTest extends BcTestCase
 
     /**
      * Test fileCheck
-     * @checked
-     * @note(Too few arguments to functionエラーが解消できていないのでテスト未完了です)
-     * @unitTest
      * @return void
      */
     public function testFileCheck($fileName, $fileSize, $errorCode, $expect)
