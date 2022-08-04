@@ -242,7 +242,20 @@ class BcValidationTest extends BcTestCase
      */
     public function testFileExt()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $checkData =[
+            ["test.jpg", "image/jpeg", true],
+            ["test.png", "image/png", true],
+            ["test.gif", "image/gif", false],
+            ["test", "image/png", true]
+        ];
+
+        $ext = "jpg,png";
+
+        foreach ($checkData as $item){
+            $result = $this->BcValidation->fileExt(['name'=>$item[0], 'type'=>$item[1]], $ext);
+            $this->assertEquals($item[2], $result);
+        }
+
     }
 
     /**
