@@ -123,7 +123,7 @@ class BcKeyValueBehaviorTest extends BcTestCase
      */
 
     public function test_saveKeyValue(){
-        $siteConfigs = ['level'=>'admin',"position"=>"top","address"=>"東京"];
+        $siteConfigs = ['level'=>'admin', 'position'=>'top', 'address'=>'東京'];
         $result = $this->SiteConfigs->saveKeyValue($siteConfigs);
 
         foreach ($siteConfigs as $key => $value){
