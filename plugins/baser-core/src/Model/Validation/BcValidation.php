@@ -181,7 +181,7 @@ class BcValidation extends Validation
      * @link http://php.net/manual/ja/features.file-upload.errors.php
      * @checked
      * @noTodo
-     * @note(Too few arguments to functionエラーが解消できていないのでテスト未完了です)
+     * @note(value="アノテーションのためエラーテスト未完了です")
      * @unitTest
 
      */
