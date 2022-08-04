@@ -144,7 +144,7 @@ class BcKeyValueBehaviorTest extends BcTestCase
         $result = $this->SiteConfigs->saveValue($key, $expected);
 
         $rs = $this->SiteConfigs->getValue($key);
-        $this->assertEquals($rs,$expected);
+        $this->assertEquals($rs, $expected);
         $this->assertTrue($result);
     }
 
