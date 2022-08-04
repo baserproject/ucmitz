@@ -97,4 +97,21 @@ class BcKeyValueBehaviorTest extends BcTestCase
         $this->assertEquals($newData["value"], $result[$newData["name"]]);
     }
 
+    /**
+     * test saveKeyValue
+     * @return void
+     */
+
+    public function test_saveKeyValue(){
+        $siteConfigs = ['level'=>'admin',"position"=>"top","address"=>"東京"];
+        $result = $this->SiteConfigs->saveKeyValue($siteConfigs);
+
+        foreach ($siteConfigs as $key => $value){
+            $rs = $this->SiteConfigs->getValue($key);
+            $this->assertEquals($value,$rs);
+        }
+
+        $this->assertTrue($result);
+    }
+
 }
