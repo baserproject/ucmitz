@@ -236,27 +236,36 @@ class BcValidationTest extends BcTestCase
     }
 
     /**
-     * Test fileExt
+     * ファイルの拡張子チェック
      *
-     * @return void
+     * @param string $fileName チェック対象ファイル名
+     * @param string $fileType チェック対象ファイルタイプ
+     * @param boolean $expect
+     * @dataProvider fileExtDataProvider
      */
-    public function testFileExt()
+    public function testFileExt($fileName, $fileType, $expect)
     {
-        $checkData =[
+        $check = [
+            "name" => $fileName,
+            "type" => $fileType
+        ];
+        $ext = "jpg,png";
+
+        $result = $this->BcValidation->fileExt($check, $ext);
+        $this->assertEquals($expect, $result);
+    }
+
+
+    public function fileExtDataProvider()
+    {
+        return [
             ["test.jpg", "image/jpeg", true],
             ["test.png", "image/png", true],
             ["test.gif", "image/gif", false],
-            ["test", "image/png", true]
+            ["test", "image/png", true],
         ];
-
-        $ext = "jpg,png";
-
-        foreach ($checkData as $item){
-            $result = $this->BcValidation->fileExt(['name'=>$item[0], 'type'=>$item[1]], $ext);
-            $this->assertEquals($item[2], $result);
-        }
-
     }
+
 
     /**
      * Test notFileEmpty
