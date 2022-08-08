@@ -106,6 +106,9 @@ class BcTestCase extends TestCase
      * 基本的に利用しない方針だが、動的フィクスチャーが必要なテストの場合にだけ利用する。
      * 動的フィクスチャーを FixtureFactory に移管後、廃止とする
      * @deprecated 5.1.0
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function setUpFixtureManager()
     {

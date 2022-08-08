@@ -179,4 +179,15 @@ class BcTestCaseTest extends BcTestCase
         unlink(TMP . 'test');
     }
 
+    /**
+     * test setUpFixtureManager
+     * @return void
+     */
+    public function testSetUpFixtureManager(){
+        $bcTestCase = new BcTestCase();
+        $bcTestCase->setUpFixtureManager();
+        $this->assertTrue(isset($bcTestCase->FixtureManager));
+        $this->assertTrue(isset($bcTestCase->FixtureInjector));
+        $this->assertTrue(isset($bcTestCase->FixtureInjector));
+    }
 }
