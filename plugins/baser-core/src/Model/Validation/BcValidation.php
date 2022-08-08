@@ -183,7 +183,6 @@ class BcValidation extends Validation
      * @noTodo
      * @note(value="アノテーションのためエラーテスト未完了です")
      * @unitTest
-
      */
     public static function fileCheck($value, $size)
     {

@@ -53,7 +53,6 @@ class BcAppTest extends BaserTestCase
         $this->Dblog = ClassRegistry::init('Dblog');
         $this->User = ClassRegistry::init('User');
         $this->Content = ClassRegistry::init('Content');
-
     }
 
     /**
@@ -101,7 +100,9 @@ class BcAppTest extends BaserTestCase
         ]);
 
         $LastID = $this->Page->getLastInsertID();
-        $result = $this->Page->find('first', [
+        $result = $this->Page->find(
+            'first',
+            [
                 'conditions' => ['id' => $LastID],
                 'fields' => ['created'],
                 'recursive' => -1
@@ -136,7 +137,9 @@ class BcAppTest extends BaserTestCase
         $now = date('Y-m-d H');
 
         $LastID = $this->Page->getLastInsertID();
-        $result = $this->Page->find('first', [
+        $result = $this->Page->find(
+            'first',
+            [
                 'conditions' => ['id' => $LastID],
                 'fields' => ['created', 'modified'],
                 'recursive' => -1
@@ -161,7 +164,7 @@ class BcAppTest extends BaserTestCase
     public function testConvertEncodingByArray($data, $outenc, $inenc)
     {
         $result = $this->BcApp->convertEncodingByArray($data, $outenc, $inenc);
-        foreach($result as $key => $value) {
+        foreach ($result as $key => $value) {
             $encode = mb_detect_encoding($value);
             $this->assertEquals($outenc, $encode);
         }
@@ -188,13 +191,14 @@ class BcAppTest extends BaserTestCase
 
         // 最後に追加したログを取得
         $LastID = $this->Dblog->getLastInsertID();
-        $result = $this->Dblog->find('first', [
+        $result = $this->Dblog->find(
+            'first',
+            [
                 'conditions' => ['Dblog.id' => $LastID],
                 'fields' => 'name',
             ]
         );
         $this->assertEquals($message, $result['Dblog']['name']);
-
     }
 
     /**
@@ -447,10 +451,11 @@ class BcAppTest extends BaserTestCase
      */
     public function testFileExt($fileName, $fileType, $expect)
     {
-        $check = [[
-            "name" => $fileName,
-            "type" => $fileType,
-        ]
+        $check = [
+            [
+                "name" => $fileName,
+                "type" => $fileType,
+            ]
         ];
         $ext = "jpg,png";
 
@@ -465,7 +470,9 @@ class BcAppTest extends BaserTestCase
             ["test.png", "image/png", true],
             ["test.gif", "image/gif", false],
             ["test", "image/png", true],
-            
+        ];
+    }
+    /**
      * ファイルサイズチェック
      *
      * @param string $fileName チェック対象ファイル名
@@ -475,11 +482,12 @@ class BcAppTest extends BaserTestCase
      */
     public function testFileCheck($fileName, $fileSize, $errorCode, $expect)
     {
-        $check = [[
-            "name" => $fileName,
-            "size" => $fileSize,
-            "error" => $errorCode,
-        ]
+        $check = [
+            [
+                "name" => $fileName,
+                "size" => $fileSize,
+                "error" => $errorCode,
+            ]
         ];
         $size = 1048576;
 
@@ -556,7 +564,6 @@ class BcAppTest extends BaserTestCase
         $message = 'Key Value 形式のテーブルにデータを保存することができません';
         $this->assertEquals('テストです1', $result['test1'], $message);
         $this->assertEquals('テストです2', $result['test2'], $message);
-
     }
 
     /**
@@ -593,12 +600,12 @@ class BcAppTest extends BaserTestCase
         $result = $this->User->find('first', ['conditions' => ['User.id' => 2], 'recursive' => 2]);
 
         // 存在するキー
-        foreach($expectedHasKeys as $key) {
+        foreach ($expectedHasKeys as $key) {
             $this->assertArrayHasKey($key, $result, '指定したモデル以外のアソシエーションを除外できません');
         }
 
         // 存在しないキー
-        foreach($expectedNotHasKeys as $key) {
+        foreach ($expectedNotHasKeys as $key) {
             $this->assertArrayNotHasKey($key, $result, '指定したモデル以外のアソシエーションを除外できません');
         }
     }
@@ -720,7 +727,6 @@ class BcAppTest extends BaserTestCase
 
         $actual = $Model->save(['Hoge' => ['name' => 'fuga']]);
         $this->assertEquals($expect, $actual, 'スタブが正しく実行されること');
-
     }
 
     /**
@@ -737,5 +743,4 @@ class BcAppTest extends BaserTestCase
         $this->assertEquals($result[1]['or']['1']['BcApp.publish_end'], null);
         $this->assertEquals($result[1]['or']['2']['BcApp.publish_end'], '0000-00-00 00:00:00');
     }
-
 }
