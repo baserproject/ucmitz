@@ -391,7 +391,7 @@ class PermissionsServiceTest extends BcTestCase
      *
      * @param $url
      * @param $expect
-     * @dataProvider allowsDataProvider
+     * @dataProvider setDefaultAllowDataProvider
      *
      */
     public function testSetDefaultAllow($url, $expect){
@@ -399,7 +399,7 @@ class PermissionsServiceTest extends BcTestCase
         $this->assertEquals($this->execPrivateMethod($this->PermissionsService, 'checkDefaultAllow', [$url]), $expect);
     }
 
-    public function allowsDataProvider()
+    public function setDefaultAllowDataProvider()
     {
         return [
             ['/baser/admin/baser-core/dashboard/test', true],
