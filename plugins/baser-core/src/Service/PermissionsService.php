@@ -54,6 +54,10 @@ class PermissionsService implements PermissionsServiceInterface
 
     /**
      * PermissionsService constructor.
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -83,6 +87,9 @@ class PermissionsService implements PermissionsServiceInterface
      * リストデータを取得
      * 対応しない
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getList(): array
     {

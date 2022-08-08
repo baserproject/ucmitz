@@ -40,6 +40,9 @@ class SearchIndexesService implements SearchIndexesServiceInterface
 
     /**
      * SearchIndexesService constructor.
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function __construct()
     {
@@ -50,6 +53,9 @@ class SearchIndexesService implements SearchIndexesServiceInterface
      * 索引を取得する
      * @param int $id
      * @return EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function get($id): EntityInterface
     {

@@ -465,6 +465,40 @@ class BcAppTest extends BaserTestCase
             ["test.png", "image/png", true],
             ["test.gif", "image/gif", false],
             ["test", "image/png", true],
+            
+     * ファイルサイズチェック
+     *
+     * @param string $fileName チェック対象ファイル名
+     * @param string $fileSize チェック対象ファイルサイズ
+     * @param boolean $expect
+     * @dataProvider fileCheckDataProvider
+     */
+    public function testFileCheck($fileName, $fileSize, $errorCode, $expect)
+    {
+        $check = [[
+            "name" => $fileName,
+            "size" => $fileSize,
+            "error" => $errorCode,
+        ]
+        ];
+        $size = 1048576;
+
+        $_POST = ['fileCheck require $_POST' => true];
+        CakeLog::disable('stderr');
+        $result = $this->BcApp->fileCheck($check, $size);
+        CakeLog::enable('stderr');
+        $this->assertEquals($expect, $result);
+    }
+
+    public function fileCheckDataProvider()
+    {
+        return [
+            ["test.jpg", 1048576, 0, true],
+            ["test.jpg", 1048577, 0, 'ファイルサイズがオーバーしています。 1 MB以内のファイルをご利用ください。'], // filecheck制限オーバー
+            ["", 1048576, 0, true], // ファイル名なし
+            [null, null, 1, 'ファイルサイズがオーバーしています。 1 MB以内のファイルをご利用ください。'], // upload_max_filesizeオーバー
+            ["test.jpg", null, 2, 'ファイルサイズがオーバーしています。 1 MB以内のファイルをご利用ください。'], // HTMLのMAX_FILE_SIZEオーバー
+            [null, null, 4, true], // ファイルアップロードなし
         ];
     }
 
