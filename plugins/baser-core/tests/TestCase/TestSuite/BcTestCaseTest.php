@@ -187,10 +187,9 @@ class BcTestCaseTest extends BcTestCase
      * @return void
      */
     public function testSetUpFixtureManager(){
-        $bcTestCase = new BcTestCase();
-        $bcTestCase->setUpFixtureManager();
-        $this->assertTrue(isset($bcTestCase->FixtureManager));
-        $this->assertTrue(isset($bcTestCase->FixtureInjector));
-        $this->assertTrue(isset($bcTestCase->FixtureInjector));
+        self::setUpFixtureManager();
+        $this->assertTrue(isset($this->FixtureManager));
+        $this->assertTrue(isset($this->FixtureInjector));
+        $this->assertTrue(isset($this->FixtureInjector));
     }
 }
