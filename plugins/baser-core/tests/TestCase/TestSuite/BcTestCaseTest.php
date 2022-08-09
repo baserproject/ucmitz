@@ -179,4 +179,15 @@ class BcTestCaseTest extends BcTestCase
         unlink(TMP . 'test');
     }
 
+    /**
+     * test tearDownFixtureManager
+     * @return void
+     */
+    public function testTearDownFixtureManager(){
+        self::setUpFixtureManager();
+        self::tearDownFixtureManager();
+
+        $this->assertTrue(isset($this->fixtures));
+        $this->assertEmpty(self::$fixtureManager);
+    }
 }
