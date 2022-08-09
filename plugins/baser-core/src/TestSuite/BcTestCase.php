@@ -293,6 +293,9 @@ class BcTestCase extends TestCase
      * Api Login
      * @param int $id
      * @return array
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     protected function apiLoginAdmin($id = 1)
     {
