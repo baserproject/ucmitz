@@ -180,13 +180,15 @@ class BcTestCaseTest extends BcTestCase
     }
 
     /**
-     * test tearDownFixtureManager
+     * test tearDownFixtureManager and setUpFixtureManager
      * @return void
      */
-    public function testTearDownFixtureManager(){
+    public function testSetUpFixtureManagerAndTearDownFixtureManager(){
         self::setUpFixtureManager();
         self::tearDownFixtureManager();
 
+        $this->assertTrue(isset($this->FixtureManager));
+        $this->assertTrue(isset($this->FixtureInjector));
         $this->assertTrue(isset($this->fixtures));
         $this->assertEmpty(self::$fixtureManager);
     }
