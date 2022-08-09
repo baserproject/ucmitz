@@ -182,4 +182,14 @@ class BcTestCaseTest extends BcTestCase
         unlink(TMP . 'test');
     }
 
+    /**
+     * test setUpFixtureManager
+     * @return void
+     */
+    public function testSetUpFixtureManager(){
+        self::setUpFixtureManager();
+        $this->assertTrue(isset($this->FixtureManager));
+        $this->assertTrue(isset($this->FixtureInjector));
+        $this->assertTrue(isset($this->FixtureInjector));
+    }
 }
