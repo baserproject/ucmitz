@@ -179,4 +179,13 @@ class BcTestCaseTest extends BcTestCase
         unlink(TMP . 'test');
     }
 
+    /**
+     * test entryEventToMock
+     * @return void
+     */
+    public function testEntryEventToMock(){
+        $rs = self::entryEventToMock(self::EVENT_LAYER_CONTROLLER,"add","test");
+        $this->assertTrue(isset($rs->layer));
+        $this->assertTrue(isset($rs->plugin));
+    }
 }
