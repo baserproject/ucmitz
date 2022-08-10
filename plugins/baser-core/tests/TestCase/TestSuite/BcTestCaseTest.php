@@ -184,9 +184,13 @@ class BcTestCaseTest extends BcTestCase
      * @return void
      */
     public function testSetUpFixtureManagerAndTearDownFixtureManager(){
+        $contents = $this->getTableLocator()->get('BaserCore.Contents');
+        $this->assertTrue((bool) $contents->find()->count());
+
         self::setUpFixtureManager();
         self::tearDownFixtureManager();
 
+        $this->assertFalse((bool) $contents->find()->count());
         $this->assertTrue(isset($this->FixtureManager));
         $this->assertTrue(isset($this->FixtureInjector));
         $this->assertTrue(isset($this->fixtures));
