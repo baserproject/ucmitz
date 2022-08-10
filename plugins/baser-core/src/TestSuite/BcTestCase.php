@@ -118,6 +118,9 @@ class BcTestCase extends TestCase
      * tear down FixtureManager
      * @deprecated 5.1.0
      * @see setUpFixtureManager
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function tearDownFixtureManager()
     {
@@ -290,6 +293,9 @@ class BcTestCase extends TestCase
      * Api Login
      * @param int $id
      * @return array
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     protected function apiLoginAdmin($id = 1)
     {

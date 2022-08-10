@@ -137,7 +137,10 @@ class BcTestCaseTest extends BcTestCase
      */
     public function testApiLoginAdmin(): void
     {
-        $this->assertNotEmpty($this->apiLoginAdmin(1));
+        $rs = $this->apiLoginAdmin(1);
+        $this->assertNotEmpty($rs);
+        $this->assertTrue(isset($rs["access_token"]));
+        $this->assertTrue(isset($rs["refresh_token"]));
         $this->assertEmpty($this->apiLoginAdmin(100));
     }
 
@@ -196,5 +199,22 @@ class BcTestCaseTest extends BcTestCase
         $this->assertEquals('test', $form->end());
         $this->assertTrue(isset($rs->layer));
         $this->assertTrue(isset($rs->plugin));
+    }
+    /**
+     * test tearDownFixtureManager and setUpFixtureManager
+     * @return void
+     */
+    public function testSetUpFixtureManagerAndTearDownFixtureManager(){
+        $contents = $this->getTableLocator()->get('BaserCore.Contents');
+        $this->assertTrue((bool) $contents->find()->count());
+
+        self::setUpFixtureManager();
+        self::tearDownFixtureManager();
+
+        $this->assertFalse((bool) $contents->find()->count());
+        $this->assertTrue(isset($this->FixtureManager));
+        $this->assertTrue(isset($this->FixtureInjector));
+        $this->assertTrue(isset($this->fixtures));
+        $this->assertEmpty(self::$fixtureManager);
     }
 }
