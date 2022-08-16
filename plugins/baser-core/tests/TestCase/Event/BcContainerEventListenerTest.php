@@ -14,6 +14,7 @@ namespace BaserCore\Test\TestCase\Event;
 use App\Application;
 use BaserCore\Event\BcContainerEventListener;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainer;
 use Cake\Event\Event;
 use Cake\Event\EventManager;
 
@@ -90,4 +91,15 @@ class BcContainerEventListenerTest extends BcTestCase
             ->dispatch(new Event('Application.buildContainer', new Application(ROOT . '/config'), []));
     }
 
+    /**
+     * test buildContainer
+     * @return void
+     */
+    public function testBuildContainer(){
+        $event = new Event("test", ["subject" => "_subject test"], ["container" => "container test"]);
+        $this->bcContainerEventListener->buildContainer($event);
+        $bc = new BcContainer();
+        $container = $bc::$container;
+        $this->assertEquals("container test", $container);
+    }
 }

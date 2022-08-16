@@ -41,6 +41,9 @@ class BcContainerEventListener implements EventListenerInterface
      * インターフェイスを指定して取得できる
      * 例）$this->getService(UsersServiceInterface::class);
      * @param Event $event
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function buildContainer(Event $event)
     {
