@@ -188,5 +188,7 @@ class UsersControllerTest extends BcTestCase
         $this->post('/baser/api/baser-core/users/login.json', ['email' => 'testuser1@example.com', 'password' => 'password']);
         $this->assertResponseOk();
         $this->assertFlashMessage('ようこそ、ニックネーム1さん。');
+        $body = json_decode($this->_getBodyAsString());
+        $this->assertEquals('/baser/admin', $body->redirect);
     }
 }
