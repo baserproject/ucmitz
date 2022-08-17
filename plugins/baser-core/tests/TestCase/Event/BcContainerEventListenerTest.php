@@ -98,7 +98,6 @@ class BcContainerEventListenerTest extends BcTestCase
     public function testBuildContainer(){
         $event = new Event("test", ["subject" => "_subject test"], ["container" => "container test"]);
         $this->bcContainerEventListener->buildContainer($event);
-        $container = BcContainer::$container;
-        $this->assertEquals("container test", $container);
+        $this->assertEquals("container test", BcContainer::$container);
     }
 }
