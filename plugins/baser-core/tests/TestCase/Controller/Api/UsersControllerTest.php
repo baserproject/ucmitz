@@ -173,4 +173,20 @@ class UsersControllerTest extends BcTestCase
         $this->assertEquals('baser admin', $result->user->name);
     }
 
+    /**
+     * test Login
+     * @return void
+     */
+    public function testLogin()
+    {
+        $this->get('/baser/api/baser-core/users/login.json');
+        $this->assertResponseCode(401);
+
+        $this->post('/baser/api/baser-core/users/login.json');
+        $this->assertResponseCode(401);
+
+        $this->post('/baser/api/baser-core/users/login.json', ['email' => 'testuser1@example.com', 'password' => 'password']);
+        $this->assertResponseOk();
+        $this->assertFlashMessage('ようこそ、ニックネーム1さん。');
+    }
 }
