@@ -65,6 +65,9 @@ class UsersController extends BcApiController
 
     /**
      * リフレッシュトークン取得
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function refresh_token()
     {
