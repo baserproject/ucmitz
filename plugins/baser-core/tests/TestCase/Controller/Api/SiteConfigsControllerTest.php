@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Controller\Api;
 
+use BaserCore\Service\SiteConfigsService;
 use Cake\Core\Configure;
 use Cake\TestSuite\IntegrationTestTrait;
 
