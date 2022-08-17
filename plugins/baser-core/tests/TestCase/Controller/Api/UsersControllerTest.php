@@ -192,6 +192,7 @@ class UsersControllerTest extends BcTestCase
             'password' => 'password',
             'saved' => 1
         ]);
+
         $loginStores = $this->getTableLocator()->get('BaserCore.LoginStores');
         $this->assertEquals(1, $loginStores->find()->where(['user_id' => 1])->count());
     }
