@@ -46,7 +46,7 @@ class DblogsController extends BcApiController
         $this->set([
             'message' => $message,
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'DbLog']);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
     /**
