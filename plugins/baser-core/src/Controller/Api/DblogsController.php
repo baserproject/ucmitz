@@ -36,17 +36,20 @@ class DblogsController extends BcApiController
         $this->request->allowMethod(['post', 'put']);
 
         try {
-            $DblogsService->create($this->request->getData());
+            $dblogs = $DblogsService->create($this->request->getData());
             $message = __d('baser', 'ログを追加しました。');
         } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
+            $dblogs = $e->getEntity();
             $message = __d('baser', 'ログを追加できませんでした。');
             $this->setResponse($this->response->withStatus(400));
         }
 
         $this->set([
             'message' => $message,
+            'dblogs' => $dblogs,
+            'errors' => $dblogs->getErrors(),
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'dblogs', 'errors']);
     }
 
     /**
