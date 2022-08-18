@@ -81,8 +81,7 @@ class DblogsControllerTest extends BcTestCase
         $this->assertEquals('最近の動きのログを削除しました。', $result->message);
 
         $this->post('/baser/api/baser-core/dblogs/delete_all/test.json?token=' . $this->accessToken);
-        $this->assertResponseSuccess();
-
+        $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('最近の動きのログ削除に失敗しました。', $result->message);
     }

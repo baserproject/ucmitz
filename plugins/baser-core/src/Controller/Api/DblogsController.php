@@ -38,6 +38,7 @@ class DblogsController extends BcApiController
         if ($DblogsService->deleteAll()) {
             $message = __d('baser', '最近の動きのログを削除しました。');
         } else {
+            $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', '最近の動きのログ削除に失敗しました。');
         }
         $this->set([
