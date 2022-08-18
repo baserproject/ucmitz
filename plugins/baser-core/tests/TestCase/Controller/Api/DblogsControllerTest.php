@@ -85,6 +85,8 @@ class DblogsControllerTest extends BcTestCase
         $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('ログを追加できませんでした。', $result->message);
+        $this->assertTrue(isset($result->dblogs));
+        $this->assertTrue(isset($result->errors->message));
 
         $data = [
             'message' => "message test",
@@ -93,8 +95,13 @@ class DblogsControllerTest extends BcTestCase
         ];
         $this->post('/baser/api/baser-core/dblogs/add.json?token=' . $this->accessToken, $data);
         $this->assertResponseSuccess();
+
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('ログを追加しました。', $result->message);
+        $this->assertTrue(isset($result->dblogs));
+        $this->assertTrue(isset($result->errors));
+        $this->assertEquals(0, count($result->errors));
+
         $dbLogs = $this->getTableLocator()->get('Dblogs');
         $query = $dbLogs->find()->where(['message' => $data['message']]);
         $this->assertEquals(1, $query->count());
