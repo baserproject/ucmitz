@@ -201,4 +201,22 @@ class PluginsControllerTest extends BcTestCase
         $this->assertIsArray($result->plugins);
     }
 
+    /**
+     * test delete
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->get('/baser/api/baser-core/plugins/delete/test.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $this->post('/baser/api/baser-core/plugins/delete/test.json?token=' . $this->accessToken);
+        $this->assertResponseCode(400);
+
+        $this->post('/baser/api/baser-core/plugins/delete/3.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('プラグイン「BcUploader」を削除しました。', $result->message);
+        $this->assertEquals('BcUploader', $result->plugin->name);
+    }
 }

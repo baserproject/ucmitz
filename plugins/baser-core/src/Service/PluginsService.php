@@ -476,4 +476,16 @@ class PluginsService implements PluginsServiceInterface
         return '';
     }
 
+    /**
+     * プラグインを無効にする
+     * @param string $name
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete($id): bool
+    {
+        $content = $this->get($id);
+        return $this->Plugins->delete($content);
+    }
 }

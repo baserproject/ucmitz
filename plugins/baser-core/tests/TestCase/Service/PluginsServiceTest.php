@@ -308,4 +308,15 @@ class PluginsServiceTest extends BcTestCase
         $caches = Cache::read('baserMarketPlugins', '_bc_env_');
         $this->assertIsArray($caches);
     }
+
+    /**
+     * test delete
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->assertTrue($this->Plugins->delete(3));
+        $plugin = $this->Plugins->getByName("BcUploader");
+        $this->assertEmpty($plugin);
+    }
 }

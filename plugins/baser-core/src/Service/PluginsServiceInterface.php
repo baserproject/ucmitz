@@ -113,4 +113,12 @@ interface PluginsServiceInterface
      */
     public function getInstallStatusMessage($pluginName): string;
 
+    /**
+     * プラグイン削除
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function delete(int $id): bool;
+
 }

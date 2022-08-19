@@ -202,4 +202,35 @@ class PluginsController extends BcApiController
         ]);
         $this->viewBuilder()->setOption('serialize', ['plugins']);
     }
+
+    /**
+     * プラグイン削除
+     * @param PluginsServiceInterface $plugins
+     * @param $id
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete(PluginsServiceInterface $plugins,$id)
+    {
+        $this->request->allowMethod(['post', 'put']);
+        try {
+            $plugin = $plugins->get($id);
+            if($plugins->delete($id)) {
+                $message = sprintf(__d('baser', 'プラグイン「%s」を削除しました。'), $plugin->name);
+            } else {
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser', 'プラグイン「%s」を削除に失敗しました。' . $plugin->name);
+            }
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $this->setResponse($this->response->withStatus(400));
+        }
+        $this->set([
+            'message' => $message,
+            'plugin' => $plugin
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['plugin', 'message']);
+    }
 }
