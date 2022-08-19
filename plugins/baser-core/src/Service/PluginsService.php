@@ -261,7 +261,7 @@ class PluginsService implements PluginsServiceInterface
      * @param string $name
      * @checked
      * @noTodo
-     * @unitTest
+     * @unitTest PluginsTable::attach() のテストに委ねる
      */
     public function attach(string $name): bool
     {
