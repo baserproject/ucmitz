@@ -150,7 +150,12 @@ class UserGroupsControllerTest extends BcTestCase
         }
     }
 
-    public function testCopy(){
+    /**
+     * test copy
+     * @return void
+     */
+    public function testCopy()
+    {
         $this->get('/baser/api/baser-core/user_groups/copy/1.json?token=' . $this->accessToken);
         $this->assertResponseCode(405);
 
