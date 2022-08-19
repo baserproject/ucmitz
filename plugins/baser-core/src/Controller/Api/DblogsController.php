@@ -25,6 +25,24 @@ class DblogsController extends BcApiController
 {
 
     /**
+     * [API] DBログ一覧
+     * @param DblogsServiceInterface $DblogsService
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(DblogsServiceInterface $DblogsService)
+    {
+        $this->request->allowMethod(['get']);
+
+        $this->set([
+            'Dblogs' => $this->paginate($DblogsService->getIndex($this->request->getQueryParams()))
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['Dblogs']);
+    }
+
+    /**
      * [API] ログ新規追加
      * @param DblogsServiceInterface $DblogsService
      * @checked
