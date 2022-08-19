@@ -308,4 +308,17 @@ class PluginsServiceTest extends BcTestCase
         $caches = Cache::read('baserMarketPlugins', '_bc_env_');
         $this->assertIsArray($caches);
     }
+
+    /**
+     * test attach
+     * @return void
+     */
+    public function testAttach()
+    {
+        $plugin = 'BcBlog';
+        $this->Plugins->detach($plugin);
+
+        $this->Plugins->attach($plugin);
+        $this->assertTrue($this->Plugins->getByName('BcBlog')->status);
+    }
 }
