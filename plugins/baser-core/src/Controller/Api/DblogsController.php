@@ -64,10 +64,10 @@ class DblogsController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'dblogs' => $dblogs,
+            'dblog' => $dblogs,
             'errors' => $dblogs->getErrors(),
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'dblogs', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'dblog', 'errors']);
     }
 
     /**
