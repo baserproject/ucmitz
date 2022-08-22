@@ -48,4 +48,38 @@ class PermissionsController extends BcApiController
         $this->viewBuilder()->setOption('serialize', ['message', 'permission', 'errors']);
     }
 
+    /**
+     * [API] 削除処理
+     *
+     * @param int $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete(PermissionsServiceInterface $permissionService, $permissionId)
+    {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+
+        $error = null;
+        $permission = null;
+        try {
+            $permission = $permissionService->get($permissionId);
+            $permissionName = $permission->name;
+            $permissionService->delete($permissionId);
+            $message = __d('baser', 'アクセス制限設定「{0}」を削除しました。', $permissionName);
+        } catch (\Exception $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $error = $e->getMessage();
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        }
+
+        $this->set([
+            'message' => $message,
+            'permission' => $permission,
+            'errors' => $error,
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['permission', 'message', 'errors']);
+    }
+
 }
