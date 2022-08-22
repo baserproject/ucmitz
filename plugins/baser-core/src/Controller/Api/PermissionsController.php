@@ -24,6 +24,7 @@ class PermissionsController extends BcApiController
 {
     /**
      * [API] 単一アクセス制限設定取得
+     * @param PermissionsServiceInterface $permissionsService
      * @param $id
      *
      * @checked
