@@ -48,4 +48,42 @@ class PermissionsController extends BcApiController
         $this->viewBuilder()->setOption('serialize', ['message', 'permission', 'errors']);
     }
 
+    /**
+     * [API] アクセス制限設定コピー
+     * @param PermissionsServiceInterface $permissionService
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function copy(PermissionsServiceInterface $permissionService, $id)
+    {
+        $this->request->allowMethod(['patch', 'post', 'put']);
+
+        $permission = null;
+        $errors = null;
+        try {
+            $permission = $permissionService->get($id);
+            $permission = $permissionService->copy($id);
+            if ($permission) {
+                $message = __d('baser', 'アクセス制限設定「{0}」をコピーしました。', $permission->name);
+            } else {
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
+            }
+        } catch (\Exception $e) {
+            $errors = $e->getMessage();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        }
+
+        $this->set([
+            'message' => $message,
+            'permission' => $permission,
+            'errors' => $errors,
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['message', 'permission', 'errors']);
+    }
+
 }

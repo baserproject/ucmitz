@@ -63,7 +63,10 @@ class PermissionsControllerTest extends BcTestCase
         $this->loadFixtures(
             'Users',
             'UsersUserGroups',
-            'UserGroups'
+            'UserGroups',
+            'Permissions',
+            'Sites',
+            'SiteConfigs'
         );
         $token = $this->apiLoginAdmin(1);
         $this->accessToken = $token['access_token'];
@@ -98,11 +101,6 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testAdd()
     {
-        $this->loadFixtures(
-            'Permissions',
-            'Sites',
-            'SiteConfigs'
-        );
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         $data = [
@@ -150,5 +148,29 @@ class PermissionsControllerTest extends BcTestCase
     public function testView()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test copy
+     * @return void
+     */
+    public function testCopy()
+    {
+        $this->get('/baser/api/baser-core/permissions/copy/1.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $this->post('/baser/api/baser-core/permissions/copy/1.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('アクセス制限設定「システム管理」をコピーしました。', $result->message);
+        $this->assertEquals('システム管理', $result->permission->name);
+        $this->assertEmpty($result->errors);
+
+        $this->post('/baser/api/baser-core/permissions/copy/test.json?token=' . $this->accessToken);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEmpty($result->permission);
+        $this->assertNotEmpty($result->errors);
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
     }
 }
