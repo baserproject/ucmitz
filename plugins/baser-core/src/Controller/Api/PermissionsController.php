@@ -60,6 +60,9 @@ class PermissionsController extends BcApiController
 
 	/**
 	 * 登録処理
+     *
+     * @param PermissionsServiceInterface $permissionService
+     *
      * @checked
      * @noTodo
      * @unitTest
@@ -86,7 +89,8 @@ class PermissionsController extends BcApiController
     /**
      * [API] 削除処理
      *
-     * @param int $id
+     * @param PermissionsServiceInterface $permissionService
+     * @param $permissionId
      *
      * @checked
      * @noTodo
@@ -119,7 +123,9 @@ class PermissionsController extends BcApiController
 
     /**
      * [API] アクセス制限設定コピー
+     *
      * @param PermissionsServiceInterface $permissionService
+     * @param $id
      *
      * @checked
      * @noTodo
