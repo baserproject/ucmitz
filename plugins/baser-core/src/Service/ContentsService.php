@@ -305,6 +305,7 @@ class ContentsService implements ContentsServiceInterface
     public function getTrashIndex(array $queryParams=[], string $type="all"): Query
     {
         $queryParams = array_merge($queryParams, ['withTrash' => true]);
+        if (isset($queryParams['site_id'])) unset($queryParams['site_id']);
         return $this->getIndex($queryParams, $type)->where(['deleted_date IS NOT NULL']);
     }
 
