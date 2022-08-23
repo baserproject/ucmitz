@@ -106,13 +106,13 @@ class PermissionsController extends BcApiController
         } catch (\Exception $e) {
             $this->setResponse($this->response->withStatus(400));
             $error = $e->getMessage();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $error);
         }
 
         $this->set([
             'message' => $message,
             'permission' => $permission,
-            'errors' => $error,
+            'error' => $error,
         ]);
         $this->viewBuilder()->setOption('serialize', ['permission', 'message', 'errors']);
     }

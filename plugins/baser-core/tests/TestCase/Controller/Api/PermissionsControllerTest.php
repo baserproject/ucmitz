@@ -192,7 +192,7 @@ class PermissionsControllerTest extends BcTestCase
         $this->post("/baser/api/baser-core/permissions/delete/test.json?token=" . $this->accessToken);
         $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+        $this->assertEquals('データベース処理中にエラーが発生しました。Cannot convert value of type `string` to integer', $result->message);
     }
 
     /**
