@@ -200,7 +200,7 @@ class PermissionsControllerTest extends BcTestCase
         $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEmpty($result->permission);
-        $this->assertNotEmpty($result->errors);
-        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+        $this->assertNull($result->errors);
+        $this->assertEquals('処理に失敗しました。', $result->message);
     }
 }

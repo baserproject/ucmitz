@@ -97,19 +97,24 @@ class PermissionsController extends BcApiController
 
         $permission = null;
         $errors = null;
-        try {
-            $permission = $permissionService->get($id);
-            $permission = $permissionService->copy($id);
-            if ($permission) {
-                $message = __d('baser', 'アクセス制限設定「{0}」をコピーしました。', $permission->name);
-            } else {
-                $this->setResponse($this->response->withStatus(400));
-                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
-            }
-        } catch (\Exception $e) {
-            $errors = $e->getMessage();
+
+        if (!$id || !is_numeric($id)) {
             $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $message = __d('baser', '処理に失敗しました。');
+        }else{
+            try {
+                $permission = $permissionService->copy($id);
+                if ($permission) {
+                    $message = __d('baser', 'アクセス制限設定「{0}」をコピーしました。', $permission->name);
+                } else {
+                    $this->setResponse($this->response->withStatus(400));
+                    $message = __d('baser', 'データベース処理中にエラーが発生しました。');
+                }
+            } catch (\Exception $e) {
+                $errors = $e->getMessage();
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。'.$errors);
+            }
         }
 
         $this->set([
