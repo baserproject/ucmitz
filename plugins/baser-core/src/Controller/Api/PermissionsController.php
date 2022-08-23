@@ -22,6 +22,41 @@ use BaserCore\Annotation\UnitTest;
  */
 class PermissionsController extends BcApiController
 {
+    /**
+     * [API] 単一アクセス制限設定取得
+     * @param PermissionsServiceInterface $permissionsService
+     * @param $id
+     *
+     * @checked
+     * @unitTest
+     * @noTodo
+     */
+    public function view(PermissionsServiceInterface $permissionsService, $id)
+    {
+        $this->request->allowMethod(['get']);
+        $this->set([
+            'permission' => $permissionsService->get($id)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['permission']);
+    }
+
+    /**
+     * [API] アクセス制限設定の一覧
+     * @param PermissionsServiceInterface $permissionService
+     * @param $userGroupId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(PermissionsServiceInterface $permissionService, $userGroupId)
+    {
+        $this->request->allowMethod(['get']);
+
+        $this->request = $this->request->withQueryParams(['user_group_id' => $userGroupId]);
+        $this->set('permissions', $permissionService->getIndex($this->request->getQueryParams()));
+        $this->viewBuilder()->setOption('serialize', ['permissions']);
+    }
 
 	/**
 	 * 登録処理
@@ -78,6 +113,36 @@ class PermissionsController extends BcApiController
             'message' => $message,
             'permission' => $permission,
             'errors' => $error,
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['permission', 'message', 'errors']);
+    }
+
+    /**
+     * [API] 編集処理
+     *
+     * @param PermissionsServiceInterface $permissionService
+     * @param $permissionId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+
+    public function edit(PermissionsServiceInterface $permissionService, $permissionId)
+    {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        try {
+            $permission = $permissionService->update($permissionService->get($permissionId), $this->request->getData());
+            $message = __d('baser', 'アクセス制限設定「{0}」を更新しました。', $permission->name);
+        } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $permission = $e->getEntity();
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        }
+        $this->set([
+            'message' => $message,
+            'permission' => $permission,
+            'errors' => $permission->getErrors(),
         ]);
         $this->viewBuilder()->setOption('serialize', ['permission', 'message', 'errors']);
     }

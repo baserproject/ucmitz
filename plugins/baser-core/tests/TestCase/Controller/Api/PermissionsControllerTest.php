@@ -92,7 +92,13 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->post('/baser/api/baser-core/permissions/index/1.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $this->get('/baser/api/baser-core/permissions/index/2.json?token=' . $this->accessToken);
+        $this->assertResponseSuccess();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals(15, count($result->permissions));
     }
 
     /**
@@ -130,7 +136,25 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testEdit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $permissionsService = new PermissionsService();
+        $data = $permissionsService->getIndex(['name' => 'システム管理'])->first();
+        $data->name = "システム管理 Update";
+        $id = $data->id;
+
+        $this->post("/baser/api/baser-core/permissions/edit/${id}.json?token=". $this->accessToken, $data->toArray());
+        $this->assertResponseSuccess();
+        $result = json_decode((string)$this->_response->getBody());
+        $permission = $permissionsService->getIndex(['id' => $id])->first();
+        $this->assertEquals($result->permission->name, $permission->name);
+        $this->assertEquals('アクセス制限設定「システム管理 Update」を更新しました。', $result->message);
+
+
+        $dataError["test"] = "システム管理 Update";
+
+        $this->post("/baser/api/baser-core/permissions/edit/1.json?token=". $this->accessToken, $dataError);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
     }
 
     /**
@@ -176,6 +200,11 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testView()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->get('/baser/api/baser-core/permissions/view/1.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('システム管理', $result->permission->name);
+        $this->assertEquals('2', $result->permission->user_group_id);
+        $this->assertEquals('/baser/admin/*', $result->permission->url);
     }
 }
