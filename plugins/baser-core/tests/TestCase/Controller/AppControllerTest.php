@@ -73,7 +73,6 @@ class AppControllerTest extends BcTestCase
      */
     public function testConstruct(): void
     {
-        $this->assertNull($this->AppController->redirectIfIsRequireMaintenance());
         $this->assertNotEmpty($this->getRequest()->getSession());
     }
 
