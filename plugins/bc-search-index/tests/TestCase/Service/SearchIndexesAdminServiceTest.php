@@ -17,7 +17,6 @@ use BaserCore\Service\SitesService;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcSearchIndex\Service\SearchIndexesAdminService;
-use Cake\ORM\ResultSet;
 
 /**
  * Class SearchIndexesAdminServiceTest
@@ -73,7 +72,8 @@ class SearchIndexesAdminServiceTest extends BcTestCase
     {
         $sitesService = new SitesService();
         $sites = $sitesService->getIndex([])->all();
-        $rs = $this->SearchIndexesAdminService->getViewVarsForIndex($sites, 1);
+        $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 1]);
+        $rs = $this->SearchIndexesAdminService->getViewVarsForIndex($sites, $request);
 
         $this->assertTrue(isset($rs['searchIndexes']));
         $this->assertTrue(isset($rs['folders']));
