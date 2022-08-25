@@ -18,7 +18,8 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Utility\BcContainerTrait;
-use Cake\Datasource\EntityInterface;
+use BcSearchIndex\Form\SearchIndexesSearchForm;
+use Cake\Http\ServerRequest;
 
 /**
  * SearchIndexesAdminService
@@ -40,14 +41,17 @@ class SearchIndexesAdminService extends SearchIndexesService implements SearchIn
      * @noTodo
      * @unitTest
      */
-    public function getViewVarsForIndex(\Cake\ORM\ResultSet $searchIndexes, int $siteId): array
+    public function getViewVarsForIndex(\Cake\ORM\ResultSet $searchIndexes, ServerRequest $request): array
     {
         $contentsService = $this->getService(ContentsServiceInterface::class);
         $sitesService = $this->getService(SitesServiceInterface::class);
+        $searchForm = new SearchIndexesSearchForm();
+        $searchForm->setData($request->getQuery());
         return [
             'searchIndexes' => $searchIndexes,
-            'folders' => $contentsService->getContentFolderList($siteId, ['conditions' => ['Contents.site_root' => false]]),
-            'sites' => $sitesService->getList()
+            'folders' => $contentsService->getContentFolderList($request->getQuery('site_id'), ['conditions' => ['Contents.site_root' => false]]),
+            'sites' => $sitesService->getList(),
+            'searchIndexesSearch' => $searchForm
         ];
     }
 

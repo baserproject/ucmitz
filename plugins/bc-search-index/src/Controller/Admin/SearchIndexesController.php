@@ -50,8 +50,8 @@ class SearchIndexesController extends BcAdminAppController
                 'limit' => $siteConfigService->getValue('admin_list_num'),
                 'sort' => 'id',
                 'direction' => 'asc',
-            ],
-            'SearchIndex' => ['site_id' => 0]
+                'site_id' => 1
+            ]
         ]]);
 
         // EVENT SearchIndex.searchIndex
@@ -64,7 +64,7 @@ class SearchIndexesController extends BcAdminAppController
 
         $this->set($adminService->getViewVarsForIndex(
             $this->paginate($service->getIndex($this->getRequest()->getQueryParams())),
-            (int) $this->getRequest()->getData('id')
+            $this->getRequest()
         ));
     }
 
