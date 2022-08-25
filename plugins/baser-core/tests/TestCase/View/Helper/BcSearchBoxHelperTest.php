@@ -66,7 +66,7 @@ class BcSearchBoxHelperTest extends BcTestCase
     }
 
     /**
-     * testDispatchShowField
+     * test DispatchShowField
      *
      * @return void
      */
