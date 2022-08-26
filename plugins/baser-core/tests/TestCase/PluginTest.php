@@ -17,6 +17,7 @@ use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
 use Cake\Core\Container;
+use Cake\Event\EventManager;
 use Cake\Http\MiddlewareQueue;
 use Authentication\Middleware\AuthenticationMiddleware;
 use Cake\Http\ServerRequest;
@@ -79,7 +80,30 @@ class PluginTest extends BcTestCase
      */
     public function testBootStrap(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $event = EventManager::instance();
+        $this->Plugin->bootstrap($this->application);
+
+        $this->assertTrue(is_array($event->listeners('Controller.initialize')));
+        $this->assertTrue(is_array($event->listeners('Controller.startup')));
+        $this->assertTrue(is_array($event->listeners('Controller.beforeRender')));
+
+        $this->assertTrue(is_array($event->listeners('Model.beforeFind')));
+        $this->assertTrue(is_array($event->listeners('Model.afterFind')));
+        $this->assertTrue(is_array($event->listeners('Model.beforeValidate')));
+
+        $this->assertTrue(is_array($event->listeners('View.beforeRenderFile')));
+        $this->assertTrue(is_array($event->listeners('View.afterRenderFile')));
+        $this->assertTrue(is_array($event->listeners('View.beforeRender')));
+
+        $this->assertTrue(is_array($event->listeners('Application.beforeFind')));
+
+        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.afterMove')));
+        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.beforeDelete')));
+        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.afterTrashReturn')));
+        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.afterChangeStatus')));
+
+        $this->assertNotNull($this->application->getPlugins()->get('Authentication'));
+        $this->assertNotNull($this->application->getPlugins()->get('Migrations'));
     }
 
     /**
