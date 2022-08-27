@@ -19,7 +19,6 @@ use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class BcSearchBoxHelperTest
- * @package BaserCore\Test\TestCase\View\Helper
  * @property BcSearchBoxHelper $BcSearchBoxHelper
  */
 class BcSearchBoxHelperTest extends BcTestCase
