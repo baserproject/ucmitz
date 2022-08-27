@@ -19,7 +19,6 @@ use Cake\Core\Container;
 
 /**
  * Class PluginTest
- * @package BcSearchIndex\Test\TestCase
  * @property Plugin $Plugin
  */
 class PluginTest extends BcTestCase
