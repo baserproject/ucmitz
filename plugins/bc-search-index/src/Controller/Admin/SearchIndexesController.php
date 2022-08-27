@@ -28,6 +28,9 @@ class SearchIndexesController extends BcAdminAppController
     /**
      * before render
      * @param EventInterface $event
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function beforeRender(EventInterface $event): void
     {
@@ -39,6 +42,8 @@ class SearchIndexesController extends BcAdminAppController
      * [ADMIN] 検索インデックス
      *
      * @return void
+     * @checked
+     * @noTodo
      */
     public function index(
         SearchIndexesServiceInterface $service,
@@ -50,8 +55,8 @@ class SearchIndexesController extends BcAdminAppController
                 'limit' => $siteConfigService->getValue('admin_list_num'),
                 'sort' => 'id',
                 'direction' => 'asc',
-            ],
-            'SearchIndex' => ['site_id' => 0]
+                'site_id' => 1
+            ]
         ]]);
 
         // EVENT SearchIndex.searchIndex
@@ -64,16 +69,14 @@ class SearchIndexesController extends BcAdminAppController
 
         $this->set($adminService->getViewVarsForIndex(
             $this->paginate($service->getIndex($this->getRequest()->getQueryParams())),
-            (int) $this->getRequest()->getData('id')
+            $this->getRequest()
         ));
     }
 
     /**
-     * [ADMIN] 検索インデックス削除　(ajax)
+     * [ADMIN] 検索インデックス削除
      *
      * @param int $id
-     * @return    void
-     * @access    public
      */
     public function delete($id = null)
     {

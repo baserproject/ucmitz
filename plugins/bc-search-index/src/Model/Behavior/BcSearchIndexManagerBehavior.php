@@ -11,6 +11,9 @@
 
 namespace BcSearchIndex\Model\Behavior;
 
+use ArrayObject;
+use Cake\Datasource\EntityInterface;
+use Cake\Event\EventInterface;
 use Cake\ORM\Behavior;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
@@ -29,6 +32,47 @@ use BaserCore\Annotation\UnitTest;
  */
 class BcSearchIndexManagerBehavior extends Behavior
 {
+
+    /**
+     * 無視状態かどうか
+     * @var bool
+     */
+    private $isExcluded = false;
+
+    /**
+     * 除外状態として設定する
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function setExcluded()
+    {
+        $this->isExcluded = true;
+    }
+
+    /**
+     * 除外状態の設定を解除する
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function unsetExcluded()
+    {
+        $this->isExcluded = false;
+    }
+
+    /**
+     * 除外状態を確認する
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function isExcluded()
+    {
+        return $this->isExcluded;
+    }
+
     /**
      * initialize
      * @param  array $config
@@ -46,9 +90,44 @@ class BcSearchIndexManagerBehavior extends Behavior
         /** @var \BaserCore\Model\Table\ContentsTable $Contents  */
         $this->Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
         /** @var \BcSearchIndex\Model\Table\SearchIndexesTable $SearchIndexes  */
-        $this->SearchIndexes = TableRegistry::getTableLocator()->get('BaserCore.SearchIndexes');
+        $this->SearchIndexes = TableRegistry::getTableLocator()->get('BcSearchIndex.SearchIndexes');
         /** @var \BaserCore\Model\Table\SiteConfigsTable $SiteConfigs  */
         $this->SiteConfigs = TableRegistry::getTableLocator()->get('BaserCore.SiteConfigs');
+    }
+
+    /**
+     * afterSave
+     *
+     * @param  EventInterface $event
+     * @param  EntityInterface $entity
+     * @param  ArrayObject $options
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    {
+        if (!$this->isExcluded) {
+            $this->saveSearchIndex($this->table->createSearchIndex($entity));
+        } else {
+            $this->deleteSearchIndex($entity->id);
+        }
+    }
+
+    /**
+     * After Delete
+     * @param EventInterface $event
+     * @param EntityInterface $entity
+     * @param ArrayObject $options
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function afterDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    {
+        $this->deleteSearchIndex($entity->id);
     }
 
     /**
