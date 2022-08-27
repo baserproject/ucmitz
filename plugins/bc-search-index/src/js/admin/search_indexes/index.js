@@ -11,6 +11,9 @@
 
 $(function () {
 
+    /**
+     * 検索インデックス再構築
+     */
     $("#BtnReconstruct").click(function () {
         $.bcConfirm.show({
             title: bcI18n.reconstructSearchTitle,
@@ -23,64 +26,69 @@ $(function () {
         return false;
     });
 
-    // 《一覧のロード時にイベント登録を行う為、外部ファイルに分けない》
-    // 本来であれば、一覧のロード完了イベントを作成し、
-    // そのタイミングでイベント登録をすべきだが、ロード完了イベントがないので応急措置とする
+    /**
+     * 優先度変更
+     */
     $(".priority").change(function () {
-        var id = this.id.replace('SearchIndexPriority', '');
+        var id = this.id.replace('searchindex-priority-', '');
         var priority = $(this).val();
         $.bcToken.check(function () {
-            var data = {
-                'data[SearchIndex][id]': id,
-                'data[SearchIndex][priority]': priority,
-                'data[_Token][key]': $.bcToken.key
-            };
             return $.ajax({
                 type: "POST",
-                url: $("#AjaxChangePriorityUrl").html() + '/' + id,
-                data: data,
+                url: $.bcUtil.apiBaseUrl + 'bc-search-index' + '/search_indexes/change_priority/' + id + '.json',
+                headers: {
+                    "Authorization": $.bcJwt.accessToken,
+                },
+                data: {
+                    'priority': priority,
+                    '_Token[key]': $.bcToken.key
+                },
                 beforeSend: function () {
-                    $("#flashMessage").slideUp();
-                    $("#PriorityAjaxLoader" + id).show();
+                    $.bcUtil.hideMessage();
+                    $.bcUtil.showLoader('after', '#searchindex-priority-' + id, 'searchindex-priority-loader');
                 },
                 success: function (result) {
                     if (!result) {
-                        $("#flashMessage").html('処理中にエラーが発生しました。');
-                        $("#flashMessage").slideDown();
+                        $.bcUtil.showAlertMessage('処理中にエラーが発生しました。');
                     }
                 },
                 error: function () {
-                    $("#flashMessage").html('処理中にエラーが発生しました。');
-                    $("#flashMessage").slideDown();
-                },
+                    $.bcUtil.showAlertMessage('処理中にエラーが発生しました。');                },
                 complete: function () {
-                    $("#PriorityAjaxLoader" + id).hide();
+                    $.bcUtil.hideLoader('after', '#searchindex-priority-' + id, 'searchindex-priority-loader');
                 }
             });
         });
     });
 
-    $("#SearchIndexSiteId").change(function () {
+    /**
+     * サイト更新
+     */
+    $("#site-id").change(function () {
         $.ajax({
-            url: $.bcUtil.apiBaseUrl + 'baser-core' + '/contents/get_content_folder_list/' + $(this).val(),
+            url: $.bcUtil.apiBaseUrl + 'baser-core' + '/contents/get_content_folder_list/' + $(this).val() + '.json',
+            headers: {
+                "Authorization": $.bcJwt.accessToken,
+            },
             type: "GET",
             dataType: "json",
             beforeSend: function () {
-                $("#SearchIndexSiteIdLoader").show();
-                $("#SearchIndexFolderId").prop('disabled', true);
+                $.bcUtil.showLoader('after', '#folder-id', 'folder-id-loader');
+                $("#folder-id").prop('disabled', true);
             },
             complete: function () {
-                $("#SearchIndexFolderId").removeAttr("disabled");
-                $("#SearchIndexSiteIdLoader").hide();
+                $("#folder-id").removeAttr("disabled");
+                $.bcUtil.hideLoader('after', '#folder-id', 'folder-id-loader');
             },
             success: function (result) {
-                $("#SearchIndexFolderId").empty();
+                let folderId = $("#folder-id");
+                folderId.empty();
                 var optionItems = [];
                 optionItems.push(new Option("指定なし", ""));
-                for (key in result) {
+                for (key in result.list) {
                     optionItems.push(new Option(result.list[key].replace(/&nbsp;/g, "\u00a0"), key));
                 }
-                $("#SearchIndexFolderId").append(optionItems);
+                folderId.append(optionItems);
             }
         });
     });
