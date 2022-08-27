@@ -22,13 +22,13 @@ use BaserCore\View\BcAdminAppView;
 switch($this->request->getParam('action')) {
   case 'index':
       $this->BcAdmin->setTitle(__d('baser', 'コンテンツ一覧'));
+      $this->BcAdmin->setSearch('contents_index');
       break;
   case 'trash_index':
       $this->BcAdmin->setTitle(__d('baser', 'ゴミ箱'));
       break;
 }
 
-$this->BcAdmin->setSearch('contents_index');
 $this->BcAdmin->setHelp('contents_index');
 
 $editInIndexDisabled = false;
@@ -79,7 +79,7 @@ $this->BcBaser->js('admin/contents/index.bundle', false, [
   'data-baserCorePrefix' => Inflector::underscore(BcUtil::getBaserCorePrefix()),
   'data-editInIndexDisabled' => $editInIndexDisabled
 ]);
-$this->BcBaser->css('../js/vendor/jquery.jstree-3.3.8/themes/proton/style.min', ['block' => true]);
+$this->BcBaser->css('../js/vendor/jquery.jstree-3.3.8/themes/proton/style.min', false);
 echo $this->BcAdminForm->control('BcManageContent', ['type' => 'hidden', 'value' => $this->BcContents->getJsonItems()]);
 ?>
 

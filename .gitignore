@@ -61,7 +61,14 @@ nbproject/*
 !/plugins/bc-blog
 !/plugins/bc-mail
 !/plugins/bc-uploader
+!/plugins/bc-favorite
 !/plugins/BcSpaSample
+!/plugins/bc-editor-template
+!/plugins/bc-theme-config
+!/plugins/bc-theme-file
+!/plugins/bc-widget-area
+!/plugins/bc-installer
+!/plugins/bc-search-index
 /plugins/*/vendor
 /plugins/*/composer.lock
 # vagrant
@@ -77,6 +84,15 @@ node_modules
 /webroot/bc_spa_sample
 /webroot/bc_front
 /webroot/baser_core
+/webroot/bc_favorite
+/webroot/bc_theme_config
+/webroot/bc_theme_file
+/webroot/bc_widget_area
+/webroot/bc_blog
+/webroot/bc_editor_template
+/webroot/bc_mail
+/webroot/bc_uploader
+/webroot/bc_search_index
 # jwt
 /config/jwt.key
 /config/jwt.pem

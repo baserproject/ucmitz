@@ -17,6 +17,7 @@ use BaserCore\Middleware\BcAdminMiddleware;
 use BaserCore\Middleware\BcRequestFilterMiddleware;
 use BaserCore\Plugin;
 use BaserCore\Utility\BcApiUtil;
+use BcSearchIndex\ServiceProvider\BcSearchIndexServiceProvider;
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Cake\Event\EventListenerInterface;
@@ -29,6 +30,9 @@ use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use Cake\TestSuite\Fixture\FixtureInjector;
 use Cake\TestSuite\Fixture\FixtureManager;
+use Cake\TestSuite\Fixture\FixtureStrategyInterface;
+use Cake\TestSuite\Fixture\TransactionStrategy;
+use Cake\TestSuite\Fixture\TruncateStrategy;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\TestSuite\TestCase;
 use BaserCore\Annotation\UnitTest;
@@ -60,6 +64,12 @@ class BcTestCase extends TestCase
      * @var Plugin
      */
     public $BaserCore;
+
+    /**
+     * FixtureStrategy にて、TruncateStrategy を利用するかどうか
+     * @var bool
+     */
+    private $fixtureTruncate = false;
 
     /**
      * イベントレイヤー
@@ -99,6 +109,33 @@ class BcTestCase extends TestCase
     public $FixtureInjector;
 
     /**
+     * FixtureStrategy にて、TruncateStrategy を利用するかどうかを設定
+     * @checked
+     * @noTodo
+     */
+    public function setFixtureTruncate(): void
+    {
+        $this->fixtureTruncate = true;
+    }
+
+    /**
+     * getFixtureStrategy
+     * フィクスチャの削除処理の高速化を図るため、FixtureStrategy に TransactionStrategy を設定。
+     * ベースをこちらにし、 auto increment による問題が発生した場合は、個別のテストケースごとに
+     * TruncateStrategy を利用するようにする。
+     * @checked
+     * @noTodo
+     */
+    protected function getFixtureStrategy(): FixtureStrategyInterface
+    {
+        if($this->fixtureTruncate) {
+            return new TruncateStrategy();
+        } else {
+            return new TransactionStrategy();
+        }
+    }
+
+    /**
      * setup FixtureManager
      *
      * CakePHP4系より、FixtureManagerが非推奨となったが、$this->autoFixtures = false を利用した動的フィクスチャーを
@@ -118,6 +155,9 @@ class BcTestCase extends TestCase
      * tear down FixtureManager
      * @deprecated 5.1.0
      * @see setUpFixtureManager
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function tearDownFixtureManager()
     {
@@ -151,6 +191,7 @@ class BcTestCase extends TestCase
         $this->BaserCore = $this->Application->getPlugins()->get('BaserCore');
         $container = BcContainer::get();
         $container->addServiceProvider(new BcServiceProvider());
+        $container->addServiceProvider(new BcSearchIndexServiceProvider());
         EventManager::instance(new EventManager());
     }
 
@@ -290,6 +331,9 @@ class BcTestCase extends TestCase
      * Api Login
      * @param int $id
      * @return array
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     protected function apiLoginAdmin($id = 1)
     {
@@ -306,6 +350,9 @@ class BcTestCase extends TestCase
      * @param $eventName
      * @param $callback
      * @return EventListenerInterface|\PHPUnit\Framework\MockObject\MockObject
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     protected function entryEventToMock($layer, $eventName, $callback)
     {

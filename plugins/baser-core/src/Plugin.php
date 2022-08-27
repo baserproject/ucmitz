@@ -15,6 +15,12 @@ use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
+use BaserCore\Event\BcContainerEventListener;
+use BaserCore\Event\BcControllerEventDispatcher;
+use BaserCore\Event\BcModelEventDispatcher;
+use BaserCore\Event\BcViewEventDispatcher;
+use BaserCore\Event\ContentFoldersControllerEventListener;
+use BaserCore\Event\PagesControllerEventListener;
 use BaserCore\Middleware\BcAdminMiddleware;
 use BaserCore\Middleware\BcRequestFilterMiddleware;
 use BaserCore\ServiceProvider\BcServiceProvider;
@@ -87,6 +93,17 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             }
         }
         $this->setupDefaultTemplatesPath();
+
+        /**
+         * グローバルイベント登録
+         */
+        $event = EventManager::instance();
+        $event->on(new BcControllerEventDispatcher());
+        $event->on(new BcModelEventDispatcher());
+        $event->on(new BcViewEventDispatcher());
+        $event->on(new BcContainerEventListener());
+        $event->on(new PagesControllerEventListener());
+        $event->on(new ContentFoldersControllerEventListener());
     }
 
     /**
@@ -237,13 +254,14 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                     'resolver' => [
                         'className' => 'Authentication.Orm',
                         'userModel' => $authSetting['userModel'],
+                        'finder' => 'available'
                     ],
                 ]);
                 $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
                     'fields' => [
                         'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
                         'password' => $authSetting['password']
-                    ]
+                    ],
                 ]);
                 $service->loadIdentifier('Authentication.Password', [
                     'returnPayload' => false,
@@ -256,7 +274,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'userModel' => $authSetting['userModel'],
                         'finder' => 'available'
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 // ログインの際のみ、管理画面へのログイン状態を維持するためセッションの設定を追加
                 // TODO ログインURLの判定方法を検討必要
@@ -273,7 +290,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                 $service->setConfig([
                     'unauthenticatedRedirect' => Router::url($authSetting['loginAction'], true),
                     'queryParam' => 'redirect',
-                    'contain' => 'UserGroups',
                 ]);
                 $service->loadAuthenticator('Authentication.Session', [
                     'sessionKey' => $authSetting['sessionKey'],
@@ -295,7 +311,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'userModel' => $authSetting['userModel'],
                         'finder' => 'available'
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 break;
 

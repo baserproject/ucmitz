@@ -11,6 +11,8 @@
 
 namespace BaserCore\ServiceProvider;
 
+use BcFavorite\Service\FavoriteService;
+use BcFavorite\Service\FavoriteServiceInterface;
 use BaserCore\Service\AppService;
 use BaserCore\Service\AppServiceInterface;
 use BaserCore\Service\BcAdminAppService;
@@ -46,7 +48,7 @@ use BaserCore\Service\ContentsService;
 use BaserCore\Service\UserGroupsService;
 use BaserCore\Service\PermissionsService;
 use BaserCore\Service\SiteConfigsService;
-use BaserCore\Service\SearchIndexesService;
+use BcSearchIndex\Service\SearchIndexesService;
 use BaserCore\Service\ContentFoldersService;
 use BaserCore\Service\PagesServiceInterface;
 use BaserCore\Service\SitesServiceInterface;
@@ -57,7 +59,7 @@ use BaserCore\Service\ContentsServiceInterface;
 use BaserCore\Service\UserGroupsServiceInterface;
 use BaserCore\Service\PermissionsServiceInterface;
 use BaserCore\Service\SiteConfigsServiceInterface;
-use BaserCore\Service\SearchIndexesServiceInterface;
+use BcSearchIndex\Service\SearchIndexesServiceInterface;
 use BaserCore\Service\ContentFoldersServiceInterface;
 
 /**
@@ -72,6 +74,7 @@ class BcServiceProvider extends ServiceProvider
      * @var string[]
      */
     protected $provides = [
+        FavoriteServiceInterface::class,
         AppServiceInterface::class,
         BcAdminAppServiceInterface::class,
         UsersServiceInterface::class,
@@ -128,6 +131,8 @@ class BcServiceProvider extends ServiceProvider
         $container->add(PermissionsServiceInterface::class, PermissionsService::class);
         // Dblogsサービス
         $container->add(DblogsServiceInterface::class, DblogsService::class);
+        // Favoriteサービス
+        $container->add(FavoriteServiceInterface::class, FavoriteService::class);
         // Contentsサービス
         $container->add(ContentsServiceInterface::class, ContentsService::class);
         $container->add(ContentsAdminServiceInterface::class, ContentsAdminService::class);

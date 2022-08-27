@@ -46,6 +46,9 @@ class SiteConfigsService implements SiteConfigsServiceInterface
 
     /**
      * SiteConfigsService constructor.
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function __construct()
     {
@@ -191,6 +194,9 @@ class SiteConfigsService implements SiteConfigsServiceInterface
     /**
      * アプリケーションモードリストを取得
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getModeList(): array
     {

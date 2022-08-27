@@ -57,6 +57,7 @@ class PluginsControllerTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         Configure::config('baser', new PhpConfig());
         Configure::load('BaserCore.setting', 'baser');
@@ -83,6 +84,11 @@ class PluginsControllerTest extends BcTestCase
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('BcBlog', $result->plugin->name);
+        $this->assertEquals('ブログ', $result->plugin->title);
+        $this->assertEquals('1.0.0', $result->plugin->version);
+        $this->assertEquals(1, $result->plugin->priority);
+        $this->assertTrue($result->plugin->status);
+        $this->assertTrue($result->plugin->db_init);
     }
 
     /**
@@ -142,6 +148,23 @@ class PluginsControllerTest extends BcTestCase
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('プラグイン「BcBlog」を無効にしました。', $result->message);
+    }
+
+    /**
+     * test attach
+     */
+    public function testAttach()
+    {
+        $this->post('/baser/api/baser-core/plugins/attach/BcBlog.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('プラグイン「BcBlog」を有効にしました。', $result->message);
+        $this->assertTrue($result->plugin->status);
+
+        $this->post('/baser/api/baser-core/plugins/attach/test.json?token=' . $this->accessToken);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNull($result->plugin);
     }
 
     /**

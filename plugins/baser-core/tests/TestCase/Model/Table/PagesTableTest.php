@@ -36,7 +36,7 @@ class PagesTableTest extends BcTestCase
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.ContentFolders',
         'plugin.BaserCore.Pages',
-        'plugin.BaserCore.SearchIndexes'
+        'plugin.BcSearchIndex.SearchIndexes'
     ];
 
     /**
@@ -151,36 +151,6 @@ class PagesTableTest extends BcTestCase
         $this->assertFalse($this->Pages->validates());
         $this->assertArrayHasKey('contents', $this->Pages->validationErrors);
         $this->assertEquals("PHPの構文エラーです： \nPHP Parse error:  syntax error, unexpected '?' in - on line 1 \nErrors parsing -", current($this->Pages->validationErrors['contents']));
-    }
-
-    /**
-     * afterSave
-     *
-     * @param boolean $created
-     * @param array $options
-     * @dataProvider afterSaveDataProvider
-     */
-    public function testAfterSave($exclude_search, $exist)
-    {
-        $page = $this->Pages->find()->contain(['Contents' => ['Sites']])->where(['Pages.id' => 5])->first();
-        if ($exclude_search) {
-            $page->content->exclude_search = $exclude_search;
-            $this->assertEquals(false, $this->SearchIndexes->findByModelId($page->id)->isEmpty());
-        } else {
-            $page->id = 100; // 存在しない新規のIDを入れた場合
-        }
-        $this->Pages->dispatchEvent('Model.afterSave', [$page, new ArrayObject()]);
-        $this->assertEquals($exist, $this->SearchIndexes->findByModelId($page->id)->isEmpty());
-    }
-
-    public function afterSaveDataProvider()
-    {
-        return [
-            // exclude_searchがある場合削除されているかを確認
-            [1, true],
-            // exclude_searchがなく、なおかつ新規の場合索引が作成されて存在するかをテスト
-            [0, false]
-        ];
     }
 
     /**

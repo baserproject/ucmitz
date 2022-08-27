@@ -279,7 +279,7 @@ class BcAdminHelper extends Helper
      */
     public function setTitle($title): void
     {
-        $this->_View->set('title', $title);
+        $this->_View->assign('title', $title);
     }
 
     /**
@@ -314,7 +314,18 @@ class BcAdminHelper extends Helper
      */
     public function title(): void
     {
-        echo h($this->_View->fetch('title'));
+        echo $this->getTitle();
+    }
+
+    /**
+     * Get Title
+     * @return string
+     * @checked
+     * @noTodo
+     */
+    public function getTitle(): string
+    {
+        return h($this->_View->fetch('title'));
     }
 
     /**
@@ -343,6 +354,7 @@ class BcAdminHelper extends Helper
         $contentsName = $this->BcBaser->getContentsName(true);
         $adminSearchOpened = $this->_View->getRequest()->getSession()->read('BcApp.adminSearchOpened.' . $contentsName);
         $adminSearchOpenedSaveUrl = $this->BcBaser->getUrl([
+            'plugin' => 'BaserCore',
             'controller' => 'Utilities',
             'action' => 'ajax_save_search_box',
             $contentsName

@@ -41,7 +41,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.SiteConfigs',
         'plugin.BaserCore.Pages',
-        'plugin.BaserCore.SearchIndexes',
+        'plugin.BcSearchIndex.SearchIndexes',
         'plugin.BaserCore.Service/SearchIndexesService/ContentsReconstruct',
         'plugin.BaserCore.Service/SearchIndexesService/PagesReconstruct',
         'plugin.BaserCore.Service/SearchIndexesService/ContentFoldersReconstruct',
@@ -198,7 +198,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->post('/baser/api/baser-core/contents/trash_empty.json?type=ContentFolder&token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals("ゴミ箱: 削除済みフォルダー(親)(ContentFolder)を削除しました。削除済みフォルダー(子)(ContentFolder)を削除しました。", $result->message);
+        $this->assertEquals("ゴミ箱を空にしました。", $result->message);
         $this->get('/baser/api/baser-core/contents/index/trash.json?type=ContentFolder&token=' . $this->accessToken);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEmpty($result->contents);

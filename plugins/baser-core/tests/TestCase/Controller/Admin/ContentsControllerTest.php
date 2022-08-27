@@ -56,7 +56,7 @@ class ContentsControllerTest extends BcTestCase
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.Dblogs',
         'plugin.BaserCore.ContentFolders',
-        'plugin.BaserCore.SearchIndexes',
+        'plugin.BcSearchIndex.SearchIndexes',
         'plugin.BaserCore.Pages',
     ];
 
@@ -473,21 +473,6 @@ class ContentsControllerTest extends BcTestCase
     public function testAdmin_ajax_change_status()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * ゴミ箱を空にする
-     */
-    public function testTrash_empty()
-    {
-        // BcAdminContentsTestはコンポネントのテスト用のため、一旦復活させtrash_emptyを実行
-        $this->ContentsService->restoreAll(['type' => 'BcAdminContentsTest']);
-        $this->request = $this->request->withData('test', 'テスト');
-        $this->ContentsController->setRequest($this->request);
-        $response = $this->ContentsController->trash_empty($this->ContentsService);
-        $this->assertTrue($this->ContentsService->getTrashIndex(['type' => "ContentFolder"])->all()->isEmpty());
-        $this->assertEquals(8, $this->ContentFoldersService->getIndex()->count());
-        $this->assertStringContainsString("/baser/admin/baser-core/contents/trash_index", $response->getHeaderLine('Location'));
     }
 
     /**

@@ -15,6 +15,7 @@ use BaserCore\Service\PluginsService;
 use BaserCore\Test\Factory\PluginFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcUtil;
+use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Filesystem\File;
@@ -39,6 +40,7 @@ class PluginsServiceTest extends BcTestCase
         'plugin.BaserCore.Plugins',
         'plugin.BaserCore.Permissions',
         'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.SiteConfigs'
     ];
 
     /**
@@ -53,6 +55,7 @@ class PluginsServiceTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->Plugins = new PluginsService();
     }
@@ -86,7 +89,7 @@ class PluginsServiceTest extends BcTestCase
      * Test getIndex
      * @dataProvider indexDataprovider
      */
-    public function testGetIndex($sortMode, $expectedPlugin, $expectedCount): void
+    public function testGetIndex($sortMode, $expectedPlugin): void
     {
         // テスト用のプラグインフォルダ作成
         $pluginPath = App::path('plugins')[0] . DS . 'BcTest';
@@ -100,8 +103,6 @@ class PluginsServiceTest extends BcTestCase
         }
         //期待されるプラグインを含むか
         $this->assertContains($expectedPlugin, $pluginNames);
-        // プラグイン数
-        $this->assertEquals($expectedCount, count($plugins));
         $folder->delete($pluginPath);
         if ($sortMode) {
             // フォルダ内プラグインが含まれてないか
@@ -112,9 +113,9 @@ class PluginsServiceTest extends BcTestCase
     {
         return [
             // 普通の場合 | DBに登録されてるプラグインとプラグインファイル全て
-            ["0", 'BcTest', "5"],
+            ["0", 'BcTest'],
             // ソートモードの場合 | DBに登録されてるプラグインのみ
-            ["1", 'BcBlog', "3"],
+            ["1", 'BcBlog'],
         ];
     }
 
@@ -157,15 +158,16 @@ class PluginsServiceTest extends BcTestCase
      */
     public function testResetDb()
     {
-        $this->markTestIncomplete('テストが未実装です');
-        // TODO インストールが実装できしだい
         $this->Plugins->install('BcBlog', 'test');
-        $blogPosts = $this->getTableLocator()->get('BcBlog.BlogPosts');
-        $blogPosts->save($blogPosts->newEntity([
-            'name' => 'test'
-        ]));
+        $blogPosts = $this->getTableLocator()->get('BcBlog.plugins');
+
+        $rs = $blogPosts->find()->where(['name' => 'BcBlog'])->first();
+        $this->assertTrue($rs->db_init);
+
         $this->Plugins->resetDb('BcBlog', 'test');
-        $this->assertEquals(0, $blogPosts->find()->where(['name' => 'test'])->count());
+
+        $rs = $blogPosts->find()->where(['name' => 'BcBlog'])->first();
+        $this->assertFalse($rs->db_init);
     }
 
     /**
@@ -258,4 +260,54 @@ class PluginsServiceTest extends BcTestCase
         rename(BASER . 'VERSION.bak.txt', BASER . 'VERSION.txt');
     }
 
+    /**
+     * test detachAll
+     */
+    public function test_detachAll()
+    {
+        $result = $this->Plugins->detachAll();
+        $this->assertEquals(4, count($result));
+    }
+
+    /**
+     * test attachAllFromIds
+     * @return void
+     */
+    public function test_attachAllFromIds(){
+        $plugins = $this->Plugins->getIndex(false);
+        $this->assertTrue($plugins[1]->status);
+
+        $ids = [1,2];
+
+        $this->Plugins->detachAll();
+
+        $this->Plugins->attachAllFromIds($ids);
+        $plugin = $this->Plugins->get(1);
+        $this->assertTrue($plugin->status);
+
+        $plugin = $this->Plugins->get(2);
+        $this->assertTrue($plugin->status);
+    }
+
+    /**
+     * test attachAllFromIds with 配列：null
+     * @return void
+     */
+    public function test_attachAllFromIds_false(){
+        $ids = null;
+        $rs = $this->Plugins->attachAllFromIds($ids);
+
+        $this->assertNull($rs);
+    }
+
+    /**
+     * test getMarketPlugins
+     * @return void
+     */
+    public function testGetMarketPlugins(){
+        $rs = $this->Plugins->getMarketPlugins();
+        $this->assertNotEmpty($rs);
+        $caches = Cache::read('baserMarketPlugins', '_bc_env_');
+        $this->assertIsArray($caches);
+    }
 }

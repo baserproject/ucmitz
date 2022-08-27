@@ -96,8 +96,10 @@ class PluginsService implements PluginsServiceInterface
                 $files = $Folder->read(true, true, true);
                 foreach($files[0] as $file) {
                     $name = Inflector::camelize(Inflector::underscore(basename($file)));
-                    if (!in_array(basename($file), Configure::read('BcApp.core'))
-                        && !in_array($name, $registeredName)) {
+                    if (in_array(basename($file), Configure::read('BcApp.core'))) continue;
+                    if(in_array($name, $registeredName)) {
+                        $plugins[array_search($name, $registeredName)] = $this->Plugins->getPluginConfig($name);
+                    } else {
                         $plugins[] = $this->Plugins->getPluginConfig($name);
                     }
                 }
@@ -118,7 +120,11 @@ class PluginsService implements PluginsServiceInterface
      */
     public function install($name, $connection = 'default'): ?bool
     {
-        $options = ['connection' => $connection];
+        if($connection) {
+            $options = ['connection' => $connection];
+        } else {
+            $options = [];
+        }
         BcUtil::includePluginClass($name);
         $plugins = CakePlugin::getCollection();
         $plugin = $plugins->create($name);
@@ -131,7 +137,12 @@ class PluginsService implements PluginsServiceInterface
 
     /**
      * プラグインをアップデートする
+     * @param string $name プラグイン名
+     * @param string $connection コネクション名
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function update($name, $connection = 'default'): ?bool
     {
@@ -177,6 +188,13 @@ class PluginsService implements PluginsServiceInterface
         return $result;
     }
 
+    /**
+     * プラグインを全て無効化する
+     * @return array 無効化したIDのリスト
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
     public function detachAll()
     {
         $plugins = $this->Plugins->find()->where(['status' => true])->all();
@@ -191,6 +209,13 @@ class PluginsService implements PluginsServiceInterface
         return $ids;
     }
 
+    /**
+     * 複数のIDからプラグインを有効化する
+     * @param $ids
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
     public function attachAllFromIds($ids)
     {
         if (!$ids) {
@@ -232,6 +257,18 @@ class PluginsService implements PluginsServiceInterface
     }
 
     /**
+     * プラグインを有効にする
+     * @param string $name
+     * @checked
+     * @noTodo
+     * @unitTest PluginsTable::attach() のテストに委ねる
+     */
+    public function attach(string $name): bool
+    {
+        return $this->Plugins->attach($name);
+    }
+
+    /**
      * プラグイン名からプラグインエンティティを取得
      * @param string $name
      * @return array|EntityInterface|null
@@ -250,6 +287,9 @@ class PluginsService implements PluginsServiceInterface
      * @param string $name
      * @param string $connection
      * @throws Exception
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function resetDb(string $name, $connection = 'default'): void
     {
@@ -288,11 +328,11 @@ class PluginsService implements PluginsServiceInterface
         BcUtil::includePluginClass($name);
         $plugins = CakePlugin::getCollection();
         $plugin = $plugins->create($name);
-        if (!method_exists($plugin, 'uninstall')) {
-            throw new Exception(__d('baser', 'プラグインに Plugin クラスが存在しません。手動で削除してください。'));
-        }
         if (!$plugin->uninstall($options)) {
             throw new Exception(__d('baser', 'プラグインの削除に失敗しました。'));
+        }
+        if (!method_exists($plugin, 'uninstall')) {
+            throw new Exception(__d('baser', 'プラグインに Plugin クラスが存在しません。手動で削除してください。'));
         }
     }
 
@@ -308,13 +348,19 @@ class PluginsService implements PluginsServiceInterface
      */
     public function changePriority(int $id, int $offset, array $conditions = []): bool
     {
-        $result = $this->Plugins->changePriority($id, $offset, $conditions);
+        $result = $this->Plugins->changeSort($id, $offset, [
+            'conditions' => $conditions,
+            'sortFieldName' => 'priority',
+        ]);
         return $result;
     }
 
     /**
      * baserマーケットのプラグイン一覧を取得する
      * @return array|mixed
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function getMarketPlugins(): array
     {

@@ -36,7 +36,7 @@ class PagesServiceTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.ContentFolders',
-        'plugin.BaserCore.SearchIndexes',
+        'plugin.BcSearchIndex.SearchIndexes',
         'plugin.BaserCore.SiteConfigs',
     ];
 
@@ -63,6 +63,16 @@ class PagesServiceTest extends BcTestCase
         unset($this->PagesService);
         unset($this->Pages);
         parent::tearDown();
+    }
+
+    /**
+     * test construct()
+     * @return void
+     */
+    public function testConstruct(){
+        $this->assertTrue(isset($this->PagesService->Pages));
+        $this->assertTrue(isset($this->PagesService->Contents));
+        $this->assertTrue(isset($this->PagesService->Users));
     }
 
     /**

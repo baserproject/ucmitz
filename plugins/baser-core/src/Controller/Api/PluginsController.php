@@ -31,6 +31,9 @@ class PluginsController extends BcApiController
      * プラグイン情報取得
      * @param PluginsServiceInterface $plugins
      * @param $id
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function view(PluginsServiceInterface $plugins, $id)
     {
@@ -38,14 +41,6 @@ class PluginsController extends BcApiController
             'plugin' => $plugins->get($id)
         ]);
         $this->viewBuilder()->setOption('serialize', ['plugin']);
-    }
-
-    /**
-     * Initialize
-     */
-    public function initialize(): void
-    {
-        parent::initialize();
     }
 
     /**
@@ -109,6 +104,31 @@ class PluginsController extends BcApiController
         } else {
             $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', 'プラグインの無効化に失敗しました。');
+        }
+        $this->set([
+            'message' => $message,
+            'plugin' => $plugin
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['plugin', 'message']);
+    }
+
+    /**
+     * プラグインを有効化する
+     * @param PluginsServiceInterface $plugins
+     * @param $name
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function attach(PluginsServiceInterface $plugins, $name)
+    {
+        $this->request->allowMethod(['post']);
+        $plugin = $plugins->getByName($name);
+        if ($plugins->attach($name)) {
+            $message = sprintf(__d('baser', 'プラグイン「%s」を有効にしました。'), $name);
+        } else {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', 'プラグインの有効化に失敗しました。');
         }
         $this->set([
             'message' => $message,

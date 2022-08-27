@@ -156,17 +156,7 @@ class BcBaserHelperTest extends BcTestCase
      */
     public function testJs()
     {
-        // $inlineがfalseの場合
-        $options = ['block' => false];
-        $result = $this->BcBaser->js("sampletest", $options['block'], $options);
-        $this->assertNull($result);
-        // $inlineがtrueの場合
-        $options = ['block' => true];
-        $result = $this->BcBaser->js("sampletest", $options['block'], $options);
-        ob_start();
-        $this->Html->script("sampletest", $options);
-        $expected = ob_get_clean();
-        $this->assertEquals($expected, $result);
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
@@ -404,6 +394,9 @@ class BcBaserHelperTest extends BcTestCase
             ['', '/', [], '<a href="/"></a>'],
             ['会社案内', '/about', [], '<a href="/about">会社案内</a>'],
             ['会社案内 & 会社データ', '/about', ['escape' => true], '<a href="/about">会社案内 &amp; 会社データ</a>'],    // エスケープ
+            ['<b>title</b>', 'https://example.com/<b>link</b>', [], '<a href="https://example.com/&lt;b&gt;link&lt;/b&gt;">&lt;b&gt;title&lt;/b&gt;</a>'], // エスケープ
+            ['<b>title</b>', 'https://example.com/<b>link</b>', ['escape' => false], '<a href="https://example.com/<b>link</b>"><b>title</b></a>'], // エスケープ
+            ['<b>title</b>', 'https://example.com/<b>link</b>', ['escapeTitle' => false], '<a href="https://example.com/&lt;b&gt;link&lt;/b&gt;"><b>title</b></a>'], // エスケープ
             ['固定ページ管理', ['controller' => 'pages', 'action' => 'index'], ['prefix' => true], '<a href="/admin/pages/">固定ページ管理</a>'],    // プレフィックス
             ['システム設定', ['admin' => true, 'controller' => 'site_configs', 'action' => 'form'], ['forceTitle' => true], '<span>システム設定</span>'],    // 強制タイトル
             ['会社案内', '/about', ['ssl' => true], '<a href="https://localhost/about">会社案内</a>'], // SSL
@@ -1395,17 +1388,32 @@ class BcBaserHelperTest extends BcTestCase
         $result = ob_get_clean();
         $expected = '<link rel="stylesheet" href="css/admin/import.css"/>';
         $this->assertEquals($expected, $result);
-        // ブロックオン（array）
+        // インライン
         ob_start();
-        $this->BcBaser->css('admin/import2.css', ['block' => null]);
+        $this->BcBaser->css('admin/import2.css', true);
         $result = ob_get_clean();
         $expected = '<link rel="stylesheet" href="css/admin/import2.css"/>';
         $this->assertEquals($expected, $result);
-        // インラインオフ（array）
+        // ブロック
         ob_start();
-        $this->BcBaser->css('admin/import3.css', ['inline' => false]);
+        $this->BcBaser->css('admin/import3.css', false);
         $result = ob_get_clean();
         $this->assertEmpty($result);
+        $this->assertEquals('<link rel="stylesheet" href="css/admin/import3.css"/>',
+            $this->BcAdminAppView->fetch('css'));
+        // ブロック指定
+        ob_start();
+        $this->BcBaser->css('admin/import4.css', false, ['block' => 'testblock']);
+        $result = ob_get_clean();
+        $this->assertEmpty($result);
+        $this->assertEquals('<link rel="stylesheet" href="css/admin/import4.css"/>',
+            $this->BcAdminAppView->fetch('testblock'));
+        ob_start();
+        $this->BcBaser->css('admin/import5.css', true, ['block' => 'testblock2']);
+        $result = ob_get_clean();
+        $this->assertEmpty($result);
+        $this->assertEquals('<link rel="stylesheet" href="css/admin/import5.css"/>',
+            $this->BcAdminAppView->fetch('testblock2'));
     }
 
     /**
@@ -2217,18 +2225,50 @@ class BcBaserHelperTest extends BcTestCase
     }
 
     /**
-     * URLのパラメータ情報を返す
+     * パラメータ情報を取得する
      * @return void
      */
     public function testGetParams()
     {
-        $this->BcBaser->getView()->setRequest($this->getRequest('/?name=value'));
+        $this->BcBaser->getView()->setRequest($this->getRequest('/'));
         $params = $this->BcBaser->getParams();
         $this->assertEquals('BaserCore', $params['plugin']);
+        $this->assertEquals('Pages', $params['controller']);
+        $this->assertEquals('display', $params['action']);
         $this->assertEquals(['index'], $params['pass']);
-        $this->assertEquals('value', $params['query']['name']);
-        $this->assertEquals('', $params['url']);
-        $this->assertEquals('/', $params['here']);
+    }
+
+    /**
+     * URL情報を取得する
+     * @return void
+     */
+    public function testGetUrlParams()
+    {
+        $this->BcBaser->getView()->setRequest($this->getRequest('/?a=b'));
+        $urlParams = $this->BcBaser->getUrlParams();
+        $this->assertEquals([
+            'url' => 'https://localhost/?a=b',
+            'here' => '/',
+            'path' => '/',
+            'webroot' => '',
+            'base' => '',
+            'query' => [
+                'a' => 'b',
+            ],
+        ], $urlParams);
+
+        $this->BcBaser->getView()->setRequest(
+            $this->getRequest('/test', [], null, ['base' => '/baser', 'webroot' => '/baser/'])
+        );
+        $urlParams = $this->BcBaser->getUrlParams();
+        $this->assertEquals([
+            'url' => 'https://localhost/baser/test',
+            'here' => '/baser/test',
+            'path' => '/test',
+            'webroot' => '/baser/',
+            'base' => '/baser',
+            'query' => [],
+        ], $urlParams);
     }
 
     /**

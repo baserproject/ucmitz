@@ -185,7 +185,7 @@ class BcBaserHelper extends Helper
     /**
      * Javascript タグを出力する
      *
-     * @param string|array $url Javascriptのパス（js フォルダからの相対パス）拡張子は省略可
+     * @param string|array $path Javascriptのパス（js フォルダからの相対パス）拡張子は省略可
      * @param bool $inline コンテンツ内に Javascript を出力するかどうか（初期値 : true）
      * @return void
      * @checked
@@ -193,13 +193,12 @@ class BcBaserHelper extends Helper
      * @unitTest
      * @doc
      */
-    public function js($url, $inline = true, $options = [])
+    public function js($path, $inline = true, $options = [])
     {
-        $options = array_merge(['block' => !$inline], $options);
-        $result = $this->BcHtml->script($url, $options);
-        if ($inline) {
-            echo $result;
+        if (!isset($options['block'])) {
+            $options['block'] = $inline ? null : true;
         }
+        echo $this->BcHtml->script($path, $options);
     }
 
     /**
@@ -323,8 +322,9 @@ class BcBaserHelper extends Helper
      * @param string $title タイトル
      * @param mixed $url オプション（初期値 : null）
      * @param array $htmlAttributes オプション（初期値 : array()）
-     *    - `escape` : タイトルをエスケープするかどうか（初期値 : false）
-     *  - `prefix` : URLにプレフィックスをつけるかどうか（初期値 : false）
+     *    - `escape` : タイトルとHTML属性をエスケープするかどうか（初期値 : true）
+     *    - `escapeTitle` : タイトルをエスケープするかどうか（初期値 : true）
+     *    - `prefix` : URLにプレフィックスをつけるかどうか（初期値 : false）
      *    - `forceTitle` : 許可されていないURLの際にタイトルを強制的に出力するかどうか（初期値 : false）
      *    - `ssl` : SSL用のURLをして出力するかどうか（初期値 : false）
      *     ※ その他のパラメータについては、HtmlHelper::link() を参照。
@@ -347,8 +347,9 @@ class BcBaserHelper extends Helper
      * @param string $title タイトル
      * @param mixed $url オプション（初期値 : null）
      * @param array $options オプション（初期値 : array()）
-     *    - `escape` : タイトルをエスケープするかどうか（初期値 : false）
-     *  - `prefix` : URLにプレフィックスをつけるかどうか（初期値 : false）
+     *    - `escape` : タイトルとHTML属性をエスケープするかどうか（初期値 : true）
+     *    - `escapeTitle` : タイトルをエスケープするかどうか（初期値 : true）
+     *    - `prefix` : URLにプレフィックスをつけるかどうか（初期値 : false）
      *    - `forceTitle` : 許可されていないURLの際にタイトルを強制的に出力するかどうか（初期値 : false）
      *    - `ssl` : SSL用のURLをして出力するかどうか（初期値 : false）
      *     ※ その他のパラメータについては、HtmlHelper::image() を参照。
@@ -356,6 +357,7 @@ class BcBaserHelper extends Helper
      *    リンクをクリックした際に確認メッセージが表示され、はいをクリックした場合のみ遷移する
      * @return string
      * @checked
+     * @unitTest
      * @doc
      */
     public function getLink($title, $url = null, $options = [], $confirmMessage = false)
@@ -369,7 +371,7 @@ class BcBaserHelper extends Helper
         }
 
         $options = array_merge([
-            'escape' => false,
+            'escape' => true,
             'prefix' => false,
             'forceTitle' => false,
             'ssl' => $this->isSSL()
@@ -875,6 +877,7 @@ class BcBaserHelper extends Helper
      * meta タグ用のキーワードを取得する
      *
      * @return string meta タグ用のキーワード
+     * @note(value="サイトキーワードの仕様が大きく変わり対応に時間がかかるためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/657")
      */
     public function getKeywords()
     {
@@ -936,6 +939,7 @@ class BcBaserHelper extends Helper
      *  `tag` (boolean) false でタグを削除するかどうか (初期値 : true)
      *  `allowableTags` tagが falseの場合、削除しないタグを指定できる。詳しくは、php strip_tags のドキュメントを参考してください。 (初期値 : '')
      * @return string メタタグ用のタイトルを返す
+     * @note(value="BaserTestCase::_getRequestでエラーを吐くためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/661")
      */
     public function getTitle($separator = '｜', $options = [])
     {
@@ -1158,6 +1162,7 @@ class BcBaserHelper extends Helper
      *  `subDir` (boolean) エレメントのパスについてプレフィックスによるサブディレクトリを追加するかどうか
      * ※ その他のパラメータについては、View::element() を参照
      * @return void
+     * @note(value="フロントエンド側が未完成なのでスキップ https://github.com/baserproject/ucmitz/issues/664")
      */
     public function header($data = [], $options = [])
     {
@@ -1229,6 +1234,7 @@ class BcBaserHelper extends Helper
      *  `subDir` (boolean) エレメントのパスについてプレフィックスによるサブディレクトリを追加するかどうか
      * ※ その他のパラメータについては、View::element() を参照
      * @return void
+     * @note(value="ページネーションの仕様が変わっているのでユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/665")
      */
     public function pagination($name = 'default', $data = [], $options = [])
     {
@@ -1251,6 +1257,7 @@ class BcBaserHelper extends Helper
      * レイアウトテンプレートで利用する
      *
      * @return void
+     * @note(value="BcAppViewクラスが未完成なのでスキップ https://github.com/baserproject/ucmitz/issues/666")
      */
     public function content()
     {
@@ -1277,7 +1284,7 @@ class BcBaserHelper extends Helper
      * コンテンツ内で、レイアウトテンプレートへの出力を設定する場合には、inline オプションを false にする
      *
      * 《利用例》
-     * $this->BcBaser->css('admin/layout', array('inline' => false));
+     * $this->BcBaser->css('admin/layout', false);
      * $this->BcBaser->js('admin/startup', false);
      *
      * @return void
@@ -1402,6 +1409,7 @@ class BcBaserHelper extends Helper
      *
      * @param array $attrib 属性
      * @return void
+     * @note(value="bcXmlHelperが未実装なのでスキップ https://github.com/baserproject/ucmitz/issues/667")
      */
     public function xmlHeader($attrib = [])
     {
@@ -1415,6 +1423,7 @@ class BcBaserHelper extends Helper
      * アイコン（favicon）タグを出力する
      *
      * @return void
+     * @note(value="フロント側が未完成なためユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/680")
      */
     public function icon()
     {
@@ -1426,6 +1435,7 @@ class BcBaserHelper extends Helper
      *
      * @param string $type 出力ドキュメントタイプの文字列（初期値 : 'xhtml-trans'）
      * @return void
+     * @note(value="docTypeメソッド自体が未実装なのでユニットテストをスキップ https://github.com/baserproject/ucmitz/issues/682")
      */
     public function docType($type = 'xhtml-trans')
     {
@@ -1442,11 +1452,13 @@ class BcBaserHelper extends Helper
      * $this->BcBaser->css('admin/import')
      *
      * @param mixed $path CSSファイルのパス（css フォルダからの相対パス）拡張子は省略可
+     * @param bool $inline コンテンツ内に Javascript を出力するかどうか（初期値 : true）
      * @param mixed $options オプション
      * ※💣inline=false→block=trueに変更になったため注意 @return string|void
      * @checked
      * @unitTest
      * @noTodo
+     * @doc
      * @see https://book.cakephp.org/4/ja/views/helpers/html.html#css
      * ※ その他のパラメータについては、HtmlHelper::css() を参照。
      *
@@ -1454,14 +1466,12 @@ class BcBaserHelper extends Helper
      * - 'inline'=trueを指定する (代替:$options['block']にnullが入る)
      * - 'inline'=falseを指定する (代替:$options['block']にtrueが入る)
      */
-    public function css($path, $options = [])
+    public function css($path, $inline = true, $options = [])
     {
-        if (isset($options['inline'])) {
-            $options['block'] = $options['inline']? null : true;
+        if (!isset($options['block'])) {
+            $options['block'] = $inline ? null : true;
         }
-        $result = $this->BcHtml->css($path, $options);
-
-        echo $result;
+        echo $this->BcHtml->css($path, $options);
     }
 
     /**
@@ -2457,6 +2467,7 @@ END_FLASH;
             if ($options['alt']) {
                 $linkOptions['title'] = $options['alt'];
             }
+            $linkOptions['escapeTitle'] = false;
             $tag = $this->getLink($tag, $link, $linkOptions);
         }
         return $tag;
@@ -2716,18 +2727,9 @@ END_FLASH;
     }
 
     /**
-     * URLのパラメータ情報を返す
-     * 主なreturnデータは
-     * https://basercms.net/news/index/example/test?name=value の場合
-     * 'plugin' => blog (利用しているプラグイン)
-     * 'pass' => [0] => 'example'
-     *           [1] => 'test'
-     * 'isAjax' => (boolean)false
-     * 'query' => 'name' => 'value'
-     * 'url' => 'news/index/fuga/hoge'
-     * 'here' => '/news/index/fuga/hoge'
+     * パラメータ情報を取得する
      *
-     * @return array URLのパラメータ情報の配列
+     * @return array パラメータ情報の配列
      * @checked
      * @noTodo
      * @unitTest
@@ -2735,17 +2737,28 @@ END_FLASH;
     public function getParams()
     {
         $attributes = $this->_View->getRequest()->getAttributes();
-        $params = $attributes['params'];
-        $params['query'] = $this->_View->getRequest()->getQueryParams();
-        $params['url'] = preg_replace('/^\//', '', $this->_View->getRequest()->getPath());
-        $params['here'] = $this->_View->getRequest()->getPath();
-        unset($params['named']);
-        unset($params['controller']);
-        unset($params['action']);
-        unset($params['models']);
-        unset($params['_Token']);
-        unset($params['paging']);
-        return $params;
+        return $attributes['params'];
+    }
+
+    /**
+     * URL情報を取得する
+     *
+     * @return array URL情報の配列
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getUrlParams()
+    {
+        $attributes = $this->_View->getRequest()->getAttributes();
+        return [
+            'url' => $this->getUrl(null, true),
+            'here' => $attributes['here'],
+            'path' => $this->_View->getRequest()->getPath(),
+            'webroot' => $attributes['webroot'],
+            'base' => $attributes['base'],
+            'query' => $this->_View->getRequest()->getQueryParams(),
+        ];
     }
 
     /**
