@@ -9,16 +9,17 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcSearchIndex\Test\TestCase\Controller\Admin;
+namespace BcSearchIndex\Test\TestCase\Controller\Api;
 
 use BaserCore\TestSuite\BcTestCase;
-use BcSearchIndex\Controller\Admin\SearchIndexesController;
+use BcSearchIndex\Controller\Api\SearchIndexesController;
+use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class SearchIndexesControllerTest
- * @package BcSearchIndex\Test\TestCase\Controller\Admin
+ * @package BcSearchIndex\Test\TestCase\Controller\Api
  * @property SearchIndexesController $SearchIndexesController
  */
 class SearchIndexesControllerTest extends BcTestCase
@@ -50,9 +51,9 @@ class SearchIndexesControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $request = $this->getRequest('/baser/admin/bc-search-index/search_indexes/');
-        $request = $this->loginAdmin($request);
-        $this->SearchIndexesController = new SearchIndexesController($request);
+        $token = $this->apiLoginAdmin(1);
+        $this->accessToken = $token['access_token'];
+        $this->refreshToken = $token['refresh_token'];
     }
 
     /**
@@ -62,7 +63,7 @@ class SearchIndexesControllerTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        unset($this->SearchIndexesController);
+        Configure::clear();
         parent::tearDown();
     }
 
@@ -71,9 +72,21 @@ class SearchIndexesControllerTest extends BcTestCase
      */
     public function testBeforeRender()
     {
-        $event = new Event('Controller.beforeRender', $this->SearchIndexesController);
-        $this->SearchIndexesController->beforeRender($event);
-        $this->assertEquals('BcSearchIndex.BcSearchIndex', $this->SearchIndexesController->viewBuilder()->getHelpers()[0]);
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
+    /**
+     * test beforeFilter
+     * @return void
+     */
+    public function testBeforeFilter()
+    {
+        $request = $this->getRequest('/baser/admin/bc-search-index/search_indexes/');
+        $request = $this->loginAdmin($request);
+        $searchIndexes = new SearchIndexesController($request);
+
+        $event = new Event('filter');
+        $searchIndexes->beforeFilter($event);
+        $this->assertFalse($searchIndexes->Security->getConfig('validatePost'));
+    }
 }
