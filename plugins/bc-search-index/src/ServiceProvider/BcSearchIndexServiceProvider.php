@@ -20,7 +20,6 @@ use Cake\Core\ServiceProvider;
 
 /**
  * Class BcSearchIndexServiceProvider
- * @package BcSearchIndex\ServiceProvider
  */
 class BcSearchIndexServiceProvider extends ServiceProvider
 {
