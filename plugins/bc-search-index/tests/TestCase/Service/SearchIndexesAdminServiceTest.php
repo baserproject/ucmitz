@@ -12,8 +12,8 @@
 namespace BcSearchIndex\Test\TestCase\Service;
 
 use BaserCore\Model\Table\ContentsTable;
-use BaserCore\Service\SitesAdminService;
 use BaserCore\Service\SitesService;
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcSearchIndex\Service\SearchIndexesAdminService;
@@ -29,17 +29,6 @@ class SearchIndexesAdminServiceTest extends BcTestCase
      * Trait
      */
     use BcContainerTrait;
-
-    /**
-     * Fixtures
-     *
-     * @var array
-     */
-    protected $fixtures = [
-        'plugin.BaserCore.Sites',
-        'plugin.BaserCore.Contents',
-        'plugin.BaserCore.ContentFolders',
-    ];
 
     /**
      * Set Up
@@ -70,6 +59,7 @@ class SearchIndexesAdminServiceTest extends BcTestCase
      */
     public function testGetViewVarsForIndex()
     {
+        SiteFactory::make(10)->setField('status', 1)->persist();
         $sitesService = new SitesService();
         $sites = $sitesService->getIndex([])->all();
         $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 1]);
