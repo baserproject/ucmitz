@@ -238,7 +238,6 @@ class PagesTableTest extends BcTestCase
      */
     public function testBeforeSave()
     {
-        $this->PagesTable = new PagesTable();
         $event = new Event("copy");
         $object = new ArrayObject();
 
@@ -249,19 +248,19 @@ class PagesTableTest extends BcTestCase
             ]
         ]);
 
-        $this->PagesTable->beforeSave($event, $data, $object);
-        $this->assertFalse($this->PagesTable->isExcluded());
+        $this->Pages->beforeSave($event, $data, $object);
+        $this->assertFalse($this->Pages->isExcluded());
 
-        $this->PagesTable->searchIndexSaving = false;
-        $this->PagesTable->beforeSave($event, $data, $object);
-        $this->assertFalse($this->PagesTable->isExcluded());
+        $this->Pages->searchIndexSaving = false;
+        $this->Pages->beforeSave($event, $data, $object);
+        $this->assertFalse($this->Pages->isExcluded());
 
         $data = new Entity([
             'test' => 'テストBeforeSave',
         ]);
 
-        $this->PagesTable->searchIndexSaving = true;
-        $this->PagesTable->beforeSave($event, $data, $object);
-        $this->assertTrue($this->PagesTable->isExcluded());
+        $this->Pages->searchIndexSaving = true;
+        $this->Pages->beforeSave($event, $data, $object);
+        $this->assertTrue($this->Pages->isExcluded());
     }
 }
