@@ -13,6 +13,7 @@ namespace BcSearchIndex\Test\TestCase\Service;
 
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Service\SitesService;
+use BaserCore\Test\Factory\SearchIndexesFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
@@ -60,15 +61,17 @@ class SearchIndexesAdminServiceTest extends BcTestCase
     public function testGetViewVarsForIndex()
     {
         SiteFactory::make(10)->setField('status', 1)->persist();
-        $sitesService = new SitesService();
-        $sites = $sitesService->getIndex([])->all();
+        SearchIndexesFactory::make(10)->setField('status', 1)->persist();
+        $searchIndexesService = new SearchIndexesAdminService();
+        $searchIndexes = $searchIndexesService->getIndex([])->all();
         $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 1]);
-        $rs = $this->SearchIndexesAdminService->getViewVarsForIndex($sites, $request);
+        $rs = $this->SearchIndexesAdminService->getViewVarsForIndex($searchIndexes, $request);
 
         $this->assertTrue(isset($rs['searchIndexes']));
         $this->assertTrue(isset($rs['folders']));
         $this->assertTrue(isset($rs['sites']));
 
+        $sitesService = new SitesService();
         $expected = $sitesService->getList();
         $this->assertEquals(count($expected), count($rs['sites']));
     }
