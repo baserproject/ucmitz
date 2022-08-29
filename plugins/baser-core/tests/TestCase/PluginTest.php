@@ -15,6 +15,7 @@ use App\Application;
 use BaserCore\Plugin;
 use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\Core\Container;
 use Cake\Event\EventManager;
@@ -22,6 +23,8 @@ use Cake\Http\MiddlewareQueue;
 use Authentication\Middleware\AuthenticationMiddleware;
 use Cake\Http\ServerRequest;
 use Cake\Routing\Router;
+use Composer\Config;
+use http\Env;
 
 /**
  * Class PluginTest
@@ -84,26 +87,47 @@ class PluginTest extends BcTestCase
         $this->Plugin->bootstrap($this->application);
 
         $this->assertTrue(is_array($event->listeners('Controller.initialize')));
-        $this->assertTrue(is_array($event->listeners('Controller.startup')));
-        $this->assertTrue(is_array($event->listeners('Controller.beforeRender')));
 
         $this->assertTrue(is_array($event->listeners('Model.beforeFind')));
-        $this->assertTrue(is_array($event->listeners('Model.afterFind')));
-        $this->assertTrue(is_array($event->listeners('Model.beforeValidate')));
 
         $this->assertTrue(is_array($event->listeners('View.beforeRenderFile')));
-        $this->assertTrue(is_array($event->listeners('View.afterRenderFile')));
-        $this->assertTrue(is_array($event->listeners('View.beforeRender')));
 
         $this->assertTrue(is_array($event->listeners('Application.beforeFind')));
 
         $this->assertTrue(is_array($event->listeners('BaserCore.Contents.afterMove')));
-        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.beforeDelete')));
-        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.afterTrashReturn')));
-        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.afterChangeStatus')));
+
+        $this->assertTrue(is_array($event->listeners('BaserCore.Contents.Pages')));
 
         $this->assertNotNull($this->application->getPlugins()->get('Authentication'));
         $this->assertNotNull($this->application->getPlugins()->get('Migrations'));
+
+        $pathsPluginsExpected = [
+            '/var/www/html/plugins/',
+            '/var/www/html/vendor/baserproject/',
+            '/var/www/html/vendor/baserproject/',
+        ];
+
+        $this->assertEquals($pathsPluginsExpected, Configure::read('App.paths.plugins'));
+
+        $this->assertNotNull(Configure::read('BcApp.defaultAdminTheme'));
+        $this->assertNotNull(Configure::read('BcApp.defaultFrontTheme'));
+
+        $plugins = BcUtil::getEnablePlugins();
+        foreach ($plugins as $plugin) {
+            $this->assertNotNull($this->application->getPlugins()->get($plugin['name']));
+        }
+
+        $this->assertNotNull(\Cake\Core\Plugin::getCollection()->get('DebugKit'));
+        $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.defaultFrontTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
+
+        $this->loginAdmin($this->getRequest('/baser/admin'));
+        $this->Plugin->bootstrap($this->application);
+        $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.defaultAdminTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
+
+        Configure::load('setting', 'baser');
+        if (file_exists(CONFIG . 'setting.php')) {
+            $this->assertTrue(Configure::isConfigured('baser'));
+        }
     }
 
     /**
