@@ -30,8 +30,6 @@ class InitAppScenario implements FixtureScenarioInterface
     {
         SiteFactory::make()->main()->persist();
         UserFactory::make()->admin()->persist();
-        UserGroupsFactory::make()->admins()->persist();
-        UsersUserGroupsFactory::make()->admin()->persist();
     }
 
 }

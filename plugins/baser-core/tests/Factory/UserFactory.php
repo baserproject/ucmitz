@@ -66,11 +66,12 @@ class UserFactory extends CakephpBaseFactory
      */
     public function admin()
     {
+        UserGroupsFactory::make()->admins()->persist();
+        UsersUserGroupsFactory::make()->admin()->persist();
+
         return $this->setField('id', 1)
             ->setField('name', 'name')
             ->setField('status', 1)
-            ->setField('method', 'ALL')
-            ->setField('user_group_id', 1);
+            ->setField('method', 'ALL');
     }
-
 }

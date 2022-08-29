@@ -18,11 +18,6 @@ use Faker\Generator;
 
 /**
  * UsersUserGroupsFactory
- *
- * @method \BaserCore\Model\Entity\User getEntity()
- * @method \BaserCore\Model\Entity\User[] getEntities()
- * @method \BaserCore\Model\Entity\User|\BaserCore\Model\Entity\User[] persist()
- * @method static \BaserCore\Model\Entity\User get(mixed $primaryKey, array $options = [])
  */
 class UsersUserGroupsFactory extends CakephpBaseFactory
 {
