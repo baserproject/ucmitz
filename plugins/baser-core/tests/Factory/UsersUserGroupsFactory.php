@@ -17,14 +17,14 @@ use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
 /**
- * UserFactory
+ * UsersUserGroupsFactory
  *
  * @method \BaserCore\Model\Entity\User getEntity()
  * @method \BaserCore\Model\Entity\User[] getEntities()
  * @method \BaserCore\Model\Entity\User|\BaserCore\Model\Entity\User[] persist()
  * @method static \BaserCore\Model\Entity\User get(mixed $primaryKey, array $options = [])
  */
-class UserUserGroupsFactory extends CakephpBaseFactory
+class UsersUserGroupsFactory extends CakephpBaseFactory
 {
     /**
      * Defines the Table Registry used to generate entities with
@@ -46,24 +46,15 @@ class UserUserGroupsFactory extends CakephpBaseFactory
     {
         $this->setDefaultData(function (Generator $faker) {
             return [
-                'name' => $faker->text
             ];
         });
     }
 
     /**
-     * 無効ユーザーに設定する
+     * 管理者ユーザーを作成する
      * @return UserFactory
      */
-    public function suspended()
-    {
-        return $this->setField('status', false);
-    }
-
-    /**
-     * @return UserFactory
-     */
-    public function usersUserGroup()
+    public function admin()
     {
         return $this->setField('user_id', 1)
             ->setField('user_group_id', 1);

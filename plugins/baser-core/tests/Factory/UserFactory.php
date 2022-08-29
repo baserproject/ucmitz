@@ -70,7 +70,7 @@ class UserFactory extends CakephpBaseFactory
             ->setField('name', 'name')
             ->setField('status', 1)
             ->setField('method', 'ALL')
-            ->setField('user_group_id', 2);
+            ->setField('user_group_id', 1);
     }
 
 }

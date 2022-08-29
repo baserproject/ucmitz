@@ -17,7 +17,7 @@ use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
 /**
- * UserFactory
+ * UserGroupsFactory
  *
  * @method \BaserCore\Model\Entity\User getEntity()
  * @method \BaserCore\Model\Entity\User[] getEntities()
@@ -52,19 +52,10 @@ class UserGroupsFactory extends CakephpBaseFactory
     }
 
     /**
-     * 無効ユーザーに設定する
+     * 管理者グループに設定する
      * @return UserFactory
      */
-    public function suspended()
-    {
-        return $this->setField('status', false);
-    }
-
-    /**
-     * 管理ユーザーに設定する
-     * @return UserFactory
-     */
-    public function userGroup()
+    public function admins()
     {
         return $this->setField('id', 1)
             ->setField('name', 'admins')
