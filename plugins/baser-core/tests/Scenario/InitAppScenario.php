@@ -13,6 +13,8 @@ namespace BaserCore\Test\Scenario;
 
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Factory\UserFactory;
+use BaserCore\Test\Factory\UserGroupsFactory;
+use BaserCore\Test\Factory\UserUserGroupsFactory;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 /**
@@ -28,6 +30,8 @@ class InitAppScenario implements FixtureScenarioInterface
     {
         SiteFactory::make()->main()->persist();
         UserFactory::make()->admin()->persist();
+        UserGroupsFactory::make()->userGroup()->persist();
+        UserUserGroupsFactory::make()->usersUserGroup()->persist();
     }
 
 }

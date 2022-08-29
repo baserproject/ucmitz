@@ -24,7 +24,7 @@ use Faker\Generator;
  * @method \BaserCore\Model\Entity\User|\BaserCore\Model\Entity\User[] persist()
  * @method static \BaserCore\Model\Entity\User get(mixed $primaryKey, array $options = [])
  */
-class UserFactory extends CakephpBaseFactory
+class UserUserGroupsFactory extends CakephpBaseFactory
 {
     /**
      * Defines the Table Registry used to generate entities with
@@ -33,7 +33,7 @@ class UserFactory extends CakephpBaseFactory
      */
     protected function getRootTableRegistryName(): string
     {
-        return 'BaserCore.Users';
+        return 'BaserCore.UsersUserGroups';
     }
 
     /**
@@ -61,16 +61,11 @@ class UserFactory extends CakephpBaseFactory
     }
 
     /**
-     * 管理ユーザーに設定する
      * @return UserFactory
      */
-    public function admin()
+    public function usersUserGroup()
     {
-        return $this->setField('id', 1)
-            ->setField('name', 'name')
-            ->setField('status', 1)
-            ->setField('method', 'ALL')
-            ->setField('user_group_id', 2);
+        return $this->setField('user_id', 1)
+            ->setField('user_group_id', 1);
     }
-
 }
