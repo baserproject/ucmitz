@@ -31,6 +31,11 @@ class SearchIndexesAdminServiceTest extends BcTestCase
      */
     use BcContainerTrait;
 
+    public $fixtures = [
+        'plugin.BaserCore.Empty/Users',
+        'plugin.BaserCore.Empty/Sites',
+    ];
+
     /**
      * Set Up
      *
@@ -38,6 +43,7 @@ class SearchIndexesAdminServiceTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->SearchIndexesAdminService = new SearchIndexesAdminService();
     }
