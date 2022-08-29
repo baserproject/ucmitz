@@ -124,7 +124,6 @@ class PluginTest extends BcTestCase
         $this->Plugin->bootstrap($this->application);
         $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.defaultAdminTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
 
-        Configure::load('setting', 'baser');
         if (file_exists(CONFIG . 'setting.php')) {
             $this->assertTrue(Configure::isConfigured('baser'));
         }
