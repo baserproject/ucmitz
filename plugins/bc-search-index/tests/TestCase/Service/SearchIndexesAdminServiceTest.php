@@ -60,20 +60,16 @@ class SearchIndexesAdminServiceTest extends BcTestCase
      */
     public function testGetViewVarsForIndex()
     {
-        SiteFactory::make(10)->setField('status', 1)->persist();
+        SiteFactory::make(1)->setField('status', 1)->persist();
         SearchIndexesFactory::make(10)->setField('status', 1)->persist();
         $searchIndexesService = new SearchIndexesAdminService();
         $searchIndexes = $searchIndexesService->getIndex([])->all();
-        $request = $this->getRequest('/')->withQueryParams(['user_group_id' => 1]);
+        $request = $this->getRequest('/')->withQueryParams([]);
         $rs = $this->SearchIndexesAdminService->getViewVarsForIndex($searchIndexes, $request);
 
         $this->assertTrue(isset($rs['searchIndexes']));
         $this->assertTrue(isset($rs['folders']));
         $this->assertTrue(isset($rs['sites']));
-
-        $sitesService = new SitesService();
-        $expected = $sitesService->getList();
-        $this->assertEquals(count($expected), count($rs['sites']));
     }
 
 }
