@@ -61,7 +61,7 @@ class SearchIndexesAdminServiceTest extends BcTestCase
     public function testGetViewVarsForIndex()
     {
         SiteFactory::make(1)->setField('status', 1)->persist();
-        SearchIndexesFactory::make(10)->setField('status', 1)->persist();
+        SearchIndexesFactory::make(1)->setField('status', 1)->persist();
         $searchIndexesService = new SearchIndexesAdminService();
         $searchIndexes = $searchIndexesService->getIndex([])->all();
         $request = $this->getRequest('/')->withQueryParams([]);
