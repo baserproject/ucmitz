@@ -117,7 +117,9 @@ class PluginTest extends BcTestCase
         $this->assertNotNull(\Cake\Core\Plugin::getCollection()->get('DebugKit'));
         $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.defaultFrontTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
 
-        $file = new File('config/'. '.env');
+        copy('config/.env','config/.env.bak');
+
+        $file = new File('config/.env');
         $file->write('export APP_NAME="ucmitz"
 export DEBUG="true"
 export APP_ENCODING="UTF-8"
@@ -135,7 +137,7 @@ export SQL_LOG="false"
 ');
         $file->close();
 
-        $fileSetting = new File('config/'. 'setting.php');
+        $fileSetting = new File('config/setting.php');
         $fileSetting->write('<?php
 return [];
 ');
@@ -147,6 +149,11 @@ return [];
         $this->assertNotNull(\Cake\Core\Plugin::getCollection()->get('DebugKit'));
 
         $this->assertTrue(Configure::isConfigured('baser'));
+
+        $fileSetting->delete();
+        copy('config/.env.bak','config/.env');
+        $fileEnvBak = new File('config/.env.bak');
+        $fileEnvBak->delete();
     }
 
     /**
