@@ -85,7 +85,7 @@ class SearchIndexesController extends AppController
     }
 
     /**
-     * [ADMIN] 検索インデックス一括削除
+     * [API] 検索インデックス一括削除
      *
      * @param $ids
      * @return bool
@@ -107,5 +107,20 @@ class SearchIndexesController extends AppController
             }
         }
         return true;
+    }
+
+    /**
+     * [API] 検索インデックス情報一覧取得
+     * @param SearchIndexesServiceInterface $searchIndexesService
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(SearchIndexesServiceInterface $searchIndexesService)
+    {
+        $this->set([
+            'searchIndexes' => $this->paginate($searchIndexesService->getIndex($this->request->getQueryParams()))
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['searchIndexes']);
     }
 }

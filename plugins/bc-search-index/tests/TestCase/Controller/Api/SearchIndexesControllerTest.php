@@ -14,6 +14,7 @@ namespace BcSearchIndex\Test\TestCase\Controller\Api;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcSearchIndex\Controller\Api\SearchIndexesController;
+use BcSearchIndex\Test\Factory\SearchIndexFactory;
 use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -42,7 +43,8 @@ class SearchIndexesControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/Users',
         'plugin.BaserCore.Factory/Sites',
         'plugin.BaserCore.Factory/UserGroups',
-        'plugin.BaserCore.Factory/UsersUserGroups'
+        'plugin.BaserCore.Factory/UsersUserGroups',
+        'plugin.BaserCore.Factory/SearchIndexes',
     ];
 
     /**
@@ -91,5 +93,24 @@ class SearchIndexesControllerTest extends BcTestCase
         $event = new Event('filter');
         $searchIndexes->beforeFilter($event);
         $this->assertFalse($searchIndexes->Security->getConfig('validatePost'));
+    }
+
+    /**
+     * test index
+     * @return void
+     */
+    public function testIndex(){
+        SearchIndexFactory::make(['id' => 2, 'title' => 'test data index', 'type' => 'admin', 'site_id' => 0], 1)->persist();
+
+        $this->get('/baser/api/bc-search-index/search_indexes/index.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('test data index', $result->searchIndexes[0]->title);
+
+        SearchIndexFactory::make(['id' => 3, 'title' => 'test with param', 'type' => 'admin', 'site_id' => 1], 1)->persist();
+        $this->get('/baser/api/bc-search-index/search_indexes/index.json?site_id=1&token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('test with param', $result->searchIndexes[0]->title);
     }
 }
