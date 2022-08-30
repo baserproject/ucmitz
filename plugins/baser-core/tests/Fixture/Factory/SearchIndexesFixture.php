@@ -14,6 +14,6 @@ namespace BaserCore\Test\Fixture\Factory;
 use Cake\TestSuite\Fixture\TestFixture;
 
 /**
- * Class UsersFixture
+ * Class SearchIndexesFixture
  */
 class SearchIndexesFixture extends TestFixture {}
