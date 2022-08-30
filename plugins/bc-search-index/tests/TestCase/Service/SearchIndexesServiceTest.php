@@ -108,4 +108,19 @@ class SearchIndexesServiceTest extends BcTestCase
 		$this->assertEquals(2, $searchIndexesTable->find()->where(['url LIKE' => '/service/%'])->count());
 	}
 
+    /*
+     * test getIndex
+     * @return void
+     */
+    public function testGetIndex()
+    {
+        SearchIndexFactory::make(['title' => 'test data', 'type' => 'admin', 'site_id' => 1], 1)->persist();
+
+        $rs = $this->SearchIndexesService->getIndex(['limit' => 1]);
+        $this->assertEquals(1, $rs->all()->count());
+
+        $rs = $this->SearchIndexesService->getIndex(['type' => 'admin', 'site_id' => 1])->first();
+        $this->assertEquals('test data', $rs['title']);
+    }
+
 }
