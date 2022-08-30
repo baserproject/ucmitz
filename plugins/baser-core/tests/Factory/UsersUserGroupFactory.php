@@ -17,9 +17,9 @@ use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
 /**
- * UsersUserGroupsFactory
+ * UsersUserGroupFactory
  */
-class UsersUserGroupsFactory extends CakephpBaseFactory
+class UsersUserGroupFactory extends CakephpBaseFactory
 {
     /**
      * Defines the Table Registry used to generate entities with
@@ -47,7 +47,7 @@ class UsersUserGroupsFactory extends CakephpBaseFactory
 
     /**
      * 管理者ユーザーを作成する
-     * @return UserFactory
+     * @return UsersUserGroupFactory
      */
     public function admin()
     {
