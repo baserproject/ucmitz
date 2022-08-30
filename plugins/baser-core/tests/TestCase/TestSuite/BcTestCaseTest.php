@@ -21,6 +21,7 @@ use Cake\Log\Log;
 use Cake\Routing\Router;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Controller\AnalyseController;
+use Cake\TestSuite\Fixture\TruncateStrategy;
 use Cake\View\View;
 
 /**
@@ -217,5 +218,19 @@ class BcTestCaseTest extends BcTestCase
         $this->assertTrue(isset($this->FixtureInjector));
         $this->assertTrue(isset($this->fixtures));
         $this->assertEmpty(self::$fixtureManager);
+    }
+
+    /**
+     * test setFixtureTruncate getFixtureStrategy
+     * @return void
+     */
+    public function testSetFixtureTruncateGetFixtureStrategy(){
+        $bcTestCase = new BcTestCase();
+        $rs = $bcTestCase->getFixtureStrategy();
+        $this->assertNotNull($rs);
+
+        $bcTestCase->setFixtureTruncate();
+        $rs = $bcTestCase->getFixtureStrategy();
+        $this->assertNotNull($rs);
     }
 }
