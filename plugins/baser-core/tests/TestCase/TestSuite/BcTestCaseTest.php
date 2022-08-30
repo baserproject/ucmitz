@@ -21,7 +21,6 @@ use Cake\Log\Log;
 use Cake\Routing\Router;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Controller\AnalyseController;
-use Cake\TestSuite\Fixture\TruncateStrategy;
 use Cake\View\View;
 
 /**
