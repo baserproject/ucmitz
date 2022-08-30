@@ -43,6 +43,7 @@ class SearchIndexesController extends AppController
      * [AJAX] 優先順位を変更する
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function change_priority(SearchIndexesServiceInterface $service, $id)
     {
@@ -62,7 +63,7 @@ class SearchIndexesController extends AppController
             'message' => $message,
             'searchIndex' => $searchIndex,
         ]);
-        $this->viewBuilder()->setOption('serialize', ['user', 'message']);
+        $this->viewBuilder()->setOption('serialize', ['searchIndex', 'message']);
     }
 
     /**
