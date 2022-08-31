@@ -19,6 +19,7 @@ use BaserCore\Utility\BcContainerTrait;
 use BcSearchIndex\Controller\Admin\SearchIndexesController;
 use BcSearchIndex\Service\SearchIndexesAdminServiceInterface;
 use BcSearchIndex\Service\SearchIndexesServiceInterface;
+use BcSearchIndex\Test\Factory\SearchIndexFactory;
 use Cake\Event\Event;
 use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -110,4 +111,21 @@ class SearchIndexesControllerTest extends BcTestCase
         $this->assertEquals(1, $this->SearchIndexesController->getRequest()->getQuery('num'));
     }
 
+    /**
+     * test reconstruct
+     * @return void
+     */
+    public function testReconstruct(){
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        $this->post('/baser/admin/bc-search-index/search_indexes/reconstruct');
+        $this->assertFlashMessage('検索インデックスの再構築に成功しました。');
+        $this->assertRedirect([
+            'plugin' => 'BcSearchIndex',
+            'prefix' => 'Admin',
+            'controller' => 'search_indexes',
+            'action' => 'index'
+        ]);
+    }
 }

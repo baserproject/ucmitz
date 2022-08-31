@@ -105,6 +105,7 @@ class SearchIndexesController extends BcAdminAppController
      * 検索インデックスを再構築する
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function reconstruct(SearchIndexesServiceInterface $service)
     {
