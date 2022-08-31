@@ -124,4 +124,19 @@ class SearchIndexesServiceTest extends BcTestCase
         $this->assertEquals($expected, $rs['priority']);
     }
 
+    /**
+     * test batch
+     * @return void
+     */
+    public function testBatch()
+    {
+        SearchIndexFactory::make(['id' => 1, 'title' => 'test data Batch 1', 'type' => 'admin', 'site_id' => 5], 1)->persist();
+        SearchIndexFactory::make(['id' => 2, 'title' => 'test data Batch 2', 'type' => 'admin', 'site_id' => 5], 1)->persist();
+        SearchIndexFactory::make(['id' => 3, 'title' => 'test data Batch 3', 'type' => 'admin', 'site_id' => 5], 1)->persist();
+
+        $this->SearchIndexesService->batch('delete', [1, 2, 3]);
+
+        $searchIndexes = $this->SearchIndexesService->getIndex(['site_id' => 10])->all();
+        $this->assertEquals(0, count($searchIndexes));
+    }
 }
