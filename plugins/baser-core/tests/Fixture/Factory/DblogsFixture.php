@@ -9,18 +9,11 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
+namespace BaserCore\Test\Fixture\Factory;
+
+use Cake\TestSuite\Fixture\TestFixture;
+
 /**
- * Dblogs index
- * @var AppView $this
- * @checked
- * @unitTest
- * @noTodo
+ * Class DblogsFixture
  */
-
-$this->BcAdmin->setTitle(__d('baser', '最近の動き'));
-$this->BcAdmin->setSearch('dblogs_index');
-?>
-
-<section id="DataList">
-  <?php $this->BcBaser->element('Dblogs/index_list') ?>
-</section>
+class DblogsFixture extends TestFixture {}

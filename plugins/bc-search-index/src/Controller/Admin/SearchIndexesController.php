@@ -83,6 +83,7 @@ class SearchIndexesController extends BcAdminAppController
      * @param int $id
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function delete(SearchIndexesServiceInterface $service, $id = null)
     {
@@ -99,28 +100,6 @@ class SearchIndexesController extends BcAdminAppController
             $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
         }
         return $this->redirect(['action' => 'index']);
-    }
-
-    /**
-     * [ADMIN] 検索インデックス一括削除
-     *
-     * @param $ids
-     * @return bool
-     * @access    public
-     */
-    protected function _batch_del($ids)
-    {
-        if (!$ids) {
-            return true;
-        }
-        foreach($ids as $id) {
-            /* 削除処理 */
-            if ($this->SearchIndex->delete($id)) {
-                $message = sprintf(__d('baser', '検索インデックスより NO.%s を削除しました。'), $id);
-                $this->SearchIndex->saveDbLog($message);
-            }
-        }
-        return true;
     }
 
     /**
