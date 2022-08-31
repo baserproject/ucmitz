@@ -103,6 +103,28 @@ class SearchIndexesController extends AppController
         $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
+    /***
+     * [API] 検索インデックスを再構築する
+     * @param SearchIndexesServiceInterface $searchIndexesService
+     *
+     * @noTodo
+     * @checked
+     * @unitTest
+     */
+    public function reconstruct(SearchIndexesServiceInterface $searchIndexesService)
+    {
+        $this->request->allowMethod(['post']);
+
+        if ($searchIndexesService->reconstruct()) {
+            $message = __d('baser', '検索インデックスの再構築に成功しました。');
+        } else {
+            $message = __d('baser', '検索インデックスの再構築に失敗しました。');
+        }
+
+        $this->set(['message' => $message]);
+        $this->viewBuilder()->setOption('serialize', ['message']);
+    }
+
 
     /**
      * [API] 検索インデックス情報一覧取得
