@@ -227,9 +227,11 @@ class BcTestCaseTest extends BcTestCase
         $bcTestCase = new BcTestCase();
         $rs = $bcTestCase->getFixtureStrategy();
         $this->assertNotNull($rs);
+        $this->assertEquals('Cake\TestSuite\Fixture\TransactionStrategy',get_class($rs));
 
         $bcTestCase->setFixtureTruncate();
         $rs = $bcTestCase->getFixtureStrategy();
         $this->assertNotNull($rs);
+        $this->assertEquals('Cake\TestSuite\Fixture\TruncateStrategy',get_class($rs));
     }
 }
