@@ -109,6 +109,22 @@ class SearchIndexesServiceTest extends BcTestCase
 	}
 
     /**
+     * test changePriority
+     * @return void
+     */
+    public function testChangePriority()
+    {
+        SearchIndexFactory::make(1)
+            ->setField('priority', 1)
+            ->setField('status', 1)
+            ->persist();
+        $data = $this->SearchIndexesService->getIndex([])->first();
+        $expected = 10;
+        $rs = $this->SearchIndexesService->changePriority($data, $expected);
+        $this->assertEquals($expected, $rs['priority']);
+    }
+
+    /**
      * test delete
      * @return void
      */
