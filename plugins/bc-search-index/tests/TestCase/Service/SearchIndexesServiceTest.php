@@ -130,14 +130,13 @@ class SearchIndexesServiceTest extends BcTestCase
      */
     public function testDelete()
     {
-        $searchIndexesService = new SearchIndexesService();
-        SearchIndexFactory::make(['title' => 'test data delete', 'type' => 'admin', 'site_id' => 1], 1)->persist();
+        SearchIndexFactory::make(['id' => 1, 'title' => 'test data delete', 'type' => 'admin', 'site_id' => 1], 1)->persist();
 
-        $data = $searchIndexesService->getIndex(['site_id' => 1, 'keyword' => 'test data delete'])->first();
-        $rs = $this->SearchIndexesService->delete($data['id']);
+        $data = $this->SearchIndexesService->get(1);
+        $rs = $this->SearchIndexesService->delete(1);
         $this->assertTrue($rs);
 
-        $searchIndexes = $searchIndexesService->getIndex(['site_id' => 1, 'keyword' => 'test data delete'])->first();
+        $searchIndexes = $this->SearchIndexesService->getIndex(['site_id' => $data['site_id'], 'keyword' => $data['title']])->first();
         $this->assertNull($searchIndexes);
     }
 }
