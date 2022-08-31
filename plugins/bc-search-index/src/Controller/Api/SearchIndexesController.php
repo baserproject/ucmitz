@@ -14,10 +14,12 @@ namespace BcSearchIndex\Controller\Api;
 use BaserCore\Controller\AppController;
 use BaserCore\Error\BcException;
 use BcSearchIndex\Service\SearchIndexesServiceInterface;
+use Cake\Datasource\ConnectionManager;
 use Cake\Event\EventInterface;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use Cake\Utility\Inflector;
 
 /**
  * SearchIndicesController
@@ -43,6 +45,7 @@ class SearchIndexesController extends AppController
      * [AJAX] 優先順位を変更する
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function change_priority(SearchIndexesServiceInterface $service, $id)
     {
@@ -62,7 +65,7 @@ class SearchIndexesController extends AppController
             'message' => $message,
             'searchIndex' => $searchIndex,
         ]);
-        $this->viewBuilder()->setOption('serialize', ['user', 'message']);
+        $this->viewBuilder()->setOption('serialize', ['searchIndex', 'message']);
     }
 
     /**
@@ -75,39 +78,31 @@ class SearchIndexesController extends AppController
     public function batch(SearchIndexesServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put']);
-        if($this->{'_batch_' . $this->getRequest()->getData('ListTool.batch')}(
-            $service,
-            $this->getRequest()->getData('ListTool.batch_targets')
-        )) {
-            $this->response->withStringBody('true');
+        $allowMethod = [
+            'delete' => '削除'
+        ];
+        $method = $this->getRequest()->getData('batch');
+        if (!isset($allowMethod[$method])) {
+            $this->setResponse($this->response->withStatus(500));
+            $this->viewBuilder()->setOption('serialize', []);
+            return;
         }
-        $this->viewBuilder()->setOption('serialize', []);
+        try {
+            $service->batch($method, $this->getRequest()->getData('batch_targets'));
+            $this->BcMessage->setSuccess(
+                sprintf(__d('baser', '検索インデックスより NO.%s を %s しました。'), implode(', ', $this->getRequest()->getData('batch_targets')), $allowMethod[$method]),
+                true,
+                false
+            );
+            $message = __d('baser', '一括処理が完了しました。');
+        } catch (BcException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', $e->getMessage());
+        }
+        $this->set(['message' => $message]);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
-    /**
-     * [API] 検索インデックス一括削除
-     *
-     * @param $ids
-     * @return bool
-     * @checked
-     * @noTodo
-     */
-    protected function _batch_del($service, $ids)
-    {
-        if (!$ids) {
-            return true;
-        }
-        foreach($ids as $id) {
-            if ($service->delete($id)) {
-                $this->BcMessage->setSuccess(
-                    sprintf(__d('baser', '検索インデックスより NO.%s を削除しました。'), $id),
-                    true,
-                    false
-                );
-            }
-        }
-        return true;
-    }
 
     /**
      * [API] 検索インデックス情報一覧取得
