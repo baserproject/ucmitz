@@ -151,7 +151,7 @@ class SearchIndexesServiceTest extends BcTestCase
 
         $this->SearchIndexesService->batch('delete', [1, 2, 3]);
 
-        $searchIndexes = $this->SearchIndexesService->getIndex(['site_id' => 10])->all();
+        $searchIndexes = $this->SearchIndexesService->getIndex(['site_id' => 5])->all();
         $this->assertEquals(0, count($searchIndexes));
     }
 }
