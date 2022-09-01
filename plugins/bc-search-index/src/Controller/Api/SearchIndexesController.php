@@ -131,13 +131,15 @@ class SearchIndexesController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
 
-        $message = null;
         $searchIndex = null;
 
         try {
             $searchIndex = $searchIndexesService->get($id);
             if ($searchIndexesService->delete($id)) {
                 $message = __d('baser', '検索インデックス: {0} を削除しました。', $searchIndex->title);
+            }else{
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
             }
         } catch (\Exception $e) {
             $this->setResponse($this->response->withStatus(400));
