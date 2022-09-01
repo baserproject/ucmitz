@@ -118,6 +118,7 @@ class SearchIndexesController extends AppController
         if ($searchIndexesService->reconstruct()) {
             $message = __d('baser', '検索インデックスの再構築に成功しました。');
         } else {
+            $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', '検索インデックスの再構築に失敗しました。');
         }
 
