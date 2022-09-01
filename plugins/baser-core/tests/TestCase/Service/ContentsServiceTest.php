@@ -916,8 +916,8 @@ class ContentsServiceTest extends BcTestCase
 
         $this->ContentsService->batch('delete', [100, 101, 102]);
 
-        $permissions = $this->ContentsService->getIndex(['site_id' => 100])->all();
-        $this->assertEquals(0, count($permissions));
+        $contents = $this->ContentsService->getIndex(['site_id' => 100])->all();
+        $this->assertEquals(0, count($contents));
     }
 
 }
