@@ -39,6 +39,7 @@ class ThemesController extends BcAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(ThemesServiceInterface $service, ThemesAdminServiceInterface $adminService)
     {
