@@ -925,8 +925,8 @@ class ContentsServiceTest extends BcTestCase
      */
     public function testGetTitlesById()
     {
-        ContentFactory::make(['id' => 110, 'title' => 'ID110',], 1)->persist();
-        ContentFactory::make(['id' => 111, 'title' => 'ID111',], 1)->persist();
+        ContentFactory::make(['id' => 110, 'title' => 'ID110'], 1)->persist();
+        ContentFactory::make(['id' => 111, 'title' => 'ID111'], 1)->persist();
         $titles = $this->ContentsService->getTitlesById([110, 111]);
         $this->assertCount(2, $titles);
         $this->assertEquals('ID110', $titles[110]);
