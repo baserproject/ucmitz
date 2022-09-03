@@ -53,8 +53,7 @@ class ThemesControllerTest extends BcTestCase
         parent::setUp();
         $this->loadFixtureScenario(InitAppScenario::class);
         $request = $this->getRequest('/baser/admin/baser-core/themes/');
-        $request = $this->loginAdmin($request);
-        $this->ThemesController = new ThemesController($request);
+        $this->loginAdmin($request);
     }
 
     /**
