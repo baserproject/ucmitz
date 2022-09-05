@@ -80,7 +80,7 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
             if ($theme->name === 'BcFront') $result = true;
         }
 
-        $this->assertEquals(true, $result);
+        $this->assertTrue($result);
     }
 
 }
