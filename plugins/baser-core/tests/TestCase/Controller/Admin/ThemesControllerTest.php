@@ -12,9 +12,11 @@
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Controller\Admin\ThemesController;
 
 /**
  * Class ThemesControllerTest
+ * @property  ThemesController $ThemesController
  */
 class ThemesControllerTest extends BcTestCase
 {
@@ -27,6 +29,7 @@ class ThemesControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->ThemesController = new ThemesController($this->getRequest());
     }
 
     /**
@@ -109,6 +112,25 @@ class ThemesControllerTest extends BcTestCase
     public function test_download()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * スクリーンショットを表示
+     */
+    public function test_screenshot()
+    {
+        // デフォルトのフロントテーマのスクリーンショットを取得する
+        $response = $this->ThemesController->screenshot('BcFront');
+        $fileName = $response->getFile()->getFileName();
+        $this->assertEquals('screenshot.png', $fileName);
+
+        try {
+            // 存在しないテーマのスクリーンショットを取得する
+            $this->ThemesController->screenshot('NotExistsTheme');
+            $this->fail();
+        } catch (\Exception) {
+            $this->assertTrue(true);
+        }
     }
 
 }
