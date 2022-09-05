@@ -121,11 +121,12 @@ class ThemesControllerTest extends BcTestCase
     {
         // デフォルトのフロントテーマのスクリーンショットを取得する
         $response = $this->ThemesController->screenshot('BcFront');
+        $this->assertEquals(200, $response->getStatusCode());
         $fileName = $response->getFile()->getFileName();
         $this->assertEquals('screenshot.png', $fileName);
 
         try {
-            // 存在しないテーマのスクリーンショットを取得する
+            //存在しないテーマのスクリーンショットを取得する
             $this->ThemesController->screenshot('NotExistsTheme');
             $this->fail();
         } catch (\Exception) {
