@@ -51,6 +51,7 @@ class ThemesService implements ThemesServiceInterface
      * 一覧データ取得
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndex(): array
     {
