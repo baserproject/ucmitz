@@ -148,19 +148,15 @@ class ThemesControllerTest extends BcTestCase
      */
     public function test_screenshot()
     {
-        // デフォルトのフロントテーマのスクリーンショットを取得する
-        $response = $this->ThemesController->screenshot('BcFront');
-        $this->assertEquals(200, $response->getStatusCode());
-        $fileName = $response->getFile()->getFileName();
-        $this->assertEquals('screenshot.png', $fileName);
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
 
-        try {
-            //存在しないテーマのスクリーンショットを取得する
-            $this->ThemesController->screenshot('NotExistsTheme');
-            $this->fail();
-        } catch (\Exception) {
-            $this->assertTrue(true);
-        }
+        $this->get('/baser/admin/baser-core/themes/screenshot/BcFront');
+        $this->assertResponseOk();
+        $this->assertFileResponse('/var/www/html/plugins/bc-front/screenshot.png');
+
+        $this->get('/baser/admin/baser-core/themes/screenshot/NotExistsTheme');
+        $this->assertResponseError();
     }
 
 }
