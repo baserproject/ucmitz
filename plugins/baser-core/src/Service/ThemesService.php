@@ -13,6 +13,7 @@ namespace BaserCore\Service;
 
 use BaserCore\Error\BcException;
 use BaserCore\Model\Entity\Site;
+use BaserCore\Model\Table\AppTable;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\UnitTest;
@@ -164,6 +165,7 @@ class ThemesService implements ThemesServiceInterface
      * @return array|string[]
      * @checked
      * @noTodo
+     * @unitTest
      */
     private function getThemesPluginsInfo(string $theme)
     {
@@ -235,9 +237,9 @@ class ThemesService implements ThemesServiceInterface
      */
     public function copy(string $theme): bool
     {
-        if(!is_writable(BASER_THEMES)) throw new BcException(BASER_THEMES . ' に書込み権限がありません。');
+        if (!is_writable(BASER_THEMES)) throw new BcException(BASER_THEMES . ' に書込み権限がありません。');
 
-        if(in_array($theme, Configure::read('BcApp.core'))) $theme = Inflector::dasherize($theme);
+        if (in_array($theme, Configure::read('BcApp.core'))) $theme = Inflector::dasherize($theme);
         $newTheme = Inflector::camelize($theme, '-') . 'Copy';
         while(true) {
             if (!is_dir(BASER_THEMES . $newTheme)) break;
@@ -262,11 +264,12 @@ class ThemesService implements ThemesServiceInterface
      * @param string $theme
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(string $theme): bool
     {
         $path = BcUtil::getPluginPath($theme);
-        if(!is_writable($path)) throw new BcException($path . ' に書込み権限がありません。');
+        if (!is_writable($path)) throw new BcException($path . ' に書込み権限がありません。');
         $folder = new Folder();
         if (!$folder->delete($path)) {
             return false;
@@ -337,7 +340,7 @@ class ThemesService implements ThemesServiceInterface
     public function createDownloadToTmp(string $theme): string
     {
         $tmpDir = TMP . 'theme' . DS;
-        if(!is_dir($tmpDir)) {
+        if (!is_dir($tmpDir)) {
             $folder = new Folder($tmpDir);
             $folder->create($tmpDir);
         }
@@ -348,4 +351,93 @@ class ThemesService implements ThemesServiceInterface
         return $tmpDir;
     }
 
+    /**
+     * 現在のDB内のデータをダウンロード用のCSVとして一時フォルダに作成する
+     * @return string
+     * @checked
+     * @noTodo
+     */
+    public function createDownloadDefaultDataPatternToTmp(): string
+    {
+        set_time_limit(0);
+        ini_set('memory_limit', -1);
+        // コアのCSVを生成
+        $tmpDir = TMP . 'csv' . DS;
+        $folder = new Folder();
+        $folder->create($tmpDir);
+        BcUtil::emptyFolder($tmpDir);
+        BcUtil::clearAllCache();
+        $excludes = ['plugins', 'dblogs', 'users'];
+        // プラグインのCSVを生成
+        $plugins = Plugin::loaded();
+        foreach($plugins as $plugin) {
+            $folder->create($tmpDir . $plugin);
+            BcUtil::emptyFolder($tmpDir . $plugin);
+            $this->_writeCsv($plugin, $tmpDir . $plugin . DS, $excludes);
+            $folder = new Folder($tmpDir . $plugin);
+            $files = $folder->read();
+            if (!$files[0] && !$files[1]) $folder->delete($tmpDir . $plugin);
+        }
+        // site_configs 調整
+        $this->_modifySiteConfigsCsv($tmpDir . 'BaserCore' . DS . 'site_configs.csv');
+        return $tmpDir;
+    }
+
+    /**
+     * site_configs テーブルにて、 CSVに出力しないフィールドを空にする
+     * @param string $path
+     * @return bool
+     * @checked
+     * @noTodo
+     */
+    protected function _modifySiteConfigsCsv(string $path)
+    {
+        $targets = ['email', 'google_analytics_id', 'version'];
+        $fp = fopen($path, 'a+');
+        $records = [];
+        while(($record = BcUtil::fgetcsvReg($fp, 10240)) !== false) {
+            if (in_array($record[1], $targets)) {
+                $record[2] = '';
+            }
+            $records[] = '"' . implode('","', $record) . '"';
+        }
+        ftruncate($fp, 0);
+        fwrite($fp, implode("\n", $records));
+        return true;
+    }
+
+    /**
+     * CSVファイルを書きだす
+     *
+     * @param string $configKeyName
+     * @param string $path
+     * @return boolean
+     * @checked
+     * @noTodo
+     */
+    protected function _writeCsv($plugin, $path, $exclude = [])
+    {
+        /* @var AppTable $appTable */
+        $appTable = TableRegistry::getTableLocator()->get('BaserCore.App');
+        /* @var \Cake\Database\Connection $db */
+        $db = $appTable->getConnection();
+        $tables = $db->getSchemaCollection()->listTables();
+        $tableList = $appTable->getAppTableList();
+        if (!isset($tableList[$plugin])) return true;
+        $result = true;
+        foreach($tables as $table) {
+            if (in_array($table, $tableList[$plugin])) {
+                if (in_array($table, $exclude)) continue;
+                if (!$appTable->writeCsv($table, [
+                    'path' => $path . $table . '.csv',
+                    'encoding' => 'UTF-8',
+                    'init' => false,
+                    'plugin' => $plugin
+                ])) {
+                    $result = false;
+                }
+            }
+        }
+        return $result;
+    }
 }
