@@ -11,16 +11,38 @@
 
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
-use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Controller\Admin\ThemesController;
+use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class ThemesControllerTest
- * @property  ThemesController $ThemesController
+ * @property ThemesController $ThemesController;
  */
 class ThemesControllerTest extends BcTestCase
 {
 
+    /**
+     * Trait
+     */
+    use ScenarioAwareTrait;
+    use IntegrationTestTrait;
+    use BcContainerTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/UsersUserGroups',
+        'plugin.BaserCore.Factory/UserGroups',
+    ];
     /**
      * set up
      *
@@ -30,6 +52,9 @@ class ThemesControllerTest extends BcTestCase
     {
         parent::setUp();
         $this->ThemesController = new ThemesController($this->getRequest());
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $request = $this->getRequest('/baser/admin/baser-core/themes/');
+        $this->loginAdmin($request);
     }
 
     /**
@@ -55,7 +80,11 @@ class ThemesControllerTest extends BcTestCase
      */
     public function test_index()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        $this->get('/baser/admin/baser-core/themes/index');
+        $this->assertResponseOk();
     }
 
     /**
