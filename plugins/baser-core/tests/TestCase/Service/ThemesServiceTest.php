@@ -90,4 +90,15 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
 
         $this->ThemesService->delete('BcFrontCopy');
     }
+    /**
+     * test delete
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->ThemesService->copy('BcFront');
+        $rs = $this->ThemesService->delete('BcFrontCopy');
+        $this->assertTrue($rs);
+        $this->assertTrue(!is_dir(BASER_THEMES . 'BcFrontCopy'));
+    }
 }
