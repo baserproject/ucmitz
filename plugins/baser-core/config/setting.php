@@ -49,7 +49,7 @@ return [
         /**
          * 現在のリクエストのホスト
          */
-        'host' => (isset($_SERVER['HTTP_HOST'])) ? $_SERVER['HTTP_HOST'] : null
+        'host' => (isset($_SERVER['HTTP_HOST']))? $_SERVER['HTTP_HOST'] : null
     ],
     'BcApp' => [
         /**
@@ -196,7 +196,10 @@ return [
                             'title' => __d('baser', '利用中テーマダウンロード'),
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'themes', 'action' => 'download']
                         ],
-//                        'ThemesDownloadDefaultDataPattern' => ['title' => __d('baser', 'テーマ用初期データダウンロード'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'themes', 'action' => 'download_default_data_pattern']],
+                        'ThemesDownloadDefaultDataPattern' => [
+                            'title' => __d('baser', 'テーマ用初期データダウンロード'),
+                            'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'themes', 'action' => 'download_default_data_pattern']
+                        ],
                     ]
                 ],
                 'Plugin' => [
@@ -239,7 +242,7 @@ return [
                 ]
             ]
         ]
-     ],
+    ],
 
     /**
      * リクエスト情報
