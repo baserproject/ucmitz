@@ -458,11 +458,9 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetCurrentThemesPlugins()
     {
-        $siteConfig = BcContainer::get()->get(SiteConfigsServiceInterface::class);
-        $targetTheme = 'BcSpaSample';
-        // テーマを設定する
-        $siteConfig->setValue('theme', $targetTheme);
+        $currentSite = $this->getRequest()->getParam('Site');
         // 現在のテーマのプラグインを作成する
+        $targetTheme = BcUtil::getCurrentTheme();
         $themePath = BcUtil::getPluginPath($targetTheme);
         $pluginName = 'test';
         mkdir($themePath . 'Plugin', 777, true);
@@ -473,7 +471,7 @@ class BcUtilTest extends BcTestCase
         $this->assertEquals($pluginName, $plugins[0]);
 
         // 現在のテーマを切り替える
-        $siteConfig->setValue('theme', 'BcFront');
+        $currentSite->theme = 'BcSpaSample';
         $plugins = BcUtil::getCurrentThemesPlugins();
         // プラグインが存在しないか確認する
         $this->assertCount(0, $plugins);
