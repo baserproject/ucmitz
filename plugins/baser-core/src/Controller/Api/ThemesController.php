@@ -31,6 +31,7 @@ class ThemesController extends BcApiController
      * @param ThemesServiceInterface $themes
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(ThemesServiceInterface $themes)
     {
