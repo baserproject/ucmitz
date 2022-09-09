@@ -152,4 +152,23 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $themes = $this->ThemesService->getIndex();
         $this->assertEquals('BcFront', $themes[1]->name);
     }
+
+    /**
+     * 指定したテーマが梱包するプラグイン情報を取得
+     */
+    public function testGetThemesPluginsInfo()
+    {
+        $theme = 'BcFront';
+        $themePath = BcUtil::getPluginPath($theme);
+        $pluginName = 'test';
+        mkdir($themePath . 'Plugin', 777, true);
+        mkdir($themePath . 'Plugin/' . $pluginName, 777, true);
+
+        $pluginsInfo = $this->execPrivateMethod($this->ThemesService, 'getThemesPluginsInfo', [$theme]);
+        $this->assertEquals('このテーマは下記のプラグインを同梱しています。', $pluginsInfo[0]);
+        $this->assertEquals('	・' . $pluginName, $pluginsInfo[1]);
+
+        $folder = new Folder();
+        $folder->delete($themePath . 'Plugin');
+    }
 }
