@@ -50,7 +50,6 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function setUp(): void
     {
-        $this->setFixtureTruncate();
         parent::setUp();
         $this->ThemesService = $this->getService(ThemesServiceInterface::class);
     }
