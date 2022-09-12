@@ -123,6 +123,7 @@ class ThemesController extends BcAdminAppController
      * @param string $theme
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(ThemesServiceInterface $service, $theme)
     {
