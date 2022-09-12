@@ -135,14 +135,9 @@ class ThemesControllerTest extends BcTestCase
         $this->assertFlashMessage("テーマ「"  . $theme . "」をコピーしました。");
 
         // コピーしたテーマを削除する
-        $newTheme = $theme . 'Copy';
-        while(true) {
-            $path = BASER_THEMES . $newTheme;
-            if (!is_dir($path)) break;
-            $newTheme .= 'Copy';
-            $Folder = new Folder();
-            $Folder->delete($path);
-        }
+        $path = BASER_THEMES . $theme . 'Copy';
+        $Folder = new Folder();
+        $Folder->delete($path);
     }
 
     /**
