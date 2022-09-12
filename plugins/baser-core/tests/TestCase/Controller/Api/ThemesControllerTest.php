@@ -77,16 +77,18 @@ class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
     }
 
     /**
-     * test View
+     * テーマを適用するAPI
      */
     public function testApply(): void
     {
-        $this->post('/baser/api/baser-core/themes/apply/1/BcSpaSample.json?token=' . $this->accessToken);
-//        $this->assertResponseOk();
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $theme = 'BcSpaSample';
+        $this->post('/baser/api/baser-core/themes/apply/1/'. $theme . '.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertCount(2, $result->themes);
-        $this->assertEquals('BcThemeSample', $result->themes[0]->name);
-        $this->assertEquals('BcFront', $result->themes[1]->name);
+        $this->assertEquals($theme, $result->theme);
+        $this->assertEquals('テーマ「' . $theme . '」を適用しました。', $result->message);
     }
 
 }
