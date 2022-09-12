@@ -43,19 +43,14 @@ class ThemesController extends BcApiController
 
         $errors = null;
 
-        if (!$theme || !is_numeric($siteId)) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', 'テーマの適用に失敗しました。');
-        } else {
-            try {
-                $info = $themesService->apply($sitesService->get($siteId), $theme);
-                $message = [__d('baser', 'テーマ「{0}」を適用しました。', $theme)];
-                if ($info) $message = array_merge($message, [''], $info);
-                $message = implode("\n", $message);
-            } catch (BcException $e) {
-                $errors = $e->getMessage();
-                $message = __d('baser', 'テーマの適用に失敗しました。', $e->getMessage());
-            }
+        try {
+            $info = $themesService->apply($sitesService->get($siteId), $theme);
+            $message = [__d('baser', 'テーマ「{0}」を適用しました。', $theme)];
+            if ($info) $message = array_merge($message, [''], $info);
+            $message = implode("\n", $message);
+        } catch (BcException $e) {
+            $errors = $e->getMessage();
+            $message = __d('baser', 'テーマの適用に失敗しました。', $e->getMessage());
         }
 
         $this->set([
