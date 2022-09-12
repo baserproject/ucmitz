@@ -226,6 +226,9 @@ class ThemesService implements ThemesServiceInterface
      * @param string $theme
      * @param array $info
      * @return array|mixed|string[]
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     private function getThemesDefaultDataInfo(string $theme, array $info = [])
     {
