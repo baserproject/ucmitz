@@ -1,0 +1,72 @@
+<?php
+/**
+ * baserCMS :  Based Website Development Project <https://basercms.net>
+ * Copyright (c) NPO baser foundation <https://baserfoundation.org/>
+ *
+ * @copyright     Copyright (c) NPO baser foundation
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       https://basercms.net/license/index.html MIT License
+ */
+
+namespace BaserCore\Controller\Api;
+
+use BaserCore\Error\BcException;
+use BaserCore\Service\SitesServiceInterface;
+use BaserCore\Service\ThemesServiceInterface;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Utility\BcUtil;
+
+/**
+ * Class ThemesController
+ *
+ * https://localhost/baser/api/baser-core/themes/action_name.json で呼び出す
+ *
+ * @package BaserCore\Controller\Api
+ */
+class ThemesController extends BcApiController
+{
+
+    /**
+     * [API] テーマの初期データを読み込むAPIを実装
+     * @param ThemesServiceInterface $themesService
+     * @param SitesServiceInterface $sitesService
+     * @param int $siteId
+     * @noTodo
+     */
+    public function apply(ThemesServiceInterface $themesService, SitesServiceInterface $sitesService, int $siteId)
+    {
+        $this->request->allowMethod(['post']);
+
+        $errors = null;
+
+        if (empty($this->getRequest()->getData('default_data_pattern'))) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '不正な操作です。');
+        } else {
+            try {
+                $result = $themesService->loadDefaultDataPattern($sitesService->get($siteId), $this->getRequest()->getData('default_data_pattern'));
+                if (!$result) {
+                    $this->setResponse($this->response->withStatus(400));
+                    $message = __d('baser', '初期データの読み込みが完了しましたが、いくつかの処理に失敗しています。ログを確認してください。');
+                } else {
+                    $message = __d('baser', '初期データの読み込みが完了しました。');
+                }
+            } catch (BcException $e) {
+                $errors = $e->getMessage();
+                $message = __d('baser', '初期データの読み込みに失敗しました。');
+                $this->setResponse($this->response->withStatus(400));
+            }
+        }
+
+        $this->set([
+            'message' => $message,
+            'errors' => $errors
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
+    }
+
+}
