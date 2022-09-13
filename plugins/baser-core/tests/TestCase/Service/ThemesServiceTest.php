@@ -166,13 +166,19 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $tmpDir = TMP . 'theme' . DS;
         $theme = 'BcFront';
         $tmpThemeDir = $tmpDir . $theme;
+        $folder = new Folder();
+        $folder->delete($tmpDir . 'BcFrontCopy');
+        $folder->delete($tmpDir . 'BcFrontCopyCopy');
+        $folder->delete($tmpDir . 'BcFrontCopyCopyCopy');
+        $folder->delete($tmpDir . 'BcFrontCopyCopyCopyCopy');
+        $folder->delete($tmpDir . 'BcFrontCopyCopyCopyCopyCopy');
 
         $result = $this->ThemesService->createDownloadToTmp($theme);
         $this->assertEquals($tmpDir, $result);
         $this->assertTrue(is_dir($tmpThemeDir));
 
-        $folder = new Folder();
         $folder->delete($tmpThemeDir);
+
     }
 
     /**
