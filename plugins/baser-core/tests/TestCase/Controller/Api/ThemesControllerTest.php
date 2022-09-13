@@ -12,13 +12,7 @@
 namespace BaserCore\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Scenario\InitAppScenario;
-use BaserCore\Utility\BcFileUploader;
-use BaserCore\View\Helper\BcBaserHelper;
-use Cake\Core\App;
 use Cake\Core\Configure;
-use Cake\Filesystem\Folder;
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\View\View;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
