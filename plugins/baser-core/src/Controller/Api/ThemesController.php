@@ -56,10 +56,11 @@ class ThemesController extends BcApiController
         $this->set([
             'message' => $message,
             'theme' => $theme,
+            'siteId' => $siteId,
             'errors' => $errors
         ]);
 
-        $this->viewBuilder()->setOption('serialize', ['message', 'theme', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'theme', 'siteId', 'errors']);
     }
 
 }
