@@ -34,8 +34,9 @@ class ThemesController extends BcApiController
      * @param SitesServiceInterface $sitesService
      * @param int $siteId
      * @param string $theme
-     *
+     * @checked
      * @noTodo
+     * @unitTest
      */
     public function apply(ThemesServiceInterface $themesService, SitesServiceInterface $sitesService, int $siteId, string $theme)
     {
