@@ -90,7 +90,6 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testCopy()
     {
-        $this->ThemesService->delete('BcFrontCopyCopyCopy');
         $rs = $this->ThemesService->copy('BcFront');
         $this->assertTrue($rs);
         //コピーを確認
