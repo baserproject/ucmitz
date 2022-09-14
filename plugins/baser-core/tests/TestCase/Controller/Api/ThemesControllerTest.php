@@ -11,16 +11,16 @@
 
 namespace BaserCore\Test\TestCase\Controller\Api;
 
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
-use BaserCore\Test\Scenario\InitAppScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class ThemesControllerTest extends BcTestCase
 {
 
     /**
-     * Trait
+     * ScenarioAwareTrait
      */
     use ScenarioAwareTrait;
 
