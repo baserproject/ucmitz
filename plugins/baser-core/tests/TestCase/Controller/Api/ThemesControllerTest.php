@@ -11,17 +11,12 @@
 
 namespace BaserCore\Test\TestCase\Controller\Api;
 
-use BaserCore\Utility\BcFileUploader;
-use BaserCore\View\Helper\BcBaserHelper;
-use Cake\Core\App;
+use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
-use Cake\Filesystem\Folder;
-use Cake\TestSuite\IntegrationTestTrait;
-use Cake\View\View;
 use BaserCore\Test\Scenario\InitAppScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
-class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
+class ThemesControllerTest extends BcTestCase
 {
 
     /**
@@ -30,23 +25,13 @@ class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
     use ScenarioAwareTrait;
 
     /**
-     * IntegrationTestTrait
-     */
-    use IntegrationTestTrait;
-
-    /**
      * Fixtures
      *
      * @var array
      */
     public $fixtures = [
-        'plugin.BaserCore.Users',
-        'plugin.BaserCore.UsersUserGroups',
-        'plugin.BaserCore.UserGroups',
-        'plugin.BaserCore.Sites',
-        'plugin.BaserCore.SiteConfigs',
-        'plugin.BaserCore.Contents',
-        'plugin.BaserCore.ContentFolders'
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/Sites',
     ];
 
     /**
