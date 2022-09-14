@@ -18,9 +18,16 @@ use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\View\View;
+use BaserCore\Test\Scenario\InitAppScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
 {
+
+    /**
+     * Trait
+     */
+    use ScenarioAwareTrait;
 
     /**
      * IntegrationTestTrait
@@ -60,6 +67,7 @@ class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->loadFixtureScenario(InitAppScenario::class);
         $token = $this->apiLoginAdmin(1);
         $this->accessToken = $token['access_token'];
         $this->refreshToken = $token['refresh_token'];
@@ -77,6 +85,19 @@ class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
     }
 
     /**
+     * test View
+     */
+    public function testIndex(): void
+    {
+        $this->get('/baser/api/baser-core/themes/index.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertCount(2, $result->themes);
+        $this->assertEquals('BcThemeSample', $result->themes[0]->name);
+        $this->assertEquals('BcFront', $result->themes[1]->name);
+    }
+
+    /**
      * テーマを適用するAPI
      */
     public function testApply(): void
@@ -90,5 +111,4 @@ class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->assertEquals($theme, $result->theme);
         $this->assertEquals('テーマ「' . $theme . '」を適用しました。', $result->message);
     }
-
 }
