@@ -14,6 +14,7 @@ namespace BaserCore\Test\TestCase\Service;
 use BaserCore\Error\BcException;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Filesystem\File;
 
 /**
  * Class UtilitiesServiceTest
@@ -57,14 +58,17 @@ class UtilitiesServiceTest extends BcTestCase
      */
     public function testDeleteLog()
     {
-        if (file_exists($this->logPath)) {
-            $this->UtilitiesService->deleteLog();
-            $this->assertFalse(file_exists($this->logPath));
-        } else {
-            $this->expectExceptionMessage('エラーログが存在しません。');
-            $this->expectException(BcException::class);
-            $this->UtilitiesService->deleteLog();
+        if (!file_exists($this->logPath)) {
+            new File($this->logPath, true);
         }
+
+        $this->UtilitiesService->deleteLog();
+        $this->assertFalse(file_exists($this->logPath));
+
+        $this->expectExceptionMessage('エラーログが存在しません。');
+        $this->expectException(BcException::class);
+        $this->UtilitiesService->deleteLog();
+
     }
 
 }
