@@ -431,6 +431,7 @@ class ThemesService implements ThemesServiceInterface
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createDownloadDefaultDataPatternToTmp(): string
     {
