@@ -11,12 +11,14 @@
 
 namespace BaserCore\Test\TestCase\Service;
 
+use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Service\ThemesService;
 use BaserCore\Service\ThemesServiceInterface;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
+use Cake\Core\Plugin;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\Routing\Router;
@@ -234,6 +236,25 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
             if (in_array($record[1], $targets)) {
                 $this->assertEmpty($record[2]);
             }
+        }
+    }
+
+    /**
+     * CSVファイルを書きだす
+     * @return void
+     */
+    public function test_writeCsv()
+    {
+        $plugin = 'BaserCore';
+        $dbService = $this->getService(BcDatabaseServiceInterface::class);
+        $tableList = $dbService->getAppTableList($plugin);
+        $path = TMP . 'testWriteCsv' . DS;
+        $csvFolder = new Folder($path, true, 0777);
+        BcUtil::emptyFolder($path);
+        $this->execPrivateMethod($this->ThemesService, '_writeCsv', [$plugin, $path]);
+        $files = $csvFolder->find();
+        foreach ($tableList as $table) {
+            $this->assertTrue(in_array($table . '.csv', $files));
         }
     }
 
