@@ -199,7 +199,19 @@ class ThemesControllerTest extends BcTestCase
 
         $this->get('/baser/admin/baser-core/themes/download_default_data_pattern');
         $this->assertResponseOk();
-        $this->assertTrue(BcUtil::emptyFolder(TMP . 'csv' . DS));
+
+        $tmpDir = TMP . 'csv' . DS;
+        $folder = new Folder($tmpDir);
+        $folderContents = $folder->read(true, true, true);
+        $result = true;
+        if (count($folderContents[1]) > 0) $result = false;
+        foreach ($folderContents[0] as $path) {
+            $childFolder = new Folder($path);
+            $childFiles = $childFolder->find();
+            if (count($childFiles) > 0) $result = false;
+        }
+
+        $this->assertTrue($result);
     }
 
     /**
