@@ -51,7 +51,7 @@ class ThemesController extends BcApiController
      * @param int $siteId
      * @noTodo
      */
-    public function apply(ThemesServiceInterface $themesService, SitesServiceInterface $sitesService, int $siteId)
+    public function load_default_data(ThemesServiceInterface $themesService, SitesServiceInterface $sitesService, int $siteId)
     {
         $this->request->allowMethod(['post']);
 
