@@ -43,6 +43,33 @@ class ThemesController extends BcApiController
     }
 
     /**
+     * [API] 新しいテーマをアップロードする
+     * @param ThemesServiceInterface $service
+     * @noTodo
+     * @checked
+     * @unitTest
+     */
+    public function add(ThemesServiceInterface $service)
+    {
+        $this->request->allowMethod(['post']);
+        $errors = [];
+        try {
+            $theme = $service->add($this->getRequest()->getUploadedFiles());
+            $message = __d('baser', 'テーマファイル「' . $theme . '」を追加しました。');
+        } catch (BcException $e) {
+            $errors = $e->getMessage();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', 'ファイルのアップロードに失敗しました。' . $e->getMessage());
+        }
+
+        $this->set([
+            'message' => $message,
+            'theme' => $theme,
+            'errors' => $errors
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'theme', 'errors']);
+    }
+    /**
      * [API] テーマを適用するAPI
      * @param ThemesServiceInterface $themesService
      * @param SitesServiceInterface $sitesService
