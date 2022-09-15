@@ -192,6 +192,9 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGetIndex()
     {
+        $this->ThemesService->delete('BcFrontCopyCopyCopy');
+        $this->ThemesService->delete('BcFrontCopyCopy');
+        $this->ThemesService->delete('BcFrontCopy');
         $themes = $this->ThemesService->getIndex();
         $this->assertEquals('BcFront', $themes[1]->name);
     }
