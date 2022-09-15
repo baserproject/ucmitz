@@ -11,6 +11,7 @@
 
 namespace BaserCore\Controller\Api;
 
+use BaserCore\Error\BcException;
 use BaserCore\Service\ThemesServiceInterface;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -39,6 +40,42 @@ class ThemesController extends BcApiController
             'themes' => $themes->getIndex()
         ]);
         $this->viewBuilder()->setOption('serialize', ['themes']);
+    }
+
+    /**
+     * [API] テーマをコピーする
+     *
+     * @param string $theme
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function copy(ThemesServiceInterface $service, $theme)
+    {
+        $this->request->allowMethod(['post']);
+
+        $error = null;
+        try {
+            $rs = $service->copy($theme);
+            if ($rs) {
+                $message = __d('baser', 'テーマ「{0}」をコピーしました。', $theme);
+            } else {
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser', 'テーマ「{0}」をコピー出来ませんでした。', $theme);
+            }
+
+        } catch (BcException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $error = $e->getMessage();
+            $message = __d('baser', 'テーマフォルダのアクセス権限を見直してください。' . $e->getMessage());
+        }
+        $this->set([
+            'theme' => $theme,
+            'message' => $message,
+            'error' => $error
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['theme', 'message', 'error']);
     }
 
 }
