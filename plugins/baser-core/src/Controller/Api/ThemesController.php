@@ -87,7 +87,8 @@ class ThemesController extends BcApiController
 
         try {
             $info = $themesService->apply($sitesService->get($siteId), $theme);
-            $message = [__d('baser', 'テーマ「{0}」を適用しました。', $theme)];
+            $theme = $themesService->get($theme);
+            $message = [__d('baser', 'テーマ「{0}」を適用しました。', $theme->name)];
             if ($info) $message = array_merge($message, [''], $info);
             $message = implode("\n", $message);
         } catch (BcException $e) {
