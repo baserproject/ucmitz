@@ -11,11 +11,13 @@
 
 namespace BaserCore\Test\TestCase\Controller\Api;
 
+use BaserCore\Service\ThemesService;
 use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
-class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
+class ThemesControllerTest extends BcTestCase
 {
 
     /**
@@ -79,6 +81,28 @@ class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->assertCount(2, $result->themes);
         $this->assertEquals('BcThemeSample', $result->themes[0]->name);
         $this->assertEquals('BcFront', $result->themes[1]->name);
+    }
+
+    /**
+     * test copy
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->get('/baser/api/baser-core/themes/delete/BcSpaSampleTest.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $themeService = new ThemesService();
+        $themeService->copy('BcSpaSample');
+        $this->post('/baser/api/baser-core/themes/delete/BcSpaSampleCopy.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('テーマ「BcSpaSampleCopy」を削除しました。', $result->message);
+
+        $this->post('/baser/api/baser-core/themes/delete/BcSpaSampleCopy.json?token=' . $this->accessToken);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('テーマフォルダのアクセス権限を見直してください。' . $result->error, $result->message);
     }
 
 }
