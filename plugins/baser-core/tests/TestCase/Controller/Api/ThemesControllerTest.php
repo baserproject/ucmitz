@@ -24,7 +24,7 @@ class ThemesControllerTest extends BcTestCase
 {
 
     /**
-     * Trait
+     * ScenarioAwareTrait
      */
     use ScenarioAwareTrait;
     use IntegrationTestTrait;
@@ -127,5 +127,19 @@ class ThemesControllerTest extends BcTestCase
         $folder = new Folder();
         $folder->delete(ROOT . DS . 'plugins' . DS . $theme);
         $folder->delete($zipSrcPath);
+    }
+    /**
+     * テーマを適用するAPI
+     */
+    public function testApply(): void
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $theme = 'BcSpaSample';
+        $this->post('/baser/api/baser-core/themes/apply/1/'. $theme . '.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($theme, $result->theme->name);
+        $this->assertEquals('テーマ「' . $theme . '」を適用しました。', $result->message);
     }
 }
