@@ -141,7 +141,7 @@ class ThemesControllerTest extends BcTestCase
         $this->post('/baser/api/baser-core/themes/copy/BcSpaSample2.json?token=' . $this->accessToken);
         $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('テーマ「BcSpaSample2」をコピー出来ませんでした。', $result->message);
+        $this->assertEquals('テーマ「BcSpaSample2」のコピーに失敗しました。', $result->message);
 
         $this->post('/baser/api/baser-core/themes/copy/BcSpaSample.json?token=' . $this->accessToken);
         $this->assertResponseOk();

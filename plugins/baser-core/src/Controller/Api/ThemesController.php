@@ -88,8 +88,9 @@ class ThemesController extends BcApiController
                 $message = __d('baser', 'テーマ「{0}」をコピーしました。', $theme);
             } else {
                 $this->setResponse($this->response->withStatus(400));
-                $message = __d('baser', 'テーマ「{0}」をコピー出来ませんでした。', $theme);
+                $message = __d('baser', 'テーマ「{0}」のコピーに失敗しました。', $theme);
             }
+            $theme = $service->get($theme);
 
         } catch (BcException $e) {
             $this->setResponse($this->response->withStatus(400));
