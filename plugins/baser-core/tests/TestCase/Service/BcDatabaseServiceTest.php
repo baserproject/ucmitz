@@ -12,15 +12,11 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\BcDatabaseServiceInterface;
-use BaserCore\Test\Factory\ContentFolderFactory;
-use BaserCore\Test\Factory\PageFactory;
 use BaserCore\Test\Factory\SiteConfigFactory;
-use BaserCore\Test\Factory\SiteFactory;
-use BaserCore\Test\Factory\UserFactory;
-use BaserCore\Test\Factory\UserGroupFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Cache\Cache;
+use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * BcDatabaseServiceTest
@@ -33,6 +29,16 @@ class BcDatabaseServiceTest extends BcTestCase
      * Trait
      */
     use BcContainerTrait;
+    use IntegrationTestTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Factory/SiteConfigs',
+    ];
 
     /**
      * Set Up
@@ -55,10 +61,27 @@ class BcDatabaseServiceTest extends BcTestCase
         parent::tearDown();
     }
 
+    /**
+     * Gets the database encoding
+     * @return void
+     */
     public function test_getEncoding()
     {
         $encoding = $this->BcDatabaseService->getEncoding();
         $this->assertEquals('utf8', $encoding);
+    }
+
+    /**
+     * Gets the database encoding
+     * @return void
+     */
+    public function test_truncate()
+    {
+        SiteConfigFactory::make(['name' => 'company', 'value' => 'Company A'])->persist();
+        SiteConfigFactory::make(['name' => 'address', 'value' => 'Tokyo'])->persist();
+        $this->assertEquals(2, SiteConfigFactory::count());
+        $this->BcDatabaseService->truncate('site_configs');
+        $this->assertEquals(0, SiteConfigFactory::count());
     }
 
     /**
@@ -86,27 +109,6 @@ class BcDatabaseServiceTest extends BcTestCase
     }
 
     /**
-     * test resetAllTables
-     */
-    public function test_resetAllTables()
-    {
-        $excludes = ['site_configs', 'sites'];
-        SiteConfigFactory::make(['name' => 'test', 'value' => 'test value'])->persist();
-        SiteFactory::make(['name' => 'home page', 'title' => 'welcome'])->persist();
-        PageFactory::make(['contents' => 'this is the contents', 'draft' => 'trash'])->persist();
-        UserFactory::make(['name' => 'Chuong Le', 'email' => 'chuong.le@mediabridge.asia'])->persist();
-        UserGroupFactory::make(['name' => 'test group', 'title' => 'test title'])->persist();
-        ContentFolderFactory::make(['folder_template' => 'temp1', 'page_template' => 'temp2'])->persist();
-        $this->BcDatabaseService->resetAllTables($excludes);
-        $this->assertEquals(1, SiteConfigFactory::count());
-        $this->assertEquals(1, SiteFactory::count());
-        $this->assertEquals(0, PageFactory::count());
-        $this->assertEquals(0, UserFactory::count());
-        $this->assertEquals(0, UserGroupFactory::count());
-        $this->assertEquals(0, ContentFolderFactory::count());
-    }
-
-    /**
      * test getAppTableList
      */
     public function test_getAppTableList()
@@ -116,6 +118,18 @@ class BcDatabaseServiceTest extends BcTestCase
         $result = $this->BcDatabase->getAppTableList();
         $this->assertTrue(in_array('plugins', $result['BaserCore']));
         $this->assertTrue(in_array('plugins', Cache::read('appTableList', '_bc_env_')['BaserCore']));
+    }
+
+    /**
+     * test clearAppTableList
+     * @return void
+     */
+    public function test_clearAppTableList()
+    {
+        $this->BcDatabaseService->getAppTableList();
+        $this->assertTrue(in_array('plugins', Cache::read('appTableList', '_bc_env_')['BaserCore']));
+        $this->BcDatabaseService->clearAppTableList();
+        $this->assertEquals(0, count(Cache::read('appTableList', '_bc_env_')));
     }
 
 }
