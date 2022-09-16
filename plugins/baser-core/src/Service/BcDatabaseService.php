@@ -204,6 +204,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return boolean
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function resetAllTables($excludes = [])
     {
