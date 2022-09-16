@@ -12,9 +12,12 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\BcDatabaseServiceInterface;
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Cache\Cache;
+use Cake\TestSuite\IntegrationTestTrait;
+use Cake\Filesystem\File;
 
 /**
  * BcDatabaseServiceTest
@@ -27,6 +30,20 @@ class BcDatabaseServiceTest extends BcTestCase
      * Trait
      */
     use BcContainerTrait;
+    use IntegrationTestTrait;
+
+    /**
+     * Fixtures
+     * @var string[]
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/Contents',
+        'plugin.BaserCore.Factory/ContentFolders',
+        'plugin.BaserCore.Factory/Pages',
+        'plugin.BaserCore.Factory/SiteConfigs',
+    ];
 
     /**
      * Set Up
@@ -35,6 +52,7 @@ class BcDatabaseServiceTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->BcDatabaseService = $this->getService(BcDatabaseServiceInterface::class);
     }
@@ -77,6 +95,53 @@ class BcDatabaseServiceTest extends BcTestCase
             ]
         );
         $this->assertEmpty($FeedDetail, 'プラグインのテーブルをリセットできません');
+    }
+
+    /**
+     * test loadCsvToArray
+     * @return void
+     */
+    public function test_loadCsvToArray()
+    {
+        ContentFactory::make(
+            [
+                'name' => 'BaserCore',
+                'type' => 'ContentFolder',
+                'entity_id' => 1,
+                'title' => 'メインサイト',
+                'lft' => 1,
+                'right' => 18,
+                'level' => 0
+            ]
+        )->persist();
+        $path = TMP . DS . 'csv' . DS . 'contents.csv';
+        $options = [
+            'path' => $path,
+            'encoding' => 'utf8',
+            'init' => false,
+        ];
+        $this->BcDatabaseService->writeCsv('contents', $options);
+        //CSVファイルを指定して実行
+        $rs = $this->BcDatabaseService->loadCsvToArray($path);
+        //戻り値が配列になっていることを確認
+        $this->assertIsArray($rs);
+        $this->assertEquals('メインサイト', $rs[0]['title']);
+
+        //SJIS のCSVファイルを作成
+        $options = [
+            'path' => $path,
+            'encoding' => 'sjis',
+            'init' => false,
+        ];
+        $this->BcDatabaseService->writeCsv('contents', $options);
+        $rs = $this->BcDatabaseService->loadCsvToArray($path);
+        $this->assertIsArray($rs);
+        // 戻り値の配列の値のエンコードがUTF-8になっている事を確認
+        $this->assertEquals('メインサイト', $rs[0]['title']);
+        $this->assertTrue(mb_check_encoding($rs[0]['title'], 'UTF-8'));
+
+        $file = new File($path);
+        $file->delete();
     }
 
     /**
