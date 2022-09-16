@@ -84,8 +84,9 @@ class ThemesController extends BcApiController
 
         $error = null;
         try {
-            $service->delete($theme);
-            $message = __d('baser', 'テーマ「{0}」を削除しました。', $theme);
+            $theme = $service->get($theme);
+            $service->delete($theme->name);
+            $message = __d('baser', 'テーマ「{0}」を削除しました。', $theme->name);
         } catch (BcException $e) {
             $this->setResponse($this->response->withStatus(400));
             $error = $e->getMessage();
