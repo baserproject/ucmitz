@@ -14,7 +14,11 @@ namespace BaserCore\Test\TestCase\Controller\Api;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use Composer\Package\Archiver\ZipArchiver;
+use Laminas\Diactoros\UploadedFile;
+use Cake\TestSuite\IntegrationTestTrait;
 
 class ThemesControllerTest extends BcTestCase
 {
@@ -23,6 +27,7 @@ class ThemesControllerTest extends BcTestCase
      * Trait
      */
     use ScenarioAwareTrait;
+    use IntegrationTestTrait;
 
     /**
      * Fixtures
@@ -82,4 +87,45 @@ class ThemesControllerTest extends BcTestCase
         $this->assertEquals('BcFront', $result->themes[1]->name);
     }
 
+    /**
+     * test Add
+     */
+    public function testAdd(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->get('/baser/api/baser-core/themes/add.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $path = ROOT . DS . 'plugins' . DS . 'BcSpaSample';
+        $zipSrcPath = TMP  . 'zip' . DS;
+        $folder = new Folder();
+        $folder->create($zipSrcPath, 0777);
+        $folder->copy($zipSrcPath . 'BcSpaSample2', ['from' => $path, 'mode' => 0777]);
+        $theme = 'BcSpaSample2';
+        $zip = new ZipArchiver();
+        $testFile = $zipSrcPath . $theme . '.zip';
+        $zip->archive($zipSrcPath, $testFile, true);
+        $_FILES = [
+            'file' => [
+                'error' => UPLOAD_ERR_OK,
+                'name' => $theme . '.zip',
+                'size' => 123,
+                'tmp_name' => $testFile,
+                'type' => 'application/zip'
+            ]
+        ];
+        $this->configRequest([
+            'Content-Type' => 'multipart/form-data',
+            'files' => $_FILES
+        ]);
+        $this->post('/baser/api/baser-core/themes/add.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($theme, $result->theme);
+        $this->assertEquals('テーマファイル「' . $theme . '」を追加しました。', $result->message);
+
+        $folder = new Folder();
+        $folder->delete(ROOT . DS . 'plugins' . DS . $theme);
+        $folder->delete($zipSrcPath);
+    }
 }
