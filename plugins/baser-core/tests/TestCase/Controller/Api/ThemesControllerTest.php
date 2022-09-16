@@ -25,7 +25,7 @@ class ThemesControllerTest extends BcTestCase
 {
 
     /**
-     * Trait
+     * ScenarioAwareTrait
      */
     use ScenarioAwareTrait;
     use IntegrationTestTrait;
@@ -151,4 +151,18 @@ class ThemesControllerTest extends BcTestCase
         $this->assertEquals('テーマフォルダのアクセス権限を見直してください。' . $result->error, $result->message);
     }
 
+    /**
+     * テーマを適用するAPI
+     */
+    public function testApply(): void
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $theme = 'BcSpaSample';
+        $this->post('/baser/api/baser-core/themes/apply/1/'. $theme . '.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($theme, $result->theme->name);
+        $this->assertEquals('テーマ「' . $theme . '」を適用しました。', $result->message);
+    }
 }
