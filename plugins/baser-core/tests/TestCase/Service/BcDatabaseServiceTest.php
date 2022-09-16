@@ -13,6 +13,7 @@ namespace BaserCore\Test\TestCase\Service;
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Cache\Cache;
@@ -67,10 +68,27 @@ class BcDatabaseServiceTest extends BcTestCase
         parent::tearDown();
     }
 
+    /**
+     * Gets the database encoding
+     * @return void
+     */
     public function test_getEncoding()
     {
         $encoding = $this->BcDatabaseService->getEncoding();
         $this->assertEquals('utf8', $encoding);
+    }
+
+    /**
+     * Gets the database encoding
+     * @return void
+     */
+    public function test_truncate()
+    {
+        SiteConfigFactory::make(['name' => 'company', 'value' => 'Company A'])->persist();
+        SiteConfigFactory::make(['name' => 'address', 'value' => 'Tokyo'])->persist();
+        $this->assertEquals(2, SiteConfigFactory::count());
+        $this->BcDatabaseService->truncate('site_configs');
+        $this->assertEquals(0, SiteConfigFactory::count());
     }
 
     /**
@@ -154,6 +172,18 @@ class BcDatabaseServiceTest extends BcTestCase
         $result = $this->BcDatabase->getAppTableList();
         $this->assertTrue(in_array('plugins', $result['BaserCore']));
         $this->assertTrue(in_array('plugins', Cache::read('appTableList', '_bc_env_')['BaserCore']));
+    }
+
+    /**
+     * test clearAppTableList
+     * @return void
+     */
+    public function test_clearAppTableList()
+    {
+        $this->BcDatabaseService->getAppTableList();
+        $this->assertTrue(in_array('plugins', Cache::read('appTableList', '_bc_env_')['BaserCore']));
+        $this->BcDatabaseService->clearAppTableList();
+        $this->assertEquals(0, count(Cache::read('appTableList', '_bc_env_')));
     }
 
 }

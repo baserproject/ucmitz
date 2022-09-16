@@ -245,8 +245,10 @@ class BcDatabaseService implements BcDatabaseServiceInterface
     /**
      * テーブルのデータをリセットする
      * @param $table
+     * @return bool
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function truncate($table)
     {
@@ -645,6 +647,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * アプリケーションに関連するテーブルリストのキャッシュをクリアする
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function clearAppTableList()
     {
