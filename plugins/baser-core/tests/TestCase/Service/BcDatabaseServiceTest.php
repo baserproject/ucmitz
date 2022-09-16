@@ -132,7 +132,7 @@ class BcDatabaseServiceTest extends BcTestCase
                 'level' => 0
             ]
         )->persist();
-        $path = TMP . DS . 'csv' . DS . 'contents.csv';
+        $path = TMP . DS . 'contents.csv';
         $options = [
             'path' => $path,
             'encoding' => 'utf8',
