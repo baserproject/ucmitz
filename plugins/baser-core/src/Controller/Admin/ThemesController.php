@@ -49,7 +49,7 @@ class ThemesController extends BcAdminAppController
     {
         if ($this->request->is('post')) {
             try {
-                $name = $service->add($this->getRequest()->getData());
+                $name = $service->add($this->getRequest()->getUploadedFiles());
                 $this->BcMessage->setInfo('テーマファイル「' . $name . '」を追加しました。');
                 $this->redirect(['action' => 'index']);
             } catch (BcException $e) {
@@ -167,6 +167,7 @@ class ThemesController extends BcAdminAppController
      * 初期データセットをダウンロードする
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function download_default_data_pattern(ThemesServiceInterface $service)
     {
