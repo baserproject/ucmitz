@@ -11,6 +11,11 @@
 
 namespace BaserCore\Service;
 
+use BaserCore\Error\BcException;
+use BaserCore\Vendor\Simplezip;
+use Cake\Cache\Cache;
+use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
 use Cake\Log\LogTrait;
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
@@ -30,6 +35,12 @@ class UtilitiesService implements UtilitiesServiceInterface
     use LogTrait;
 
     /**
+     * ログのパス
+     * @var string
+     */
+    public $logPath = LOGS . 'error.log';
+
+    /**
      * コンテンツツリーの構造をチェックする
      * @return bool
      * @checked
@@ -47,6 +58,15 @@ class UtilitiesService implements UtilitiesServiceInterface
         } else {
             return true;
         }
+    }
+
+    /**
+     * コンテンツツリーをリセットし全て同階層にする
+     */
+    public function resetContentsTree()
+    {
+        $contentsTable = TableRegistry::getTableLocator()->get('BaserCore.Contents');
+        return $contentsTable->resetTree();
     }
 
     /**
@@ -160,6 +180,99 @@ class UtilitiesService implements UtilitiesServiceInterface
         $query = $table->find()->applyOptions(['withDeleted'])->where([$scope]);
         $min = $query->select([$right => $query->func()->min($right)])->first();
         return (empty($min->{$right}))? 0 : (int) $min->{$right};
+    }
+
+    /**
+     * クレジットを取得する
+     * @return mixed|null
+     * @checked
+     * @noTodo
+     */
+    public function getCredit()
+    {
+        $specialThanks = [];
+        if (!Configure::read('debug')) {
+            $specialThanks = Cache::read('specialThanks', '_bc_env_');
+        }
+
+        if ($specialThanks) {
+            $json = json_decode($specialThanks);
+        } else {
+            if(Configure::read('BcLinks.specialThanks')) {
+                $json = file_get_contents(Configure::read('BcLinks.specialThanks'), true);
+            } else {
+                throw new BcException(__d('baser', 'スペシャルサンクスのデータが読み込めませんでした。'));
+            }
+            if ($json) {
+                Cache::write('specialThanks', $json, '_bc_env_');
+                $json = json_decode($json);
+            } else {
+                $json = null;
+            }
+        }
+        return $json;
+    }
+
+    /**
+     * ログのZipファイルを作成する
+     * @return Simplezip|false
+     * @checked
+     * @noTodo
+     */
+    public function createLogZip()
+    {
+        set_time_limit(0);
+        $Folder = new Folder(LOGS);
+        $files = $Folder->read(true, true, false);
+        if (count($files[0]) === 0 && count($files[1]) === 0) {
+            return false;
+        }
+        // ZIP圧縮して出力
+        $simplezip = new Simplezip();
+        $simplezip->addFolder(LOGS);
+        return $simplezip;
+    }
+
+    /**
+     * ログを削除する
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function deleteLog()
+    {
+        if (file_exists($this->logPath)) {
+            if (unlink($this->logPath)) {
+                $messages[] = __d('baser', 'エラーログを削除しました。');
+                return true;
+            } else {
+                $messages[] = __d('baser', 'エラーログが削除できませんでした。');
+            }
+        } else {
+            $messages[] = __d('baser', 'エラーログが存在しません。');
+        }
+        throw new BcException(implode("\n", $messages));
+    }
+
+    public function backupDb()
+    {
+
+    }
+
+    public function restoreDb()
+    {
+
+    }
+
+    public function writeScheme()
+    {
+
+    }
+
+    public function loadScheme()
+    {
+
     }
 
 }

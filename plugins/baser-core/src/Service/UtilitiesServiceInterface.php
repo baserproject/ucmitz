@@ -14,6 +14,7 @@ namespace BaserCore\Service;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BaserCore\Vendor\Simplezip;
 
 /**
  * UtilitiesServiceInterface
@@ -29,5 +30,32 @@ interface UtilitiesServiceInterface
      * @unitTest
      */
     public function verityContentsTree(): bool;
+
+    /**
+     * クレジットを取得する
+     * @return mixed|null
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getCredit();
+
+    /**
+     * ログのZipファイルを作成する
+     * @return Simplezip|false
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function createLogZip();
+
+    /**
+     * ログを削除する
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function deleteLog();
 
 }

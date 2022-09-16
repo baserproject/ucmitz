@@ -11,12 +11,14 @@
 
 namespace BaserCore\Controller\Admin;
 
+use BaserCore\Error\BcException;
 use BaserCore\Service\UtilitiesAdminServiceInterface;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use Cake\Core\Configure;
 
 /**
  * Class UtilitiesController
@@ -24,6 +26,18 @@ use BaserCore\Annotation\Checked;
  */
 class UtilitiesController extends BcAdminAppController
 {
+
+    /**
+     * initialize
+     * @return void
+     * @checked
+     * @noTodo
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Authentication->allowUnauthenticated(['credit']);
+    }
 
     /**
      * サーバーキャッシュを削除する
@@ -75,6 +89,7 @@ class UtilitiesController extends BcAdminAppController
      * 環境情報の表示から iframe で読み込まれる
      * @checked
      * @unitTest
+     * @uses phpinfo
      */
     public function phpinfo()
     {
@@ -396,86 +411,54 @@ class UtilitiesController extends BcAdminAppController
      *
      * @param string $mode
      * @return void
+     * @uses log_maintenance
      */
-    public function log_maintenance($mode = '')
+    public function log_maintenance(
+        UtilitiesServiceInterface $service,
+        UtilitiesAdminServiceInterface $adminService,
+        $mode = '')
     {
-        $errorLogPath = TMP . 'logs' . DS . 'error.log';
         switch($mode) {
             case 'download':
-                set_time_limit(0);
-                if ($this->_downloadErrorLog()) {
-                    exit();
+                $this->autoRender = false;
+                $result = $service->createLogZip();
+                if ($result) {
+                    $result->download('basercms_logs_' . date('Ymd_His'));
+                    return;
                 }
                 $this->BcMessage->setInfo('エラーログが存在しません。');
-                $this->redirect(['action' => 'log']);
+                $this->redirect(['action' => 'log_maintenance']);
                 break;
             case 'delete':
-                $this->_checkSubmitToken();
-                if (file_exists($errorLogPath)) {
-                    if (unlink($errorLogPath)) {
-                        $messages[] = __d('baser', 'エラーログを削除しました。');
-                        $error = false;
-                    } else {
-                        $messages[] = __d('baser', 'エラーログが削除できませんでした。');
-                        $error = true;
-                    }
-                } else {
-                    $messages[] = __d('baser', 'エラーログが存在しません。');
-                    $error = false;
+                $this->request->allowMethod(['post']);
+                try {
+                    $service->deleteLog();
+                    $this->BcMessage->setInfo(__d('baser', 'エラーログを削除しました。'));
+                } catch (BcException $e) {
+                    $this->BcMessage->setError($e->getMessage());
                 }
-
-                if ($messages) {
-                    $this->setMessage(implode("\n", $messages), $error);
-                }
-                $this->redirect(['action' => 'log']);
+                $this->redirect(['action' => 'log_maintenance']);
                 break;
-
         }
-
-        $fileSize = 0;
-        if (file_exists($errorLogPath)) {
-            $fileSize = filesize($errorLogPath);
-        }
-
-        $this->setTitle(__d('baser', 'データメンテナンス'));
-        $this->setHelp('tools_log');
-        $this->set('fileSize', $fileSize);
-    }
-
-    /**
-     * ログフォルダを圧縮ダウンロードする
-     *
-     * @return bool
-     */
-    protected function _downloadErrorLog()
-    {
-        $tmpDir = TMP . 'logs' . DS;
-        $Folder = new Folder($tmpDir);
-        $files = $Folder->read(true, true, false);
-        if (count($files[0]) === 0 && count($files[1]) === 0) {
-            return false;
-        }
-        // ZIP圧縮して出力
-        $fileName = 'basercms_logs_' . date('Ymd_His');
-        $Simplezip = new Simplezip();
-        $Simplezip->addFolder($tmpDir);
-        $Simplezip->download($fileName);
-        return true;
+        $this->set($adminService->getViewVarsForLogMaintenance());
     }
 
     /**
      * コンテンツ管理のツリー構造をリセットする
+     * @param UtilitiesServiceInterface $service
+     * @checked
+     * @noTodo
+     * @uses reset_contents_tree
      */
-    public function reset_contents_tree()
+    public function reset_contents_tree(UtilitiesServiceInterface $service)
     {
-        $this->_checkReferer();
-        $Content = ClassRegistry::init('Content');
-        if ($Content->resetTree()) {
+        $this->request->allowMethod(['post']);
+        if ($service->resetContentsTree()) {
             $this->BcMessage->setSuccess(__d('baser', 'コンテンツのツリー構造をリセットしました。'));
         } else {
             $this->BcMessage->setError(__d('baser', 'コンテンツのツリー構造のリセットに失敗しました。'));
         }
-        $this->redirect(['controller' => 'tools', 'action' => 'index']);
+        $this->redirect(['action' => 'index']);
     }
 
     /**
@@ -489,13 +472,29 @@ class UtilitiesController extends BcAdminAppController
      */
     public function verity_contents_tree(UtilitiesServiceInterface $service)
     {
-        $this->_checkReferer();
+        $this->request->allowMethod(['post']);
         if (!$service->verityContentsTree()) {
             $this->BcMessage->setError(__d('baser', 'コンテンツのツリー構造に問題があります。ログを確認してください。'));
         } else {
             $this->BcMessage->setSuccess(__d('baser', 'コンテンツのツリー構造に問題はありません。'), false);
         }
         $this->redirect(['action' => 'index']);
+    }
+
+    /**
+     * クレジット表示用データをレンダリング
+     * @param UtilitiesServiceInterface $service
+     * @checked
+     * @noTodo
+     */
+    public function credit(UtilitiesServiceInterface $service)
+    {
+        $this->viewBuilder()->disableAutoLayout();
+        try {
+            $this->set('credits', $service->getCredit());
+        } catch (BcException $e) {
+            $this->setResponse($this->response->withStatus(400)->withStringBody($e->getMessage()));
+        }
     }
 
 }
