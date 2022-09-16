@@ -13,6 +13,7 @@ namespace BaserCore\Test\TestCase\Controller\Api;
 
 use BaserCore\Service\ThemesService;
 use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -20,11 +21,11 @@ use Composer\Package\Archiver\ZipArchiver;
 use Laminas\Diactoros\UploadedFile;
 use Cake\TestSuite\IntegrationTestTrait;
 
-class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
+class ThemesControllerTest extends BcTestCase
 {
 
     /**
-     * Trait
+     * ScenarioAwareTrait
      */
     use ScenarioAwareTrait;
     use IntegrationTestTrait;
@@ -150,4 +151,18 @@ class ThemesControllerTest extends \BaserCore\TestSuite\BcTestCase
         $themeService->delete('BcSpaSampleCopy');
     }
 
+    /**
+     * テーマを適用するAPI
+     */
+    public function testApply(): void
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $theme = 'BcSpaSample';
+        $this->post('/baser/api/baser-core/themes/apply/1/'. $theme . '.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($theme, $result->theme->name);
+        $this->assertEquals('テーマ「' . $theme . '」を適用しました。', $result->message);
+    }
 }
