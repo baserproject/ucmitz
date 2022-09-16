@@ -152,6 +152,28 @@ class ThemesControllerTest extends BcTestCase
     }
 
     /**
+     * test copy
+     * @return void
+     */
+    public function testCopy()
+    {
+        $this->get('/baser/api/baser-core/themes/copy/BcSpaSample.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $this->post('/baser/api/baser-core/themes/copy/BcSpaSample2.json?token=' . $this->accessToken);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('テーマ「BcSpaSample2」のコピーに失敗しました。', $result->message);
+
+        $this->post('/baser/api/baser-core/themes/copy/BcSpaSample.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('テーマ「BcSpaSample」をコピーしました。', $result->message);
+        $themeService = new ThemesService();
+        $themeService->delete('BcSpaSampleCopy');
+    }
+
+    /**
      * テーマを適用するAPI
      */
     public function testApply(): void
