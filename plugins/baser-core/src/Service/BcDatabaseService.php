@@ -140,6 +140,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return boolean
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function loadCsv($options)
     {
@@ -226,6 +227,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return boolean
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function resetTables($plugin = 'BaserCore', $excludes = [])
     {
