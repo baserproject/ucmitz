@@ -437,6 +437,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return boolean
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function writeCsv($table, $options): bool
     {

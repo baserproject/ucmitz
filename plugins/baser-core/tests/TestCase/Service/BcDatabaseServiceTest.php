@@ -223,4 +223,58 @@ class BcDatabaseServiceTest extends BcTestCase
         $this->assertEquals(0, count(Cache::read('appTableList', '_bc_env_')));
     }
 
+    /**
+     * test writeCsv
+     * @return void
+     */
+    public function test_writeCsv()
+    {
+        ContentFactory::make(
+            [
+                'name' => 'BaserCore',
+                'type' => 'ContentFolder',
+                'entity_id' => 1,
+                'title' => 'メインサイト',
+                'lft' => 1,
+                'right' => 18,
+                'level' => 0
+            ]
+        )->persist();
+        $path = TMP . DS . 'contents.csv';
+        $options = [
+            'path' => $path,
+            'encoding' => 'sjis',
+            'init' => false,
+        ];
+
+        $this->BcDatabaseService->writeCsv('contents', $options);
+
+        //テーブルを指定していCSVファイルの書き出しを確認
+        $this->assertTrue(file_exists($path));
+        $rs = $this->BcDatabaseService->loadCsvToArray($path);
+        $this->assertIsArray($rs);
+        // encoding オプションを SJIS にし、書き出しファイルのエンコードを確認
+        $this->assertTrue(mb_check_encoding($rs[0]['title'], 'UTF-8'));
+        // init オプションを指定しない場合、id, modified, created が空になっていないことを確認
+        $this->assertNotEquals('', $rs[0]['id']);
+        $this->assertNotEquals('', $rs[0]['modified']);
+        $this->assertNotEquals('', $rs[0]['created']);
+
+        // init オプションを指定して、id, modified, created が空になっていることを確認
+        $options = [
+            'path' => $path,
+            'encoding' => 'sjis',
+            'init' => true,
+        ];
+        $this->BcDatabaseService->writeCsv('contents', $options);
+
+        $this->assertTrue(file_exists($path));
+        $rs = $this->BcDatabaseService->loadCsvToArray($path);
+        $this->assertEquals('', $rs[0]['id']);
+        $this->assertEquals('', $rs[0]['modified']);
+        $this->assertEquals('', $rs[0]['created']);
+
+        $file = new File($path);
+        $file->delete();
+    }
 }
