@@ -239,7 +239,6 @@ class BcDatabaseServiceTest extends BcTestCase
         $patterns = ['default', 'empty'];
         $tableList = $this->BcDatabaseService->getAppTableList($plugin);
         foreach ($patterns as $pattern) {
-            $this->BcDatabaseService->resetTables($plugin);
             $this->execPrivateMethod($this->BcDatabaseService, '_loadDefaultDataPattern', [$pattern, $theme]);
             $path = BcUtil::getDefaultDataPath($theme, $pattern);
             $this->assertNotNull($path);
@@ -256,6 +255,7 @@ class BcDatabaseServiceTest extends BcTestCase
                 $appTable->setSchema($schema);
                 $this->assertCount($appTable->find()->count(), $records);
             }
+            $this->BcDatabaseService->resetTables($plugin);
         }
     }
 
