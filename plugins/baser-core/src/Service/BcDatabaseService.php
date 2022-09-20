@@ -532,6 +532,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function _convertFieldToCsv($value, $dc = true)
     {
