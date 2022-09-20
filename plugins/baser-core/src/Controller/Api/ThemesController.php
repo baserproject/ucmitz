@@ -230,4 +230,21 @@ class ThemesController extends BcApiController
 
         $this->viewBuilder()->setOption('serialize', ['message', 'theme', 'siteId', 'errors']);
     }
+
+    /**
+     * @param ThemesServiceInterface $service
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function get_market_themes(ThemesServiceInterface $service)
+    {
+        $this->set([
+            'baserThemes' => $service->getMarketThemes(),
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['baserThemes']);
+    }
 }
