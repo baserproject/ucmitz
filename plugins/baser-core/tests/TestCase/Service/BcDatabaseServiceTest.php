@@ -12,17 +12,26 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\BcDatabaseServiceInterface;
-use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Service\SiteConfigsServiceInterface;
+use BaserCore\Test\Factory\ContentFolderFactory;
 use BaserCore\Test\Factory\PageFactory;
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SearchIndexesFactory;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Factory\UserFactory;
+use BaserCore\Test\Factory\UserGroupFactory;
+use BaserCore\Test\Factory\UsersUserGroupFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcUtil;
 use Cake\Cache\Cache;
+use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
+use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\Filesystem\File;
+use Cake\Utility\Inflector;
 
 /**
  * BcDatabaseServiceTest
@@ -49,6 +58,7 @@ class BcDatabaseServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BaserCore.Factory/Pages',
         'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/SearchIndexes',
     ];
 
     /**
@@ -200,6 +210,107 @@ class BcDatabaseServiceTest extends BcTestCase
     }
 
     /**
+     * test initSystemData
+     */
+    public function test_initSystemData()
+    {
+        $options = [
+            'excludeUsers' => true,
+            'email' => 'chuong.le@mediabridge.asia',
+            'google_analytics_id' => 'testID',
+            'first_access' => '2022-09-21',
+            'version' => '1.0.0',
+            'theme' => 'BcFront',
+            'adminTheme' => 'BcSpaSample'
+        ];
+        // siteデータを作成する
+        SiteFactory::make(['id' => '1', 'theme' => 'BcSpaSample'])->persist();
+        // userデータを作成する
+        UserFactory::make(['name' => 'C. Le'])->persist();
+
+        $result1 = $this->BcDatabaseService->initSystemData($options);
+
+        // user_groups　テーブルにデータが登録されている事を確認
+        $userGroupTable = TableRegistry::getTableLocator()->get('BaserCore.UserGroups');
+        $this->assertTrue($userGroupTable->find()->where(['UserGroups.name' => 'admins'])->count() > 0);
+        // users_user_groups　テーブルにデータが登録されている事を確認
+        $corePath = BcUtil::getPluginPath(Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-')) . 'config' . DS . 'data' . DS . 'default' . DS . 'BaserCore';
+        $usersUserGroups = $this->BcDatabaseService->loadCsvToArray($corePath . DS . 'users_user_groups.csv');
+        $this->assertCount(UsersUserGroupFactory::count(), $usersUserGroups);
+        // site_configs テーブルの email / google_analytics_id / first_access / admin_theme / version の設定状況を確認
+        $siteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
+        $this->assertEquals($siteConfigsService->getValue('email'), $options['email']);
+        $this->assertEquals($siteConfigsService->getValue('google_analytics_id'), $options['google_analytics_id']);
+        $this->assertEquals($siteConfigsService->getValue('first_access'), $options['first_access']);
+        $this->assertEquals($siteConfigsService->getValue('admin_theme'), $options['adminTheme']);
+        $this->assertEquals($siteConfigsService->getValue('version'), $options['version']);
+        // sites テーブルの theme の設定状況を確認
+        $this->assertEquals($options['theme'], SiteFactory::get(1)->theme);
+        // excludeUsers(true) オプションの動作を確認
+        $this->assertEquals(1, UserFactory::count());
+        // excludeUsers(false) オプションの動作を確認
+        $options['excludeUsers'] = false;
+        $result2 = $this->BcDatabaseService->initSystemData($options);
+        $this->assertEquals(0, UserFactory::count());
+        // 戻り値を確認
+        $this->assertTrue($result1 && $result2);
+    }
+
+    /**
+     * test resetAllTables
+     */
+    public function test_resetAllTables()
+    {
+        $excludes = ['site_configs', 'sites'];
+        SiteConfigFactory::make(['name' => 'test', 'value' => 'test value'])->persist();
+        SiteFactory::make(['name' => 'home page', 'title' => 'welcome'])->persist();
+        PageFactory::make(['contents' => 'this is the contents', 'draft' => 'trash'])->persist();
+        UserFactory::make(['name' => 'Chuong Le', 'email' => 'chuong.le@mediabridge.asia'])->persist();
+        UserGroupFactory::make(['name' => 'test group', 'title' => 'test title'])->persist();
+        ContentFolderFactory::make(['folder_template' => 'temp1', 'page_template' => 'temp2'])->persist();
+        SearchIndexesFactory::make(['type' => 'test type', 'model' => 'test model'])->persist();
+
+        $this->BcDatabaseService->resetAllTables($excludes);
+        $this->assertEquals(1, SiteConfigFactory::count());
+        $this->assertEquals(1, SiteFactory::count());
+        $this->assertEquals(0, PageFactory::count());
+        $this->assertEquals(0, UserFactory::count());
+        $this->assertEquals(0, UserGroupFactory::count());
+        $this->assertEquals(0, ContentFolderFactory::count());
+        $this->assertEquals(0, SearchIndexesFactory::count());
+    }
+
+    /**
+     * test _loadDefaultDataPattern
+     */
+    public function test_loadDefaultDataPattern()
+    {
+        $theme = 'BcFront';
+        $plugin = 'BaserCore';
+        $patterns = ['default', 'empty'];
+        $tableList = $this->BcDatabaseService->getAppTableList($plugin);
+        foreach ($patterns as $pattern) {
+            $this->execPrivateMethod($this->BcDatabaseService, '_loadDefaultDataPattern', [$pattern, $theme]);
+            $path = BcUtil::getDefaultDataPath($theme, $pattern);
+            $this->assertNotNull($path);
+            $Folder = new Folder($path . DS . $plugin);
+            $files = $Folder->read(true, true, true);
+            $csvList = $files[1];
+            foreach ($csvList as $path) {
+                $table = basename($path, '.csv');
+                if (!in_array($table, $tableList)) continue;
+                $records = $this->BcDatabaseService->loadCsvToArray($path);
+                $appTable = TableRegistry::getTableLocator()->get('BaserCore.App');
+                $schema = $appTable->getConnection()->getSchemaCollection()->describe($table);
+                $appTable->setTable($table);
+                $appTable->setSchema($schema);
+                $this->assertCount($appTable->find()->count(), $records);
+            }
+            $this->BcDatabaseService->resetTables($plugin);
+        }
+    }
+
+    /**
      * test getAppTableList
      */
     public function test_getAppTableList()
@@ -209,6 +320,27 @@ class BcDatabaseServiceTest extends BcTestCase
         $result = $this->BcDatabase->getAppTableList();
         $this->assertTrue(in_array('plugins', $result['BaserCore']));
         $this->assertTrue(in_array('plugins', Cache::read('appTableList', '_bc_env_')['BaserCore']));
+    }
+
+    /**
+     * test _convertFieldToCsv
+     * @param $value
+     * @param $expected
+     * @dataProvider convertFieldToCsvDataProvider
+     */
+    public function test_convertFieldToCsv($value, $expected)
+    {
+        $rs = $this->execPrivateMethod($this->BcDatabaseService, '_convertFieldToCsv', [$value]);
+        $this->assertEquals($expected, $rs);
+    }
+
+    public function convertFieldToCsvDataProvider()
+    {
+        return [
+            ['test', '"test"'],
+            ['test{CM}testCM', '"test,testCM"'],
+            ['test\\testCM', '"test\testCM"'],
+        ];
     }
 
     /**
@@ -278,5 +410,36 @@ class BcDatabaseServiceTest extends BcTestCase
 
         $file = new File($path);
         $file->delete();
+    }
+    /**
+     * test _dbEncToPhp
+     * @param $value
+     * @param $expected
+     * @dataProvider dbEncToPhpDataProvider
+     */
+    public function test_dbEncToPhp($value, $expected)
+    {
+        $rs = $this->execPrivateMethod($this->BcDatabaseService, '_dbEncToPhp', [$value]);
+        $this->assertEquals($expected, $rs);
+    }
+
+    public function dbEncToPhpDataProvider()
+    {
+        return [
+            ['utf8', 'UTF-8'],
+            ['sjis', 'SJIS'],
+            ['ujis', 'EUC-JP'],
+        ];
+    }
+    /**
+     * test _convertRecordToCsv
+     * @return void
+     */
+    public function test_convertRecordToCsv()
+    {
+        $record = ['type' => 'test type', 'model' => 'test model'];
+        $rs = $this->execPrivateMethod($this->BcDatabaseService, '_convertRecordToCsv', [$record]);
+        $this->assertEquals('"test type"', $rs['type']);
+        $this->assertEquals('"test model"', $rs['model']);
     }
 }
