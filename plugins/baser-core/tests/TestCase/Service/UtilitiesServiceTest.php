@@ -14,6 +14,7 @@ namespace BaserCore\Test\TestCase\Service;
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Service\UtilitiesService;
+use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
@@ -55,9 +56,8 @@ class UtilitiesServiceTest extends BcTestCase
      */
     public function setUp(): void
     {
-        $this->setFixtureTruncate();
         parent::setUp();
-        $this->UtilitiesService = new UtilitiesService();
+        $this->UtilitiesService = $this->getService(UtilitiesServiceInterface::class);
     }
 
     /**
@@ -106,7 +106,7 @@ class UtilitiesServiceTest extends BcTestCase
         $scope = '1 = 1';
         $rs = $this->execPrivateMethod($this->UtilitiesService, '_getMin', [new ContentsTable(), $scope, $left]);
 
-        $this->assertEquals(9, $rs);
+        $this->assertEquals(1, $rs);
     }
 
 }
