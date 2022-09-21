@@ -21,7 +21,6 @@ use BaserCore\Utility\BcUtil;
  *
  * https://localhost/baser/api/baser-core/utilities/action_name.json で呼び出す
  *
- * @package BaserCore\Controller\Api
  */
 class UtilitiesController extends BcApiController
 {
@@ -38,7 +37,7 @@ class UtilitiesController extends BcApiController
         BcUtil::clearAllCache();
 
         $this->set([
-            'message' => 'サーバーキャッシュを削除しました。'
+            'message' => __d('baser', 'サーバーキャッシュを削除しました。')
         ]);
         $this->viewBuilder()->setOption('serialize', ['message']);
     }
