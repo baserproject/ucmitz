@@ -251,11 +251,13 @@ class BcDatabaseServiceTest extends BcTestCase
 
         //テーブルを指定していCSVファイルの書き出しを確認
         $this->assertTrue(file_exists($path));
+
+        // encoding オプションを SJIS にし、書き出しファイルのエンコードを確認
+        $this->assertTrue(mb_check_encoding(file_get_contents($path), 'SJIS'));
+
+        // init オプションを指定しない場合、id, modified, created が空になっていないことを確認
         $rs = $this->BcDatabaseService->loadCsvToArray($path);
         $this->assertIsArray($rs);
-        // encoding オプションを SJIS にし、書き出しファイルのエンコードを確認
-        $this->assertTrue(mb_check_encoding($rs[0]['title'], 'UTF-8'));
-        // init オプションを指定しない場合、id, modified, created が空になっていないことを確認
         $this->assertNotEquals('', $rs[0]['id']);
         $this->assertNotEquals('', $rs[0]['modified']);
         $this->assertNotEquals('', $rs[0]['created']);
