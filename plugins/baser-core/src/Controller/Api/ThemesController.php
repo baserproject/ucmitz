@@ -232,6 +232,7 @@ class ThemesController extends BcApiController
     }
 
     /**
+     * [API] baserマーケットよりテーマの一覧を取得する
      * @param ThemesServiceInterface $service
      * @return void
      *
