@@ -108,6 +108,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function _loadDefaultDataPattern($pattern, $theme, $plugin = 'BaserCore', $excludes = [])
     {
@@ -515,6 +516,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function _convertRecordToCsv($record)
     {
@@ -532,6 +534,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function _convertFieldToCsv($value, $dc = true)
     {
@@ -693,30 +696,16 @@ class BcDatabaseService implements BcDatabaseServiceInterface
             'table' => $table,
             'schema' => $schema
         ]);
+
         $eventManager = EventManager::instance();
-        $beforeRenderListeners = $eventManager->listeners('View.beforeRender');
-        $afterRenderListeners = $eventManager->listeners('View.afterRender');
-        if ($beforeRenderListeners) {
-            foreach($beforeRenderListeners as $beforeRenderListener) {
-                $eventManager->off('View.beforeRender', $beforeRenderListener['callable']);
-            }
-        }
-        if ($afterRenderListeners) {
-            foreach($afterRenderListeners as $afterRenderListener) {
-                $eventManager->off('View.afterRender', $afterRenderListener['callable']);
-            }
-        }
+        $beforeRenderListeners = BcUtil::offEvent($eventManager, 'View.beforeRender');
+        $afterRenderListeners = BcUtil::offEvent($eventManager, 'View.afterRender');
+
         $content = "<?php\n\n" . $renderer->render('BaserCore.BcDatabaseService/schema');
-        if ($beforeRenderListeners) {
-            foreach($beforeRenderListeners as $beforeRenderListener) {
-                $eventManager->on('View.beforeRender', $beforeRenderListener['callable']);
-            }
-        }
-        if ($afterRenderListeners) {
-            foreach($afterRenderListeners as $afterRenderListener) {
-                $eventManager->on('View.afterRender', $afterRenderListener['callable']);
-            }
-        }
+
+        BcUtil::onEvent($eventManager, 'View.beforeRender', $beforeRenderListeners);
+        BcUtil::onEvent($eventManager, 'View.afterRender', $afterRenderListeners);
+
         $file = new File($options['path'] . DS . Inflector::camelize($table) . 'Schema.php');
         $file->write($content);
         $file->close();
