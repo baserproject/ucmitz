@@ -12,9 +12,13 @@
 namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Error\BcException;
+use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Service\UtilitiesService;
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
 use Cake\Filesystem\File;
+use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class UtilitiesServiceTest
@@ -23,6 +27,20 @@ use Cake\Filesystem\File;
  */
 class UtilitiesServiceTest extends BcTestCase
 {
+    /**
+     * Trait
+     */
+    use BcContainerTrait;
+    use IntegrationTestTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Factory/Contents',
+    ];
 
     /**
      * ログのパス
@@ -37,6 +55,7 @@ class UtilitiesServiceTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->UtilitiesService = new UtilitiesService();
     }
@@ -69,6 +88,25 @@ class UtilitiesServiceTest extends BcTestCase
         $this->expectException(BcException::class);
         $this->UtilitiesService->deleteLog();
 
+    }
+
+    /**
+     * test getMin
+     * @return void
+     */
+    public function test_getMin()
+    {
+        ContentFactory::make(['id' => 100, 'name' => 'BaserCore 1', 'type' => 'ContentFolder', 'lft' => 5, 'right' => 6])->persist();
+        ContentFactory::make(['id' => 101, 'name' => 'BaserCore 2', 'type' => 'ContentFolder', 'lft' => 1, 'right' => 4])->persist();
+        ContentFactory::make(['id' => 102, 'name' => 'BaserCore 3', 'type' => 'ContentFolder', 'lft' => 7, 'right' => 8])->persist();
+        ContentFactory::make(['id' => 103, 'name' => 'BaserCore 4', 'type' => 'ContentFolder', 'lft' => 9, 'right' => 10])->persist();
+        ContentFactory::make(['id' => 104, 'name' => 'BaserCore 5', 'type' => 'ContentFolder', 'lft' => 2, 'right' => 3, 'parent_id' => 101])->persist();
+
+        $left = 'lft';
+        $scope = '1 = 1';
+        $rs = $this->execPrivateMethod($this->UtilitiesService, '_getMin', [new ContentsTable(), $scope, $left]);
+
+        $this->assertEquals(9, $rs);
     }
 
 }
