@@ -31,7 +31,6 @@ class UtilitiesController extends BcApiController
      * @param UtilitiesServiceInterface $service
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function reset_contents_tree(UtilitiesServiceInterface $service)
     {
