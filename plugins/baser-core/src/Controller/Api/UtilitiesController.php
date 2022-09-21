@@ -38,10 +38,10 @@ class UtilitiesController extends BcApiController
         $this->request->allowMethod(['post']);
 
         if ($service->verityContentsTree()) {
-            $message = 'コンテンツのツリー構造に問題はありません。';
+            $message = __d('baser', 'コンテンツのツリー構造に問題はありません。');
         } else {
             $this->setResponse($this->response->withStatus(400));
-            $message = 'コンテンツのツリー構造に問題があります。ログを確認してください。';
+            $message = __d('baser', 'コンテンツのツリー構造に問題があります。ログを確認してください。');
         }
 
         $this->set([
