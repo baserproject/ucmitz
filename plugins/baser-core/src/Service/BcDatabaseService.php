@@ -276,6 +276,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @param array $dbConfig
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initSystemData($options = []): bool
     {
