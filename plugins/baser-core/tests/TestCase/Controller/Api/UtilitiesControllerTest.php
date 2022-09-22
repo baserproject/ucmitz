@@ -96,4 +96,16 @@ class UtilitiesControllerTest extends BcTestCase
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('コンテンツのツリー構造に問題があります。ログを確認してください。', $result->message);
     }
+
+    /**
+     * test clear_cache
+     * @return void
+     */
+    public function test_clear_cache()
+    {
+        $this->post('/baser/api/baser-core/utilities/clear_cache.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('サーバーキャッシュを削除しました。', $result->message);
+    }
 }
