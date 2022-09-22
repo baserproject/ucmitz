@@ -43,6 +43,30 @@ class UtilitiesController extends BcApiController
         $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
+
+    /**
+     * [API] ユーティリティ：ツリー構造リセット
+     * @param UtilitiesServiceInterface $service
+     * @checked
+     * @noTodo
+     */
+    public function reset_contents_tree(UtilitiesServiceInterface $service)
+    {
+        $this->request->allowMethod(['post']);
+
+        if ($service->resetContentsTree()) {
+            $message = __d('baser', 'コンテンツのツリー構造をリセットしました。');
+        } else {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', 'コンテンツのツリー構造のリセットに失敗しました。');
+        }
+
+        $this->set([
+            'message' => $message
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message']);
+    }
+
     /**
      * [API] ユーティリティ：ツリー構造チェック
      *
