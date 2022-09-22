@@ -18,6 +18,7 @@ use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
+use Composer\Package\Archiver\ZipArchiver;
 
 class UtilitiesControllerTest extends BcTestCase
 {
@@ -129,5 +130,32 @@ class UtilitiesControllerTest extends BcTestCase
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('コンテンツのツリー構造をリセットしました。', $result->message);
+    }
+
+    /**
+     * test restore_db
+     * @return void
+     */
+    public function test_restore_db()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+
+        $utilitiesService = new UtilitiesService();
+        $utilitiesService->backupDb('utf8');
+        $zipSrcPath = TMP . 'schema' . DS;
+
+        $zip = new ZipArchiver();
+        $testFile = $zipSrcPath . 'test.zip';
+        $zip->archive($zipSrcPath, $testFile, true);
+
+
+        $this->setUploadFileToRequest('backup', $testFile);
+
+        $this->post('/baser/api/baser-core/utilities/restore_db.json?token=' . $this->accessToken, ['encoding' => 'utf8']);
+
+
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($result->message, 'データの復元が完了しました。');
     }
 }
