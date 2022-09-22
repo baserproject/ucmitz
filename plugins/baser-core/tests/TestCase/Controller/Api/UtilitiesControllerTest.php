@@ -138,8 +138,9 @@ class UtilitiesControllerTest extends BcTestCase
      * @return void
      */
     public function test_download_backup(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
         $this->get('/baser/api/baser-core/utilities/download_backup.json?backup_encoding=utf8&token=' . $this->accessToken);
         $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('バックアップダウンロードが成功しました。', $result->message);
     }
 }

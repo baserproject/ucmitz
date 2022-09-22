@@ -106,18 +106,25 @@ class UtilitiesController extends BcApiController
 
         try {
             $result = $service->backupDb($this->request->getQuery('backup_encoding'));
-            $result->download('baserbackup_' . str_replace(' ', '_', BcUtil::getVersion()) . '_' . date('Ymd_His'));
-            $service->resetTmpSchemaFolder();
+            if (!$result) {
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser', 'バックアップダウンロードが失敗しました。');
+            } else {
+                $result->download('baserbackup_' . str_replace(' ', '_', BcUtil::getVersion()) . '_' . date('Ymd_His'));
+                $service->resetTmpSchemaFolder();
+                $message = __d('baser', 'バックアップダウンロードが成功しました。');
+            }
 
-            return;
         } catch (\Exception $exception) {
             $message = __d('baser', 'バックアップダウンロードが失敗しました。' . $exception->getMessage());
-            $this->set([
-                'message' => $message
-            ]);
             $this->setResponse($this->response->withStatus(400));
-            $this->viewBuilder()->setOption('serialize', ['message']);
         }
+
+        $this->set([
+            'message' => $message
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
 }
