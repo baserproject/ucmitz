@@ -64,6 +64,7 @@ class UtilitiesServiceTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->UtilitiesService = $this->getService(UtilitiesServiceInterface::class);
     }
