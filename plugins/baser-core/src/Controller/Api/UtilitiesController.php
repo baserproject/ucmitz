@@ -80,7 +80,6 @@ class UtilitiesController extends BcApiController
         $this->request->allowMethod(['post']);
 
         if ($service->verityContentsTree()) {
-            $this->autoRender = false;
             $message = __d('baser', 'コンテンツのツリー構造に問題はありません。');
         } else {
             $this->setResponse($this->response->withStatus(400));
