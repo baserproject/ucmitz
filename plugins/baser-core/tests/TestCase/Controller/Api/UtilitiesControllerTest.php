@@ -12,7 +12,6 @@
 namespace BaserCore\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Factory\ContentFactory;
-use BaserCore\Service\UtilitiesService;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
@@ -129,5 +128,14 @@ class UtilitiesControllerTest extends BcTestCase
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('コンテンツのツリー構造をリセットしました。', $result->message);
+    }
+
+    /**
+     * test download_backup
+     * @return void
+     */
+    public function test_download_backup(){
+        $this->get('/baser/api/baser-core/utilities/download_backup.json?backup_encoding=utf8&token=' . $this->accessToken);
+        $this->assertResponseOk();
     }
 }

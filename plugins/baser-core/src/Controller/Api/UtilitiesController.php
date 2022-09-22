@@ -80,6 +80,7 @@ class UtilitiesController extends BcApiController
         $this->request->allowMethod(['post']);
 
         if ($service->verityContentsTree()) {
+            $this->autoRender = false;
             $message = __d('baser', 'コンテンツのツリー構造に問題はありません。');
         } else {
             $this->setResponse($this->response->withStatus(400));
@@ -91,4 +92,33 @@ class UtilitiesController extends BcApiController
         ]);
         $this->viewBuilder()->setOption('serialize', ['message']);
     }
+
+    /**
+     * [API] ユーティリティ：バックアップダウンロード
+     *
+     * @param UtilitiesServiceInterface $service
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function download_backup(UtilitiesServiceInterface $service)
+    {
+        $this->request->allowMethod(['get']);
+
+        try {
+            $result = $service->backupDb($this->request->getQuery('backup_encoding'));
+            $result->download('baserbackup_' . str_replace(' ', '_', BcUtil::getVersion()) . '_' . date('Ymd_His'));
+            $service->resetTmpSchemaFolder();
+
+            return;
+        } catch (\Exception $exception) {
+            $message = __d('baser', 'バックアップダウンロードが失敗しました。' . $exception->getMessage());
+            $this->set([
+                'message' => $message
+            ]);
+            $this->setResponse($this->response->withStatus(400));
+            $this->viewBuilder()->setOption('serialize', ['message']);
+        }
+    }
+
 }
