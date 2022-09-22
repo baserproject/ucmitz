@@ -532,6 +532,7 @@ class ThemesService implements ThemesServiceInterface
      * @return boolean
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function checkDefaultDataPattern($theme, $pattern = 'default')
     {

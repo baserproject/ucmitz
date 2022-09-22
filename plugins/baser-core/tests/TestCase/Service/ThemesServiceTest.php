@@ -18,10 +18,12 @@ use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
+use Cake\Core\Configure;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\Routing\Router;
 use Cake\TestSuite\IntegrationTestTrait;
+use Cake\Utility\Inflector;
 
 /**
  * ThemesServiceTest
@@ -186,6 +188,41 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
 
         $folder = new Folder();
         $folder->delete($tmpThemeDir);
+    }
+
+    /**
+     * 初期データチェックする
+     * @return void
+     */
+    public function testCheckDefaultDataPattern()
+    {
+        $theme = Configure::read('BcApp.defaultFrontTheme');
+        $configDataPath = BASER_THEMES . Inflector::dasherize($theme) . DS . 'config' . DS . 'data';
+        $Folder = new Folder($configDataPath . DS . 'default' . DS . 'BaserCore');
+        $files = $Folder->read(true, true);
+        $coreTables = $files[1];
+
+        // 一つ目のダミーフォルダを作る
+        $pattern = 'dummy1';
+        $dummyFolder = new Folder($configDataPath . DS . $pattern, true);
+        // BaserCoreフォルダを作る
+        new Folder($configDataPath . DS . $pattern . DS . 'BaserCore', true);
+        // テーブルファイルを作る
+        foreach ($coreTables as $table) {
+            new File($configDataPath . DS . $pattern . DS . 'BaserCore' . DS . $table, true);
+        }
+        $result = $this->ThemesService->checkDefaultDataPattern($theme, $pattern);
+        $dummyFolder->delete();
+        // 成功を確認
+        $this->assertTrue($result);
+
+        // 二つ目のダミーフォルダを作る
+        $pattern = 'dummy2';
+        $dummyFolder = new Folder($configDataPath . DS . $pattern, true);
+        $result = $this->ThemesService->checkDefaultDataPattern($theme, $pattern);
+        $dummyFolder->delete();
+        // 失敗を確認
+        $this->assertFalse($result);
     }
 
     /**
