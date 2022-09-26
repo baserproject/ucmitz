@@ -143,13 +143,13 @@ class UtilitiesControllerTest extends BcTestCase
      */
     public function test_restore_db()
     {
-        $utilitiesService = new UtilitiesService();
-        $utilitiesService->backupDb('utf8');
         $zipSrcPath = TMP;
+
+        $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema', 'BaserCore', 'utf8']);
 
         $zip = new ZipArchiver();
         $testFile = $zipSrcPath . 'test.zip';
-        $zip->archive($zipSrcPath.'schema', $testFile, true);
+        $zip->archive($zipSrcPath . 'schema', $testFile, true);
 
 
         $this->setUploadFileToRequest('backup', $testFile);
