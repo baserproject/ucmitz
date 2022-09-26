@@ -142,7 +142,7 @@ class UtilitiesControllerTest extends BcTestCase
 
         $utilitiesService = new UtilitiesService();
         $utilitiesService->backupDb('utf8');
-        $zipSrcPath = TMP . 'schema' . DS;
+        $zipSrcPath = TMP;
 
         $zip = new ZipArchiver();
         $testFile = $zipSrcPath . 'test.zip';
