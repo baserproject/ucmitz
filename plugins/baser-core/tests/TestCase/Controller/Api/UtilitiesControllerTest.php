@@ -138,8 +138,6 @@ class UtilitiesControllerTest extends BcTestCase
      */
     public function test_restore_db()
     {
-//        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-
         $utilitiesService = new UtilitiesService();
         $utilitiesService->backupDb('utf8');
         $zipSrcPath = TMP;
