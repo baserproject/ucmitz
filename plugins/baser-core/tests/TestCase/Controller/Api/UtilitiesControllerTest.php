@@ -15,6 +15,7 @@ use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
+use Cake\Filesystem\Folder;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
 
@@ -140,7 +141,10 @@ class UtilitiesControllerTest extends BcTestCase
     public function test_download_backup(){
         $this->get('/baser/api/baser-core/utilities/download_backup.json?backup_encoding=utf8&token=' . $this->accessToken);
         $this->assertResponseOk();
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('バックアップダウンロードが成功しました。', $result->message);
+
+        $folder = new Folder();
+        $folder->chmod(TMP."schema",  111);
+        $this->get('/baser/api/baser-core/utilities/download_backup.json?backup_encoding=utf8&token=' . $this->accessToken);
+        $this->assertResponseCode(500);
     }
 }
