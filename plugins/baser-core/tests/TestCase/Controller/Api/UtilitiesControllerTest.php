@@ -138,7 +138,7 @@ class UtilitiesControllerTest extends BcTestCase
      */
     public function test_restore_db()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+//        $this->markTestIncomplete('このテストは、まだ実装されていません。');
 
         $utilitiesService = new UtilitiesService();
         $utilitiesService->backupDb('utf8');
@@ -146,7 +146,7 @@ class UtilitiesControllerTest extends BcTestCase
 
         $zip = new ZipArchiver();
         $testFile = $zipSrcPath . 'test.zip';
-        $zip->archive($zipSrcPath, $testFile, true);
+        $zip->archive($zipSrcPath.'schema', $testFile, true);
 
 
         $this->setUploadFileToRequest('backup', $testFile);
