@@ -44,8 +44,6 @@ class UtilitiesControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BaserCore.Factory/Permissions',
         'plugin.BaserCore.Factory/Pages',
-        'plugin.BaserCore.Factory/SearchIndexes',
-        'plugin.BaserCore.Factory/Plugins',
     ];
 
     /**
