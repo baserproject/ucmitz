@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
+use BaserCore\Service\BcDatabaseService;
 use Cake\TestSuite\IntegrationTestTrait;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Controller\Admin\UtilitiesController;
@@ -88,6 +89,39 @@ class UtilitiesControllerTest extends BcTestCase
 
         $this->get('/baser/admin/baser-core/utilities/info');
         $this->assertResponseOk();
+    }
+
+    /**
+     * test info
+     */
+    public function test_verity_contents_tree()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        // コンテンツのツリー構造に問題がある場合
+        $this->post('/baser/admin/baser-core/utilities/verity_contents_tree/');
+        $this->assertResponseCode(302);
+        $this->assertRedirect([
+            'plugin' => 'BaserCore',
+            'prefix' => 'Admin',
+            'controller' => 'utilities',
+            'action' => 'index'
+        ]);
+        $this->assertFlashMessage("コンテンツのツリー構造に問題があります。ログを確認してください。");
+
+        // コンテンツのツリー構造に問題がない場合
+        $BcDatabaseService = new BcDatabaseService();
+        $BcDatabaseService->truncate('contents');
+        $this->post('/baser/admin/baser-core/utilities/verity_contents_tree/');
+        $this->assertResponseCode(302);
+        $this->assertRedirect([
+            'plugin' => 'BaserCore',
+            'prefix' => 'Admin',
+            'controller' => 'utilities',
+            'action' => 'index'
+        ]);
+        $this->assertFlashMessage("コンテンツのツリー構造に問題はありません。");
     }
 
 }
