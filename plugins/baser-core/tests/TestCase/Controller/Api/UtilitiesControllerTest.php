@@ -12,12 +12,14 @@
 namespace BaserCore\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Service\UtilitiesService;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
+use Composer\Package\Archiver\ZipArchiver;
 
 class UtilitiesControllerTest extends BcTestCase
 {
@@ -43,6 +45,8 @@ class UtilitiesControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BaserCore.Factory/Permissions',
         'plugin.BaserCore.Factory/Pages',
+        'plugin.BaserCore.Factory/SearchIndexes',
+        'plugin.BaserCore.Factory/Dblogs',
     ];
 
     /**
@@ -132,6 +136,31 @@ class UtilitiesControllerTest extends BcTestCase
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('コンテンツのツリー構造をリセットしました。', $result->message);
+    }
+
+    /**
+     * test restore_db
+     * @return void
+     */
+    public function test_restore_db()
+    {
+        $zipSrcPath = TMP;
+
+        $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema', 'BaserCore', 'utf8']);
+
+        $zip = new ZipArchiver();
+        $testFile = $zipSrcPath . 'test.zip';
+        $zip->archive($zipSrcPath . 'schema', $testFile, true);
+
+
+        $this->setUploadFileToRequest('backup', $testFile);
+
+        $this->post('/baser/api/baser-core/utilities/restore_db.json?token=' . $this->accessToken, ['encoding' => 'utf8']);
+
+
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($result->message, 'データの復元が完了しました。');
     }
 
     /**
