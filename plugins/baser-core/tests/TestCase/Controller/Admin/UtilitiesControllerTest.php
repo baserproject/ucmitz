@@ -14,8 +14,6 @@ namespace BaserCore\Test\TestCase\Controller\Admin;
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
-use BaserCore\Test\Scenario\SmallSetContentsScenario;
-use BaserCore\Utility\BcContainerTrait;
 use Cake\TestSuite\IntegrationTestTrait;
 use BaserCore\TestSuite\BcTestCase;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
