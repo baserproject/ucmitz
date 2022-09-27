@@ -108,6 +108,7 @@ class UtilitiesController extends BcApiController
             $service->restoreDb($this->getRequest()->getData(), $this->getRequest()->getUploadedFiles());
             $message = __d('baser', 'データの復元が完了しました。');
         } catch (BcException $e) {
+            $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', 'データの復元に失敗しました。ログの確認を行なって下さい。') . $e->getMessage();
         }
 
