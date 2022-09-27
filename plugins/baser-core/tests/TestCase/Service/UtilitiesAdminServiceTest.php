@@ -53,4 +53,20 @@ class UtilitiesAdminServiceTest extends BcTestCase
         $this->assertArrayHasKey('baserVersion', $info);
     }
 
+    /**
+     * test _getDriver
+     */
+    public function test_getDriver()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getViewVarsForLogMaintenance
+     */
+    public function test_getViewVarsForLogMaintenance()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
 }
