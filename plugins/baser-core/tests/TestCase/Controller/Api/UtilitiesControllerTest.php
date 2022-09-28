@@ -197,4 +197,14 @@ class UtilitiesControllerTest extends BcTestCase
         $this->assertEquals($result->message, "エラーログをを削除できません。エラーログが存在しません。");
     }
 
+
+    /**
+     * test download_log
+     * @return void
+     */
+    public function test_download_log()
+    {
+        $this->get('/baser/api/baser-core/utilities/download_log.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+    }
 }

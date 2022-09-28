@@ -84,6 +84,71 @@ class UtilitiesControllerTest extends BcTestCase
     }
 
     /**
+     * test index
+     *
+     * @return void
+     */
+    public function testIndex(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test reset_contents_tree
+     *
+     * @return void
+     */
+    public function testReset_contents_tree(): void
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        ContentFactory::make(['id' => 1, 'name' => 'BaserCore root', 'type' => 'ContentFolder', 'site_root' => 1, 'lft' => 1, 'rght' => 2])->persist();
+        ContentFactory::make(['name' => 'BaserCore 1', 'type' => 'ContentFolder', 'site_root' => 1, 'lft' => 11, 'rght' => 12])->persist();
+        ContentFactory::make(['name' => 'BaserCore 2', 'type' => 'ContentFolder', 'site_root' => 1, 'lft' => 13, 'rght' => 14])->persist();
+
+        $this->post('/baser/admin/baser-core/utilities/reset_contents_tree/');
+        $this->assertResponseCode(302);
+        $this->assertRedirect([
+            'plugin' => 'BaserCore',
+            'prefix' => 'Admin',
+            'controller' => 'utilities',
+            'action' => 'index'
+        ]);
+        $this->assertFlashMessage("コンテンツのツリー構造をリセットしました。");
+    }
+
+    /**
+     * test initialize
+     *
+     * @return void
+     */
+    public function testInitialize(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test credit
+     *
+     * @return void
+     */
+    public function testCredit(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test log_maintenance
+     *
+     * @return void
+     */
+    public function testLog_maintenance(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
      * test info
      */
     public function test_info()

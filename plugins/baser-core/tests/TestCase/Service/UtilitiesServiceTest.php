@@ -118,4 +118,112 @@ class UtilitiesServiceTest extends BcTestCase
         $this->assertEquals(1, $rs);
     }
 
+    /**
+     * test _getMax
+     * @return void
+     */
+    public function test_getMax(){
+        ContentFactory::make(['id' => 200, 'name' => 'BaserCore 6', 'type' => 'ContentFolder', 'lft' => 5, 'rght' => 6])->persist();
+        ContentFactory::make(['id' => 201, 'name' => 'BaserCore 7', 'type' => 'ContentFolder', 'lft' => 1, 'rght' => 4])->persist();
+        ContentFactory::make(['id' => 202, 'name' => 'BaserCore 8', 'type' => 'ContentFolder', 'lft' => 7, 'rght' => 8])->persist();
+        ContentFactory::make(['id' => 203, 'name' => 'BaserCore 9', 'type' => 'ContentFolder', 'lft' => 9, 'rght' => 12])->persist();
+        ContentFactory::make(['id' => 204, 'name' => 'BaserCore 10', 'type' => 'ContentFolder', 'lft' => 2, 'rght' => 3, 'parent_id' => 201])->persist();
+        ContentFactory::make(['id' => 206, 'name' => 'BaserCore 11', 'type' => 'ContentFolder', 'lft' => 10, 'rght' => 11, 'parent_id' => 203])->persist();
+
+
+        $right = 'rght';
+        $scope = '1 = 1';
+        $rs = $this->execPrivateMethod($this->UtilitiesService, '_getMax', [new ContentsTable(), $scope, $right]);
+
+        $this->assertEquals(12, $rs);
+    }
+
+    /**
+     * test verityContentsTree
+     * @return void
+     */
+    public function test_verityContentsTree(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test _verify
+     * @return void
+     */
+    public function test_verify(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test resetContentsTree
+     * @return void
+     */
+    public function test_resetContentsTree(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getCredit
+     * @return void
+     */
+    public function test_getCredit(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test createLogZip
+     * @return void
+     */
+    public function test_createLogZip(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test backupDb
+     * @return void
+     */
+    public function test_backupDb(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test resetTmpSchemaFolder
+     * @return void
+     */
+    public function test_resetTmpSchemaFolder(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test _writeBackup
+     * @return void
+     */
+    public function test_writeBackup(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test restoreDb
+     * @return void
+     */
+    public function test_restoreDb(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test _loadBackup
+     * @return void
+     */
+    public function test_loadBackup(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test resetData
+     * @return void
+     */
+    public function test_resetData(){
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
 }
