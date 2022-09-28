@@ -141,6 +141,7 @@ class UtilitiesServiceTest extends BcTestCase
      * @param $dbSample
      * @param $expect
      * @return void
+     * @dataProvider _verifyProvider
      */
     public function test_verify($dbSample, $expect)
     {
@@ -189,7 +190,18 @@ class UtilitiesServiceTest extends BcTestCase
                         ['id' => 300, 'name' => 'BaserCore 6', 'type' => 'ContentFolder', 'lft' => 5, 'rght' => 5],
                     ],
                     [0 => [0 => "node", 1 => 300, 2 => "left and right values identical"]]
-                ]
+                ],
+                //連番になっていない
+                [
+                    [
+                        ['id' => 300, 'name' => 'BaserCore 6', 'type' => 'ContentFolder', 'lft' => 5, 'rght' => 6],
+                        ['id' => 301, 'name' => 'BaserCore 6', 'type' => 'ContentFolder', 'lft' => 1, 'rght' => 2],
+                    ],
+                    [
+                        0 => [0 => "index", 1 => 3, 2 => "missing"],
+                        1 => [0 => "index", 1 => 4, 2 => "missing"],
+                    ]
+                ],
             ];
     }
 
