@@ -18,6 +18,7 @@ use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use Cake\Core\Configure;
 
 /**
  * Class UtilitiesController
@@ -215,6 +216,7 @@ class UtilitiesController extends BcAdminAppController
      * @param UtilitiesServiceInterface $service
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function credit(UtilitiesServiceInterface $service)
     {
