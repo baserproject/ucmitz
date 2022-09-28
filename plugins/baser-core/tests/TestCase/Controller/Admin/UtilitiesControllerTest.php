@@ -22,7 +22,6 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 /**
  * class UtilitiesControllerTest
  * @package BaserCore\Controller\Admin\UtilitiesController;
- * @property UtilitiesController $UtilitiesControllerr;
  */
 class UtilitiesControllerTest extends BcTestCase
 {
@@ -48,7 +47,6 @@ class UtilitiesControllerTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->UtilitiesController = new UtilitiesController($this->getRequest());
         $this->loadFixtureScenario(InitAppScenario::class);
         $request = $this->getRequest('/baser/admin/baser-core/utilities/');
         $this->loginAdmin($request);
@@ -128,8 +126,9 @@ class UtilitiesControllerTest extends BcTestCase
      */
     public function testInitialize(): void
     {
-        $this->assertEquals(['credit'], $this->UtilitiesController->Authentication->getUnauthenticatedActions());
-        $this->assertNotEmpty($this->UtilitiesController->Authentication->getConfig('logoutRedirect'));
+        $UtilitiesController = new UtilitiesController($this->getRequest());
+        $this->assertEquals(['credit'], $UtilitiesController->Authentication->getUnauthenticatedActions());
+        $this->assertNotEmpty($UtilitiesController->Authentication->getConfig('logoutRedirect'));
     }
 
     /**
