@@ -14,8 +14,6 @@ namespace BaserCore\Test\TestCase\Controller\Admin;
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
-use Cake\Cache\Cache;
-use Cake\Core\Configure;
 use Cake\TestSuite\IntegrationTestTrait;
 use BaserCore\TestSuite\BcTestCase;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -142,8 +140,6 @@ class UtilitiesControllerTest extends BcTestCase
 
         $this->post('/baser/admin/baser-core/utilities/credit/');
         $this->assertResponseOk();
-
-        // TODO Configure BcLinks.specialThanks を空にして失敗のステータスを確認
     }
 
     /**

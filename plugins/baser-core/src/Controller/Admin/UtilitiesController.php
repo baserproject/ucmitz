@@ -18,7 +18,6 @@ use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use Cake\Core\Configure;
 
 /**
  * Class UtilitiesController
