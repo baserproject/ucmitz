@@ -126,9 +126,9 @@ class UtilitiesControllerTest extends BcTestCase
      */
     public function testInitialize(): void
     {
-        $UtilitiesController = new UtilitiesController($this->getRequest());
-        $this->assertEquals(['credit'], $UtilitiesController->Authentication->getUnauthenticatedActions());
-        $this->assertNotEmpty($UtilitiesController->Authentication->getConfig('logoutRedirect'));
+        $utilitiesController = new UtilitiesController($this->getRequest());
+        $this->assertEquals(['credit'], $utilitiesController->Authentication->getUnauthenticatedActions());
+        $this->assertNotEmpty($utilitiesController->Authentication->getConfig('logoutRedirect'));
     }
 
     /**
