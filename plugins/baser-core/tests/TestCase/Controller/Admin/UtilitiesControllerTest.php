@@ -153,7 +153,7 @@ class UtilitiesControllerTest extends BcTestCase
 
         // ---- 引数 $mode が download の場合 start ----
         // ログが存在するテスト
-        $this->get('/baser/admin/baser-core/utilities/log_maintenance/download', );
+        $this->get('/baser/admin/baser-core/utilities/log_maintenance/download');
         // ステータスを確認
         $this->assertResponseOk();
 
@@ -162,7 +162,7 @@ class UtilitiesControllerTest extends BcTestCase
         $backupPath = ROOT . DS . 'logsBackup' . DS;
         $logsFolder->copy($backupPath); // 念の為ログフォルダをバックアップする
         $logsFolder->delete();
-        $this->get('/baser/admin/baser-core/utilities/log_maintenance/download', );
+        $this->get('/baser/admin/baser-core/utilities/log_maintenance/download');
         // ステータスを確認
         $this->assertResponseCode(302);
         // リダイレクトを確認
@@ -185,7 +185,7 @@ class UtilitiesControllerTest extends BcTestCase
         if (!file_exists($logPath)) {
             new File($logPath, true);
         }
-        $this->post('/baser/admin/baser-core/utilities/log_maintenance/delete', );
+        $this->post('/baser/admin/baser-core/utilities/log_maintenance/delete');
         // ステータスを確認
         $this->assertResponseCode(302);
         // リダイレクトを確認
@@ -199,7 +199,7 @@ class UtilitiesControllerTest extends BcTestCase
         $this->assertFlashMessage("エラーログを削除しました。");
 
         // 削除がエラーのテスト
-        $this->post('/baser/admin/baser-core/utilities/log_maintenance/delete', );
+        $this->post('/baser/admin/baser-core/utilities/log_maintenance/delete');
         // ステータスを確認
         $this->assertResponseCode(302);
         // リダイレクトを確認
