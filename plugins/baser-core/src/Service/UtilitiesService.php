@@ -69,6 +69,9 @@ class UtilitiesService implements UtilitiesServiceInterface
 
     /**
      * コンテンツツリーをリセットし全て同階層にする
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function resetContentsTree()
     {
@@ -83,6 +86,7 @@ class UtilitiesService implements UtilitiesServiceInterface
      * @return array|false
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function _verify(Table $table)
     {
