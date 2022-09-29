@@ -199,6 +199,7 @@ class UtilitiesService implements UtilitiesServiceInterface
      * @return mixed|null
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getCredit()
     {
