@@ -193,7 +193,7 @@ class UtilitiesServiceTest extends BcTestCase
     }
 
     /**
-     *   * test _verify
+     * test _verify
      * @param $dbSample
      * @param $expect
      *
