@@ -12,7 +12,6 @@
 namespace BaserCore\Test\TestCase\Utility;
 
 use BaserCore\Event\BcEventListener;
-use BaserCore\Event\BcViewEventListener;
 use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Utility\BcContainer;
@@ -21,7 +20,6 @@ use Cake\Core\App;
 use Cake\Cache\Cache;
 use Cake\Core\Plugin;
 use Cake\Core\Configure;
-use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManager;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
