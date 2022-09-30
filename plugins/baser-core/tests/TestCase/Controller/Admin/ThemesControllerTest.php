@@ -15,7 +15,6 @@ use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Controller\Admin\ThemesController;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
-use Cake\Core\Configure;
 use Cake\Filesystem\Folder;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
