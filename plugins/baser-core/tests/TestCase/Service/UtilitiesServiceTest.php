@@ -313,7 +313,8 @@ class UtilitiesServiceTest extends BcTestCase
      * @return void
      */
     public function test_backupDb(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $rs = $this->UtilitiesService->backupDb('utf8');
+        $this->assertTrue(is_array($rs->centralDirectory));
     }
 
     /**
