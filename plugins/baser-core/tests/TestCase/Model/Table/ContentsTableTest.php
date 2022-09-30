@@ -12,7 +12,10 @@
 namespace BaserCore\Test\TestCase\Model\Table;
 
 use ArrayObject;
+use BaserCore\Service\BcDatabaseService;
+use BaserCore\Test\Scenario\SmallSetContentsScenario;
 use Cake\ORM\Entity;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use ReflectionClass;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
@@ -28,6 +31,11 @@ use BaserCore\Model\Table\ContentsTable;
 class ContentsTableTest extends BcTestCase
 {
 
+    /**
+     * Trait
+     */
+    use ScenarioAwareTrait;
+
     public $fixtures = [
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UserGroups',
@@ -36,7 +44,6 @@ class ContentsTableTest extends BcTestCase
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.ContentFolders',
         'plugin.BaserCore.Pages',
-        'plugin.BcSearchIndex.SearchIndexes',
         'plugin.BaserCore.SiteConfigs',
         'plugin.BaserCore.Model/Table/Content/ContentStatusCheck'
     ];
@@ -431,7 +438,7 @@ class ContentsTableTest extends BcTestCase
     public function testCopyContentFolderPath()
     {
         // 他サイトにフォルダが存在する場合
-        $this->loadFixtures('ContentFolders', 'Pages', 'SearchIndexes', 'SiteConfigs');
+        $this->loadFixtures('ContentFolders', 'Pages', 'SiteConfigs');
         $parent_id = $this->Contents->copyContentFolderPath('/service/service1', 1);
         $this->assertEquals(6, $parent_id);
         // 他サイトのフォルダが不要な場合
@@ -1042,7 +1049,23 @@ class ContentsTableTest extends BcTestCase
      */
     public function testResetTree()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $dbService = new BcDatabaseService();
+        $dbService->truncate('contents');
+        $this->loadFixtureScenario(SmallSetContentsScenario::class);
+        $this->assertTrue($this->Contents->resetTree());
+
+        $expectedLeftRight = [
+            ['lft' => 1, 'rght' => 10],
+            ['lft' => 2, 'rght' => 3],
+            ['lft' => 4, 'rght' => 5],
+            ['lft' => 6, 'rght' => 7],
+            ['lft' => 8, 'rght' => 9]
+        ];
+        $contents = $this->Contents->find()->toArray();
+        foreach ($contents as $index => $content) {
+            $this->assertEquals($content->lft, $expectedLeftRight[$index]['lft']);
+            $this->assertEquals($content->rght, $expectedLeftRight[$index]['rght']);
+        }
     }
 
     /**

@@ -22,27 +22,16 @@ class PluginsSeed extends AbstractSeed
     {
         $data = [
             [
-                'id' => '6',
+                'id' => '1',
                 'name' => 'BcSpaSample',
                 'title' => 'SPAサンプル',
-                'version' => NULL,
-                'status' => '1',
+                'version' => '0.0.1',
+                'status' => '0',
                 'db_init' => '1',
-                'priority' => '6',
+                'priority' => '1',
                 'created' => NULL,
-                'modified' => '2021-12-09 17:16:53',
-            ],
-            [
-                'id' => '3',
-                'name' => 'BcFavorite',
-                'title' => 'お気に入り',
-                'version' => '1.0.0',
-                'status' => '1',
-                'db_init' => '1',
-                'priority' => '3',
-                'created' => '2021-09-16 06:46:11',
-                'modified' => '2021-09-16 06:46:11',
-            ],
+                'modified' => '2022-10-01 09:00:00',
+            ]
         ];
 
         $table = $this->table('plugins');
