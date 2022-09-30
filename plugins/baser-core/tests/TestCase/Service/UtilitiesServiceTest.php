@@ -312,7 +312,8 @@ class UtilitiesServiceTest extends BcTestCase
      * test backupDb
      * @return void
      */
-    public function test_backupDb(){
+    public function test_backupDb()
+    {
         $rs = $this->UtilitiesService->backupDb('utf8');
         $this->assertTrue(is_array($rs->centralDirectory));
     }
