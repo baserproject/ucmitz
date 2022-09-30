@@ -21,6 +21,7 @@ use BaserCore\Utility\BcContainerTrait;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Filesystem\File;
+use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
 
@@ -320,8 +321,14 @@ class UtilitiesServiceTest extends BcTestCase
      * test resetTmpSchemaFolder
      * @return void
      */
-    public function test_resetTmpSchemaFolder(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    public function test_resetTmpSchemaFolder()
+    {
+        $this->UtilitiesService->resetTmpSchemaFolder();
+        $tmpDir = TMP . 'schema' . DS;
+        $Folder = new Folder($tmpDir);
+        $files = $Folder->read(true, true, false);
+        $this->assertEquals(0, count($files[0]));
+        $this->assertEquals(0, count($files[1]));
     }
 
     /**

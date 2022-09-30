@@ -305,6 +305,7 @@ class UtilitiesService implements UtilitiesServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function resetTmpSchemaFolder(): bool
     {
