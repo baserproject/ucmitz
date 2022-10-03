@@ -1071,6 +1071,7 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetRootTheme(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $theme = BcUtil::getRootTheme();
+        $this->assertEquals('BcFront', $theme);
     }
 }
