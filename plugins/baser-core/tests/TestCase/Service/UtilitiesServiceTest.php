@@ -13,7 +13,6 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\ContentsTable;
-use BaserCore\Service\ThemesService;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
