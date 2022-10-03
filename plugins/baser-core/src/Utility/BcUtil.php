@@ -1136,6 +1136,7 @@ class BcUtil
      * @return false|string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public static function getExtension($fileName)
     {
