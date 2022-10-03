@@ -14,6 +14,7 @@ namespace BcBlog\Test\TestCase\Controller\Api;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Api\BlogCategoriesController;
+use BcBlog\Test\Factory\BlogCategoryFactory;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -96,7 +97,14 @@ class BlogCategoriesControllerTest extends BcTestCase
      */
     public function test_view()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make(['id' => 1, 'name' => 'Blog Category 1'])->persist();
+        BlogCategoryFactory::make(['id' => 2, 'name' => 'Blog Category 2'])->persist();
+
+        $this->get('/baser/api/bc-blog/blog_categories/view/1.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('Blog Category 1', $result->blogCategory->name);
+        $this->assertEquals(1, $result->blogCategory->id);
     }
 
     /**
