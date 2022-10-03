@@ -1091,7 +1091,15 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetContentType(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // ファイルではないテスト
+        $this->assertFalse(BcUtil::getContentType(TMP));
+        // 有効な拡張のファイルをテスト
+        foreach (BcUtil::$contentsMaping as $extension) {
+            $type = BcUtil::getContentType(TMP . 'test.' . $extension);
+            $this->assertArrayHasKey($type, BcUtil::$contentsMaping);
+        }
+        // 無効な拡張のファイルをテスト
+        $this->assertFalse(BcUtil::getContentType(TMP . 'test.bla'));
     }
 
     /**
