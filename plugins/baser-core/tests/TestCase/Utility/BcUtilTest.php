@@ -1101,6 +1101,14 @@ class BcUtilTest extends BcTestCase
      */
     public function testDecodeContent(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // 有効なコンテンツタイプをテスト
+        foreach (BcUtil::$contentsMaping as $contentType => $extension) {
+            $this->assertEquals($extension, BcUtil::decodeContent($contentType));
+        }
+        // 無効なコンテンツタイプと有効なファイルをテスト
+        $ext = 'ts';
+        $this->assertEquals($ext, BcUtil::decodeContent('type script', TMP . 'test.' . $ext));
+        // 無効なコンテンツタイプと無効なファイルをテスト
+        $this->assertFalse(BcUtil::decodeContent('type script'));
     }
 }

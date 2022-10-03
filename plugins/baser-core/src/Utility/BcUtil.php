@@ -1104,6 +1104,7 @@ class BcUtil
      * @return string 拡張子
      * @checked
      * @noTodo
+     * @unitTest
      */
     public static function decodeContent($content, $fileName = null)
     {
