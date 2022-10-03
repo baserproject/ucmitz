@@ -13,11 +13,14 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Service\ThemesService;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcUtil;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
 use Cake\Filesystem\File;
@@ -352,8 +355,16 @@ class UtilitiesServiceTest extends BcTestCase
      * test resetData
      * @return void
      */
-    public function test_resetData(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    public function test_resetData()
+    {
+        SiteFactory::make(['theme' => 'BcFront'])->persist();
+        $this->getRequest();
+
+        $rs = $this->UtilitiesService->resetData();
+        $theme = BcUtil::getCurrentTheme();
+
+        $this->assertEquals('BcFront', $theme);
+        $this->assertTrue($rs);
     }
 
 }
