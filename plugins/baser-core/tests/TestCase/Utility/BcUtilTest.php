@@ -1061,7 +1061,9 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetCurrentTheme(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $currentSite = $this->getRequest()->getParam('Site');
+        $theme = BcUtil::getCurrentTheme();
+        $this->assertEquals($theme, $currentSite->theme);
     }
 
     /**
