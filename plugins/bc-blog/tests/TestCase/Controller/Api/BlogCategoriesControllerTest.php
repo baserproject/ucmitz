@@ -120,7 +120,15 @@ class BlogCategoriesControllerTest extends BcTestCase
      */
     public function test_list()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make(['id' => 3, 'title' => 'title 3', 'name' => 'name-3', 'blog_content_id' => 1])->persist();
+        BlogCategoryFactory::make(['id' => 4, 'title' => 'title 4', 'name' => 'name-4', 'blog_content_id' => 2])->persist();
+        BlogCategoryFactory::make(['id' => 5, 'title' => 'title 5', 'name' => 'name-5', 'blog_content_id' => 2])->persist();
+
+        $this->get('/baser/api/bc-blog/blog_categories/list/1.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $key = 3;
+        $this->assertEquals($result->blogCategories->$key, 'title 3');
     }
 
     /**
