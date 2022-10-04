@@ -127,8 +127,7 @@ class BlogCategoriesControllerTest extends BcTestCase
         $this->get('/baser/api/bc-blog/blog_categories/list/1.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $key = 3;
-        $this->assertEquals($result->blogCategories->$key, 'title 3');
+        $this->assertEquals(get_object_vars($result->blogCategories)[3], 'title 3');
     }
 
     /**
