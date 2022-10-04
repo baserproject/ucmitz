@@ -1115,7 +1115,7 @@ class BcUtilTest extends BcTestCase
             [TMP . 'test.jpg', 'image/jpeg'],
             [TMP . 'test.gif', 'image/gif'],
             [TMP . 'test.zip', 'application/zip'],
-            [TMP . 'test.bla', false],
+            [TMP . 'test.bla', false]
         ];
     }
 
