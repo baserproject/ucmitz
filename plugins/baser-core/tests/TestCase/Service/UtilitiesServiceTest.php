@@ -313,8 +313,10 @@ class UtilitiesServiceTest extends BcTestCase
      * test backupDb
      * @return void
      */
-    public function test_backupDb(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    public function test_backupDb()
+    {
+        $rs = $this->UtilitiesService->backupDb('utf8');
+        $this->assertTrue(is_array($rs->centralDirectory));
     }
 
     /**
@@ -335,8 +337,15 @@ class UtilitiesServiceTest extends BcTestCase
      * test _writeBackup
      * @return void
      */
-    public function test_writeBackup(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    public function test_writeBackup()
+    {
+        $this->UtilitiesService->resetTmpSchemaFolder();
+
+        $zipSrcPath = TMP . 'schema' . DS;
+        $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath, 'BaserCore', 'utf8']);
+
+        $this->assertTrue(file_exists($zipSrcPath . 'PermissionsSchema.php'));
+        $this->assertTrue(file_exists($zipSrcPath . 'pages.csv'));
     }
 
     /**

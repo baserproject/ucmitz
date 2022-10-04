@@ -100,4 +100,71 @@ class BlogCategoriesController extends BcApiController
         exit();
     }
 
+    /**
+     * [API] ブログカテゴリー一覧取得
+     *
+     * @param BlogCategoriesServiceInterface $service
+     * @param $blogContentId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(BlogCategoriesServiceInterface $service, $blogContentId)
+    {
+        $this->set([
+            'blogCategories' => $this->paginate($service->getIndex($blogContentId, $this->request->getQueryParams()))
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogCategories']);
+    }
+
+    /**
+     * [API] 単一ブログカテゴリー取得
+     *
+     * @param BlogCategoriesServiceInterface $service
+     * @param $blogCategoryId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function view(BlogCategoriesServiceInterface $service, $blogCategoryId)
+    {
+        $this->set([
+            'blogCategory' => $service->get($blogCategoryId)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogCategory']);
+    }
+
+    /**
+     * [API] 単一ブログカテゴリー取得
+     */
+    public function list()
+    {
+        //todo 単一ブログカテゴリー取得
+    }
+
+    /**
+     * [API] ブログカテゴリー新規追加
+     */
+    public function add()
+    {
+        //todo ブログカテゴリー新規追加
+    }
+
+    /**
+     * [API] ブログカテゴリー編集
+     */
+    public function edit()
+    {
+        //todo ブログカテゴリー編集
+    }
+
+    /**
+     * [API] ブログカテゴリー削除
+     */
+    public function delete()
+    {
+        //todo ブログカテゴリー削除
+    }
 }

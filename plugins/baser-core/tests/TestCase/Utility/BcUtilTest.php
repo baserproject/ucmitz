@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Utility;
 
+use BaserCore\Event\BcEventListener;
 use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Utility\BcContainer;
@@ -19,6 +20,7 @@ use Cake\Core\App;
 use Cake\Cache\Cache;
 use Cake\Core\Plugin;
 use Cake\Core\Configure;
+use Cake\Event\EventManager;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use BaserCore\Utility\BcUtil;
@@ -230,9 +232,9 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetEnablePlugins(): void
     {
-        $expects = ['BcBlog', 'BcMail', 'BcUploader', 'BcFavorite'];
+        $expects = ['BcBlog', 'BcMail', 'BcUploader', 'BcFavorite', 'BcSearchIndex'];
         $result = BcUtil::getEnablePlugins();
-        foreach($result as $value) {
+        foreach ($result as $value) {
             $this->assertContains($value->name, $expects, 'プラグインの一覧が取得できません。');
         }
     }
@@ -268,7 +270,7 @@ class BcUtilTest extends BcTestCase
         // cache環境準備
         $cacheList = ['environment' => '_bc_env_', 'persistent' => '_cake_core_', 'models' => '_cake_model_'];
 
-        foreach($cacheList as $path => $cacheName) {
+        foreach ($cacheList as $path => $cacheName) {
             Cache::drop($cacheName);
             Cache::setConfig($cacheName, [
                 'className' => "File",
@@ -282,7 +284,7 @@ class BcUtilTest extends BcTestCase
 
         // 削除実行
         BcUtil::clearAllCache();
-        foreach($cacheList as $cacheName) {
+        foreach ($cacheList as $cacheName) {
             $this->assertNull(Cache::read($cacheName . 'test', $cacheName));
         }
 
@@ -380,7 +382,7 @@ class BcUtilTest extends BcTestCase
         }
         $result = BcUtil::loginUserGroup();
 
-        if($result === false){
+        if ($result === false) {
             $result = [];
         }
 
@@ -513,14 +515,14 @@ class BcUtilTest extends BcTestCase
     {
         $Folder = new Folder();
         // 初期データ用のダミーディレクトリを作成
-        if(!$pattern) $pattern = 'default';
-        if($theme) {
+        if (!$pattern) $pattern = 'default';
+        if ($theme) {
             $path = BASER_THEMES . $theme . DS . 'config' . DS . 'data' . DS . $pattern;
             $Folder->create($path);
         }
         $result = BcUtil::getDefaultDataPath($theme, $pattern);
         // 初期データ用のダミーディレクトリを削除
-        if($theme) {
+        if ($theme) {
             $Folder->delete($path);
         }
         $this->assertEquals($expect, $result, '初期データのパスを正しく取得できません');
@@ -789,7 +791,7 @@ class BcUtilTest extends BcTestCase
     {
         $result = BcUtil::getContentsItem();
         $list = ['Default', 'ContentFolder', 'ContentAlias', 'Page'];
-        foreach($list as $key) {
+        foreach ($list as $key) {
             $this->assertArrayHasKey($key, $result);
         }
         $this->assertEquals('BaserCore', $result['Default']['plugin']);
@@ -921,7 +923,7 @@ class BcUtilTest extends BcTestCase
         $path = explode('/', $_SERVER['SCRIPT_NAME']);
         krsort($path);
         $expected = $_SERVER['SCRIPT_FILENAME'];
-        foreach($path as $value) {
+        foreach ($path as $value) {
             $reg = "/\/" . $value . "$/";
             $expected = preg_replace($reg, '', $expected);
         }
@@ -972,14 +974,14 @@ class BcUtilTest extends BcTestCase
 
         $result = true;
         // フォルダが存在しているかチェック
-        foreach($names['folder'] as $key => $name) {
+        foreach ($names['folder'] as $key => $name) {
             if (!is_dir($dummyPath . $name)) {
                 $result = false;
             }
             @rmdir($dummyPath . $name);
         }
         // ファイルが削除されているかチェック
-        foreach($names['file'] as $key => $name) {
+        foreach ($names['file'] as $key => $name) {
             if (file_exists($dummyPath . $name)) {
                 $result = false;
             }
@@ -1034,4 +1036,83 @@ class BcUtilTest extends BcTestCase
         ];
     }
 
+    /**
+     * Test onEvent, offEvent
+     *
+     * @return void
+     */
+    public function testOnEventOffEvent(): void
+    {
+        $eventManager = EventManager::instance();
+        $eventKey = 'testOnEvent';
+        $bcEvenListener = new BcEventListener();
+        $bcEvenListener->events = ['event 1', 'event 2'];
+
+        // onEvent() でイベントを設定
+        BcUtil::onEvent($eventManager, $eventKey, $bcEvenListener->implementedEvents());
+        // listeners() イベントの登録を確認
+        $listeners = $eventManager->listeners($eventKey);
+        foreach ($bcEvenListener->events as $index => $event) {
+            $this->assertEquals($listeners[$index]['callable'], $event);
+        }
+        // offEvent() でイベントを解除
+        BcUtil::offEvent($eventManager, $eventKey);
+        // listeners() イベントの解除を確認
+        $listeners = $eventManager->listeners($eventKey);
+        $this->assertEmpty($listeners);
+    }
+
+    /**
+     * Test getCurrentTheme
+     *
+     * @return void
+     */
+    public function testGetCurrentTheme(): void
+    {
+        $currentSite = $this->getRequest()->getParam('Site');
+        $theme = BcUtil::getCurrentTheme();
+        $this->assertEquals($theme, $currentSite->theme);
+    }
+
+    /**
+     * Test getRootTheme
+     *
+     * @return void
+     */
+    public function testGetRootTheme(): void
+    {
+        $theme = BcUtil::getRootTheme();
+        $this->assertEquals('BcFront', $theme);
+    }
+
+    /**
+     * Test getExtension
+     *
+     * @return void
+     */
+    public function testGetExtension(): void
+    {
+        $this->assertFalse(BcUtil::getExtension('/var/www/html/tmp'));
+        $this->assertEquals('ext', BcUtil::getExtension('/var/www/html/tmp/test.ext'));
+    }
+
+    /**
+     * Test getContentType
+     *
+     * @return void
+     */
+    public function testGetContentType(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test decodeContent
+     *
+     * @return void
+     */
+    public function testDecodeContent(): void
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
 }

@@ -1034,6 +1034,7 @@ class BcUtil
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public static function getCurrentTheme()
     {
@@ -1058,6 +1059,7 @@ class BcUtil
      * @return mixed
      * @checked
      * @noTodo
+     * @unitTest
      */
     public static function getRootTheme()
     {
@@ -1136,6 +1138,7 @@ class BcUtil
      * @return false|string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public static function getExtension($fileName)
     {
@@ -1378,6 +1381,7 @@ class BcUtil
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public static function offEvent(EventManagerInterface $eventManager, string $eventKey)
     {
@@ -1397,6 +1401,7 @@ class BcUtil
      * @param EventListenerInterface[] $eventListeners
      * @checked
      * @noTodo
+     * @unitTest
      */
     public static function onEvent(EventManagerInterface $eventManager, string $eventKey, array $eventListeners)
     {
