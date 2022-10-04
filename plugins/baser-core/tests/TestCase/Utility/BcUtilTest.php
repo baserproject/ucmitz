@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Utility;
 
+use BaserCore\Event\BcEventListener;
 use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Utility\BcContainer;
@@ -19,6 +20,7 @@ use Cake\Core\App;
 use Cake\Cache\Cache;
 use Cake\Core\Plugin;
 use Cake\Core\Configure;
+use Cake\Event\EventManager;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use BaserCore\Utility\BcUtil;
@@ -1035,23 +1037,29 @@ class BcUtilTest extends BcTestCase
     }
 
     /**
-     * Test onEvent
+     * Test onEvent, offEvent
      *
      * @return void
      */
-    public function testOnEvent(): void
+    public function testOnEventOffEvent(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
+        $eventManager = EventManager::instance();
+        $eventKey = 'testOnEvent';
+        $bcEvenListener = new BcEventListener();
+        $bcEvenListener->events = ['event 1', 'event 2'];
 
-    /**
-     * Test offEvent
-     *
-     * @return void
-     */
-    public function testOffEvent(): void
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // onEvent() でイベントを設定
+        BcUtil::onEvent($eventManager, $eventKey, $bcEvenListener->implementedEvents());
+        // listeners() イベントの登録を確認
+        $listeners = $eventManager->listeners($eventKey);
+        foreach ($bcEvenListener->events as $index => $event) {
+            $this->assertEquals($listeners[$index]['callable'], $event);
+        }
+        // offEvent() でイベントを解除
+        BcUtil::offEvent($eventManager, $eventKey);
+        // listeners() イベントの解除を確認
+        $listeners = $eventManager->listeners($eventKey);
+        $this->assertEmpty($listeners);
     }
 
     /**
@@ -1061,7 +1069,9 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetCurrentTheme(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $currentSite = $this->getRequest()->getParam('Site');
+        $theme = BcUtil::getCurrentTheme();
+        $this->assertEquals($theme, $currentSite->theme);
     }
 
     /**
@@ -1071,7 +1081,8 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetRootTheme(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $theme = BcUtil::getRootTheme();
+        $this->assertEquals('BcFront', $theme);
     }
 
     /**
@@ -1081,7 +1092,8 @@ class BcUtilTest extends BcTestCase
      */
     public function testGetExtension(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertFalse(BcUtil::getExtension('/var/www/html/tmp'));
+        $this->assertEquals('ext', BcUtil::getExtension('/var/www/html/tmp/test.ext'));
     }
 
     /**
