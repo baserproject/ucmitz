@@ -483,6 +483,5 @@ class BcDatabaseServiceTest extends BcTestCase
         $this->assertFileExists($expectedFile);
         $file = new File($expectedFile);
         $file->delete();
-        $this->assertFileDoesNotExist($expectedFile);
     }
 }
