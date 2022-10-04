@@ -154,10 +154,34 @@ class BlogCategoriesController extends BcApiController
 
     /**
      * [API] ブログカテゴリー編集
+     *
+     * @param BlogCategoriesServiceInterface $service
+     * @param $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function edit()
+    public function edit(BlogCategoriesServiceInterface $service, $id)
     {
-        //todo ブログカテゴリー編集
+        $this->request->allowMethod(['post', 'put', 'patch']);
+
+        $blogCategory = null;
+        $errors = [];
+        try {
+            $blogCategory = $service->update($service->get($id), $this->request->getData());
+            $message = __d('baser', 'ブログカテゴリー「{0}」を更新しました。', $blogCategory->name);
+        } catch (\Exception $e) {
+            $errors = $e->getMessage();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        }
+        $this->set([
+            'message' => $message,
+            'blogCategory' => $blogCategory,
+            'errors' => $errors
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogCategory', 'message', 'errors']);
     }
 
     /**
