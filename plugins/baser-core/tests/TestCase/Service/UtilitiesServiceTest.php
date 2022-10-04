@@ -13,6 +13,7 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Service\SitesService;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
@@ -356,14 +357,17 @@ class UtilitiesServiceTest extends BcTestCase
      */
     public function test_resetData()
     {
-        SiteFactory::make(['theme' => 'BcFront'])->persist();
+        SiteFactory::make(['id' => 100, 'title' => 'test title', 'display_name' => 'test display_name', 'theme' => 'BcSpaSample'])->persist();
         $this->getRequest();
 
         $rs = $this->UtilitiesService->resetData();
-        $theme = BcUtil::getCurrentTheme();
-
-        $this->assertEquals('BcFront', $theme);
         $this->assertTrue($rs);
+
+        $siteService = new SitesService();
+        $site = $siteService->get(1);
+        $this->assertEquals('BcSpaSample', $site->theme);
+        $this->assertEquals('メインサイト', $site->title);
+        $this->assertEquals('メインサイト', $site->display_name);
     }
 
 }
