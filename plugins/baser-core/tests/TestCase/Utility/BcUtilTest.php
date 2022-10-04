@@ -1109,18 +1109,26 @@ class BcUtilTest extends BcTestCase
     /**
      * Test decodeContent
      *
+     * @param $content
+     * @param $fileName
+     * @param $extension
      * @return void
+     * @dataProvider decodeContentProvider
      */
-    public function testDecodeContent(): void
+    public function testDecodeContent($content, $fileName, $extension): void
     {
-        // 有効なコンテンツタイプをテスト
-        foreach (BcUtil::$contentsMaping as $contentType => $extension) {
-            $this->assertEquals($extension, BcUtil::decodeContent($contentType));
-        }
-        // 無効なコンテンツタイプと有効なファイルをテスト
-        $ext = 'ts';
-        $this->assertEquals($ext, BcUtil::decodeContent('type script', TMP . 'test.' . $ext));
-        // 無効なコンテンツタイプと無効なファイルをテスト
-        $this->assertFalse(BcUtil::decodeContent('type script'));
+        $ext = BcUtil::decodeContent($content, $fileName);
+        $this->assertEquals($extension, $ext);
+    }
+
+    public function decodeContentProvider(): array
+    {
+        return [
+            ['image/gif', null, 'gif'],
+            ['image/jpeg', null, 'jpg'],
+            ['application/zip', null, 'zip'],
+            ['javascript/ts', TMP . 'test.ts', 'ts'],
+            ['javascript/ts', null, false],
+        ];
     }
 }
