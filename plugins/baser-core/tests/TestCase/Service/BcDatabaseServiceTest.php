@@ -489,7 +489,6 @@ class UserActionsSchema extends BcSchema
             'collation' => 'utf8_general_ci'
         ]
     ];
-
 }");
         // Create処理実行
         $this->BcDatabaseService->loadSchema(['type' => 'create', 'path' => $path, 'file' => $fileName]);
