@@ -476,6 +476,13 @@ class BcDatabaseServiceTest extends BcTestCase
      */
     public function test_writeSchema()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->BcDatabaseService->writeSchema('users', [
+            'path' => TMP . 'schema'
+        ]);
+        $expectedFile = TMP . 'schema/UsersSchema.php';
+        $this->assertFileExists($expectedFile);
+        $file = new File($expectedFile);
+        $file->delete();
+        $this->assertFileDoesNotExist($expectedFile);
     }
 }
