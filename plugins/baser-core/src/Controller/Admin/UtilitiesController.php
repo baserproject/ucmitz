@@ -106,9 +106,11 @@ class UtilitiesController extends BcAdminAppController
     /**
      * データメンテナンス
      *
+     * @param UtilitiesServiceInterface $service
      * @param string $mode
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function maintenance(
         UtilitiesServiceInterface $service,
@@ -129,6 +131,7 @@ class UtilitiesController extends BcAdminAppController
                     $service->restoreDb($this->getRequest()->getData(), $this->getRequest()->getUploadedFiles());
                     $this->BcMessage->setInfo(__d('baser', 'データの復元が完了しました。'));
                 } catch (BcException $e) {
+                    $msg = __d('baser', 'データの復元に失敗しました。ログの確認を行なって下さい。') . $e->getMessage();
                     $this->BcMessage->setError(__d('baser', 'データの復元に失敗しました。ログの確認を行なって下さい。') . $e->getMessage());
                 }
                 $this->redirect(['action' => 'maintenance']);
