@@ -168,15 +168,15 @@ class BlogCategoriesControllerTest extends BcTestCase
     {
         //成功場合、
         BlogCategoryFactory::make(
-            ['id' => 1, 'name' => 'blog-category-delete', 'blog_content_id' => 1, 'title' => 'test title delete', 'lft' => 1, 'rght' => 2]
+            ['id' => 21, 'name' => 'blog-category-delete', 'blog_content_id' => 21, 'title' => 'test title delete', 'lft' => 1, 'rght' => 2]
         )->persist();
         BlogCategoryFactory::make(
-            ['id' => 2, 'name' => 'blog-category-delete', 'blog_content_id' => 1, 'title' => 'test title delete', 'lft' => 1, 'rght' => 2]
+            ['id' => 22, 'name' => 'blog-category-delete', 'blog_content_id' => 21, 'title' => 'test title delete', 'lft' => 1, 'rght' => 2]
         )->persist();
 
         $this->post('/baser/api/bc-blog/blog_categories/batch.json?token=' . $this->accessToken, [
             'batch' => 'delete',
-            'batch_targets' => [1, 2]
+            'batch_targets' => [21, 22]
         ]);
         $this->assertResponseOk();
 
@@ -184,7 +184,7 @@ class BlogCategoriesControllerTest extends BcTestCase
         $this->assertEquals('一括処理が完了しました。', $result->message);
 
         $blogCategoriesService = new BlogCategoriesService();
-        $data = $blogCategoriesService->getIndex(1, [])->count();
+        $data = $blogCategoriesService->getIndex(21, [])->count();
         $this->assertEquals(0, $data);
 
         //失敗場合、
