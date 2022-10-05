@@ -9,9 +9,9 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BaserCore\Test\TestCase\Service;
+namespace BaserCore\Test\TestCase\Service\Admin;
 
-use BaserCore\Service\ContentFoldersAdminService;
+use BaserCore\Service\Admin\ContentFoldersAdminService;
 use BaserCore\TestSuite\BcTestCase;
 
 /**

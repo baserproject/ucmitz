@@ -9,7 +9,7 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BaserCore\Service;
+namespace BaserCore\Service\Admin;
 
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;

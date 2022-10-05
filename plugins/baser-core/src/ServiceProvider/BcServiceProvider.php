@@ -11,6 +11,8 @@
 
 namespace BaserCore\ServiceProvider;
 
+use BaserCore\Service\Admin\ContentFoldersAdminService;
+use BaserCore\Service\Admin\ContentFoldersAdminServiceInterface;
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\ThemesAdminService;
 use BaserCore\Service\ThemesAdminServiceInterface;
@@ -24,8 +26,6 @@ use BaserCore\Service\AppService;
 use BaserCore\Service\AppServiceInterface;
 use BaserCore\Service\BcAdminAppService;
 use BaserCore\Service\BcAdminAppServiceInterface;
-use BaserCore\Service\ContentFoldersAdminService;
-use BaserCore\Service\ContentFoldersAdminServiceInterface;
 use BaserCore\Service\ContentsAdminService;
 use BaserCore\Service\ContentsAdminServiceInterface;
 use BaserCore\Service\DashboardAdminService;
