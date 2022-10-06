@@ -15,6 +15,7 @@ use BaserCore\Service\Admin\SitesAdminServiceInterface;
 use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\Service\SitesServiceInterface;
 use Cake\Core\Exception\Exception;
+use BaserCore\Annotation\Note;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
