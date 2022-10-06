@@ -22,6 +22,9 @@ use Cake\Core\Configure;
 use Cake\Event\EventManager;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class BcContentsComponent
