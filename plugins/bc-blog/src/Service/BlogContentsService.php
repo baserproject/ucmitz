@@ -166,6 +166,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getList(): array
     {
