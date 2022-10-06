@@ -13,6 +13,7 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Error\BcException;
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Service\ContentsService;
 use BaserCore\Service\SitesService;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
@@ -27,6 +28,8 @@ use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
+use Composer\Package\Archiver\ZipArchiver;
+use Laminas\Diactoros\UploadedFile;
 
 /**
  * Class UtilitiesServiceTest
@@ -367,8 +370,31 @@ class UtilitiesServiceTest extends BcTestCase
      * test restoreDb
      * @return void
      */
-    public function test_restoreDb(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    public function test_restoreDb(): void
+    {
+        $contentData = ['id' => 10, 'name' => 'test'];
+        ContentFactory::make($contentData)->persist();
+        // バックアップファイルを作成してアップロード
+        $zipSrcPath = TMP;
+        $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema/', 'BaserCore', 'utf8']);
+        $zip = new ZipArchiver();
+        $testFile = $zipSrcPath . 'test.zip';
+        $zip->archive($zipSrcPath . 'schema', $testFile, true);
+        $this->setUploadFileToRequest('backup', $testFile);
+        $file = new UploadedFile(
+            $testFile,
+            filesize($testFile),
+            UPLOAD_ERR_OK,
+             'test.zip',
+            BcUtil::getContentType($testFile)
+        );
+        $this->UtilitiesService->restoreDb(['encoding' => 'utf8'], ['backup' => $file]);
+
+        // テーブルが作成されデータが作成されている事を確認（一つのテーブルで可）
+        $list = $this->getTableLocator()->get('BaserCore.App')->getConnection()->getSchemaCollection()->listTables();
+        $this->assertContains('contents', $list);
+        $content = ContentFactory::get($contentData['id']);
+        $this->assertEquals($contentData['name'], $content['name']);
     }
 
     /**

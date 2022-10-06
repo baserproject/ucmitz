@@ -359,9 +359,11 @@ class UtilitiesService implements UtilitiesServiceInterface
     /**
      * バックアップファイルよりレストアを行う
      * @param array $postData
+     * @param array $uploaded
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function restoreDb(array $postData, array $uploaded): bool
     {
