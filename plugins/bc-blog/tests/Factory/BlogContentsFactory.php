@@ -17,9 +17,9 @@ use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
 /**
- * BlogCategoryFactory
+ * BlogContentsFactory
  */
-class BlogCategoryFactory extends CakephpBaseFactory
+class BlogContentsFactory extends CakephpBaseFactory
 {
 
     /**
@@ -29,7 +29,7 @@ class BlogCategoryFactory extends CakephpBaseFactory
      */
     protected function getRootTableRegistryName(): string
     {
-        return 'BcBlog.BlogCategories';
+        return 'BcBlog.BlogContents';
     }
 
     /**
