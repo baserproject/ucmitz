@@ -49,6 +49,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndex(array $queryParams = []): Query
     {

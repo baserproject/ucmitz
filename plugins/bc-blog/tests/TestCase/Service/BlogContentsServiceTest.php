@@ -14,6 +14,7 @@ namespace BcBlog\Test\TestCase\Service;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogContentsService;
+use BcBlog\Test\Factory\BlogContentsFactory;
 use Cake\TestSuite\IntegrationTestTrait;
 
 /**
@@ -80,7 +81,15 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_getIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 100, 'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。'])->persist();
+        BlogContentsFactory::make(['id' => 101, 'description' => 'ディスクリプション'])->persist();
+
+        $result = $this->BlogContentsService->getIndex([])->toArray();
+        $this->assertEquals('baserCMS inc. [デモ] の最新の情報をお届けします。', $result[0]['description']);
+        $this->assertEquals('ディスクリプション', $result[1]['description']);
+
+        $result = $this->BlogContentsService->getIndex(['description' => 'baser'])->toArray();
+        $this->assertEquals('baserCMS inc. [デモ] の最新の情報をお届けします。', $result[0]['description']);
     }
 
     /**
