@@ -61,7 +61,7 @@ class BlogContentsService implements BlogContentsServiceInterface
         }
 
         if (!empty($queryParams['description'])) {
-            $query->where(['description LIKE' => '%' . $queryParams['name'] . '%']);
+            $query->where(['description LIKE' => '%' . $queryParams['description'] . '%']);
         }
 
         return $query;
