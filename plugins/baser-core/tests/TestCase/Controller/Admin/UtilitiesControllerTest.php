@@ -13,7 +13,9 @@ namespace BaserCore\Test\TestCase\Controller\Admin;
 
 use BaserCore\Controller\Admin\UtilitiesController;
 use BaserCore\Service\BcDatabaseService;
+use BaserCore\Service\SitesService;
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use Cake\Datasource\ConnectionManager;
 use Cake\Filesystem\File;
@@ -246,6 +248,29 @@ class UtilitiesControllerTest extends BcTestCase
 
         $this->get('/baser/admin/baser-core/utilities/info');
         $this->assertResponseOk();
+    }
+
+    /**
+     * test reset_data
+     */
+    public function test_reset_data()
+    {
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        $site = SiteFactory::get(1);
+        $siteService = new SitesService();
+        $siteService->update($site, ['theme' => 'BcFront']);
+        $this->post('/baser/admin/baser-core/utilities/reset_data/');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // リダイレクトを確認
+        $this->assertRedirect([
+            'plugin' => 'BaserCore',
+            'prefix' => 'Admin',
+            'controller' => 'utilities',
+            'action' => 'maintenance'
+        ]);
     }
 
     /**
