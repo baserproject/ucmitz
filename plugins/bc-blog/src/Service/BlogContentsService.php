@@ -161,4 +161,15 @@ class BlogContentsService implements BlogContentsServiceInterface
         return $this->BlogContents->delete($blogContent);
     }
 
+    /**
+     * リストを取得する
+     * @return array
+     * @checked
+     * @noTodo
+     */
+    public function getList(): array
+    {
+        return $this->BlogContents->find('list', ['keyField' => 'id', 'valueField' => 'description'])->toArray();
+    }
+
 }
