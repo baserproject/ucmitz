@@ -390,7 +390,7 @@ class UtilitiesServiceTest extends BcTestCase
         );
         $this->UtilitiesService->restoreDb(['encoding' => 'utf8'], ['backup' => $file]);
 
-        // テーブルが作成されデータが作成されている事を確認（一つのテーブルで可）
+        // テーブルが作成されデータが作成されている事を確認
         $list = $this->getTableLocator()->get('BaserCore.App')->getConnection()->getSchemaCollection()->listTables();
         $this->assertContains('contents', $list);
         $content = ContentFactory::get($contentData['id']);
