@@ -17,6 +17,7 @@ use BaserCore\Service\SitesService;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SearchIndexesFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
@@ -27,6 +28,8 @@ use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
+use Composer\Package\Archiver\ZipArchiver;
+use Laminas\Diactoros\UploadedFile;
 
 /**
  * Class UtilitiesServiceTest
@@ -368,7 +371,29 @@ class UtilitiesServiceTest extends BcTestCase
      * @return void
      */
     public function test_restoreDb(){
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        SearchIndexesFactory::make(['id' => 50, 'type' => 'test'])->persist();
+        $this->UtilitiesService->resetTmpSchemaFolder();
+        // バックアップファイルを作成してアップロード
+        $zipSrcPath = TMP;
+        $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema/', 'BcSearchIndex', 'utf8']);
+        $zip = new ZipArchiver();
+        $testFile = $zipSrcPath . 'test.zip';
+        $zip->archive($zipSrcPath . 'schema', $testFile, true);
+        $this->setUploadFileToRequest('backup', $testFile);
+        $file = new UploadedFile(
+            $testFile,
+            filesize($testFile),
+            UPLOAD_ERR_OK,
+            'test.zip',
+            BcUtil::getContentType($testFile)
+        );
+        $this->UtilitiesService->restoreDb(['encoding' => 'utf8'], ['backup' => $file]);
+
+        // テーブルが作成されデータが作成されている事を確認
+        $list = $this->getTableLocator()->get('BaserCore.App')->getConnection()->getSchemaCollection()->listTables();
+        $this->assertContains('search_indexes', $list);
+        $searchIndex = SearchIndexesFactory::get(50);
+        $this->assertEquals('test', $searchIndex['type']);
     }
 
     /**
