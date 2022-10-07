@@ -168,7 +168,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
         }
 
         $table = basename($options['path'], '.csv');
-        echo 'restore ' . $table;
+        echo ' restore ' . $table;
         $appTable = TableRegistry::getTableLocator()
             ->get('BaserCore.App');
         $schema = $appTable

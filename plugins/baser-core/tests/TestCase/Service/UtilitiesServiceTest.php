@@ -426,6 +426,7 @@ class UtilitiesServiceTest extends BcTestCase
              'test.zip',
             BcUtil::getContentType($testFile)
         );
+        echo ' start test restore DB ';
         $this->UtilitiesService->restoreDb(['encoding' => 'utf8'], ['backup' => $file]);
 
         // テーブルが作成されデータが作成されている事を確認
