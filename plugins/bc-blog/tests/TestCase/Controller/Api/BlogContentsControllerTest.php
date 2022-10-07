@@ -11,14 +11,9 @@
 
 namespace BcBlog\Test\TestCase\Controller\Api;
 
-use BaserCore\Model\Entity\Site;
-use BaserCore\Service\SitesService;
-use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Api\BlogContentsController;
-use BcBlog\Model\Entity\BlogContent;
-use BcBlog\Service\BlogContentsService;
 use BcBlog\Test\Factory\BlogContentsFactory;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
