@@ -408,6 +408,7 @@ class UtilitiesServiceTest extends BcTestCase
             'modified' => '2020-09-14 19:27:57',
         ];
         ContentFactory::make($contentData)->persist();
+        $this->UtilitiesService->resetTmpSchemaFolder();
         // バックアップファイルを作成してアップロード
         $zipSrcPath = TMP;
         $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema/', 'BaserCore', 'utf8']);
