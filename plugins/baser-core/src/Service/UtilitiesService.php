@@ -467,6 +467,8 @@ class UtilitiesService implements UtilitiesServiceInterface
         }
 
         /* CSVファイルを読み込む */
+        echo ' chuong test ';
+        echo implode(', ', $files[1]) . ' ';
         foreach($files[1] as $file) {
             if (!preg_match("/\.csv$/", $file)) continue;
             try {
