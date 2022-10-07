@@ -60,8 +60,8 @@ class UtilitiesServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/Permissions',
         'plugin.BaserCore.Factory/Pages',
         'plugin.BaserCore.Factory/SearchIndexes',
-        'plugin.BaserCore.Factory/Dblogs'
-//        'plugin.BcSearchIndex.Factory/BcSearchIndexes',
+        'plugin.BaserCore.Factory/Dblogs',
+        'plugin.BcSearchIndex.Factory/BcSearchIndexes',
     ];
 
     /**
