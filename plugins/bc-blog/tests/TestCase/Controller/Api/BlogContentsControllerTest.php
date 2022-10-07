@@ -120,7 +120,6 @@ class BlogContentsControllerTest extends BcTestCase
 
     /**
      * test edit
-     * @return void
      */
     public function test_edit()
     {
@@ -130,13 +129,7 @@ class BlogContentsControllerTest extends BcTestCase
             'id' => 100,
             'description' => '更新した!',
             'content' => [
-                "parent_id" => null,
                 "title" => "更新 ブログ",
-                "plugin" => 'BcBlog',
-                "type" => "ContentFolder",
-                "site_id" => "1",
-                "alias_id" => "",
-                "entity_id" => ""
             ]
         ];
         $this->post('/baser/api/bc-blog/blog_contents/edit/100.json?token=' . $this->accessToken, $data);
