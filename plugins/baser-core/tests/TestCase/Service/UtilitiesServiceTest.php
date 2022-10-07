@@ -18,6 +18,7 @@ use BaserCore\Service\SitesService;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\ContentFolderFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Factory\UserFactory;
 use BaserCore\TestSuite\BcTestCase;
@@ -378,6 +379,7 @@ class UtilitiesServiceTest extends BcTestCase
     {
         $siteData = ['id' => 50, 'title' => 'test'];
         SiteFactory::make($siteData)->persist();
+        ContentFolderFactory::make(['folder_template' => 'test']);
         $this->UtilitiesService->resetTmpSchemaFolder();
         // バックアップファイルを作成してアップロード
         $zipSrcPath = TMP;

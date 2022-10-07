@@ -196,6 +196,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
                     }
                 }
                 try {
+                    echo $record;
                     if (!$appTable->saveOrFail(new Entity($record))) {
                         return false;
                     }
