@@ -168,7 +168,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
         }
 
         $table = basename($options['path'], '.csv');
-        echo ' restore ' . $table;
+        echo ' table: ' . $table . ' path: ' . $options['path'] . '\n';
         $appTable = TableRegistry::getTableLocator()
             ->get('BaserCore.App');
         $schema = $appTable
@@ -196,7 +196,6 @@ class BcDatabaseService implements BcDatabaseServiceInterface
                     }
                 }
                 try {
-                    echo implode( ", ", $record );;
                     if (!$appTable->saveOrFail(new Entity($record))) {
                         return false;
                     }
