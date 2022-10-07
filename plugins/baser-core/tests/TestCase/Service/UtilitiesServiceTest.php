@@ -376,42 +376,8 @@ class UtilitiesServiceTest extends BcTestCase
      */
     public function test_restoreDb(): void
     {
-        $contentData = [
-            'id' => 100,
-            'name' => 'news',
-            'plugin' => 'BcBlog',
-            'type' => 'BlogContent',
-            'entity_id' => 31,
-            'url' => '/news/',
-            'site_id' => 1,
-            'alias_id' => null,
-            'main_site_content_id' => null,
-            'parent_id' => 1,
-            'lft' => 4,
-            'rght' => 5,
-            'level' => 1,
-            'title' => 'NEWS(※関連Fixture未完了)',
-            'description' => '',
-            'eyecatch' => '',
-            'author_id' => 1,
-            'layout_template' => '',
-            'status' => true,
-            'publish_begin' => null,
-            'publish_end' => null,
-            'self_status' => true,
-            'self_publish_begin' => null,
-            'self_publish_end' => null,
-            'exclude_search' => false,
-            'created_date' => '2016-07-31 15:01:41',
-            'modified_date' => '2020-09-14 19:27:41',
-            'site_root' => false,
-            'deleted_date' => null,
-            'exclude_menu' => false,
-            'blank_link' => false,
-            'created' => '2016-07-31 15:01:41',
-            'modified' => '2020-09-14 19:27:57',
-        ];
-        ContentFactory::make($contentData)->persist();
+        $siteData = ['id' => 50, 'title' => 'test'];
+        SiteFactory::make($siteData)->persist();
         $this->UtilitiesService->resetTmpSchemaFolder();
         // バックアップファイルを作成してアップロード
         $zipSrcPath = TMP;
@@ -433,8 +399,8 @@ class UtilitiesServiceTest extends BcTestCase
         // テーブルが作成されデータが作成されている事を確認
         $list = $this->getTableLocator()->get('BaserCore.App')->getConnection()->getSchemaCollection()->listTables();
         $this->assertContains('contents', $list);
-        $content = ContentFactory::get($contentData['id']);
-        $this->assertEquals($contentData['name'], $content['name']);
+        $site = SiteFactory::get($siteData['id']);
+        $this->assertEquals($siteData['title'], $site['title']);
     }
 
     /**
