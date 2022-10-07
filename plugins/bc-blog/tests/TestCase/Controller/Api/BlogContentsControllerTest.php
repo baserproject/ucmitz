@@ -116,13 +116,7 @@ class BlogContentsControllerTest extends BcTestCase
         $data = [
             'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
             'content' => [
-                "parent_id" => null,
-                "title" => "新しい ブログ",
-                "plugin" => 'BcBlog',
-                "type" => "ContentFolder",
-                "site_id" => "1",
-                "alias_id" => "",
-                "entity_id" => ""
+                "title" => "新しい ブログ"
             ]
         ];
         $this->post('/baser/api/bc-blog/blog_contents/add.json?token=' . $this->accessToken, $data);
