@@ -19,6 +19,7 @@ use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\SiteFactory;
+use BaserCore\Test\Factory\UserFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
