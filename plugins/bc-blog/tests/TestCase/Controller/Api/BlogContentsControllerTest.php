@@ -14,6 +14,7 @@ namespace BcBlog\Test\TestCase\Controller\Api;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Api\BlogContentsController;
+use BcBlog\Test\Factory\BlogContentsFactory;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -128,11 +129,15 @@ class BlogContentsControllerTest extends BcTestCase
 
     /**
      * test delete
-     * @return void
      */
     public function test_delete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 101, 'description' => 'abc'])->persist();
+
+        $this->post('/baser/api/bc-blog/blog_contents/delete/101.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('ブログコンテンツ「abc」を削除しました。', $result->message);
     }
 
     /**
