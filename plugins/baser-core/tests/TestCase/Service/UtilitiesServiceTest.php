@@ -19,6 +19,7 @@ use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\ContentFolderFactory;
+use BaserCore\Test\Factory\SearchIndexesFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Factory\UserFactory;
 use BaserCore\TestSuite\BcTestCase;
@@ -377,13 +378,14 @@ class UtilitiesServiceTest extends BcTestCase
      */
     public function test_restoreDb(): void
     {
-        $siteData = ['id' => 50, 'title' => 'test'];
-        SiteFactory::make($siteData)->persist();
-        ContentFolderFactory::make(['folder_template' => 'test']);
+//        $siteData = ['id' => 50, 'title' => 'test'];
+//        SiteFactory::make($siteData)->persist();
+//        ContentFolderFactory::make(['folder_template' => 'test']);
+        SearchIndexesFactory::make(['id' => 50, 'type' => 'test'])->persist();
         $this->UtilitiesService->resetTmpSchemaFolder();
         // バックアップファイルを作成してアップロード
         $zipSrcPath = TMP;
-        $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema/', 'BaserCore', 'utf8']);
+        $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema/', 'BcSearchIndex', 'utf8']);
         $zip = new ZipArchiver();
         $testFile = $zipSrcPath . 'test.zip';
         $zip->archive($zipSrcPath . 'schema', $testFile, true);
@@ -400,9 +402,9 @@ class UtilitiesServiceTest extends BcTestCase
 
         // テーブルが作成されデータが作成されている事を確認
         $list = $this->getTableLocator()->get('BaserCore.App')->getConnection()->getSchemaCollection()->listTables();
-        $this->assertContains('contents', $list);
-        $site = SiteFactory::get($siteData['id']);
-        $this->assertEquals($siteData['title'], $site['title']);
+        $this->assertContains('search_indexes', $list);
+        $searchIndex = SearchIndexesFactory::get(50);
+        $this->assertEquals('test', $searchIndex['type']);
     }
 
     /**
