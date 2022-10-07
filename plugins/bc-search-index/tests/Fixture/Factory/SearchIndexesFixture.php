@@ -16,4 +16,4 @@ use Cake\TestSuite\Fixture\TestFixture;
 /**
  * Class ContentsFixture
  */
-class BcSearchIndexes extends TestFixture {}
+class SearchIndexesFixture extends TestFixture {}
