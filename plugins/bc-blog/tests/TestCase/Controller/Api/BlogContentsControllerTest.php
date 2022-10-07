@@ -11,9 +11,15 @@
 
 namespace BcBlog\Test\TestCase\Controller\Api;
 
+use BaserCore\Model\Entity\Site;
+use BaserCore\Service\SitesService;
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Api\BlogContentsController;
+use BcBlog\Model\Entity\BlogContent;
+use BcBlog\Service\BlogContentsService;
+use BcBlog\Test\Factory\BlogContentsFactory;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -123,7 +129,33 @@ class BlogContentsControllerTest extends BcTestCase
      */
     public function test_edit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 100, 'description' => '新しい'])->persist();
+        //実行成功
+        $data = [
+            'id' => 100,
+            'description' => '更新した!',
+            'content' => [
+                "parent_id" => null,
+                "title" => "更新 ブログ",
+                "plugin" => 'BcBlog',
+                "type" => "ContentFolder",
+                "site_id" => "1",
+                "alias_id" => "",
+                "entity_id" => ""
+            ]
+        ];
+        $this->post('/baser/api/bc-blog/blog_contents/edit/100.json?token=' . $this->accessToken, $data);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('ブログ「更新 ブログ」を更新しました。', $result->message);
+        $this->assertEquals('更新した!', $result->blogContent->description);
+        //実行失敗
+        $data = ['id' => 100, 'description' => '更新した!'];
+        $this->post('/baser/api/bc-blog/blog_contents/edit/100.json?token=' . $this->accessToken, $data);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+        $this->assertEquals('関連するコンテンツがありません', $result->errors->content->_required);
     }
 
     /**
