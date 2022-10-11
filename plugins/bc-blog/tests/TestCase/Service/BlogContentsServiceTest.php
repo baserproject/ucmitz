@@ -96,8 +96,8 @@ class BlogContentsServiceTest extends BcTestCase
         $this->assertEquals('baserCMS inc. [デモ] の最新の情報をお届けします。', $result[0]['description']);
         $this->assertEquals('ディスクリプション', $result[1]['description']);
 
-        $result = $this->BlogContentsService->getIndex(['description' => 'baser'])->toArray();
-        $this->assertEquals('baserCMS inc. [デモ] の最新の情報をお届けします。', $result[0]['description']);
+        $result = $this->BlogContentsService->getIndex(['description' => 'ディスク'])->toArray();
+        $this->assertEquals('ディスクリプション', $result[0]['description']);
     }
 
     /**
