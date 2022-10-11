@@ -11,6 +11,9 @@
 
 namespace BaserCore\Utility;
 
+use BaserCore\Middleware\BcAdminMiddleware;
+use BaserCore\Middleware\BcFrontMiddleware;
+use BaserCore\Middleware\BcRequestFilterMiddleware;
 use BaserCore\Service\PluginsServiceInterface;
 use Cake\Core\App;
 use Cake\Cache\Cache;
@@ -18,6 +21,7 @@ use Cake\Core\Plugin;
 use Cake\Core\Configure;
 use Cake\Event\EventListenerInterface;
 use Cake\Event\EventManagerInterface;
+use Cake\Http\ServerRequest;
 use Cake\Routing\Router;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
@@ -33,6 +37,7 @@ use Cake\Http\ServerRequestFactory;
 use Cake\Datasource\ConnectionManager;
 use Authentication\Authenticator\Result;
 use BaserCore\Service\SiteConfigsServiceInterface;
+use ReflectionClass;
 
 /**
  * Class BcUtil
@@ -41,6 +46,27 @@ use BaserCore\Service\SiteConfigsServiceInterface;
  */
 class BcUtil
 {
+
+    /**
+     * detectors
+     *
+     * BcUtil::createRequest() にて
+     * ServerRequest::_detectors を初期化する際に利用
+     * @var array
+     */
+    protected static $_detectors = [
+        'get' => ['env' => 'REQUEST_METHOD', 'value' => 'GET'],
+        'post' => ['env' => 'REQUEST_METHOD', 'value' => 'POST'],
+        'put' => ['env' => 'REQUEST_METHOD', 'value' => 'PUT'],
+        'patch' => ['env' => 'REQUEST_METHOD', 'value' => 'PATCH'],
+        'delete' => ['env' => 'REQUEST_METHOD', 'value' => 'DELETE'],
+        'head' => ['env' => 'REQUEST_METHOD', 'value' => 'HEAD'],
+        'options' => ['env' => 'REQUEST_METHOD', 'value' => 'OPTIONS'],
+        'ssl' => ['env' => 'HTTPS', 'options' => [1, 'on']],
+        'ajax' => ['env' => 'HTTP_X_REQUESTED_WITH', 'value' => 'XMLHttpRequest'],
+        'json' => ['accept' => ['application/json'], 'param' => '_ext', 'value' => 'json'],
+        'xml' => ['accept' => ['application/xml', 'text/xml'], 'param' => '_ext', 'value' => 'xml'],
+    ];
 
     /**
      * contentsMaping
@@ -1412,6 +1438,84 @@ class BcUtil
                 $eventManager->on($eventKey, $eventListener['callable']);
             }
         }
+    }
+
+
+    /**
+     * Request を取得する
+     *
+     * @param string $url
+     * @return ServerRequest
+     * @checked
+     */
+    public static function createRequest($url = '/', $data = [], $method = 'GET', $config = [])
+    {
+        $config = array_merge([
+            'ajax' => false,
+            'webroot' => '/',
+            'method' => 'GET'
+        ], $config);
+
+        $isAjax = (!empty($config['ajax']))? true : false;
+        unset($config['ajax']);
+        if (preg_match('/^http/', $url)) {
+            $parseUrl = parse_url($url);
+            Configure::write('BcEnv.host', $parseUrl['host']);
+            $defaultConfig = [
+                'uri' => ServerRequestFactory::createUri([
+                    'HTTP_HOST' => $parseUrl['host'],
+                    'REQUEST_URI' => $url,
+                    'HTTPS' => (preg_match('/^https/', $url))? 'on' : '',
+                    'QUERY_STRING' => strpos($url, '?') !== false? explode('?', $url)[1] : ''
+                ]),
+                'environment' => [
+                    'REQUEST_METHOD' => $method
+                ]];
+        } else {
+            $defaultConfig = [
+                'url' => $url,
+                'environment' => [
+                    'REQUEST_METHOD' => $method
+                ]];
+        }
+        $defaultConfig = array_merge($defaultConfig, $config);
+        $request = new ServerRequest($defaultConfig);
+
+        try {
+            Router::setRequest($request);
+            $params = Router::parseRequest($request);
+        } catch (\Exception $e) {
+            return $request;
+        }
+
+        if(!empty($params['?'])) {
+            $request = $request->withQueryParams($params['?']);
+            unset($params['?']);
+        }
+        $request = $request->withAttribute('params', $params);
+        if ($request->getParam('prefix') === 'Admin') {
+            $bcAdmin = new BcAdminMiddleware();
+            $request = $bcAdmin->setCurrentSite($request);
+        } else {
+            $bcAdmin = new BcFrontMiddleware();
+            $request = $bcAdmin->setCurrent($request);
+        }
+        if ($data) {
+            $request = $request->withParsedBody($data);
+        }
+        $request = $request->withEnv('HTTPS', (preg_match('/^https/', $url))? 'on' : '');
+        if ($isAjax) {
+            $request = $request->withEnv('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest');
+        }
+        // ServerRequest::_detectors を初期化
+        // static プロパティで値が残ってしまうため
+        $ref = new ReflectionClass($request);
+        $detectors = $ref->getProperty('_detectors');
+        $detectors->setAccessible(true);
+        $detectors->setValue(self::$_detectors);
+        $bcRequestFilter = new BcRequestFilterMiddleware();
+        $request = $bcRequestFilter->addDetectors($request);
+        return $request;
     }
 
 }
