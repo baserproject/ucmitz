@@ -13,8 +13,10 @@ namespace BaserCore\Test\TestCase\Middleware;
 
 use BaserCore\Middleware\BcRequestFilterMiddleware;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\Http\ServerRequest;
+use ReflectionClass;
 
 /**
  * Class BcRequestFilterMiddlewareTest
@@ -100,9 +102,14 @@ class BcRequestFilterMiddlewareTest extends BcTestCase
      */
     public function testAddDetectors()
     {
-        // $this->getRequest() を利用した場合、detector 設定が完了しているため
-        // あえて、直接初期化してのテストとする
-        $request = new ServerRequest(['url' => '/baser/admin']);
+        $request = $this->getRequest('/baser/admin');
+        $ref = new ReflectionClass($request);
+        $detectors = $ref->getProperty('_detectors');
+        $detectors->setAccessible(true);
+        $ref2 = new ReflectionClass(BcUtil::class);
+        $detectors2 = $ref2->getProperty('_detectors');
+        $detectors2->setAccessible(true);
+        $detectors->setValue($detectors2->getValue());
         $this->assertFalse($request->is('admin'));
         $request = $this->BcRequestFilterMiddleware->addDetectors($request);
         $this->assertTrue($request->is('admin'));
