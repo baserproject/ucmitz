@@ -121,6 +121,9 @@ class BcSchema extends TableSchema
     /**
      * テーブルを作成する
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function create()
     {
@@ -136,6 +139,9 @@ class BcSchema extends TableSchema
     /**
      * テーブルを削除する
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function drop()
     {
