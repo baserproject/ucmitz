@@ -17,8 +17,8 @@ use BaserCore\Service\SitesService;
 use BaserCore\Service\UtilitiesService;
 use BaserCore\Service\UtilitiesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
-use BaserCore\Test\Factory\SearchIndexesFactory;
 use BaserCore\Test\Factory\SiteFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
@@ -28,6 +28,7 @@ use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Composer\Package\Archiver\ZipArchiver;
 use Laminas\Diactoros\UploadedFile;
 
@@ -43,6 +44,7 @@ class UtilitiesServiceTest extends BcTestCase
      */
     use BcContainerTrait;
     use IntegrationTestTrait;
+    use ScenarioAwareTrait;
 
     /**
      * Fixtures
@@ -371,8 +373,7 @@ class UtilitiesServiceTest extends BcTestCase
      * @return void
      */
     public function test_restoreDb(){
-        SearchIndexesFactory::make(['id' => 50, 'type' => 'test'])->persist();
-        $this->UtilitiesService->resetTmpSchemaFolder();
+        $this->loadFixtureScenario(InitAppScenario::class);
         // バックアップファイルを作成してアップロード
         $zipSrcPath = TMP;
         $this->execPrivateMethod(new UtilitiesService(), '_writeBackup', [$zipSrcPath . 'schema/', 'BcSearchIndex', 'utf8']);
@@ -391,9 +392,8 @@ class UtilitiesServiceTest extends BcTestCase
 
         // テーブルが作成されデータが作成されている事を確認
         $list = $this->getTableLocator()->get('BaserCore.App')->getConnection()->getSchemaCollection()->listTables();
-        $this->assertContains('search_indexes', $list);
-        $searchIndex = SearchIndexesFactory::get(50);
-        $this->assertEquals('test', $searchIndex['type']);
+        $this->assertContains('sites', $list);
+        $this->assertEquals(1, SiteFactory::count());
     }
 
     /**
