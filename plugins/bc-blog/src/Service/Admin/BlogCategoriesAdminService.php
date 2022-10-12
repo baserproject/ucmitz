@@ -52,6 +52,7 @@ class BlogCategoriesAdminService extends BlogCategoriesService implements BlogCa
      * @return array
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function getViewVarsForAdd(int $blogContentId, BlogCategory $blogCategory)
     {
