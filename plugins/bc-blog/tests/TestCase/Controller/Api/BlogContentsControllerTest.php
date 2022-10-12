@@ -11,6 +11,7 @@
 
 namespace BcBlog\Test\TestCase\Controller\Api;
 
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Api\BlogContentsController;
@@ -117,11 +118,14 @@ class BlogContentsControllerTest extends BcTestCase
         BlogContentsFactory::make(['id' => 13, 'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。'])->persist();
         BlogContentsFactory::make(['id' => 14, 'description' => 'ディスクリプション'])->persist();
 
+        ContentFactory::make(['id' => 13, 'type' => 'BlogContent', 'entity_id' => 13, 'alias_id' => NULL, 'title' => 'baserCMS inc',])->persist();
+        ContentFactory::make(['id' => 14, 'type' => 'BlogContent', 'entity_id' => 14, 'alias_id' => NULL, 'title' => 'ディスクリプション タイトル',])->persist();
+
         $this->get('/baser/api/bc-blog/blog_contents/list.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('baserCMS inc. [デモ] の最新の情報をお届けします。', $result->blogContents->{13});
-        $this->assertEquals('ディスクリプション', $result->blogContents->{14});
+        $this->assertEquals('baserCMS inc', $result->blogContents->{13});
+        $this->assertEquals('ディスクリプション タイトル', $result->blogContents->{14});
     }
 
     /**
