@@ -120,7 +120,7 @@ class BcServiceProvider extends ServiceProvider
         UtilitiesAdminServiceInterface::class,
         UtilitiesServiceInterface::class,
         BcFrontContentsServiceInterface::class,
-        BlogContentsServiceInterface::class,
+        BlogContentsServiceInterface::class
     ];
 
     /**
