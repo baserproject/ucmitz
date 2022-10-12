@@ -14,6 +14,7 @@ namespace BcBlog\Test\TestCase\Controller\Admin;
 
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Admin\BlogCategoriesController;
+use BcBlog\Test\Factory\BlogCategoryFactory;
 use Cake\TestSuite\IntegrationTestTrait;
 
 /**
@@ -87,7 +88,21 @@ class BlogCategoriesControllerTest extends BcTestCase
      */
     public function testAdmin_add()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $blogContentId = 90;
+        $data = ['name' => 'testName', 'title' => 'testTitle'];
+        $this->post("/baser/admin/bc-blog/blog_categories/add/$blogContentId", $data);
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // データの登録を確認
+        $blogCategory = BlogCategoryFactory::get(1);
+        $this->assertEquals($data['name'], $blogCategory['name']);
+        // 失敗のメッセージを確認
+        $data['name'] = 'test name';
+        $this->post("/baser/admin/bc-blog/blog_categories/add/$blogContentId", $data);
+        // TODO can not assert the error message
+        $this->assertFlashMessage('入力エラーです。内容を修正してください。');
     }
 
     /**
