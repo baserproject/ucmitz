@@ -14,6 +14,8 @@ namespace BcBlog\Test\TestCase\Service\Admin;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\Admin\BlogCategoriesAdminService;
+use BcBlog\Test\Factory\BlogCategoryFactory;
+use BcBlog\Test\Factory\BlogContentsFactory;
 use Cake\TestSuite\IntegrationTestTrait;
 
 /**
@@ -73,7 +75,14 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 52, 'description' => 'test index'])->persist();
+        BlogCategoryFactory::make(['id' => 52, 'title' => 'title index 1', 'blog_content_id' => 52, 'rght' => 7, 'lft' => 8])->persist();
+        BlogCategoryFactory::make(['id' => 53, 'title' => 'title index 2', 'blog_content_id' => 52, 'rght' => 9, 'lft' => 10])->persist();
+        BlogCategoryFactory::make(['id' => 54, 'title' => 'title index 2', 'blog_content_id' => 51, 'rght' => 10, 'lft' => 11])->persist();
+
+        $rs = $this->BlogCategoriesAdminService->getViewVarsForIndex(52);
+        $this->assertEquals($rs['blogContent']['description'], 'test index');
+        $this->assertEquals(2, count($rs['blogCategories']));
     }
 
     /**
