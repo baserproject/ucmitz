@@ -196,7 +196,9 @@ class BlogContentsService implements BlogContentsServiceInterface
      */
     public function getList(): array
     {
-        return $this->BlogContents->find('list', ['keyField' => 'id', 'valueField' => 'description'])->toArray();
+        return $this->BlogContents
+            ->find('list', ['keyField' => 'id', 'valueField' => 'content.title'])
+            ->contain('Contents')->toArray();
     }
 
 }

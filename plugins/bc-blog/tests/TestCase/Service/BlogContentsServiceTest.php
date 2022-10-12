@@ -11,6 +11,7 @@
 
 namespace BcBlog\Test\TestCase\Service;
 
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogContentsService;
@@ -105,12 +106,15 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_getList()
     {
-        BlogContentsFactory::make(['id' => 102, 'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。'])->persist();
-        BlogContentsFactory::make(['id' => 103, 'description' => 'ディスクリプション'])->persist();
+        BlogContentsFactory::make(['id' => 111, 'description' => 'test 1'])->persist();
+        BlogContentsFactory::make(['id' => 112, 'description' => 'test 2'])->persist();
+
+        ContentFactory::make(['id' => 111, 'type' => 'BlogContent', 'entity_id' => 111, 'alias_id' => NULL, 'title' => 'baserCMSサンプル',])->persist();
+        ContentFactory::make(['id' => 112, 'type' => 'BlogContent', 'entity_id' => 112, 'alias_id' => NULL, 'title' => 'baserCMSテスト',])->persist();
 
         $result = $this->BlogContentsService->getList();
-        $this->assertEquals('baserCMS inc. [デモ] の最新の情報をお届けします。', $result[102]);
-        $this->assertEquals('ディスクリプション', $result[103]);
+        $this->assertEquals('baserCMSサンプル', $result[111]);
+        $this->assertEquals('baserCMSテスト', $result[112]);
     }
 
     /**
