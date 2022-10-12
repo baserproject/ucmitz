@@ -95,9 +95,26 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
     public function test_getViewVarsForEdit()
     {
         BlogContentsFactory::make(['id' => 50, 'description' => 'test 1'])->persist();
-        ContentFactory::make(['id' => 50, 'type' => 'BlogContent', 'entity_id' => 50, 'title' => 'title test', 'site_id' => 50, 'url' => 'archives/category'])->persist();
+        ContentFactory::make(
+            [
+                'id' => 50,
+                'type' => 'BlogContent',
+                'entity_id' => 50,
+                'title' => 'title test',
+                'site_id' => 50,
+                'url' => 'archives/category'
+            ]
+        )->persist();
         SiteFactory::make(['id' => 50, 'use_subdomain' => 0])->persist();
-        BlogCategoryFactory::make(['id' => 50, 'title' => 'title 3', 'name' => 'name-50', 'blog_content_id' => 1, 'rght' => 1, 'lft' => 4])->persist();
+        BlogCategoryFactory::make(
+            ['id' => 50,
+                'title' => 'title 3',
+                'name' => 'name-50',
+                'blog_content_id' => 1,
+                'rght' => 1,
+                'lft' => 4
+            ]
+        )->persist();
 
         $blogCategoriesService = new BlogCategoriesService();
         $blogCategory = $blogCategoriesService->get(50);
