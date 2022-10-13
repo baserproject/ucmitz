@@ -87,10 +87,10 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGetIndex()
     {
-        BlogCategoryFactory::make(['blog_content_id' => 1, 'name' => 'data1'])->persist();
+        BlogCategoryFactory::make(['blog_content_id' => 111, 'name' => 'data1'])->persist();
         BlogCategoryFactory::make(['blog_content_id' => 2, 'name' => 'data2'])->persist();
-        BlogCategoryFactory::make(['blog_content_id' => 1, 'name' => 'data3'])->persist();
-        $blogCategories = $this->BlogCategories->getIndex(1, []);
+        BlogCategoryFactory::make(['blog_content_id' => 111, 'name' => 'data3'])->persist();
+        $blogCategories = $this->BlogCategories->getIndex(111, []);
         $this->assertCount(2, $blogCategories);
     }
 
