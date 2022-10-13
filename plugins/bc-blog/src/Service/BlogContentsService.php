@@ -120,6 +120,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $target, array $postData)
     {
