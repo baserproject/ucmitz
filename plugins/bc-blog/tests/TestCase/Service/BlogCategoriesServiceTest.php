@@ -80,7 +80,7 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
     public function testGet()
     {
         $data = [
-            'id' => '1',
+            'id' => '59',
             'blog_content_id' => '1',
             'no' => '1',
             'name' => 'release',
