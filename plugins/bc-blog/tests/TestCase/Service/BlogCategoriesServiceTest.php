@@ -101,38 +101,48 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
     /**
      * コントロールソースを取得する
      *
+     * @param array $data インサートデータ
      * @param string $field フィールド名
      * @param array $option オプション
      * @param array $expected 期待値
      * @dataProvider getControlSourceDataProvider
      */
-    public function testGetControlSource($field, $options, $expected)
+    public function testGetControlSource($data, $field, $options, $expected)
     {
-        $this->markTestIncomplete('このテストは、動作の確認が必要です。');
-        $result = $this->BlogCategory->getControlSource($field, $options);
+        if ($data) {
+            BlogCategoryFactory::make($data)->persist();
+        }
+        $result = $this->BlogCategories->getControlSource($field, $options);
         $this->assertEquals($expected, $result, 'コントロールソースを正しく取得できません');
     }
 
-    public function getControlSourceDataProvider()
+    public function getControlSourceDataProvider(): array
     {
         return [
-            ['parent_id', ['blogContentId' => 1], [
-                1 => 'プレスリリース',
-                2 => '　　　└子カテゴリ',
-                3 => '親子関係なしカテゴリ'
-            ]],
-            ['parent_id', ['blogContentId' => 0], []],
-            ['parent_id', ['blogContentId' => 1, 'excludeParentId' => true], [3 => '親子関係なしカテゴリ']],
-            ['parent_id', ['blogContentId' => 1, 'ownerId' => 2], []],
-            ['parent_id', ['blogContentId' => 1, 'ownerId' => 1], [
-                1 => 'プレスリリース',
-                2 => '　　　└子カテゴリ',
-                3 => '親子関係なしカテゴリ'
-            ]],
-            ['owner_id', [], [
-                1 => 'システム管理',
-                2 => 'サイト運営'
-            ]],
+            [
+                ['id' => 58, 'blog_content_id' => 39, 'lft' => 1, 'rght' => 2, 'status' => 1, 'title' => 'test'],
+                'parent_id',
+                [],
+                false
+            ],
+            [
+                ['id' => 59, 'blog_content_id' => 19, 'status' => 1, 'title' => 'test', 'lft' => 3, 'rght' => 4],
+                'parent_id',
+                ['conditions' => ['BlogCategories.status' => 1], 'blogContentId' => 19],
+                [59 => 'test']
+            ],
+            [
+                ['id' => 60, 'blog_content_id' => 19, 'status' => 1, 'parent_id' => 58, 'title' => '_test'],
+                'parent_id',
+                ['blogContentId' => 19],
+                [59 => 'test', 60 => '　　　└test']
+            ],
+            [
+                null,
+                'parent_id',
+                ['blogContentId' => 19, 'excludeParentId' => 59],
+                [60 => '　　　└test']
+            ],
         ];
     }
 
