@@ -80,7 +80,10 @@ class BlogCategoriesControllerTest extends BcTestCase
      */
     public function testAdmin_index()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->get('/baser/admin/bc-blog/blog_categories/index');
+        $this->assertResponseError();
+        $this->get('/baser/admin/bc-blog/blog_categories/index/1');
+        $this->assertResponseOk();
     }
 
     /**
@@ -118,7 +121,36 @@ class BlogCategoriesControllerTest extends BcTestCase
      */
     public function testAdmin_delete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        BlogCategoryFactory::make([
+            'id' => '1',
+            'blog_content_id' => '1',
+            'no' => '1',
+            'name' => 'release',
+            'title' => 'プレスリリース',
+            'status' => '1',
+            'parent_id' => null,
+            'lft' => '1',
+            'rght' => '4',
+            'owner_id' => '1',
+            'created' => '2015-01-27 12:56:53',
+            'modified' => null
+        ])->persist();
+        $this->delete("/baser/admin/bc-blog/blog_categories/delete/1/1");
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // メッセージを確認
+        $this->assertFlashMessage('release を削除しました。');
+        // リダイレクトを確認
+        $this->assertRedirect([
+            'plugin' => 'BcBlog',
+            'prefix' => 'Admin',
+            'controller' => 'blog_categories',
+            'action' => 'index/1'
+        ]);
+        // データの削除を確認
+        $this->assertEquals(0, BlogCategoryFactory::count());
     }
 
 }

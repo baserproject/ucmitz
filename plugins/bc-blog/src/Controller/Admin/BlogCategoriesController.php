@@ -58,6 +58,7 @@ class BlogCategoriesController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(
         BlogCategoriesAdminServiceInterface $service,
@@ -139,6 +140,7 @@ class BlogCategoriesController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(BlogCategoriesServiceInterface $service, int $blogContentId, int $id)
     {
