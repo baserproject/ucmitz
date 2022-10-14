@@ -11,8 +11,11 @@
 
 namespace BaserCore\Test\TestCase\Service;
 
+use BaserCore\Controller\PagesController;
 use BaserCore\Service\Front\PagesFrontService;
 use BaserCore\Service\Front\PagesFrontServiceInterface;
+use BaserCore\Service\PagesService;
+use BaserCore\Test\Factory\PageFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 
@@ -24,6 +27,12 @@ class PagesFrontServiceTest extends BcTestCase
 
     public $fixtures = [
         'plugin.BaserCore.Pages',
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.Contents',
+        'plugin.BaserCore.ContentFolders',
+        'plugin.BaserCore.Sites',
     ];
 
     /**
@@ -66,5 +75,21 @@ class PagesFrontServiceTest extends BcTestCase
         );
         $this->assertArrayHasKey('page', $vars);
         $this->assertArrayHasKey('editLink', $vars);
+    }
+
+    /**
+     * test setupPreviewForView
+     */
+    public function test_setupPreviewForView()
+    {
+        PageFactory::make(['id' => 1])->persist();
+        $pageService = new PagesService();
+        $page = $pageService->get(1);
+        $request = $this->getRequest()->withParam('currentContent', $page);
+        $controller = new PagesController($request);
+
+        $this->PagesFront->setupPreviewForView($controller);
+        $this->assertArrayHasKey('page', $controller->viewBuilder()->getVars());
+        $this->assertArrayHasKey('editLink', $controller->viewBuilder()->getVars());
     }
 }
