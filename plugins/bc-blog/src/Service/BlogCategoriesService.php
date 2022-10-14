@@ -174,6 +174,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return EntityInterface|null
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function create(int $blogContentId, array $postData): ?EntityInterface
     {
