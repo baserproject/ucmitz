@@ -180,6 +180,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(int $id): bool
     {
