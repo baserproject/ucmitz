@@ -532,4 +532,115 @@ class PermissionsService implements PermissionsServiceInterface
         return $this->Permissions->find('list')->where(['id IN' => $ids])->toArray();
     }
 
+    public function getSelectOptions(): array
+    {
+        $selectOptions = [
+            'plugins' => [
+                [
+                    'value' => '',
+                    'text' => 'プラグイン',
+                    'disabled' => true,
+                ],
+            ],
+            'prefixes' => [
+                [
+                    'value' => '',
+                    'text' => '認証タイプ',
+                    'disabled' => true,
+                ],
+            ],
+            'controllers' => [
+                [
+                    'value' => '',
+                    'text' => '機能',
+                    'disabled' => true,
+                ], [
+                    'value' => '*',
+                    'text' => '*',
+                ],
+            ],
+            'actions' => [
+                [
+                    'value' => '',
+                    'text' => '画面',
+                    'disabled' => true,
+                ], [
+                    'value' => '*',
+                    'text' => '*',
+                ],
+            ],
+        ];
+
+        foreach (Configure::read('BcApp.permissions') as $pluginName => $pluginConfig) {
+            $selectOptions['plugins'][] = [
+                'value' => $pluginName,
+                'text' => $pluginConfig['title'],
+            ];
+            foreach ($pluginConfig['prefixes'] as $prefixName => $prefixConfig) {
+                $selectOptions['prefixes'][] = [
+                    'value' => $prefixName,
+                    'text' => $prefixConfig['title'],
+                    'data-plugin' => $pluginName,
+                ];
+                foreach ($prefixConfig['controllers'] as $controllerName => $controllerConfig) {
+                    $selectOptions['controllers'][] = [
+                        'value' => $controllerName,
+                        'text' => $controllerConfig['title'],
+                        'data-plugin' => $pluginName,
+                        'data-prefix' => $prefixName,
+                    ];
+                    foreach ($controllerConfig['actions'] as $actionName => $actionConfig) {
+                        $selectOptions['actions'][] = [
+                            'value' => $actionName,
+                            'text' => $actionConfig['title'],
+                            'data-plugin' => $pluginName,
+                            'data-prefix' => $prefixName,
+                            'data-controller' => $controllerName,
+                            'data-message' => $actionConfig['message'] ?? '',
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $selectOptions;
+    }
+
+    public function getSelectOptionsB(): array
+    {
+        $selectOptions = [];
+
+        foreach (Configure::read('BcApp.permissions') as $pluginName => $pluginConfig) {
+            foreach ($pluginConfig['prefixes'] as $prefixName => $prefixConfig) {
+                $selectOptions[] = [
+                    'value' => '*',
+                    'text' => $pluginConfig['title'] . ' ' . $prefixConfig['title'] . ' *',
+                    'data-plugin' => $pluginName,
+                    'data-prefix' => $prefixName,
+                ];
+                foreach ($prefixConfig['controllers'] as $controllerName => $controllerConfig) {
+                    $selectOptions[] = [
+                        'value' => '*',
+                        'text' => $pluginConfig['title'] . ' ' . $prefixConfig['title'] . ' ' . $controllerConfig['title'] . ' *',
+                        'data-plugin' => $pluginName,
+                        'data-prefix' => $prefixName,
+                        'data-controller' => $controllerName,
+                    ];
+                    foreach ($controllerConfig['actions'] as $actionName => $actionConfig) {
+                        $selectOptions[] = [
+                            'value' => $actionName,
+                            'text' => $pluginConfig['title'] . ' ' . $prefixConfig['title'] . ' ' . $controllerConfig['title'] . ' ' . $actionConfig['title'],
+                            'data-plugin' => $pluginName,
+                            'data-prefix' => $prefixName,
+                            'data-controller' => $controllerName,
+                            'data-message' => $actionConfig['message'] ?? '',
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $selectOptions;
+    }
+
 }

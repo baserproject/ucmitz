@@ -62,8 +62,85 @@ $this->BcBaser->js('admin/permissions/form.bundle', false);
     </tr>
 
     <tr>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('name', __d('baser', '権限設定 パターンA')) ?>
+      </th>
+      <td class="col-input bca-form-table__input">
+        プラグイン / プレフィックス / コントローラー / アクション / パス
+        <br>
+        <?php echo $this->BcAdminForm->control('plugins', ['type' => 'select', 'options' => $selectOptions['plugins'], 'default' => '']) ?>
+        <?php echo $this->BcAdminForm->control('prefixes', ['type' => 'select', 'options' => $selectOptions['prefixes'], 'default' => '']) ?>
+        <?php echo $this->BcAdminForm->control('controllers', ['type' => 'select', 'options' => $selectOptions['controllers'], 'default' => '']) ?>
+        <?php echo $this->BcAdminForm->control('actions', ['type' => 'select', 'options' => $selectOptions['actions'], 'default' => '']) ?>
+        <?php echo $this->BcAdminForm->control('pass', ['type' => 'text', 'placeholder' => '値']) ?>
+        <div class="select-message"></div>
+        <script>
+        $(function(){
+          let selectedPlugin, selectedPrefix, selectedController;
+          $('#plugins').change(function() {
+            selectedPlugin = $(this).val();
+            filterOption($('#prefixes'), {'data-plugin': $(this).val()});
+            filterOption($('#controllers'), {'data-plugin': $(this).val()});
+            filterOption($('#actions'), {'data-plugin': $(this).val()});
+            $('.select-message').text('');
+          });
+          $('#prefixes').change(function() {
+            selectedPrefix = $(this).val();
+            filterOption($('#controllers'), {'data-plugin': selectedPlugin, 'data-prefix': $(this).val()});
+            filterOption($('#actions'), {'data-plugin': selectedPlugin, 'data-prefix': $(this).val()});
+            $('.select-message').text('');
+          });
+          $('#controllers').change(function() {
+            selectedController = $(this).val();
+            filterOption($('#actions'), {'data-plugin': selectedPlugin, 'data-prefix': selectedPrefix, 'data-controller': $(this).val()});
+            $('.select-message').text('');
+          });
+          $('#actions').change(function() {
+            $('.select-message').text($(this).find('option:selected').attr('data-message'));
+          });
+          function filterOption(target, conditions) {
+            target.val('');
+            target.prop('selected', false);
+            target.find('option').hide();
+            target.find('option').each(function(index, element) {
+              let match = true;
+              $.each(conditions, function(conditionField, condition) {
+                if (condition !== '*' && $(element).val() !== '*' && $(element).attr(conditionField) !== condition) {
+                  match = false;
+                }
+              });
+              if (match) {
+                $(element).show();
+              }
+            });
+          }
+        });
+        </script>
+      </td>
+    </tr>
+
+    <tr>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('name', __d('baser', '権限設定 パターンB')) ?>
+      </th>
+      <td class="col-input bca-form-table__input">
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <?php echo $this->BcAdminForm->control('target', ['type' => 'select', 'options' => $selectOptionsB, 'empty' => '選択してください']) ?>
+        <?php echo $this->BcAdminForm->control('pass', ['type' => 'text', 'placeholder' => '値']) ?>
+        <div class="select-message"></div>
+        <?php echo $this->BcAdminForm->error('target') ?>
+        <script>
+        $(function(){
+          $('#target').select2();
+          $('#target').change(function() {
+            $('.select-message').text($(this).find('option:selected').attr('data-message'));
+          });
+        });
+        </script>
+      </td>
+    </tr>
+
+    <tr>
       <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('name', __d('baser', 'URL設定')) ?>
-        &nbsp;<span class="bca-label" data-bca-label-type="required"><?php echo __d('baser', '必須') ?></span>
       </th>
       <td class="col-input bca-form-table__input">
         <?php echo $this->BcAdminForm->control('url', ['type' => 'text', 'size' => 40, 'maxlength' => 255, 'autofocus' => true, 'placeholder' => '/baser/admin/baser-core/users/index']) ?>
