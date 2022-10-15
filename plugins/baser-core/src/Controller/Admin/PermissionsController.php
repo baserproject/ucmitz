@@ -21,6 +21,7 @@ use BaserCore\Service\PermissionsServiceInterface;
 use BaserCore\Service\UserGroupsServiceInterface;
 use BaserCore\Controller\Component\BcMessageComponent;
 use Authentication\Controller\Component\AuthenticationComponent;
+use Cake\Core\Configure;
 
 /**
  * Class PermissionsController
@@ -108,6 +109,9 @@ class PermissionsController extends BcAdminAppController
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
         }
+
+        $this->set('selectOptions', $permissionService->getSelectOptions());
+        $this->set('selectOptionsB', $permissionService->getSelectOptionsB());
         $this->set('permission', $permission ?? $permissionService->getNew($userGroupId));
         $this->set('currentUserGroup', $currentUserGroup);
 	}
@@ -140,6 +144,8 @@ class PermissionsController extends BcAdminAppController
             }
         }
 
+        $this->set('selectOptions', $permissionService->getSelectOptions());
+        $this->set('selectOptionsB', $permissionService->getSelectOptionsB());
         $this->set('permission', $permission);
         $this->set('currentUserGroup', $currentUserGroup);
     }

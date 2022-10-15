@@ -80,3 +80,4 @@ if(BcUtil::isConsole()) {
     Configure::write('App.fullBaseUrl', 'https://localhost');
 }
 
+Configure::load('BaserCore.permissions');
