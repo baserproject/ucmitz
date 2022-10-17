@@ -34,7 +34,7 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      * @var array
      */
     protected $fixtures = [
-
+        'plugin.BcBlog.Factory/BlogCategories',
     ];
 
     /**
@@ -79,7 +79,24 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGet()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $data = [
+            'id' => '59',
+            'blog_content_id' => '1',
+            'no' => '1',
+            'name' => 'release',
+            'title' => 'プレスリリース',
+            'status' => '1',
+            'parent_id' => null,
+            'lft' => '1',
+            'rght' => '4',
+            'owner_id' => '1',
+            'created' => '2015-01-27 12:56:53',
+            'modified' => null
+        ];
+        BlogCategoryFactory::make($data)->persist();
+        $blogCategory = $this->BlogCategories->get($data['id']);
+        $this->assertEquals($data['id'], $blogCategory['id']);
+        $this->assertEquals($data['name'], $blogCategory['name']);
     }
 
     /**
@@ -87,7 +104,11 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGetIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make(['blog_content_id' => 111, 'name' => 'data1'])->persist();
+        BlogCategoryFactory::make(['blog_content_id' => 2, 'name' => 'data2'])->persist();
+        BlogCategoryFactory::make(['blog_content_id' => 111, 'name' => 'data3'])->persist();
+        $blogCategories = $this->BlogCategories->getIndex(111, []);
+        $this->assertCount(2, $blogCategories);
     }
 
     /**
@@ -95,7 +116,13 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGetTreeIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make(['id' => 59, 'blog_content_id' => 19, 'title' => 'test'])->persist();
+        $categories = $this->BlogCategories->getTreeIndex(19, []);
+        $this->assertEquals('test', $categories[0]->layered_title);
+
+        BlogCategoryFactory::make(['id' => 60, 'blog_content_id' => 29, 'title' => '_test'])->persist();
+        $categories = $this->BlogCategories->getTreeIndex(29, []);
+        $this->assertEquals('&nbsp;&nbsp;&nbsp;&nbsp;└_test', $categories[0]->layered_title);
     }
 
     /**
@@ -141,7 +168,8 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGetNew()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $entity = $this->BlogCategories->getNew(1);
+        $this->assertEquals(1, $entity['blog_content_id']);
     }
 
     /**
@@ -149,7 +177,13 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testCreate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make(['blog_content_id' => 19, 'no' => 9])->persist();
+        $result = $this->BlogCategories->create(19, ['id' => 59, 'name' => 'testName', 'title' => 'testTitle']);
+        $this->assertEquals(10, $result['no']);
+        $this->assertEquals('testName', $result['name']);
+        $createdBlogCategories = $this->BlogCategories->BlogCategories->find()->where(['blog_content_id' => 19, 'no'=> 10])->toArray();
+        $this->assertCount(1, $createdBlogCategories);
+        $this->assertEquals('testName', $createdBlogCategories[0]['name']);
     }
 
     /**
@@ -157,7 +191,17 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testUpdate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make(['id' => 59, 'name' => 'testName'])->persist();
+        $updateData = ['name' => 'testNameUpdated', 'blog_content_id' => 1];
+        $blogCategory = BlogCategoryFactory::get(59);
+        $result = $this->BlogCategories->update($blogCategory, $updateData);
+        // 戻り値を確認
+        $this->assertEquals($updateData['name'], $result['name']);
+        $this->assertEquals($updateData['blog_content_id'], $result['blog_content_id']);
+        // データの変更を確認
+        $blogCategory = BlogCategoryFactory::get(59);
+        $this->assertEquals($updateData['name'], $blogCategory['name']);
+        $this->assertEquals($updateData['blog_content_id'], $blogCategory['blog_content_id']);
     }
 
     /**
@@ -165,7 +209,20 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testDelete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make([
+            'id' => 59,
+            'name' => 'testName',
+            'blog_content_id' => 1,
+            'title' => 'testTitle',
+            'lft' => 1,
+            'rght' => 2
+        ])->persist();
+        $result = $this->BlogCategories->delete(59);
+        // 戻り値を確認
+        $this->assertTrue($result);
+        // データの削除を確認
+        $blogCategories = $this->BlogCategories->BlogCategories->find()->where(['id' => 59])->toArray();
+        $this->assertCount(0, $blogCategories);
     }
 
     /**
@@ -173,7 +230,28 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testBatch()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make([
+            'id' => 59,
+            'name' => 'testName1',
+            'blog_content_id' => 19,
+            'title' => 'testTitle1',
+            'lft' => 1,
+            'rght' => 2
+        ])->persist();
+        BlogCategoryFactory::make([
+            'id' => 60,
+            'name' => 'testName2',
+            'blog_content_id' => 19,
+            'title' => 'testTitle2',
+            'lft' => 3,
+            'rght' => 4
+        ])->persist();
+        $result = $this->BlogCategories->batch('delete', [59, 60]);
+        // 戻り値を確認
+        $this->assertTrue($result);
+        // データの削除を確認（複数）
+        $blogCategories = $this->BlogCategories->BlogCategories->find()->where(['blog_content_id' => 19])->toArray();
+        $this->assertCount(0, $blogCategories);
     }
 
     /**
@@ -181,7 +259,24 @@ class BlogCategoriesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGetNamesById()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogCategoryFactory::make([
+            'id' => 59,
+            'name' => 'testName1',
+            'blog_content_id' => 19,
+            'title' => 'testTitle1',
+            'lft' => 1,
+            'rght' => 2
+        ])->persist();
+        BlogCategoryFactory::make([
+            'id' => 60,
+            'name' => 'testName2',
+            'blog_content_id' => 19,
+            'title' => 'testTitle2',
+            'lft' => 3,
+            'rght' => 4
+        ])->persist();
+        $result = $this->BlogCategories->getNamesById([59, 60]);
+        $this->assertEquals([59 => 'testTitle1', 60 => 'testTitle2'], $result);
     }
 
     /**
