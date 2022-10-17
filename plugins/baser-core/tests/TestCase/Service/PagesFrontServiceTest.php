@@ -14,10 +14,11 @@ namespace BaserCore\Test\TestCase\Service;
 use BaserCore\Controller\PagesController;
 use BaserCore\Service\Front\PagesFrontService;
 use BaserCore\Service\Front\PagesFrontServiceInterface;
-use BaserCore\Service\PagesService;
-use BaserCore\Test\Factory\PageFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\Test\Scenario\SmallSetContentsScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * PagesFrontServiceTest
@@ -26,19 +27,22 @@ class PagesFrontServiceTest extends BcTestCase
 {
 
     public $fixtures = [
-        'plugin.BaserCore.Pages',
-        'plugin.BaserCore.Users',
-        'plugin.BaserCore.UsersUserGroups',
-        'plugin.BaserCore.UserGroups',
-        'plugin.BaserCore.Contents',
-        'plugin.BaserCore.ContentFolders',
-        'plugin.BaserCore.Sites',
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/UsersUserGroups',
+        'plugin.BaserCore.Factory/UserGroups',
+        'plugin.BaserCore.Factory/Contents',
+        'plugin.BaserCore.Factory/ContentFolders',
+        'plugin.BaserCore.Factory/Permissions',
+        'plugin.BaserCore.Factory/Pages',
     ];
 
     /**
      * Trait
      */
     use BcContainerTrait;
+    use ScenarioAwareTrait;
 
     /**
      * PagesFront
@@ -52,6 +56,8 @@ class PagesFrontServiceTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(SmallSetContentsScenario::class);
         $this->PagesFront = $this->getService(PagesFrontServiceInterface::class);
     }
 
@@ -82,10 +88,7 @@ class PagesFrontServiceTest extends BcTestCase
      */
     public function test_setupPreviewForView()
     {
-        PageFactory::make(['id' => 1])->persist();
-        $pageService = new PagesService();
-        $page = $pageService->get(1);
-        $request = $this->getRequest()->withParam('currentContent', $page);
+        $request = $this->getRequest();
         $controller = new PagesController($request);
 
         $this->PagesFront->setupPreviewForView($controller);
