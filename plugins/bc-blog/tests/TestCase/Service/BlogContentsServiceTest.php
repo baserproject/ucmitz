@@ -12,6 +12,7 @@
 namespace BcBlog\Test\TestCase\Service;
 
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogContentsService;
@@ -74,7 +75,7 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test__construct()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertTrue(isset($this->BlogContentsService->BlogContents));
     }
 
     /**
@@ -82,7 +83,14 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_get()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 60, 'description' => 'test get'])->persist();
+        ContentFactory::make(['id' => 60, 'type' => 'BlogContent', 'entity_id' => 60, 'title' => 'title test get', 'site_id' => 60])->persist();
+        SiteFactory::make(['id' => 60, 'theme' => 'BcBlog'])->persist();
+        $rs = $this->BlogContentsService->get(60);
+
+        $this->assertEquals('test get', $rs['description']);
+        $this->assertEquals('title test get', $rs['content']['title']);
+        $this->assertEquals('BcBlog', $rs['content']['site']['theme']);
     }
 
     /**
@@ -122,7 +130,11 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_getNew()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $rs = $this->BlogContentsService->getNew();
+        $this->assertTrue($rs['comment_use']);
+        $this->assertFalse($rs['comment_approve']);
+        $this->assertEquals('default', $rs['layout']);
+        $this->assertEquals(600, $rs['eye_catch_size_thumb_width']);
     }
 
     /**
@@ -130,7 +142,26 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_update()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 100, 'description' => '新しい'])->persist();
+        $data = [
+            'id' => 100,
+            'description' => '更新した!',
+            'content' => [
+                'title' => '更新 ブログ',
+            ]
+        ];
+
+        $record = $this->BlogContentsService->getIndex([])->first();
+        $blogContent = $this->BlogContentsService->update($record, $data);
+        $this->assertEquals('更新した!', $blogContent['description']);
+
+        $data = [
+            'id' => 100,
+            'description' => '更新した!'
+        ];
+        $this->expectException("Cake\ORM\Exception\PersistenceFailedException");
+        $this->expectExceptionMessage("関連するコンテンツがありません");
+        $this->BlogContentsService->update($record, $data);
     }
 
     /**
@@ -138,7 +169,21 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_create()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $data = [
+            'description' => '新しい ブログコンテンツ',
+            'content' => [
+                'title' => '新しい ブログ'
+            ]
+        ];
+        $blogContent = $this->BlogContentsService->create($data);
+        $this->assertEquals('新しい ブログコンテンツ', $blogContent['description']);
+
+        $data = [
+            'description' => '新しい ブログコンテンツ'
+        ];
+        $this->expectException("Cake\ORM\Exception\PersistenceFailedException");
+        $this->expectExceptionMessage("関連するコンテンツがありません");
+        $this->BlogContentsService->create($data);
     }
 
     /**
@@ -154,7 +199,13 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_delete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 70, 'description' => 'test delete'])->persist();
+        $rs = $this->BlogContentsService->delete(70);
+        //戻り値を確認
+        $this->assertTrue($rs);
+        //データの削除を確認
+        $blogContent = $this->BlogContentsService->get(70);
+        $this->assertNull($blogContent);
     }
 
 }

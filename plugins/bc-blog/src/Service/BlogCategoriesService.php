@@ -52,6 +52,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function get(int $id): EntityInterface
     {
@@ -66,6 +67,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndex(int $blogContentId, array $queryParams, $type = 'all'): Query
     {
@@ -82,6 +84,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getTreeIndex(int $blogContentId, array $queryParams): array
     {
@@ -157,6 +160,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getNew(int $blogContentId): EntityInterface
     {
@@ -174,6 +178,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return EntityInterface|null
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function create(int $blogContentId, array $postData): ?EntityInterface
     {
@@ -194,6 +199,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @throws PersistenceFailedException
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $target, array $postData): ?EntityInterface
     {
@@ -207,6 +213,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(int $id): bool
     {
@@ -226,6 +233,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function batch(string $method, array $ids): bool
     {
@@ -248,6 +256,7 @@ class BlogCategoriesService implements BlogCategoriesServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getNamesById($ids): array
     {
