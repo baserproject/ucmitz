@@ -37,6 +37,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * Construct
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -74,6 +75,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return \Cake\Datasource\EntityInterface|array|null
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function get(int $id)
     {
@@ -89,6 +91,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getNew()
     {
@@ -120,6 +123,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $target, array $postData)
     {
@@ -144,6 +148,7 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function create(array $postData, $options = []): ?EntityInterface
     {
@@ -180,11 +185,26 @@ class BlogContentsService implements BlogContentsServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(int $id): bool
     {
         $blogContent = $this->get($id);
         return $this->BlogContents->delete($blogContent);
+    }
+
+    /**
+     * リストを取得する
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getList(): array
+    {
+        return $this->BlogContents
+            ->find('list', ['keyField' => 'id', 'valueField' => 'content.title'])
+            ->contain('Contents')->toArray();
     }
 
 }

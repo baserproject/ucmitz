@@ -78,7 +78,14 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 52, 'description' => 'test index'])->persist();
+        BlogCategoryFactory::make(['id' => 52, 'title' => 'title index 1', 'blog_content_id' => 52, 'rght' => 7, 'lft' => 8])->persist();
+        BlogCategoryFactory::make(['id' => 53, 'title' => 'title index 2', 'blog_content_id' => 52, 'rght' => 9, 'lft' => 10])->persist();
+        BlogCategoryFactory::make(['id' => 54, 'title' => 'title index 2', 'blog_content_id' => 51, 'rght' => 10, 'lft' => 11])->persist();
+
+        $rs = $this->BlogCategoriesAdminService->getViewVarsForIndex(52);
+        $this->assertEquals($rs['blogContent']['description'], 'test index');
+        $this->assertEquals(2, count($rs['blogCategories']));
     }
 
     /**
@@ -106,6 +113,35 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForEdit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentsFactory::make(['id' => 50, 'description' => 'test 1'])->persist();
+        ContentFactory::make(
+            [
+                'id' => 50,
+                'type' => 'BlogContent',
+                'entity_id' => 50,
+                'title' => 'title test',
+                'site_id' => 50,
+                'url' => 'archives/category'
+            ]
+        )->persist();
+        SiteFactory::make(['id' => 50, 'use_subdomain' => 0])->persist();
+        BlogCategoryFactory::make(
+            ['id' => 50,
+                'title' => 'title 3',
+                'name' => 'name-50',
+                'blog_content_id' => 1,
+                'rght' => 1,
+                'lft' => 4
+            ]
+        )->persist();
+
+        $blogCategoriesService = new BlogCategoriesService();
+        $blogCategory = $blogCategoriesService->get(50);
+
+        $rs = $this->BlogCategoriesAdminService->getViewVarsForEdit(50, $blogCategory);
+        $this->assertEquals($blogCategory, $rs['blogCategory']);
+        $this->assertEquals('test 1', $rs['blogContent']['description']);
+        $this->assertStringContainsString('/archives/category/name-50', $rs['publishLink']);
+        $this->assertTrue(isset($rs['parents']));
     }
 }
