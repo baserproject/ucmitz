@@ -14,9 +14,11 @@ namespace BcBlog\Test\TestCase\Service\Admin;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainer;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\Admin\BlogCategoriesAdminService;
 use BcBlog\Service\BlogCategoriesService;
+use BcBlog\ServiceProvider\BcBlogServiceProvider;
 use BcBlog\Test\Factory\BlogCategoryFactory;
 use BcBlog\Test\Factory\BlogContentsFactory;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -59,6 +61,8 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
     {
         $this->setFixtureTruncate();
         parent::setUp();
+        $container = BcContainer::get();
+        $container->addServiceProvider(new BcBlogServiceProvider());
         $this->BlogCategoriesAdminService = new BlogCategoriesAdminService();
     }
 
@@ -70,6 +74,7 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
     public function tearDown(): void
     {
         unset($this->BlogCategoriesAdminService);
+        BcContainer::clear();
         parent::tearDown();
     }
 
