@@ -61,6 +61,8 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
     {
         $this->setFixtureTruncate();
         parent::setUp();
+        $container = BcContainer::get();
+        $container->addServiceProvider(new BcBlogServiceProvider());
         $this->BlogCategoriesAdminService = new BlogCategoriesAdminService();
     }
 
@@ -72,6 +74,7 @@ class BlogCategoriesAdminServiceTest extends BcTestCase
     public function tearDown(): void
     {
         unset($this->BlogCategoriesAdminService);
+        BcContainer::clear();
         parent::tearDown();
     }
 
