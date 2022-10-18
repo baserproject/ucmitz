@@ -162,53 +162,23 @@ class ContentsController extends BcAdminAppController
             $this->ajaxError(500, __d('baser', '無効な処理です。'));
         }
         $this->disableAutoRender();
+
         // EVENT Contents.beforeTrashReturn
         $this->dispatchLayerEvent('beforeTrashReturn', [
             'data' => $id
         ]);
+
         if ($restored = $contentService->restore($id)) {
+            // EVENT Contents.afterTrashReturn
+            $this->dispatchLayerEvent('afterTrashReturn', [
+                'data' => $id
+            ]);
             $this->BcMessage->setSuccess(sprintf(__d('baser', 'ゴミ箱「%s」を戻しました。'), $restored->title));
+            return $this->redirect(['action' => 'index']);
         } else {
             $this->BcMessage->setError('ゴミ箱から戻す事に失敗しました。');
+            return $this->redirect(['action' => 'trash_index']);
         }
-        // EVENT Contents.afterTrashReturn
-        $this->dispatchLayerEvent('afterTrashReturn', [
-            'data' => $id
-        ]);
-        return $this->redirect(['action' => 'trash_index']);
-    }
-
-    /**
-     * コンテンツ編集
-     *
-     * @param  int $id
-     * @param  ContentsServiceInterface $contentService
-     * @return void
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function edit(ContentsServiceInterface $contentService, $id)
-    {
-        if (!$id && empty($this->request->getData())) {
-            $this->BcMessage->setError(__d('baser', '無効な処理です。'));
-            return $this->redirect(['action' => 'index']);
-        }
-        $content = $contentService->get($id);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            try {
-                $content = $contentService->update($content, $this->request->getData('Contents'));
-                $message = Configure::read('BcContents.items.' . $this->request->getData('Contents.plugin') . '.' . $this->request->getData('Contents.type') . '.title') .
-                sprintf(__d('baser', '「%s」を更新しました。'), $this->request->getData('Contents.title'));
-                $this->BcMessage->setSuccess($message);
-                return $this->redirect(['action' => 'edit', $content->id]);
-            } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
-                $content = $e->getEntity();
-                $this->BcMessage->setError('保存中にエラーが発生しました。入力内容を確認してください。');
-            }
-        }
-        $this->request = $this->request->withData("Contents", $content);
-        $this->set('content', $content);
     }
 
     /**
@@ -261,35 +231,36 @@ class ContentsController extends BcAdminAppController
 	 */
 	public function delete(ContentsServiceInterface $contentService)
 	{
-        $this->disableAutoRender();
-        $this->viewBuilder()->disableAutoLayout();
-		if (empty($this->request->getData())) {
-			$this->notFound();
-		}
         if ($this->request->is(['post', 'put', 'delete'])) {
-            // TODO: ページ実装時に汎用化する
-            $data = $this->request->getData('Contents') ?? $this->request->getData('ContentFolders.content');
-            $id = $data['id'];
+            $id = $this->request->getData('content.id');
+
             // EVENT Contents.beforeDelete
             $this->dispatchLayerEvent('beforeDelete', [
                 'data' => $id
             ]);
+
+            /* @var \BaserCore\Model\Entity\Content $content */
             $content = $contentService->get($id);
             if ($contentService->delete($id)) {
+
                 // EVENT Contents.afterDelete
                 $this->dispatchLayerEvent('afterDelete', [
                     'data' => $id
                 ]);
+
                 $typeName = Configure::read('BcContents.items.' . $content->plugin . '.' . $content->type . '.title');
-                $trashMessage = $typeName . sprintf(__d('baser', '「%s」をゴミ箱に移動しました。'), $content->title);
-                $aliasMessage = sprintf(__d('baser', '%s のエイリアス「%s」を削除しました。'), $typeName, $content->title);
-                $this->BcMessage->setSuccess($content->alias_id ? $aliasMessage : $trashMessage, true);
+                if(!$content->alias_id) {
+                    $message = $typeName . sprintf(__d('baser', '「%s」をゴミ箱に移動しました。'), $content->title);
+                } else {
+                    $message = sprintf(__d('baser', '%s のエイリアス「%s」を削除しました。'), $typeName, $content->title);
+                }
+                $this->BcMessage->setSuccess($message, true);
                 $this->redirect(['action' => 'index']);
             } else {
-                $this->BcMessage->setError('削除中にエラーが発生しました。');
+                $this->BcMessage->setError(__d('baser', '削除中にエラーが発生しました。'));
             }
         } else {
-            $this->BcMessage->setError('不正なリクエストです。');
+            $this->BcMessage->setError(__d('baser', '不正なリクエストです。'));
         }
 	}
 
