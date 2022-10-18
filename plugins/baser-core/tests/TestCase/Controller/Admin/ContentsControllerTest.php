@@ -17,7 +17,6 @@ use BaserCore\Service\ContentFoldersService;
 use BaserCore\Service\ContentsService;
 use BaserCore\Service\ContentsServiceInterface;
 use BaserCore\Service\SiteConfigsServiceInterface;
-use BaserCore\Service\SitesServiceInterface;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Event\Event;
@@ -64,6 +63,7 @@ class ContentsControllerTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->request = $this->loginAdmin($this->getRequest('/baser/admin/baser-core/contents/'));
         $this->ContentsController = new ContentsController($this->request);
@@ -210,7 +210,7 @@ class ContentsControllerTest extends BcTestCase
         $this->assertResponseCode(404);
         $id = $this->ContentsService->getTrashIndex()->first()->id;
         $this->get("/baser/admin/baser-core/contents/trash_return/{$id}");
-        $this->assertRedirect('/baser/admin/baser-core/contents/trash_index');
+        $this->assertRedirect('/baser/admin/baser-core/contents/index');
         $this->assertResponseSuccess();
         $this->assertNotEmpty($this->ContentsService->get($id));
     }
@@ -221,22 +221,6 @@ class ContentsControllerTest extends BcTestCase
     public function testAdmin_add()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * コンテンツ編集
-     */
-    public function testEdit()
-    {
-        $this->enableSecurityToken();
-        $this->enableCsrfToken();
-        $data = $this->ContentsService->getIndex(['name' => 'testEdit'])->first();
-        $data->name = 'ControllerEdit';
-        $data->site->name = 'ucmitz'; // site側でエラーが出るため
-        $this->post('/baser/admin/baser-core/contents/edit/' . $data->id, ["Contents" => $data->toArray()]);
-        $this->assertResponseSuccess();
-        $this->assertRedirect('/baser/admin/baser-core/contents/edit/' . $data->id);
-        $this->assertEquals('ControllerEdit', $this->ContentsService->get($data->id)->name);
     }
 
     /**
@@ -264,7 +248,7 @@ class ContentsControllerTest extends BcTestCase
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         // 管理画面からの場合
-        $this->post('/baser/admin/baser-core/contents/delete', ['Contents' => ['id' => 6]]);
+        $this->post('/baser/admin/baser-core/contents/delete', ['content' => ['id' => 6]]);
         $this->assertResponseSuccess();
         $this->assertRedirect("/baser/admin/baser-core/contents/index");
         $this->assertEquals("フォルダー「サービス」をゴミ箱に移動しました。", $_SESSION['Flash']['flash'][0]['message']);
@@ -289,7 +273,7 @@ class ContentsControllerTest extends BcTestCase
             $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
             $this->ContentsService->get($id);
         });
-        $request = $this->getRequest('/baser/admin/baser-core/content/')->withEnv('REQUEST_METHOD', 'POST')->withData('Contents.id', 1);
+        $request = $this->getRequest('/baser/admin/baser-core/content/')->withEnv('REQUEST_METHOD', 'POST')->withData('content.id', 1);
         $contentsController = new ContentsController($request);
         $contentsController->setName('Contents');
         $contentsController->delete($this->getService(ContentsServiceInterface::class));
@@ -298,20 +282,6 @@ class ContentsControllerTest extends BcTestCase
         $this->assertNotEmpty($trash);
         // afterDeleteテスト
         $this->assertEquals('testAfterDelete', $trash->name);
-    }
-
-    /**
-     *  testDelete
-     * IDがなく失敗する場合
-     *
-     * @return void
-     */
-    public function testDeleteWithoutId()
-    {
-        // 管理画面からの場合
-        $this->expectException("Cake\Http\Exception\NotFoundException");
-        $this->expectExceptionMessage("見つかりませんでした。");
-        $this->ContentsController->delete($this->ContentsService);
     }
 
     /**
@@ -342,14 +312,6 @@ class ContentsControllerTest extends BcTestCase
      * コンテンツ表示
      */
     public function testView()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 並び順を移動する
-     */
-    public function testAdmin_ajax_move()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
