@@ -12,6 +12,7 @@
 namespace BaserCore\Test\TestCase\Service\Front;
 
 use BaserCore\Service\Front\BcFrontContentsService;
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
 
 /**
@@ -28,6 +29,7 @@ class BcFrontContentsServiceTest extends BcTestCase
      * @var array
      */
     protected $fixtures = [
+        'plugin.BaserCore.Contents'
     ];
 
     /**
@@ -65,6 +67,17 @@ class BcFrontContentsServiceTest extends BcTestCase
      */
     public function test_getCrumbs()
     {
-
+        ContentFactory::make(
+            [
+                'id' => 101,
+                'title' => 'test title',
+                'description' => 'description test',
+                'lft' => 1,
+                'rght' => 2,
+                'url' => '/test'
+            ])->persist();
+        $result = $this->execPrivateMethod($this->BcFrontContentsService, 'getCrumbs', [101]);
+        $this->assertEquals('test title',$result[0]['name']);
+        $this->assertEquals('/test',$result[0]['url']);
     }
 }
