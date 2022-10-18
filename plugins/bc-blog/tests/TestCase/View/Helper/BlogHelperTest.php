@@ -12,10 +12,11 @@
 
 namespace BcBlog\Test\TestCase\View\Helper;
 
-use BaserCore\Test\Scenario\SmallSetContentsScenario;
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Model\Entity\BlogContent;
+use BcBlog\Test\Factory\BlogContentsFactory;
 use BcBlog\View\Helper\BlogHelper;
 use Cake\View\View;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -30,19 +31,11 @@ class BlogHelperTest extends BcTestCase
 {
 
     /**
-     * Trait
-     */
-    use ScenarioAwareTrait;
-    use BcContainerTrait;
-
-    /**
      * Fixtures
      * @var array
      */
     public $fixtures = [
         'plugin.BaserCore.Factory/Contents',
-        'plugin.BaserCore.Factory/ContentFolders',
-        'plugin.BaserCore.Factory/Pages',
         'plugin.BcBlog.Factory/BlogContents',
     ];
 
@@ -62,7 +55,6 @@ class BlogHelperTest extends BcTestCase
     {
         $this->setFixtureTruncate();
         parent::setUp();
-        $this->loadFixtureScenario(SmallSetContentsScenario::class);
     }
 
     /**
@@ -80,6 +72,37 @@ class BlogHelperTest extends BcTestCase
      */
     public function test__construct()
     {
+        ContentFactory::make([
+            'id' => 6,
+            'url' => '/blog/',
+            'name' => 'blog',
+            'plugin' => 'BcBlog',
+            'type' => 'BlogContent',
+            'site_id' => 1,
+            'parent_id' => 3,
+            'lft' => 7,
+            'rght' => 8,
+            'entity_id' => 1,
+            'site_root' => false,
+            'status' => true
+        ])->persist();
+        BlogContentsFactory::make([
+            'id' => '1',
+            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
+            'template' => 'default',
+            'list_count' => '10',
+            'list_direction' => 'DESC',
+            'feed_count' => '10',
+            'tag_use' => '1',
+            'comment_use' => '1',
+            'comment_approve' => '0',
+            'auth_captcha' => '1',
+            'widget_area' => '2',
+            'eye_catch_size' => 'YTo0OntzOjExOiJ0aHVtYl93aWR0aCI7czozOiIzMDAiO3M6MTI6InRodW1iX2hlaWdodCI7czozOiIzMDAiO3M6MTg6Im1vYmlsZV90aHVtYl93aWR0aCI7czozOiIxMDAiO3M6MTk6Im1vYmlsZV90aHVtYl9oZWlnaHQiO3M6MzoiMTAwIjt9',
+            'use_content' => '1',
+            'created' => '2015-08-10 18:57:47',
+            'modified' => NULL,
+        ])->persist();
         $this->View = new View();
         $this->View->set('blogContent', new BlogContent(['id' => 1]));
         $this->Blog = new BlogHelper($this->View);
