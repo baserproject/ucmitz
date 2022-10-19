@@ -71,7 +71,6 @@ class BlogContentsControllerTest extends BcTestCase
         $token = $this->apiLoginAdmin(1);
         $this->accessToken = $token['access_token'];
         $this->refreshToken = $token['refresh_token'];
-        echo "setup count:" . BlogContentsFactory::count();
     }
 
     /**
@@ -90,12 +89,11 @@ class BlogContentsControllerTest extends BcTestCase
      */
     public function test_index()
     {
-        echo "test_index start count:" . BlogContentsFactory::count();
+        $this->truncateTable('blog_contents');
         BlogContentsFactory::make(['id' => 10, 'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。'])->persist();
         BlogContentsFactory::make(['id' => 11, 'description' => 'ディスクリプション'])->persist();
 
         $this->get('/baser/api/bc-blog/blog_contents/index.json?token=' . $this->accessToken);
-        echo "test_index after count:" . BlogContentsFactory::count();
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertCount(2, $result->blogContents);
