@@ -56,8 +56,6 @@ class ContentFoldersFrontServiceTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->loadFixtureScenario(InitAppScenario::class);
-        $this->loadFixtureScenario(SmallSetContentsScenario::class);
         $this->ContentFoldersFrontService = new ContentFoldersFrontService();
     }
 
@@ -77,6 +75,8 @@ class ContentFoldersFrontServiceTest extends BcTestCase
      */
     public function test_getViewVarsForView()
     {
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(SmallSetContentsScenario::class);
         $rs = $this->ContentFoldersFrontService->getViewVarsForView($this->ContentFoldersFrontService->get(2), $this->getRequest('/'));
         $this->assertArrayHasKey('contentFolder', $rs);
         $this->assertArrayHasKey('children', $rs);
