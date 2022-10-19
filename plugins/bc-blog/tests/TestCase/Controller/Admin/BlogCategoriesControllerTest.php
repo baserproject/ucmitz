@@ -70,7 +70,6 @@ class BlogCategoriesControllerTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        $this->setFixtureTruncate();
         parent::tearDown();
     }
 
