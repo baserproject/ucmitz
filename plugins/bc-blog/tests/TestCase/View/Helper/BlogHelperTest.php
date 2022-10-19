@@ -14,14 +14,11 @@ namespace BcBlog\Test\TestCase\View\Helper;
 
 use App\View\AppView;
 use BaserCore\Test\Factory\ContentFactory;
-use BaserCore\Test\Scenario\SmallSetContentsScenario;
 use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Model\Entity\BlogContent;
 use BcBlog\Test\Factory\BlogContentsFactory;
 use BcBlog\View\Helper\BlogHelper;
 use Cake\View\View;
-use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Blog helper library.
@@ -31,11 +28,6 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
  */
 class BlogHelperTest extends BcTestCase
 {
-
-    /**
-     * Trait
-     */
-    use ScenarioAwareTrait;
 
     /**
      * Fixtures

@@ -14,7 +14,6 @@ namespace BaserCore\Test\Scenario;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\ContentFolderFactory;
 use BaserCore\Test\Factory\PageFactory;
-use BcBlog\Test\Factory\BlogContentsFactory;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 /**
