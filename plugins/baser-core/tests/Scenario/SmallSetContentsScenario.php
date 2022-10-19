@@ -14,6 +14,7 @@ namespace BaserCore\Test\Scenario;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\ContentFolderFactory;
 use BaserCore\Test\Factory\PageFactory;
+use BcBlog\Test\Factory\BlogContentsFactory;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 /**
@@ -115,6 +116,37 @@ class SmallSetContentsScenario implements FixtureScenarioInterface
             'entity_id' => 3,
             'site_root' => false,
             'status' => true
+        ])->persist();
+        ContentFactory::make([
+            'id' => 6,
+            'url' => '/blog/',
+            'name' => 'blog',
+            'plugin' => 'BcBlog',
+            'type' => 'BlogContent',
+            'site_id' => 1,
+            'parent_id' => 3,
+            'lft' => 7,
+            'rght' => 8,
+            'entity_id' => 1,
+            'site_root' => false,
+            'status' => true
+        ])->persist();
+        BlogContentsFactory::make([
+            'id' => '1',
+            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
+            'template' => 'default',
+            'list_count' => '10',
+            'list_direction' => 'DESC',
+            'feed_count' => '10',
+            'tag_use' => '1',
+            'comment_use' => '1',
+            'comment_approve' => '0',
+            'auth_captcha' => '1',
+            'widget_area' => '2',
+            'eye_catch_size' => 'YTo0OntzOjExOiJ0aHVtYl93aWR0aCI7czozOiIzMDAiO3M6MTI6InRodW1iX2hlaWdodCI7czozOiIzMDAiO3M6MTg6Im1vYmlsZV90aHVtYl93aWR0aCI7czozOiIxMDAiO3M6MTk6Im1vYmlsZV90aHVtYl9oZWlnaHQiO3M6MzoiMTAwIjt9',
+            'use_content' => '1',
+            'created' => '2015-08-10 18:57:47',
+            'modified' => NULL,
         ])->persist();
         ContentFolderFactory::make(['id' => 1])->persist();
         ContentFolderFactory::make(['id' => 2])->persist();
