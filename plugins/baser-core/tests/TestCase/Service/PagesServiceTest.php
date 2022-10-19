@@ -13,6 +13,7 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Model\Table\PagesTable;
 use BaserCore\Service\PagesService;
+use BaserCore\Test\Factory\PageFactory;
 use BaserCore\TestSuite\BcTestCase;
 
 /**
@@ -249,4 +250,16 @@ class PagesServiceTest extends BcTestCase
         $this->assertContains('会社案内', $this->PagesService->getList());
     }
 
+    /**
+     * test getPageTemplate
+     */
+    public function test_getPageTemplate()
+    {
+        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(2));
+        $this->assertEquals('default', $rs);
+
+        PageFactory::make(['id' => 101, 'page_template' => 'test'])->persist();
+        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(101));
+        $this->assertEquals('test', $rs);
+    }
 }
