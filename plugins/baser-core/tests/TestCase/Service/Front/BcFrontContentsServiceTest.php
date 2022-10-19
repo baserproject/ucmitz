@@ -70,14 +70,31 @@ class BcFrontContentsServiceTest extends BcTestCase
         ContentFactory::make(
             [
                 'id' => 101,
-                'title' => 'test title',
-                'description' => 'description test',
+                'title' => 'test title 1',
+                'description' => 'description test 1',
                 'lft' => 1,
-                'rght' => 2,
-                'url' => '/test'
+                'rght' => 4,
+                'url' => '/test1'
+            ])->persist();
+        ContentFactory::make(
+            [
+                'id' => 102,
+                'title' => 'test title 2',
+                'description' => 'description test 2',
+                'lft' => 2,
+                'rght' => 3,
+                'url' => '/test2'
             ])->persist();
         $result = $this->execPrivateMethod($this->BcFrontContentsService, 'getCrumbs', [101]);
-        $this->assertEquals('test title',$result[0]['name']);
-        $this->assertEquals('/test',$result[0]['url']);
+        $this->assertCount(1, $result);
+        $this->assertEquals('test title 1', $result[0]['name']);
+        $this->assertEquals('/test1', $result[0]['url']);
+
+        $result = $this->execPrivateMethod($this->BcFrontContentsService, 'getCrumbs', [102]);
+        $this->assertCount(3, $result);
+        $this->assertEquals('test title 1', $result[0]['name']);
+        $this->assertEquals('/test1', $result[0]['url']);
+        $this->assertEquals('トップページ', $result[1]['name']);
+        $this->assertEquals('test title 2', $result[2]['name']);
     }
 }
