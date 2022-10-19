@@ -90,4 +90,13 @@ class ContentFoldersFrontServiceTest extends BcTestCase
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
+
+    /**
+     * test getTemplateForView
+     */
+    public function test_getTemplateForView(){
+        $this->loadFixtureScenario(SmallSetContentsScenario::class);
+        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(2));
+        $this->assertEquals('default', $rs);
+    }
 }
