@@ -141,7 +141,7 @@ class BlogCategoriesControllerTest extends BcTestCase
         // 失敗のメッセージを確認
         $data['name'] = 'test name';
         $this->post("/baser/admin/bc-blog/blog_categories/add/$blogContentId", $data);
-        $this->assertFlashMessage('入力エラーです。内容を修正してください。');
+        $this->assertResponseContains('入力エラーです。内容を修正してください。');
     }
 
     /**
