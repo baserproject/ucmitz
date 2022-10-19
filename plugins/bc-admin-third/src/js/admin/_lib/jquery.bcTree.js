@@ -274,7 +274,7 @@
                         var data = node.data.jstree;
                         var mode = $("#viewsetting-mode").val();
                         var parent;
-                        if (data.type == 'folder' && !node.data.jstree.alias) {
+                        if (data.type === 'folder' && !node.data.jstree.alias) {
                             parent = node;
                         } else {
                             parent = $.bcTree.jsTree.get_node($.bcTree.jsTree.get_parent(node));
@@ -282,13 +282,18 @@
 
                         var editDisabled = false;
                         var manageDisabled = false;
-                        if ($.bcTree.settings[data.contentType] == undefined) {
-                            $.bcTree.settings[data.contentType] = {
-                                'url': $.bcTree.settings['Default']['url']
-                            };
-                        } else {
+                        var editUrl = null;
+                        var manageUrl = null;
+                        var copyUrl = null;
+                        var isEnabled = false;
+
+                        if ($.bcTree.settings[data.contentType] !== undefined) {
                             editDisabled = data.editDisabled;
                             manageDisabled = data.manageDisabled;
+                            manageUrl = $.bcTree.settings[data.contentType]['url']['manage'];
+                            editUrl = $.bcTree.settings[data.contentType]['url']['edit'];
+                            copyUrl = $.bcTree.settings[data.contentType]['url']['copy'];
+                            isEnabled = true;
                         }
 
                         var menu = {};
@@ -296,7 +301,7 @@
                         // 確認
                         // - 公開されている
                         // - URLがある
-                        if (data.status == true && data.contentFullUrl && !$.bcTree.contextmenuAddOnly && mode == 'index') {
+                        if (isEnabled && data.status && data.contentFullUrl && !$.bcTree.contextmenuAddOnly && mode === 'index') {
                             $.extend(true, menu, {
                                 "view": {
                                     label: bcI18n.bcTreeCheck,
@@ -311,8 +316,8 @@
                         // 公開・非公開
                         // - サイトルートではない
                         // - 関連データではない
-                        if (!$.bcTree.config.editInIndexDisabled && !editDisabled && !data.contentSiteRoot && mode == 'index' && !$.bcTree.contextmenuAddOnly && !data.related) {
-                            if (data.status == false) {
+                        if (isEnabled && !$.bcTree.config.editInIndexDisabled && !editDisabled && !data.contentSiteRoot && mode === 'index' && !$.bcTree.contextmenuAddOnly && !data.related) {
+                            if (!data.status) {
                                 $.extend(true, menu, {
                                     "publish": {
                                         label: bcI18n.bcTreePublish,
@@ -352,7 +357,7 @@
                                         }
                                     }
                                 });
-                            } else if (data.status == true) {
+                            } else if (data.status) {
                                 $.extend(true, menu, {
                                     "unpublish": {
                                         label: bcI18n.bcTreeUnpublish,
@@ -360,7 +365,7 @@
                                         "action": function (obj) {
                                             $.bcToken.check(function () {
                                                 return $.ajax({
-                                                    url: $.bcUtil.apiBaseUrl + 'baser-core' +  '/contents/change_status',
+                                                    url: $.bcUtil.apiBaseUrl + 'baser-core' + '/contents/change_status',
                                                     headers: {
                                                         "Authorization": $.bcJwt.accessToken,
                                                     },
@@ -399,13 +404,13 @@
                         // - 管理権限あり
                         // - 管理機能サポート
                         // - エイリアスではない
-                        if (!manageDisabled && !$.bcTree.contextmenuAddOnly && $.bcTree.settings[data.contentType]['url']['manage'] !== undefined && mode == 'index' && !data.alias) {
+                        if (!manageDisabled && !$.bcTree.contextmenuAddOnly && manageUrl && mode === 'index' && !data.alias) {
                             $.extend(true, menu, {
                                 "manage": {
                                     label: bcI18n.bcTreeManage,
                                     "icon": "bca-icon--th-list",
                                     "action": function (obj) {
-                                        $.bcTree.openUrl($.bcTree.createLink($.bcTree.settings[data.contentType]['url']['manage'], data.contentId, data.contentParentId, data.contentEntityId));
+                                        $.bcTree.openUrl($.bcTree.createLink(manageUrl, data.contentId, data.contentParentId, data.contentEntityId));
                                     }
                                 }
                             });
@@ -415,7 +420,7 @@
                         // - 編集権限あり
                         // - サイトルートでない
                         // − サイト関連データでない
-                        if (!$.bcTree.config.editInIndexDisabled && !editDisabled && !$.bcTree.contextmenuAddOnly && !data.contentSiteRoot && mode == 'index' && !data.related) {
+                        if (isEnabled && !$.bcTree.config.editInIndexDisabled && !editDisabled && !$.bcTree.contextmenuAddOnly && !data.contentSiteRoot && mode === 'index' && !data.related) {
                             $.extend(true, menu, {
                                 "rename": {
                                     label: bcI18n.bcTreeRename,
@@ -429,14 +434,14 @@
 
                         // 編集
                         // - 編集権限あり
-                        if (!editDisabled && !$.bcTree.contextmenuAddOnly && mode == 'index') {
+                        if (isEnabled && !editDisabled && !$.bcTree.contextmenuAddOnly && mode === 'index') {
                             $.extend(true, menu, {
                                 "edit": {
                                     label: bcI18n.bcTreeEdit,
                                     "icon": "bca-icon--edit",
                                     "action": function (obj) {
                                         if (!node.data.jstree.alias) {
-                                            $.bcTree.openUrl($.bcTree.createLink($.bcTree.settings[data.contentType]['url']['edit'], data.contentId, data.contentParentId, data.contentEntityId));
+                                            $.bcTree.openUrl($.bcTree.createLink(editUrl, data.contentId, data.contentParentId, data.contentEntityId));
                                         } else {
                                             $.bcTree.openUrl($.bcUtil.adminBaseUrl + 'baser-core' + '/contents/edit_alias/' + data.contentId);
                                         }
@@ -449,7 +454,7 @@
                         // - 編集権限あり
                         // - フォルダーでない
                         // - コピー機能サポート
-                        if (!editDisabled && !$.bcTree.contextmenuAddOnly && data.contentType != 'ContentFolder' && !data.alias && $.bcTree.settings[data.contentType]['url']['copy'] != undefined && mode == 'index') {
+                        if (!editDisabled && !$.bcTree.contextmenuAddOnly && data.contentType !== 'ContentFolder' && !data.alias && copyUrl && mode === 'index') {
                             $.extend(true, menu, {
                                 "copy": {
                                     label: bcI18n.bcTreeCopy,
@@ -470,7 +475,7 @@
                         // 削除
                         // - 編集権限あり
                         // - サイトルートでない
-                        if (!$.bcTree.config.editInIndexDisabled && !editDisabled && !data.deleteDisabled && !$.bcTree.contextmenuAddOnly && !data.contentSiteRoot && mode == 'index') {
+                        if (!$.bcTree.config.editInIndexDisabled && !editDisabled && !data.deleteDisabled && !$.bcTree.contextmenuAddOnly && !data.contentSiteRoot && mode === 'index') {
                             $.extend(true, menu, {
                                 "delete": {
                                     label: deleteLabel,
@@ -487,11 +492,11 @@
                                 }
                             });
                         }
-                        if (mode == 'trash') {
+                        if (mode === 'trash') {
                             $.extend(true, menu, {
                                 "return": {
                                     _disabled: editDisabled,
-                                    label: "戻す",
+                                    label: bcI18n.bcTreeUndo,
                                     "icon": "bca-icon--undo",
                                     "action": function (obj) {
                                         if (data.alias) {
@@ -569,16 +574,18 @@
                         }
 
                         var settings = $.extend(true, {}, $.bcTree.settings);
+
                         delete settings.Default;
                         if (node.data.jstree.alias) {
                             delete settings.ContentAlias;
                         }
 
-                        if (mode == 'index') {
+                        if (mode === 'index') {
                             var addMenu = {};
                             var counter = 1;
+
                             $.each(settings, function (i, val) {
-                                if (counter == maxContents + 1) {
+                                if (counter === maxContents + 1) {
                                     addMenu['Etc'] = {
                                         "separator_before": false,
                                         "separator_after": false,
@@ -868,57 +875,60 @@
             var node = $.bcTree.jsTree.get_node(nodeId);
             $.bcTree.jsTree.edit(node, data.contentTitle, function (editNode) {
                 $.bcToken.check(function () {
-                    const content = {
-                        parent_id: data.contentParentId,
-                        title: editNode.text,
-                        plugin: data.contentPlugin,
-                        type: data.contentType,
-                        site_id: data.contentSiteId,
-                        alias_id: data.contentAliasId,
-                        entity_id: data.contentEntityId
-                    };
-                    return $.ajax({
-                        url: url,
-                        headers: {
-                            "Authorization": $.bcJwt.accessToken,
-                        },
-                        type: 'POST',
-                        data: {
-                            _csrfToken: $.bcToken.key,
-                            content: content,
-                        },
-                        dataType: 'json',
-                        beforeSend: function () {
-                            this.data = $.bcTree.fillExtraData(this.data, data);
-                            $.bcUtil.hideMessage();
-                            $.bcUtil.showLoader();
-                        },
-                        success: function (result) {
-                            $.bcUtil.showNoticeMessage(result.message);
-                            $.bcTree.settings[data.contentType]['exists'] = true;
-                            $.bcTree.settings[data.contentType]['existsTitle'] = editNode.text;
-                            data.contentId = result.content.id;
-                            data.contentEntityId = result.content.entity_id;
-                            data.name = decodeURIComponent(result.content.name);
-                            node.data.jstree = data;
-                            $.bcTree.refreshTree();
-                        },
-                        error: function (XMLHttpRequest, textStatus, errorThrown) {
-                            $.bcUtil.showAjaxError(bcI18n.bcTreeAlertMessage6, XMLHttpRequest, errorThrown);
-                            $.bcTree.jsTree.delete_node(node);
-                            $.bcUtil.hideLoader();
-                        }
-                    }).then(function () {
-                        return $.bcUtil.ajax($.bcUtil.apiBaseUrl + 'baser-core' + '/contents/get_full_url/' + data.contentId, {}, {type: 'GET', dataType: 'json'}).done(function (result) {
-                            data.contentFullUrl = decodeURI(result.fullUrl);
-                            node.data.jstree = data;
-                            if (data.contentType == 'ContentFolder') {
-                                node.type = 'folder'
+                        const content = {
+                            parent_id: data.contentParentId,
+                            title: editNode.text,
+                            plugin: data.contentPlugin,
+                            type: data.contentType,
+                            site_id: data.contentSiteId,
+                            alias_id: data.contentAliasId,
+                            entity_id: data.contentEntityId
+                        };
+                        return $.ajax({
+                            url: url,
+                            headers: {
+                                "Authorization": $.bcJwt.accessToken,
+                            },
+                            type: 'POST',
+                            data: {
+                                _csrfToken: $.bcToken.key,
+                                content: content,
+                            },
+                            dataType: 'json',
+                            beforeSend: function () {
+                                this.data = $.bcTree.fillExtraData(this.data, data);
+                                $.bcUtil.hideMessage();
+                                $.bcUtil.showLoader();
+                            },
+                            success: function (result) {
+                                $.bcUtil.showNoticeMessage(result.message);
+                                $.bcTree.settings[data.contentType]['exists'] = true;
+                                $.bcTree.settings[data.contentType]['existsTitle'] = editNode.text;
+                                data.contentId = result.content.id;
+                                data.contentEntityId = result.content.entity_id;
+                                data.name = decodeURIComponent(result.content.name);
+                                node.data.jstree = data;
+                                $.bcTree.refreshTree();
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $.bcUtil.showAjaxError(bcI18n.bcTreeAlertMessage6, XMLHttpRequest, errorThrown);
+                                $.bcTree.jsTree.delete_node(node);
+                                $.bcUtil.hideLoader();
                             }
+                        }).then(function () {
+                            return $.bcUtil.ajax($.bcUtil.apiBaseUrl + 'baser-core' + '/contents/get_full_url/' + data.contentId, {}, {
+                                type: 'GET',
+                                dataType: 'json'
+                            }).done(function (result) {
+                                data.contentFullUrl = decodeURI(result.fullUrl);
+                                node.data.jstree = data;
+                                if (data.contentType == 'ContentFolder') {
+                                    node.type = 'folder'
+                                }
+                            });
                         });
-                    });
-                }
-                , {hideLoader: false});
+                    }
+                    , {hideLoader: false});
             });
         },
         /**
@@ -933,7 +943,7 @@
                     case "ContentFolder":
                         return {
                             folder_template: "",
-                            page_template : ""
+                            page_template: ""
                         };
                     case "Page":
                         return {
@@ -947,7 +957,7 @@
                 }
             })();
             if (extra) {
-                postData  += '&' +  encodeURI($.param(extra));
+                postData += '&' + encodeURI($.param(extra));
             }
             return postData;
         },
@@ -982,11 +992,11 @@
                         $.bcToken.key = null;
                         $.bcTree.jsTree.delete_node(node);
                         // エイリアス削除
-                        var nodes = $.bcTree.jsTree.get_json(null, { flat: true });
+                        var nodes = $.bcTree.jsTree.get_json(null, {flat: true});
                         for (var i = 0; i < nodes.length; i++) {
-                          if (data.contentId == nodes[i].state.contentAliasId) {
-                            $.bcTree.jsTree.delete_node(nodes[i]);
-                          }
+                            if (data.contentId == nodes[i].state.contentAliasId) {
+                                $.bcTree.jsTree.delete_node(nodes[i]);
+                            }
                         }
                         $.bcTree.refreshTree();
                         $.bcUtil.hideLoader();
@@ -1003,6 +1013,7 @@
         /**
          * Copy Content
          *
+         * @param parent
          * @param node
          */
         copyContent: function (parent, node) {
@@ -1099,6 +1110,7 @@
                         data: {
                             id: node.data.jstree.contentId,
                             title: newTitle,
+                            first: +first, // 0 Or 1 に変換
                             _csrfToken: $.bcToken.key,
                         },
                         beforeSend: function () {
@@ -1106,11 +1118,13 @@
                             $.bcUtil.showLoader();
                         },
                         success: function (result) {
-                            if(!first) {
+                            if (!result) {
                                 $.bcUtil.showNoticeMessage(result.message);
                             }
                             $.bcTree.settings[node.data.jstree.contentType]['existsTitle'] = editNode.text;
                             editNode.data.jstree.contentFullUrl = result.url;
+                            editNode.data.jstree.name = result.name;
+                            $.bcTree.refreshTree();
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             $.bcTree.jsTree.rename_node(editNode, defaultTitle);

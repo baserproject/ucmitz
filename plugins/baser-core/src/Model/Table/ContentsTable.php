@@ -294,11 +294,11 @@ class ContentsTable extends AppTable
         if (!empty($content['title'])) {
             $content['title'] = mb_substr($content['title'], 0, 254, 'UTF-8');
         }
-        $isNew = empty($content['id']) && !isset($content['created']);
+        $isNew = empty($content['id']) || !empty($options['firstCreate']);
         if ($isNew) {
             // IEのURL制限が2083文字のため、全て全角文字を想定し231文字でカット
             if (!isset($content['name']) && !empty($content['title'])) {
-                $content['name'] = $content['title'];
+                $content['name'] = BcUtil::urlencode(mb_substr($content['title'], 0, 230, 'UTF-8'));
             }
             if (!isset($content['self_status'])) {
                 $content['self_status'] = false;
@@ -323,6 +323,9 @@ class ContentsTable extends AppTable
                 if ($user) $content['author_id'] = $user['id'];
             }
         } else {
+			if (isset($content['name'])) {
+				$content['name'] = BcUtil::urlencode(mb_substr($content['name'], 0, 230, 'UTF-8'));
+			}
             if (!empty($content['self_publish_begin'])) {
                 $content['self_publish_begin'] = new FrozenTime($content['self_publish_begin']);
             }
@@ -1402,7 +1405,7 @@ class ContentsTable extends AppTable
                     $content->rght = $count;
                     $content->level = $siteRoot->level + 1;
                     $content->parent_id = $siteRoot->id;
-                    if(!$this->save($content, false)) $result = false;
+                    if (!$this->save($content, false)) $result = false;
                 }
             }
             if ($siteRoot->id == 1) {
@@ -1410,12 +1413,12 @@ class ContentsTable extends AppTable
             } else {
                 $count++;
                 $siteRoot->rght = $count;
-                if(!$this->save($siteRoot)) $result = false;
+                if (!$this->save($siteRoot)) $result = false;
             }
         }
         $count++;
         $mainSite->rght = $count;
-        if(!$this->save($mainSite)) $result = false;
+        if (!$this->save($mainSite)) $result = false;
 
         // ゴミ箱
         $contents = $this->find()
@@ -1432,7 +1435,7 @@ class ContentsTable extends AppTable
                 $content->level = 0;
                 $content->parent_id = null;
                 $content->site_id = null;
-                if(!$this->save($content)) $result = false;
+                if (!$this->save($content)) $result = false;
             }
         }
         // 関連データ更新機能をオンにした状態で再度更新
@@ -1448,10 +1451,10 @@ class ContentsTable extends AppTable
                 // バリデーションをオンにする事で同名コンテンツを強制的にリネームする
                 // beforeValidate でリネーム処理を入れている為
                 // （第二引数を false に設定しない）
-                if(!$this->save($content)) $result = false;
+                if (!$this->save($content)) $result = false;
             }
         }
-        if(!$result) {
+        if (!$result) {
             $this->getConnection()->rollback();
             return false;
         }
