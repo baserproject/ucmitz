@@ -13,6 +13,8 @@ namespace BaserCore\Test\TestCase\Service;
 
 use BaserCore\Model\Table\PagesTable;
 use BaserCore\Service\PagesService;
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\ContentFolderFactory;
 use BaserCore\Test\Factory\PageFactory;
 use BaserCore\TestSuite\BcTestCase;
 
@@ -261,5 +263,33 @@ class PagesServiceTest extends BcTestCase
         PageFactory::make(['id' => 101, 'page_template' => 'test'])->persist();
         $rs = $this->PagesService->getPageTemplate($this->PagesService->get(101));
         $this->assertEquals('test', $rs);
+
+        PageFactory::make(['id' => 100])->persist();
+        ContentFolderFactory::make(['id' => 100, 'folder_template' => 'template 1', 'page_template' => 'page admin'])->persist();
+        ContentFactory::make([
+            'id' => 100,
+            'name' => 'test',
+            'plugin' => 'BaserCore',
+            'type' => 'Page',
+            'site_id' => 100,
+            'lft' => 101,
+            'rght' => 102,
+            'entity_id' => 100,
+            'parent_id' => 101
+        ])->persist();
+        ContentFactory::make([
+            'id' => 101,
+            'name' => 'test',
+            'plugin' => 'BaserCore',
+            'type' => 'ContentFolder',
+            'site_id' => 100,
+            'lft' => 100,
+            'rght' => 103,
+            'entity_id' => 100,
+            'parent_id' => null
+        ])->persist();
+
+        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(100));
+        $this->assertEquals('page admin', $rs);
     }
 }
