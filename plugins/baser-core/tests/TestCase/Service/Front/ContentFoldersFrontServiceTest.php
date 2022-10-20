@@ -13,6 +13,7 @@ namespace BaserCore\Test\TestCase\Service\Front;
 
 use BaserCore\Controller\ContentFoldersController;
 use BaserCore\Service\Front\ContentFoldersFrontService;
+use BaserCore\Test\Factory\ContentFolderFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Test\Scenario\SmallSetContentsScenario;
 use BaserCore\TestSuite\BcTestCase;
@@ -108,9 +109,14 @@ class ContentFoldersFrontServiceTest extends BcTestCase
     /**
      * test getTemplateForView
      */
-    public function test_getTemplateForView(){
+    public function test_getTemplateForView()
+    {
         $this->loadFixtureScenario(SmallSetContentsScenario::class);
         $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(2));
         $this->assertEquals('default', $rs);
+
+        ContentFolderFactory::make(['id' => 102, 'folder_template' => 'temp1', 'page_template' => 'temp2'])->persist();
+        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(102));
+        $this->assertEquals('temp1', $rs);
     }
 }
