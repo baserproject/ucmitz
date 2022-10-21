@@ -13,6 +13,7 @@ namespace BaserCore\Test\TestCase\Service\Front;
 
 use BaserCore\Controller\ContentFoldersController;
 use BaserCore\Service\Front\ContentFoldersFrontService;
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\ContentFolderFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Test\Scenario\SmallSetContentsScenario;
@@ -111,12 +112,53 @@ class ContentFoldersFrontServiceTest extends BcTestCase
      */
     public function test_getTemplateForView()
     {
-        $this->loadFixtureScenario(SmallSetContentsScenario::class);
-        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(2));
+        //初期の状態
+        ContentFolderFactory::make(['id' => 1])->persist();
+        ContentFactory::make([
+            'id' => 1,
+            'name' => 'test 1',
+            'plugin' => 'BaserCore',
+            'type' => 'ContentFolder',
+            'site_id' => 1,
+            'lft' => 1,
+            'rght' => 2,
+            'entity_id' => 1
+        ])->persist();
+        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(1));
         $this->assertEquals('default', $rs);
 
+        // 対象に値が入っている場合
         ContentFolderFactory::make(['id' => 102, 'folder_template' => 'temp1', 'page_template' => 'temp2'])->persist();
         $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(102));
         $this->assertEquals('temp1', $rs);
+
+        //対象に値が入っておらず親を参照する場合
+        ContentFolderFactory::make(['id' => 10])->persist();
+        ContentFactory::make([
+            'id' => 10,
+            'name' => 'test 10',
+            'plugin' => 'BaserCore',
+            'type' => 'ContentFolder',
+            'site_id' => 10,
+            'lft' => 4,
+            'rght' => 5,
+            'entity_id' => 10,
+            'parent_id' => 11
+        ])->persist();
+        ContentFolderFactory::make(['id' => 11, 'folder_template' => 'template parent', 'page_template' => 'temp2 11'])->persist();
+        ContentFactory::make([
+            'id' => 11,
+            'name' => 'test 11',
+            'plugin' => 'BaserCore',
+            'type' => 'ContentFolder',
+            'site_id' => 10,
+            'lft' => 3,
+            'rght' => 40,
+            'entity_id' => 10,
+            'parent_id' => null
+        ])->persist();
+
+        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(10));
+        $this->assertEquals('template parent', $rs);
     }
 }
