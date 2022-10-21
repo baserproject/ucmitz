@@ -13,11 +13,14 @@ namespace BcBlog\Test\TestCase\Service;
 
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\SiteFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogContentsService;
 use BcBlog\Test\Factory\BlogContentsFactory;
+use BcBlog\Test\Factory\BlogPostsFactory;
 use Cake\TestSuite\IntegrationTestTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * BlogContentsServiceTest
@@ -29,7 +32,7 @@ class BlogContentsServiceTest extends BcTestCase
     /**
      * Trait
      */
-    use BcContainerTrait;
+    use ScenarioAwareTrait;
     use IntegrationTestTrait;
 
     /**
@@ -191,7 +194,37 @@ class BlogContentsServiceTest extends BcTestCase
      */
     public function test_copy()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(InitAppScenario::class);
+        BlogContentsFactory::make([
+            'id' => 2,
+            'description' => 'test copy',
+        ])->persist();
+        ContentFactory::make([
+            'id' => 2,
+            'title' => 'news',
+            'plugin' => 'BcBlog',
+            'type' => 'BlogContent',
+            'entity_id' => 2,
+            'url' => '/test',
+            'site_id' => 1,
+            'alias_id' => null,
+            'main_site_content_id' => null,
+            'parent_id' => null,
+            'lft' => 1,
+            'rght' => 2,
+            'level' => 1,
+
+        ])->persist();
+        $data = [
+            'entity_id' => 2,
+            'parent_id' => 2,
+            'site_id' => 2,
+            'title' => 'news',
+        ];
+        $request = $this->getRequest('/baser/admin/baser-core/blog_contents/');
+        $this->loginAdmin($request);
+        $rs = $this->BlogContentsService->copy($data);
+        $this->assertFalse($rs);
     }
 
     /**
