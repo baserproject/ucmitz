@@ -19,6 +19,7 @@ use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogContentsService;
 use BcBlog\Test\Factory\BlogContentsFactory;
 use BcBlog\Test\Factory\BlogPostsFactory;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -237,8 +238,8 @@ class BlogContentsServiceTest extends BcTestCase
         //戻り値を確認
         $this->assertTrue($rs);
         //データの削除を確認
-        $blogContent = $this->BlogContentsService->get(70);
-        $this->assertNull($blogContent);
+        $this->expectException(RecordNotFoundException::class);
+        $this->BlogContentsService->get(70);
     }
 
 }
