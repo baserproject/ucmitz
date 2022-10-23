@@ -1484,7 +1484,7 @@ class BcUtil
             $parseUrl = parse_url($url);
             Configure::write('BcEnv.host', $parseUrl['host']);
             $query = strpos($url, '?') !== false? explode('?', $url)[1] : '';
-            $queryParameters = '';
+            $queryParameters = [];
             if($query) parse_str($query, $queryParameters);
             $defaultConfig = [
                 'uri' => ServerRequestFactory::createUri([
@@ -1542,6 +1542,23 @@ class BcUtil
         $bcRequestFilter = new BcRequestFilterMiddleware();
         $request = $bcRequestFilter->addDetectors($request);
         return $request;
+    }
+
+    /**
+     * 必要な一時フォルダが存在するかチェックし、
+     * なければ生成する
+     */
+    public static function checkTmpFolders()
+    {
+        if (!is_writable(TMP)) {
+            return;
+        }
+        $folder = new Folder();
+        $folder->create(TMP . 'sessions', 0777);
+        $folder->create(CACHE, 0777);
+        $folder->create(CACHE . 'models', 0777);
+        $folder->create(CACHE . 'persistent', 0777);
+        $folder->create(CACHE . 'environment', 0777);
     }
 
 }
