@@ -43,6 +43,8 @@ class BlogContentsServiceTest extends BcTestCase
     public $fixtures = [
         'plugin.BaserCore.Factory/Sites',
         'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/UserGroups',
+        'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BaserCore.Factory/Contents',
         'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BaserCore.Factory/Pages',
