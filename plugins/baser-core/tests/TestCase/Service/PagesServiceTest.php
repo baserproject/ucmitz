@@ -257,14 +257,18 @@ class PagesServiceTest extends BcTestCase
      */
     public function test_getPageTemplate()
     {
+        //初期の状態
         $rs = $this->PagesService->getPageTemplate($this->PagesService->get(2));
         $this->assertEquals('default', $rs);
 
+        //対象に値が入っている場合
         PageFactory::make(['id' => 101, 'page_template' => 'test'])->persist();
         $rs = $this->PagesService->getPageTemplate($this->PagesService->get(101));
         $this->assertEquals('test', $rs);
 
+        //対象に値が入っておらず親を参照する場合
         PageFactory::make(['id' => 100])->persist();
+        //親となる ContentFolder を作成
         ContentFolderFactory::make(['id' => 100, 'folder_template' => 'template 1', 'page_template' => 'page admin'])->persist();
         ContentFactory::make([
             'id' => 100,
