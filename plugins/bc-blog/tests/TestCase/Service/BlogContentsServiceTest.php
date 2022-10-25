@@ -198,7 +198,18 @@ class BlogContentsServiceTest extends BcTestCase
         $this->loadFixtureScenario(InitAppScenario::class);
         BlogContentFactory::make([
             'id' => 2,
-            'description' => 'test copy',
+            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
+            'template' => 'default',
+            'list_count' => '10',
+            'list_direction' => 'DESC',
+            'feed_count' => '10',
+            'tag_use' => '1',
+            'comment_use' => '1',
+            'comment_approve' => '0',
+            'auth_captcha' => '1',
+            'widget_area' => '2',
+            'eye_catch_size' => '',
+            'use_content' => '1'
         ])->persist();
         ContentFactory::make([
             'id' => 2,
@@ -219,7 +230,7 @@ class BlogContentsServiceTest extends BcTestCase
         $data = [
             'entity_id' => 2,
             'parent_id' => 2,
-            'site_id' => 2,
+            'site_id' => 1,
             'title' => 'news',
         ];
         $request = $this->getRequest('/baser/admin/baser-core/blog_contents/');
