@@ -9,10 +9,10 @@
  * @since           baserCMS v 3.0.0
  * @license         https://basercms.net/license/index.html
  */
-
 namespace BcBlog\Test\TestCase\Model;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Model\Table\BlogContentsTable;
+use BcBlog\Test\Factory\BlogContentsFactory;
 
 /**
  * Class BlogContentsTableTest
@@ -23,10 +23,11 @@ class BlogContentsTableTest extends BcTestCase
 {
 
     public $fixtures = [
+        'plugin.BcBlog.Factory/BlogContents',
     ];
 
     /**
-     * Set Up
+     * Setup
      *
      * @return void
      */
@@ -37,7 +38,7 @@ class BlogContentsTableTest extends BcTestCase
     }
 
     /**
-     * Tear Down
+     * Tear down
      *
      * @return void
      */
@@ -355,13 +356,17 @@ class BlogContentsTableTest extends BcTestCase
     /**
      * アイキャッチサイズフィールドの値をDB用に変換する
      */
-    public function testDeconstructEyeCatchSize()
+    public function test_deconstructEyeCatchSize()
     {
+        BlogContentsFactory::make([
+            'id' => 1,
+            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
+        ])->persist();
         $this->markTestIncomplete('こちらのテストはまだ未確認です');
-        $data = $this->BlogContent->deconstructEyeCatchSize($this->BlogContent->getDefaultValue());
+        $data = $this->BlogContentsTable->deconstructEyeCatchSize($this->BlogContentsTable->get(1));
         $this->assertEquals(
-            $data['BlogContent']['eye_catch_size'],
-            'YTo0OntzOjExOiJ0aHVtYl93aWR0aCI7aTo2MDA7czoxMjoidGh1bWJfaGVpZ2h0IjtpOjYwMDtzOjE4OiJtb2JpbGVfdGh1bWJfd2lkdGgiO2k6MTUwO3M6MTk6Im1vYmlsZV90aHVtYl9oZWlnaHQiO2k6MTUwO30='
+            $data['eye_catch_size'],
+            'YTo0OntzOjExOiJ0aHVtYl93aWR0aCI7TjtzOjEyOiJ0aHVtYl9oZWlnaHQiO047czoxODoibW9iaWxlX3RodW1iX3dpZHRoIjtOO3M6MTk6Im1vYmlsZV90aHVtYl9oZWlnaHQiO047fQ=='
         );
     }
 
