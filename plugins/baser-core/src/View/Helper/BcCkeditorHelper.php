@@ -318,7 +318,7 @@ class BcCkeditorHelper extends Helper
      * @param array $options
      * @return array
      * @checked
-     * @noTodo
+     * @unitTest
      */
     public function setDraft($field, $options)
     {
@@ -331,7 +331,7 @@ class BcCkeditorHelper extends Helper
             $lastBar = array_merge($lastBar, ['-', 'CopyPublish']);
         }
         $model = null;
-        if(strpos('.', $field) !== false) {
+        if(strpos($field, '.') !== false) {
             [$model, $field] = explode('.', $field);
         }
         $options['editorToolbar'][count($options['editorToolbar']) - 1] = $lastBar;
@@ -360,7 +360,7 @@ class BcCkeditorHelper extends Helper
             $currentTheme = $this->getView()->getTheme();
             $this->getView()->setTheme($currentFrontTheme);
             if ($site->alias) {
-                $themeEditorCsses = [
+                $themeEditorCsses[] = [
                     'path' => Plugin::path(Inflector::camelize($currentFrontTheme)) . 'webroot' . DS . 'css' . DS . $site->alias . DS . 'editor.css',
                     'url' => $this->Url->webroot('/css/' . $site->alias . '/editor.css')
                 ];
@@ -395,7 +395,7 @@ class BcCkeditorHelper extends Helper
     {
         if (!empty($options['editorUseDraft']) && !empty($options['editorDraftField'])) {
             $model = null;
-            if(strpos('.', $fieldName) !== false) {
+            if(strpos($fieldName, '.') !== false) {
                 [$model] = explode('.', $fieldName);
             }
             // フィールド名を変更するためセキュリティコンポーネントの対象外とする 2022/10/10 ryuring
