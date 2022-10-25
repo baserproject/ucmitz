@@ -12,7 +12,7 @@
 namespace BcBlog\Test\TestCase\Model;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Model\Table\BlogContentsTable;
-use BcBlog\Test\Factory\BlogContentsFactory;
+use BcBlog\Test\Factory\BlogContentFactory;
 
 /**
  * Class BlogContentsTableTest
@@ -345,7 +345,7 @@ class BlogContentsTableTest extends BcTestCase
      */
     public function test_deconstructEyeCatchSize()
     {
-        BlogContentsFactory::make([
+        BlogContentFactory::make([
             'id' => 1,
             'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
         ])->persist();

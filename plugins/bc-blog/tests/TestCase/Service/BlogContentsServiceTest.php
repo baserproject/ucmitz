@@ -17,7 +17,6 @@ use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Service\BlogContentsService;
 use BcBlog\Test\Factory\BlogContentFactory;
-use BcBlog\Test\Factory\BlogPostsFactory;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -197,7 +196,7 @@ class BlogContentsServiceTest extends BcTestCase
     public function test_copy()
     {
         $this->loadFixtureScenario(InitAppScenario::class);
-        BlogContentsFactory::make([
+        BlogContentFactory::make([
             'id' => 2,
             'description' => 'test copy',
         ])->persist();
