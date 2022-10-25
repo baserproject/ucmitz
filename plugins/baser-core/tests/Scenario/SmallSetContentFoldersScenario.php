@@ -39,41 +39,39 @@ class SmallSetContentFoldersScenario implements FixtureScenarioInterface
             'site_id' => 1,
             'parent_id' => null,
             'lft' => 1,
-            'rght' => 4,
+            'rght' => 6,
             'entity_id' => 1,
             'site_root' => true,
             'status' => true
         ])->persist();
         ContentFactory::make([
             'id' => 2,
-            'url' => '/service/',
-            'name' => 'service',
+            'url' => '/parent/',
             'plugin' => 'BaserCore',
             'type' => 'ContentFolder',
             'site_id' => 1,
             'parent_id' => 1,
             'lft' => 2,
-            'rght' => 3,
+            'rght' => 5,
             'entity_id' => 2,
             'site_root' => false,
             'status' => true
         ])->persist();
         ContentFactory::make([
             'id' => 3,
-            'url' => '/',
-            'name' => 'service',
+            'url' => '/parent/child',
             'plugin' => 'BaserCore',
             'type' => 'ContentFolder',
             'site_id' => 1,
-            'parent_id' => null,
-            'lft' => 4,
-            'rght' => 5,
+            'parent_id' => 2,
+            'lft' => 3,
+            'rght' => 4,
             'entity_id' => 3,
             'site_root' => false,
             'status' => true
         ])->persist();
-        ContentFolderFactory::make(['id' => 1, 'folder_template' => 'folder template 1', 'page_template' => 'page template 1'])->persist();
-        ContentFolderFactory::make(['id' => 2])->persist();
+        ContentFolderFactory::make(['id' => 1, 'folder_template' => 'default'])->persist();
+        ContentFolderFactory::make(['id' => 2, 'folder_template' => 'test 1'])->persist();
         ContentFolderFactory::make(['id' => 3])->persist();
     }
 

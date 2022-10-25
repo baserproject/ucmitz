@@ -106,15 +106,15 @@ class ContentFoldersFrontServiceTest extends BcTestCase
     {
         $this->loadFixtureScenario(SmallSetContentFoldersScenario::class);
         //初期の状態
-        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(3));
+        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(1));
         $this->assertEquals('default', $rs);
 
         // 対象に値が入っている場合
-        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(1));
-        $this->assertEquals('folder template 1', $rs);
+        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(2));
+        $this->assertEquals('test 1', $rs);
 
         //対象に値が入っておらず親を参照する場合
-        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(2));
-        $this->assertEquals('folder template 1', $rs);
+        $rs = $this->ContentFoldersFrontService->getTemplateForView($this->ContentFoldersFrontService->get(3));
+        $this->assertEquals('test 1', $rs);
     }
 }
