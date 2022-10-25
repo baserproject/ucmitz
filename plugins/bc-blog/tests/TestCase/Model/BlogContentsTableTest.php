@@ -47,6 +47,19 @@ class BlogContentsTableTest extends BcTestCase
         unset($this->BlogContentsTable);
         parent::tearDown();
     }
+    /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $this->assertEquals('blog_contents', $this->BlogContentsTable->getTable());
+        $this->assertTrue($this->BlogContentsTable->hasBehavior('Timestamp'));
+        $this->assertTrue($this->BlogContentsTable->hasBehavior('BcContents'));
+        $this->assertTrue($this->BlogContentsTable->hasBehavior('BcSearchIndexManager'));
+        $this->assertTrue($this->BlogContentsTable->hasAssociation('BlogPosts'));
+        $this->assertTrue($this->BlogContentsTable->hasAssociation('BlogCategories'));
+
+    }
 
     /*
 	 * validate
@@ -349,6 +362,7 @@ class BlogContentsTableTest extends BcTestCase
             'id' => 1,
             'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
         ])->persist();
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $data = $this->BlogContentsTable->deconstructEyeCatchSize($this->BlogContentsTable->get(1));
         $this->assertEquals(
             $data['eye_catch_size'],
