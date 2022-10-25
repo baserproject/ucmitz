@@ -71,7 +71,8 @@ class PagesServiceTest extends BcTestCase
      * test construct()
      * @return void
      */
-    public function testConstruct(){
+    public function testConstruct()
+    {
         $this->assertTrue(isset($this->PagesService->Pages));
         $this->assertTrue(isset($this->PagesService->Contents));
         $this->assertTrue(isset($this->PagesService->Users));
@@ -89,6 +90,7 @@ class PagesServiceTest extends BcTestCase
         $this->expectExceptionMessage('Record not found in table "pages"');
         $page = $this->PagesService->getTrash(1);
     }
+
     /**
      * Test getTrash
      *
@@ -233,7 +235,7 @@ class PagesServiceTest extends BcTestCase
             'prefix' => 'Admin',
             'controller' => 'Pages',
             'action' =>
-            'edit', 16
+                'edit', 16
         ], $this->PagesService->getEditLink($request));
         $request = $this->getRequest('/hoge');
         $this->assertEmpty($this->PagesService->getEditLink($request));
@@ -257,43 +259,56 @@ class PagesServiceTest extends BcTestCase
      */
     public function test_getPageTemplate()
     {
-        //初期の状態
-        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(2));
-        $this->assertEquals('default', $rs);
-
-        //対象に値が入っている場合
-        PageFactory::make(['id' => 101, 'page_template' => 'test'])->persist();
-        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(101));
-        $this->assertEquals('test', $rs);
-
-        //対象に値が入っておらず親を参照する場合
-        PageFactory::make(['id' => 100])->persist();
-        //親となる ContentFolder を作成
-        ContentFolderFactory::make(['id' => 100, 'folder_template' => 'template 1', 'page_template' => 'page admin'])->persist();
         ContentFactory::make([
             'id' => 100,
-            'name' => 'test',
+            'url' => '/',
             'plugin' => 'BaserCore',
-            'type' => 'Page',
-            'site_id' => 100,
+            'type' => 'ContentFolder',
+            'site_id' => 1,
+            'parent_id' => null,
             'lft' => 101,
-            'rght' => 102,
+            'rght' => 106,
             'entity_id' => 100,
-            'parent_id' => 101
+            'site_root' => true,
+            'status' => true
         ])->persist();
         ContentFactory::make([
             'id' => 101,
-            'name' => 'test',
+            'url' => '/parent/',
             'plugin' => 'BaserCore',
-            'type' => 'ContentFolder',
-            'site_id' => 100,
-            'lft' => 100,
+            'type' => 'Page',
+            'site_id' => 1,
+            'parent_id' => 100,
+            'lft' => 102,
             'rght' => 103,
-            'entity_id' => 100,
-            'parent_id' => null
+            'entity_id' => 101,
+            'site_root' => false,
+            'status' => true
         ])->persist();
+        ContentFactory::make([
+            'id' => 102,
+            'url' => '/parent/child',
+            'plugin' => 'BaserCore',
+            'type' => 'Page',
+            'site_id' => 1,
+            'parent_id' => 101,
+            'lft' => 104,
+            'rght' => 105,
+            'entity_id' => 102,
+            'site_root' => false,
+            'status' => true
+        ])->persist();
+        ContentFolderFactory::make(['id' => 100, 'page_template' => 'default 1'])->persist();
+        PageFactory::make(['id' => 101, 'page_template' => 'test 1'])->persist();
+        PageFactory::make(['id' => 102])->persist();
 
-        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(100));
-        $this->assertEquals('page admin', $rs);
+        //対象に値が入っている場合
+        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(101));
+        $this->assertEquals('test 1', $rs);
+
+        //親となる ContentFolder を作成
+
+        $rs = $this->PagesService->getPageTemplate($this->PagesService->get(102));
+        $this->assertEquals('default 1', $rs);
     }
 }
