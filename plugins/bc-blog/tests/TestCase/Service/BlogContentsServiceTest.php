@@ -12,6 +12,7 @@
 namespace BcBlog\Test\TestCase\Service;
 
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
@@ -227,6 +228,10 @@ class BlogContentsServiceTest extends BcTestCase
             'level' => 1,
 
         ])->persist();
+        SiteConfigFactory::make([
+            'name' => 'contents_sort_last_modified',
+            'value' => ''
+        ])->persist();
         $data = [
             'entity_id' => 2,
             'parent_id' => 2,
@@ -236,7 +241,11 @@ class BlogContentsServiceTest extends BcTestCase
         $request = $this->getRequest('/baser/admin/baser-core/blog_contents/');
         $this->loginAdmin($request);
         $rs = $this->BlogContentsService->copy($data);
-        $this->assertFalse($rs);
+        $this->assertEquals($rs['description'], 'baserCMS inc. [デモ] の最新の情報をお届けします。');
+        $this->assertEquals($rs['list_count'], 10);
+        $this->assertEquals($rs['content']['title'], 'news');
+        $this->assertEquals($rs['content']['type'], 'BlogContent');
+        $this->assertNotEquals($rs['id'], 2);
     }
 
     /**
