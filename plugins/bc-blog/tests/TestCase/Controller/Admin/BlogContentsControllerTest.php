@@ -32,7 +32,6 @@ class BlogContentsControllerTest extends BcTestCase
     public function setUp():void
     {
         parent::setUp();
-        $this->BlogContentsController = new BlogContentsController($this->getRequest());
     }
 
     /**
@@ -50,7 +49,8 @@ class BlogContentsControllerTest extends BcTestCase
      */
     public function test_initialize()
     {
-        $this->assertNotEmpty($this->BlogContentsController->BcAdminContents);
+        $controller = new BlogContentsController($this->getRequest());
+        $this->assertNotEmpty($controller->BcAdminContents);
     }
 
     /**
