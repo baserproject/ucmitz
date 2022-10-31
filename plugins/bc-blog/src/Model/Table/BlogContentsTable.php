@@ -11,6 +11,7 @@
 
 namespace BcBlog\Model\Table;
 
+use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Model\Entity\Content;
 use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Utility\BcUtil;
@@ -35,21 +36,9 @@ class BlogContentsTable extends BlogAppTable
 {
 
     /**
-     * クラス名
-     *
-     * @var string
+     * Trait
      */
-    public $name = 'BlogContent';
-
-    /**
-     * behaviors
-     *
-     * @var array
-     */
-    public $actsAs = [
-        'BcSearchIndexManager',
-        'BcContents'
-    ];
+    use BcEventDispatcherTrait;
 
     /**
      * Validation Default
@@ -257,8 +246,8 @@ class BlogContentsTable extends BlogAppTable
         $data = $this->find()->where(['BlogContents.id' => $id])->contain('Contents')->first();
         $oldData = clone $data;
 
-        // EVENT BlogContent.beforeCopy
-        $event = $this->dispatchEvent('beforeCopy', [
+        // EVENT BlogContents.beforeCopy
+        $event = $this->dispatchLayerEvent('beforeCopy', [
             'data' => $data,
             'id' => $id,
         ]);
@@ -329,8 +318,8 @@ class BlogContentsTable extends BlogAppTable
 //            }
             // <<<
 
-            // EVENT BlogContent.afterCopy
-            $this->dispatchEvent('afterCopy', [
+            // EVENT BlogContents.afterCopy
+            $this->dispatchLayerEvent('afterCopy', [
                 'id' => $newBlogContent->id,
                 'data' => $newBlogContent,
                 'oldId' => $id,
@@ -372,7 +361,7 @@ class BlogContentsTable extends BlogAppTable
      * @return EntityInterface
      * @checked
      * @noTodo
-     * @unitTest 
+     * @unitTest
      */
     public function constructEyeCatchSize($data)
     {

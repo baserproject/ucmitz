@@ -18,9 +18,11 @@ use BaserCore\Test\Scenario\SmallSetContentsScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
+use BcBlog\Service\BlogContentsService;
 use BcBlog\Service\Front\BlogFrontService;
 use BcBlog\Test\Factory\BlogContentFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use BcBlog\Test\Factory\BlogContentFactory;
 
 /**
  * BlogFrontServiceTest
@@ -141,6 +143,12 @@ class BlogFrontServiceTest extends BcTestCase
      */
     public function test_getIndexTemplate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        BlogContentFactory::make([
+            'id' => 1,
+            'template' => 'template-1'
+        ])->persist();
+        $BlogContentsService = new BlogContentsService();
+        $rs = $this->BlogFrontService->getIndexTemplate($BlogContentsService->get(1));
+        $this->assertEquals($rs, 'Blog/template-1/index');
     }
 }
