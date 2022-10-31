@@ -45,6 +45,7 @@ class SearchIndexesServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BaserCore.Factory/Pages',
         'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/SearchIndexes',
     ];
 
     /**
@@ -139,19 +140,50 @@ class SearchIndexesServiceTest extends BcTestCase
         $searchIndexes = $this->SearchIndexesService->getIndex(['site_id' => $data['site_id'], 'keyword' => $data['title']])->first();
         $this->assertNull($searchIndexes);
     }
-    /*
+
+    /**
      * test getIndex
      * @return void
      */
-    public function testGetIndex()
+    public function testGetIndex(): void
     {
-        SearchIndexFactory::make(['title' => 'test data', 'type' => 'admin', 'site_id' => 1], 2)->persist();
+        SearchIndexFactory::make(['id' => 1, 'title' => 'test data 1', 'type' => 'admin', 'site_id' => 1])->persist();
+        SearchIndexFactory::make(['id' => 2, 'title' => 'test data 2', 'type' => 'admin', 'site_id' => 1])->persist();
+        SearchIndexFactory::make(['id' => 3, 'title' => 'test data 3', 'priority' => '1', 'site_id' => 2])->persist();
+        SearchIndexFactory::make(['id' => 4, 'title' => 'test data 4', 'priority' => '2', 'site_id' => 2])->persist();
+        SearchIndexFactory::make([
+            'id' => 5,
+            'title' => 'test data 5',
+            'modified' => '2022-09-14 21:10:41',
+            'site_id' => 3
+        ])->persist();
+        SearchIndexFactory::make([
+            'id' => 6,
+            'title' => 'test data 6',
+            'modified' => '2022-09-15 21:10:41',
+            'site_id' => 3
+        ])->persist();
 
-        $rs = $this->SearchIndexesService->getIndex(['limit' => 1]);
-        $this->assertEquals(1, $rs->all()->count());
+        $rs = $this->SearchIndexesService->getIndex(['limit' => 2, 'site_id' => 1])->toArray();
+        // `limit`: 取得件数
+        $this->assertCount(2, $rs);
+        // 並び順 - id: 昇順
+        $this->assertEquals('test data 1', $rs[0]['title']);
+        $this->assertEquals('test data 2', $rs[1]['title']);
 
+        // 並び順 - priority: 降順
+        $rs = $this->SearchIndexesService->getIndex(['site_id' => 2])->toArray();
+        $this->assertEquals('test data 4', $rs[0]['title']);
+        $this->assertEquals('test data 3', $rs[1]['title']);
+
+        // 並び順 - modified: 降順
+        $rs = $this->SearchIndexesService->getIndex(['site_id' => 3])->toArray();
+        $this->assertEquals('test data 6', $rs[0]['title']);
+        $this->assertEquals('test data 5', $rs[1]['title']);
+
+        // その他条件(createIndexConditions)
         $rs = $this->SearchIndexesService->getIndex(['type' => 'admin', 'site_id' => 1])->first();
-        $this->assertEquals('test data', $rs['title']);
+        $this->assertEquals('test data 1', $rs['title']);
     }
 
     /**
