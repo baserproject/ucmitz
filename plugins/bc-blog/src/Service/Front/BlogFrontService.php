@@ -83,7 +83,7 @@ class BlogFrontService implements BlogFrontServiceInterface
         /* @var BlogContent $vars['blogContent'] */
         $vars['blogContent'] = $blogContentsTable->patchEntity(
             $vars['blogContent'],
-            $controller->getRequest()->getData()
+            $controller->getRequest()->getData('blogContent')
         );
         $vars['blogContent']->content = $contentsTable->saveTmpFiles(
             $controller->getRequest()->getData('content'),

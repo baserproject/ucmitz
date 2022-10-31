@@ -113,7 +113,7 @@ class BlogFrontServiceTest extends BcTestCase
             'title' => 'news',
             'plugin' => 'BcBlog',
             'type' => 'BlogContent',
-            'entity_id' => 2,
+            'entity_id' => 1,
             'url' => '/test',
             'site_id' => 1,
             'alias_id' => null,
@@ -124,16 +124,33 @@ class BlogFrontServiceTest extends BcTestCase
             'level' => 1,
 
         ])->persist();
-        $controller = new ContentFoldersController($this->getRequest()->withParam('entityId', 1));
-        $this->BlogFrontService->setupPreviewForIndex($controller);
+        $content = [
+            'title' => 'preview title',
+            'url' => '/preview',
+        ];
+        $blogContent = [
+            'description' => 'test',
+            'template' => 'default-2',
+        ];
+        $controller = new ContentFoldersController(
+            $this->getRequest()
+                ->withParam('entityId', 1)
+                ->withData('blogContent', $blogContent)
+                ->withData('content', $content)
+        );
 
-        $this->assertEquals('Blog/default/index', $controller->viewBuilder()->getTemplate());
+        $this->BlogFrontService->setupPreviewForIndex($controller);
+        $this->assertEquals('Blog/default-2/index', $controller->viewBuilder()->getTemplate());
 
         $vars = $controller->viewBuilder()->getVars();
         $this->assertArrayHasKey('blogContent', $vars);
         $this->assertArrayHasKey('posts', $vars);
         $this->assertArrayHasKey('single', $vars);
         $this->assertArrayNotHasKey('editLink', $vars);
+        $this->assertEquals('test', $vars['blogContent']->description);
+        $this->assertEquals('default-2', $vars['blogContent']->template);
+        $this->assertEquals('/preview', $vars['blogContent']->content->url);
+        $this->assertEquals('preview title', $vars['blogContent']->content->title);
     }
 
     /**
