@@ -14,7 +14,6 @@ namespace BcBlog\Test\TestCase\Service\Front;
 use BaserCore\Controller\ContentFoldersController;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
-use BaserCore\Test\Scenario\SmallSetContentsScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
@@ -22,7 +21,6 @@ use BcBlog\Service\BlogContentsService;
 use BcBlog\Service\Front\BlogFrontService;
 use BcBlog\Test\Factory\BlogContentFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
-use BcBlog\Test\Factory\BlogContentFactory;
 
 /**
  * BlogFrontServiceTest
