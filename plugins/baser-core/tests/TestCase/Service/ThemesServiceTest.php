@@ -98,11 +98,6 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function test_add()
     {
-        //テスト実行後不要ファイルを削除
-        $folder = new Folder();
-        $folder->delete(ROOT . DS . 'plugins' . DS . 'BcSpaSample2');
-        $folder->delete(ROOT . DS . 'plugins' . DS . 'BcSpaSample22');
-        /*
         $path = ROOT . DS . 'plugins' . DS . 'BcSpaSample';
         $zipSrcPath = TMP . 'zip' . DS;
         $folder = new Folder();
@@ -160,7 +155,6 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $this->expectException("Laminas\Diactoros\Exception\UploadedFileAlreadyMovedException");
         $this->expectExceptionMessage("Cannot move file; already moved!");
         $this->ThemesService->add(["file" => $files]);
-        */
     }
 
     /**
