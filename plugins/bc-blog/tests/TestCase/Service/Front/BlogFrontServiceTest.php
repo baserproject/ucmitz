@@ -124,19 +124,18 @@ class BlogFrontServiceTest extends BcTestCase
             'level' => 1,
 
         ])->persist();
-        $content = [
-            'title' => 'preview title',
-            'url' => '/preview',
-        ];
         $blogContent = [
             'description' => 'test',
             'template' => 'default-2',
+            'content' => [
+                'title' => 'preview title',
+                'url' => '/preview',
+            ]
         ];
         $controller = new ContentFoldersController(
             $this->getRequest()
                 ->withParam('entityId', 1)
-                ->withData('blogContent', $blogContent)
-                ->withData('content', $content)
+                ->withParsedBody($blogContent)
         );
 
         $this->BlogFrontService->setupPreviewForIndex($controller);
