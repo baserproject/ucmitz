@@ -244,13 +244,13 @@ class PluginsServiceTest extends BcTestCase
     public function test_update()
     {
         // プラグイン
-        $this->Plugins->install('BcSpaSample', 'test');
-        $pluginPath = Plugin::path('BcSpaSample');
+        $this->Plugins->install('BcThemeSample', 'test');
+        $pluginPath = Plugin::path('BcThemeSample');
         rename($pluginPath . 'VERSION.txt', $pluginPath . 'VERSION.bak.txt');
         $file = new File($pluginPath . 'VERSION.txt');
         $file->write('10.0.0');
-        $this->Plugins->update('BcSpaSample', 'test');
-        $this->assertEquals('10.0.0', $this->Plugins->getVersion('BcSpaSample'));
+        $this->Plugins->update('BcThemeSample', 'test');
+        $this->assertEquals('10.0.0', $this->Plugins->getVersion('BcThemeSample'));
         rename($pluginPath . 'VERSION.bak.txt', $pluginPath . 'VERSION.txt');
 
         // コア
@@ -352,12 +352,12 @@ class PluginsServiceTest extends BcTestCase
      */
     public function test_add()
     {
-        $path = BASER_PLUGINS . 'BcSpaSample';
+        $path = BASER_PLUGINS . 'BcThemeSample';
         $zipSrcPath = TMP . 'zip' . DS;
         $folder = new Folder();
         $folder->create($zipSrcPath, 0777);
-        $folder->copy($zipSrcPath . 'BcSpaSample2', ['from' => $path, 'mode' => 0777]);
-        $plugin = 'BcSpaSample2';
+        $folder->copy($zipSrcPath . 'BcThemeSample2', ['from' => $path, 'mode' => 0777]);
+        $plugin = 'BcThemeSample2';
         $zip = new ZipArchiver();
         $testFile = $zipSrcPath . $plugin . '.zip';
         $zip->archive($zipSrcPath, $testFile, true);
@@ -376,13 +376,13 @@ class PluginsServiceTest extends BcTestCase
 
         //成功
         $rs = $this->Plugins->add(["file" => $files]);
-        $this->assertEquals('BcSpaSample2', $rs);
+        $this->assertEquals('BcThemeSample2', $rs);
         //plugins/ 内に、Zipファイルを展開して配置する。
         $this->assertTrue(is_dir(ROOT . DS . 'plugins' . DS . $plugin));
 
         //  既に /plugins/ 内に同名のプラグインが存在する場合には、数字付きのディレクトリ名（PluginName2）にリネームする。
         $folder->create($zipSrcPath, 0777);
-        $folder->copy($zipSrcPath . 'BcSpaSample2', ['from' => $path, 'mode' => 0777]);
+        $folder->copy($zipSrcPath . 'BcThemeSample2', ['from' => $path, 'mode' => 0777]);
         $zip = new ZipArchiver();
         $zip->archive($zipSrcPath, $testFile, true);
         $this->setUploadFileToRequest('file', $testFile);
@@ -395,17 +395,17 @@ class PluginsServiceTest extends BcTestCase
         );
 
         $rs = $this->Plugins->add(["file" => $files]);
-        $this->assertEquals('BcSpaSample22', $rs);
+        $this->assertEquals('BcThemeSample22', $rs);
 
         //テスト実行後不要ファイルを削除
         $folder = new Folder();
         $folder->delete(ROOT . DS . 'plugins' . DS . $plugin);
-        $folder->delete(ROOT . DS . 'plugins' . DS . 'BcSpaSample22');
+        $folder->delete(ROOT . DS . 'plugins' . DS . 'BcThemeSample22');
         $folder->delete($zipSrcPath);
 
         // post_max_size　を超えた場合、サーバーに設定されているサイズ制限を超えた場合、
         $folder->create($zipSrcPath, 0777);
-        $folder->copy($zipSrcPath . 'BcSpaSample2', ['from' => $path, 'mode' => 0777]);
+        $folder->copy($zipSrcPath . 'BcThemeSample2', ['from' => $path, 'mode' => 0777]);
         $zip = new ZipArchiver();
         $zip->archive($zipSrcPath, $testFile, true);
         $this->setUploadFileToRequest('file', $testFile);
@@ -420,6 +420,7 @@ class PluginsServiceTest extends BcTestCase
             $plugin . '.zip',
             $type
         );
+        $this->expectException("BaserCore\Error\BcException");
         $this->expectExceptionMessage("送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。");
         $this->Plugins->add(["file" => $files]);
     }
