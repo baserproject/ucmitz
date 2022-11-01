@@ -1,4 +1,4 @@
-# BcEditorTemplate plugin for baserCMS
+# BcContentLink plugin for baserCMS
 
 ## Installation
 
