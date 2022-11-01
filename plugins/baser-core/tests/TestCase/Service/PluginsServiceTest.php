@@ -420,7 +420,6 @@ class PluginsServiceTest extends BcTestCase
             $plugin . '.zip',
             $type
         );
-        $this->expectException("BaserCore\Error\BcException");
         $this->expectExceptionMessage("送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。");
         $this->Plugins->add(["file" => $files]);
     }
