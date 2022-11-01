@@ -188,13 +188,6 @@ class PluginsControllerTest extends BcTestCase
         $this->put('/baser/admin/baser-core/plugins/install/BcBlog', $data);
     }
 
-    /**
-     * test add
-     */
-    public function test_add()
-    {
-
-    }
 
     /**
      * test update
