@@ -11,18 +11,27 @@
 
 namespace BaserCore\Test\TestCase\Controller\Admin;
 
+use BaserCore\Service\PagesServiceInterface;
+use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\Test\Scenario\SmallSetContentsScenario;
 use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Service\PagesDisplayService;
 use BaserCore\Controller\Admin\PreviewController;
+use BaserCore\Utility\BcContainerTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Class PreviewControllerTest
  *
- * @package Baser.Test.Case.Controller
  * @property  PreviewController $PreviewController
  */
 class PreviewControllerTest extends BcTestCase
 {
+
+    /**
+     * Trait
+     */
+    use ScenarioAwareTrait;
+    use BcContainerTrait;
 
     /**
      * Fixtures
@@ -30,16 +39,14 @@ class PreviewControllerTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.BaserCore.SearchIndexes',
-        'plugin.BaserCore.Sites',
-        'plugin.BaserCore.SiteConfigs',
-        'plugin.BaserCore.Contents',
-        'plugin.BaserCore.Pages',
-        'plugin.BaserCore.ContentFolders',
-        'plugin.BaserCore.Plugins',
-        'plugin.BaserCore.Users',
-        'plugin.BaserCore.UserGroups',
-        'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/UsersUserGroups',
+        'plugin.BaserCore.Factory/UserGroups',
+        'plugin.BaserCore.Factory/Contents',
+        'plugin.BaserCore.Factory/ContentFolders',
+        'plugin.BaserCore.Factory/Pages',
     ];
 
     /**
@@ -49,10 +56,9 @@ class PreviewControllerTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->PreviewController = new PreviewController($this->getRequest());
-        $this->PreviewService = new PagesDisplayService();
-        $this->Pages = $this->getTableLocator()->get('BaserCore.Pages');
     }
 
     /**
@@ -62,7 +68,6 @@ class PreviewControllerTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        unset($this->PreviewController, $this->PreviewService, $this->Pages);
         parent::tearDown();
     }
 
@@ -74,53 +79,50 @@ class PreviewControllerTest extends BcTestCase
     public function testInitialize()
     {
         $this->assertNotEmpty($this->PreviewController->BcFrontContents);
-        $this->assertNotEmpty($this->PreviewController->ContentsService);
     }
+
     /**
      * testView
      */
     public function testView()
     {
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(SmallSetContentsScenario::class);
         $this->loginAdmin($this->getRequest('/baser/admin'));
         // getリクエストの場合既存のデータを返す
-        $this->get('/baser/admin/baser-core/preview/view?url=https://localhost/about&preview=default');
+        $this->get('/baser/admin/baser-core/preview/view?url=https://localhost/&preview=default');
         $this->assertResponseOk();
-        // postの際はcontents_tmpが反映されているかを確認
-        $page = $this->Pages->find()->contain('Contents')->first();
-        $page->contents_tmp = "<p>test</p>";
+        // 保存前プレビュー
+        $pagesService = $this->getService(PagesServiceInterface::class);
+        $page = $pagesService->get(1);
+        $page->contents = "<p>test</p>";
         $this->enableCsrfToken();
-        $this->post('/baser/admin/baser-core/preview/view?url=https://localhost/about&preview=default', ['Page' => $page->toArray()]);
+        $this->post('/baser/admin/baser-core/preview/view?url=https://localhost/&preview=default', $page->toArray());
         $this->assertResponseOk();
-        $this->assertEquals($page->contents_tmp, $this->viewVariable('page')['contents']);
+        $this->assertEquals($page->contents, $this->viewVariable('page')['contents']);
+        // 草稿プレビュー
+        $page->draft = "<p>draft</p>";
+        $this->post('/baser/admin/baser-core/preview/view?url=https://localhost/&preview=draft', $page->toArray());
+        $this->assertResponseOk();
+        $this->assertEquals($page->draft, $this->viewVariable('page')['contents']);
     }
 
     /**
-     * testCreateRequest
-     *
+     * test _createPreviewRequest
      * @return void
-     * @dataProvider createRequestDataProvider
      */
-    public function testCreateRequest($url, $expected)
+    public function test_createPreviewRequest()
     {
-        $result = $this->execPrivateMethod($this->PreviewController, 'createRequest', [$url]);
-        $this->assertEquals($result->getParam('controller'), $expected['controller']);
-        $this->assertEquals($result->getParam('action'), $expected['action']);
-        $this->assertEquals($result->getParam('Content.id'), $expected['id']);
-    }
-
-    public function createRequestDataProvider()
-    {
-        return [
-            // メインサイトの場合
-            [
-                '/about',
-                ['controller' => "Pages", 'action' => 'display', 'id' => 5]
-            ],
-            // サブサイトの場合
-            [
-                '/en/サイトID3の固定ページ',
-                ['controller' => "Pages", 'action' => 'display', 'id' => 25]
-            ],
-        ];
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(SmallSetContentsScenario::class);
+        $this->loginAdmin($this->getRequest('/'));
+        $result = $this->execPrivateMethod(
+            $this->PreviewController,
+            '_createPreviewRequest',
+            [$this->getRequest()->withQueryParams(['url' => 'https://localhost/', 'preview' => 'default'])]
+        );
+        $this->assertEquals('view', $result->getParam('action'));
+        $this->assertEquals(1, $result->getParam('entityId'));
+        $this->assertEquals('Pages', $result->getParam('controller'));
     }
 }

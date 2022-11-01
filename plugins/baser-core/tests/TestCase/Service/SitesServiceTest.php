@@ -31,12 +31,22 @@ class SitesServiceTest extends \BaserCore\TestSuite\BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.ContentFolders',
+        'plugin.BaserCore.Users',
+        'plugin.BaserCore.SiteConfigs'
     ];
 
     /**
      * @var SitesService|null
      */
     public $Sites = null;
+
+    /**
+     * setUpBeforeClass
+     */
+    public static function setUpBeforeClass(): void
+    {
+        self::truncateTable('sites');
+    }
 
     /**
      * Set Up
@@ -58,6 +68,16 @@ class SitesServiceTest extends \BaserCore\TestSuite\BcTestCase
     {
         unset($this->Sites);
         parent::tearDown();
+    }
+
+    /**
+     * dev#716
+     * test construct
+     * @return void
+     */
+    public function testConstruct()
+    {
+        $this->assertTrue(isset($this->Sites->Sites));
     }
 
     /**
@@ -105,7 +125,8 @@ class SitesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testCreate()
     {
-        $request = $this->getRequest('/');
+        $request = $this->getRequest('/baser/admin');
+        $this->loginAdmin($request);
         $request = $request->withParsedBody([
             'name' => 'chinese',
             'display_name' => '中国サイト',
@@ -209,6 +230,7 @@ class SitesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testGetSiteList()
     {
+        $this->loginAdmin($this->getRequest('/baser/admin'));
         $this->assertEquals(5, count($this->Sites->getList()));
         $this->Sites->create([
             'name' => 'test',
@@ -228,6 +250,34 @@ class SitesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $themes = $this->Sites->getThemeList();
         $this->assertTrue(in_array('BcFront', $themes));
         $this->assertFalse(in_array('BcAdminThird', $themes));
+    }
+
+    /**
+     * test getRootContent
+     * @return void
+     */
+    public function test_getRootContent()
+    {
+        $rs = $this->Sites->getRootContent(1);
+        $this->assertEquals(1, $rs['id']);
+        $this->assertEquals('BaserCore', $rs['plugin']);
+        $this->assertEquals('ContentFolder', $rs['type']);
+        $this->assertEquals('baserCMSサンプル', $rs['title']);
+
+        $rs = $this->Sites->getRootContent(100);
+        $this->assertNull($rs);
+    }
+
+    /**
+     * コンテンツに関連したコンテンツをサイト情報と一緒に全て取得する
+     */
+    public function testGetRelatedContents()
+    {
+        $list = $this->Sites->getRelatedContents(24);
+        $this->assertCount(5, $list);
+        $sample = array_shift($list);
+        $this->assertNotEmpty($sample['Site']);
+        $this->assertNotEmpty($sample['Content']);
     }
 
 }

@@ -1,6 +1,4 @@
 <?php
-// TODO : コード確認要
-return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
  * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
@@ -12,103 +10,66 @@ return;
  * @license         https://basercms.net/license/index.html
  */
 
-App::uses('BcAppView', 'View');
-App::uses('Helper', 'View');
-App::uses('HtmlHelper', 'View.Helper');
-App::uses('BcTimeHelper', 'View.Helper');
-App::uses('BlogHelper', 'BcBlog.View/Helper');
-App::uses('BlogPost', 'BcBlog.Model');
-App::uses('BlogContent', 'BcBlog.Model');
-App::uses('BlogCategory', 'BcBlog.Model');
+namespace BcBlog\Test\TestCase\View\Helper;
+
+use App\View\AppView;
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\TestSuite\BcTestCase;
+use BcBlog\Test\Factory\BlogContentFactory;
+use BcBlog\Test\Scenario\BlogContentScenario;
+use BcBlog\Test\Scenario\MultiSiteBlogScenario;
+use BcBlog\View\Helper\BlogHelper;
+use Cake\Core\Configure;
+use Cake\View\View;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Blog helper library.
  *
  * @package Baser.Test.Case
- * @property BlogPost $BlogPost
- * @property BlogContent $BlogContent
  * @property BlogHelper $Blog
  */
-class BlogHelperTest extends BaserTestCase
+class BlogHelperTest extends BcTestCase
 {
+
+    /**
+     * Trait
+     */
+    use ScenarioAwareTrait;
 
     /**
      * Fixtures
      * @var array
      */
     public $fixtures = [
-        'baser.Routing.Route.BcContentsRoute.ContentBcContentsRoute',    // メソッド内で読み込む
-        'baser.Routing.Route.BcContentsRoute.SiteBcContentsRoute',    // メソッド内で読み込む
-        'plugin.blog.View/Helper/BlogHelper/BlogContentMultiSite',    // メソッド内で読み込む
-        'plugin.blog.View/Helper/BlogHelper/BlogCategoryMultiSite',    // メソッド内で読み込む
-        'plugin.blog.View/Helper/BlogBaserHelper/BlogCategoryTree',    // テスト内で読み込む
-        'plugin.blog.Model/BlogTag/BlogPostBlogTagFindCustomPrams',    // テスト内で読み込む
-        'plugin.blog.Model/BlogTag/BlogPostsBlogTagBlogTagFindCustomPrams',    // テスト内で読み込む
-        'plugin.blog.Model/BlogTag/BlogTagBlogTagFindCustomPrams',    // テスト内で読み込む
-        'plugin.blog.Model/BlogTag/BlogContentBlogTagFindCustomPrams',    // テスト内で読み込む
-        'plugin.blog.Model/BlogTag/ContentBlogTagFindCustomPrams',    // テスト内で読み込む
-        'plugin.blog.View/Helper/BlogBaserHelper/BlogPostBlogBaserHelper', // テスト内で読み込む
-        'baser.Default.BlogPostsBlogTag', // テスト内で読み込む
-        'plugin.blog.View/Helper/BlogBaserHelper/ContentMultiBlog',    // テスト内で読み込む
-        'baser.Default.User',
-        'baser.Default.UserGroup',
-        'baser.Default.Page',
-        'baser.Default.Plugin',
-        'baser.Default.BlogComment',
-        'baser.Default.BlogContent',
-        'baser.Default.Content',
-        'baser.Default.Site',
-        'baser.Default.SiteConfig',
-        'baser.Default.BlogTag',
-        'plugin.blog.Model/BlogPost/BlogCategoryModel',
-        'plugin.blog.Model/BlogPost/BlogPostModel',
-        'plugin.blog.Model/BlogPost/BlogPostsBlogTagModel',
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/Contents',
+        'plugin.BaserCore.Factory/ContentFolders',
+        'plugin.BcBlog.Factory/BlogContents',
+        'plugin.BcBlog.Factory/BlogCategories',
     ];
-
-    /**
-     * View
-     *
-     * @var View
-     */
-    protected $View;
-
-    /**
-     * __construct
-     *
-     * @param string $name
-     * @param array $data
-     * @param string $dataName
-     */
-    public function __construct($name = null, array $data = [], $dataName = '')
-    {
-        parent::__construct($name, $data, $dataName);
-    }
 
     /**
      * setUp
      *
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
-        $this->View = new BcAppView();
-        $this->View->request = $this->View->request->withParam('Site', [
-            'id' => null,
-            'use_subdomain' => null,
-            'name' => null,
-            'alias' => null,
-        ]);
-        $this->View->request = $this->View->request->withParam('Content', [
-            'url' => '/news/',
-            'name' => 'news',
-            'title' => '新着情報'
-        ]);
-        $this->Blog = new BlogHelper($this->View);
-
-        $this->BlogContent = ClassRegistry::init('BcBlog.BlogContent');
-        $this->BlogContent->reduceAssociations([]);
-        $this->Blog->setContent(1);
+        $this->loadFixtureScenario(BlogContentScenario::class,
+            1,  // id
+            1, // siteId
+            1, // parentId
+            'news', // name
+            '/news/' // url
+        );
+        $view = new AppView();
+        $blogContent = BlogContentFactory::get(1);
+        $blogContent->content = ContentFactory::get(1);
+        $view->set('blogContent', $blogContent);
+        $this->Blog = new BlogHelper($view);
     }
 
     /**
@@ -116,12 +77,17 @@ class BlogHelperTest extends BaserTestCase
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
-        unset($this->Blog);
-        unset($this->BlogContent);
-        Router::reload();
         parent::tearDown();
+    }
+
+    /**
+     * Test __construct
+     */
+    public function test__construct()
+    {
+        $this->assertEquals(1, $this->Blog->currentContent->id);
     }
 
     /**
@@ -133,6 +99,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testSetContent($blogContentId, $viewVars, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         if ($viewVars) {
             $View = new View();
             $View->viewVars = ['blogContent' => [
@@ -168,6 +135,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetCurrentBlogId()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Blog->getCurrentBlogId();
         $expects = '1';
         $this->assertEquals($expects, $result, 'ブログIDを正しく取得できません');
@@ -178,6 +146,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetBlogName()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Blog->getBlogName();
         $expects = 'news';
         $this->assertEquals($expects, $result, 'ブログのコンテンツ名を正しく取得できません');
@@ -188,6 +157,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetTitle()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Blog->getTitle();
         $expects = '新着情報';
         $this->assertEquals($expects, $result, 'タイトルを正しく取得できません');
@@ -198,6 +168,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetDescription()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $result = $this->Blog->getDescription();
         $expects = 'baserCMS inc. [デモ] の最新の情報をお届けします。';
         $this->assertEquals($expects, $result, 'ブログの説明文を正しく取得できません');
@@ -213,6 +184,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPostTitle($name, $link, $options, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = ['BlogPost' => [
             'blog_content_id' => 1,
             'name' => $name,
@@ -239,6 +211,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPostLink()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = ['BlogPost' => [
             'blog_content_id' => 1,
             'no' => 3,
@@ -257,6 +230,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPostLinkUrl($blogContentId, $no, $base, $useBase, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
         $this->loadFixtures('ContentBcContentsRoute', 'SiteBcContentsRoute', 'BlogContentMultiSite');
@@ -273,6 +247,7 @@ class BlogHelperTest extends BaserTestCase
 
     public function getPostLinkUrlDataProvider()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         return [
             [10, 3, '', false, false],
             [1, 3, '', false, '/news/archives/3'],
@@ -296,6 +271,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPostContent($moreText, $moreLink, $cut, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = ['BlogPost' => [
             'content' => 'test-content',
             'detail' => 'test-detail',
@@ -321,6 +297,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPostDetail()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $BlogPost = ClassRegistry::init('BlogPost');
         $post = $BlogPost->find('first', ['conditions' => ['BlogPost.id' => 1]]);
 
@@ -340,6 +317,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testPostDetailCut()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $BlogPost = ClassRegistry::init('BlogPost');
         $post = $BlogPost->find('first', ['conditions' => ['BlogPost.id' => 1]]);
 
@@ -373,6 +351,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetTag($options, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = [
             'BlogTag' => [
                 ['name' => 'test1'],
@@ -401,38 +380,46 @@ class BlogHelperTest extends BaserTestCase
      * カテゴリ一覧へのURLを取得する
      *
      * @param int $blogCategoryId ブログカテゴリーID
-     * @param int $named $options['named']の値
+     * @param int $base URLベース
+     * @param bool $useBase URLベースを利用するかどうか
      * @param string $expected 期待値
      * @dataProvider getCategoryUrlDataProvider
      */
-    public function testGetCategoryUrl($blogCategoryId, $named, $base, $useBase, $expected)
+    public function testGetCategoryUrl($blogCategoryId, $base, $useBase, $expected)
     {
+        $this->truncateTable('contents');
+        $this->truncateTable('blog_contents');
+        $this->loadFixtureScenario(MultiSiteBlogScenario::class);
+
+        $blogContent = BlogContentFactory::get(6);
+        $blogContent->content = ContentFactory::get(6);
+        $this->Blog->getView()->set('blogContent', $blogContent);
+
         $siteUrl = Configure::read('BcEnv.siteUrl');
-        Configure::write('BcEnv.siteUrl', 'http://main.com');
-        $this->loadFixtures('ContentBcContentsRoute', 'SiteBcContentsRoute', 'BlogContentMultiSite', 'BlogCategoryMultiSite');
-        $this->Blog->request = $this->_getRequest('/');
-        $this->Blog->request->base = $base;
+        Configure::write('BcEnv.siteUrl', 'https://main.com');
+        $this->Blog->getView()->setRequest($this->getRequest('/', [], 'GET', $base? ['base' => $base] : []));
         $options = [
-            'named' => $named,
             'base' => $useBase
         ];
+
         $result = $this->Blog->getCategoryUrl($blogCategoryId, $options);
-        Configure::write('BcEnv.siteUrl', $siteUrl);
         $this->assertEquals($result, $expected, 'カテゴリ一覧へのURLを正しく取得できません');
+
+        Configure::write('BcEnv.siteUrl', $siteUrl);
     }
 
     public function getCategoryUrlDataProvider()
     {
         return [
-            [1, [], '', false, '/news/archives/category/release'],
-            [1, [], '/sub', false, '/news/archives/category/release'],
-            [1, [], '/sub', true, '/sub/news/archives/category/release'],
-            [2, [], '', false, '/news/archives/category/release/child'],
-            [3, [], '', false, '/news/archives/category/child-no-parent'],
-            [4, [], '', false, 'http://main.com/m/news/archives/category/release'],
-            [5, [], '', false, 'http://sub.main.com/news/archives/category/release'],
-            [6, [], '', false, 'http://another.com/news/archives/category/release'],
-            [1, ['test1', 'test2'], '', false, '/news/archives/category/release/test1/test2'],
+            [1, '', false, '/news/archives/category/release'],
+            [1, '/sub', false, '/news/archives/category/release'],
+            [1, '/sub', true, '/sub/news/archives/category/release'],
+            [2, '', false, '/news/archives/category/release/child'],
+            [3, '', false, '/news/archives/category/child-no-parent'],
+            [4, '', false, 'https://main.com/s/news2/archives/category/smartphone_release'],
+            [5, '', false, 'https://main.com/en/news3/archives/category/english_release'],
+            [6, '', false, 'https://example.com/news4/archives/category/another_domain_release'],
+            [7, '', false, 'https://sub.main.com/news5/archives/category/sub_domain_release'],
         ];
     }
 
@@ -459,6 +446,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetCategoryList($depth, $count, $options, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         /* @var BlogCategory $BlogCategory */
         $BlogCategory = ClassRegistry::init('BcBlog.BlogCategory');
         $categories = $BlogCategory->getCategoryList(1, ['viewCount' => true, 'depth' => 3, 'siteId' => 0]);
@@ -506,6 +494,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testPrevLink($blogContentId, $id, $posts_date, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->expectOutputString($expected);
         $post = ['BlogPost' => [
             'blog_content_id' => $blogContentId,
@@ -535,6 +524,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testNextLink($blogContentId, $id, $posts_date, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->expectOutputString($expected);
         $post = ['BlogPost' => [
             'blog_content_id' => $blogContentId,
@@ -563,6 +553,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetBlogTemplates($theme, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->Blog->BcBaser->siteConfig['theme'] = $theme;
         $result = $this->Blog->getBlogTemplates();
         $this->assertEquals($result, $expected, 'ブログテンプレートを正しく取得できません');
@@ -580,6 +571,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testAllowPublish()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $data = [
             'status' => true,
             'publish_begin' => '2015-08-10 18:58:07',
@@ -603,6 +595,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPostImg($num, $link, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = ['BlogPost' => [
             'blog_content_id' => 1,
             'name' => 'test-name ',
@@ -633,6 +626,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetHtmlById()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = ['BlogPost' => [
             'content' => '<p id="test-id1">test-content1</p><div id="test-id2">test-content1</div>',
             'detail' => '<p id="test-id1">test-content2</p>',
@@ -647,6 +641,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetParentCategory()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $message = '正しく親カテゴリーを取得できません';
         $post = ['BlogCategory' => ['id' => 1]];
         $result = $this->Blog->getParentCategory($post);
@@ -663,6 +658,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetRelatedPosts()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = [
             'BlogPost' => [
                 'id' => 1,
@@ -697,6 +693,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetEyeCatch()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $post = ['BlogPost' => [
             'blog_content_id' => 1,
             'eye_catch' => 'test-eye_catch.jpg'
@@ -712,6 +709,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testMailFormLink()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->expectOutputString('<a href="/test-contentsName">test-title</a>');
         $this->Blog->mailFormLink('test-title', 'test-contentsName');
     }
@@ -721,6 +719,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testRemoveCtrlChars()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
@@ -729,6 +728,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetCategories()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loadFixtures('BlogCategoryTree');
         // １階層、かつ、siteId=0
         $categories = $this->Blog->getCategories(['siteId' => 0]);
@@ -779,6 +779,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetTagList($expected, $name, $options = [])
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loadFixtures('BlogPostBlogTagFindCustomPrams');
         $this->loadFixtures('BlogPostsBlogTagBlogTagFindCustomPrams');
         $this->loadFixtures('BlogTagBlogTagFindCustomPrams');
@@ -812,6 +813,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testTagList($expected, $name, $options = [])
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loadFixtures('BlogPostBlogTagFindCustomPrams');
         $this->loadFixtures('BlogPostsBlogTagBlogTagFindCustomPrams');
         $this->loadFixtures('BlogTagBlogTagFindCustomPrams');
@@ -842,6 +844,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetTagLinkUrl($currentUrl, $blogContentId, $name, $base, $useBase, $expected)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
         $this->loadFixtures('ContentBcContentsRoute', 'SiteBcContentsRoute', 'BlogContentMultiSite', 'BlogPostBlogTagFindCustomPrams', 'BlogPostsBlogTagBlogTagFindCustomPrams', 'BlogTagBlogTagFindCustomPrams');
@@ -877,6 +880,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetTagLink($expected, $currentUrl, $blogContentId, $name)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->Blog->request = $this->_getRequest($currentUrl);
         $this->loadFixtures('BlogPostBlogTagFindCustomPrams');
         $this->loadFixtures('BlogPostsBlogTagBlogTagFindCustomPrams');
@@ -917,6 +921,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testPosts($currentUrl, $contentsName, $num, $options, $expected, $message = null)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->loadFixtures('BlogPostBlogBaserHelper', 'BlogPostsBlogTag');
         $this->View->loadHelper('BcTime');
         $url = null;
@@ -990,6 +995,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetContents()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         // 復数ブログのデータを取得
         $this->loadFixtures('ContentMultiBlog', 'BlogPostBlogBaserHelper');
 
@@ -1039,6 +1045,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testIsBlog($expected, $url)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->Blog->request = $this->_getRequest($url);
         $this->assertEquals($expected, $this->Blog->isBlog());
     }
@@ -1092,6 +1099,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPreviewUrl($url, $useSubdomain, $base, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         BcSite::flash();
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
@@ -1120,6 +1128,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetCategoryByName($blogCategoryId, $type, $pass, $name, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->Blog->request = $this->_getRequest('/');
         $this->View->set('blogArchiveType', $type);
         $this->Blog->request->params['pass'][1] = $pass;
@@ -1141,6 +1150,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetPostCount()
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->View->loadHelper('Paginator');
         $this->View->Paginator->request = $this->_getRequest('/news/');
         $this->View->Paginator->request->params = [
@@ -1159,6 +1169,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetBlogArchiveType($url, $type, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->Blog->request = $this->_getRequest($url);
         $this->View->set('blogArchiveType', $type);
         $result = $this->Blog->getBlogArchiveType();
@@ -1190,6 +1201,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testIsTag($type, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->View->set('blogArchiveType', $type);
         $result = $this->Blog->isTag();
         $this->assertEquals($expects, $result);
@@ -1214,6 +1226,7 @@ class BlogHelperTest extends BaserTestCase
      */
     public function testGetCurrentBlogTag($url, $type, $isTag, $expects)
     {
+        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         $this->Blog->request = $this->_getRequest($url);
         $this->View->set('blogArchiveType', $type);
 

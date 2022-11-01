@@ -12,12 +12,15 @@
 use BaserCore\Utility\BcUtil;
 use BaserCore\View\BcAdminAppView;
 use Cake\Utility\Inflector;
+
 /**
  * @var BcAdminAppView $this
  * @var string $title
+ * @checked
+ * @noTodo
+ * @unitTest
  */
 
-$this->assign('title', $title);
 $request = $this->getRequest();
 $attributes = $request->getAttributes();
 $base = $attributes['base'];
@@ -33,7 +36,7 @@ $base = $attributes['base'];
     'vendor/bootstrap-4.1.3/bootstrap',
     'vendor/jquery-ui/jquery-ui.min',
     'vendor/jquery.timepicker',
-    'vendor/jquery-colorbox/colorbox',
+    '../js/vendor/jquery-contextMenu-2.2.0/jquery.contextMenu.min.css',
     'admin/style'
   ]) ?>
   <?= $this->fetch('css') ?>
@@ -70,14 +73,14 @@ $base = $attributes['base'];
     'vendor/vue.min',
     'vendor/jquery-3.5.1.min',
     'vendor/jquery.bt.min',
+    'vendor/jquery-contextMenu-2.2.0/jquery.contextMenu.min',
     'vendor/jquery-ui-1.13.0.min',
     'vendor/i18n/ui.datepicker-ja',
     'vendor/jquery.validate.1.19.3.min',
     'vendor/jquery.validate_ja',
     'vendor/jquery.form-2.94',
     'vendor/jquery.timepicker',
-    'vendor/bootstrap-4.1.3/bootstrap.bundle.min',
-    'admin/functions'
+    'vendor/bootstrap-4.1.3/bootstrap.bundle.min'
   ]) ?>
   <?php $this->BcBaser->js('admin/common.bundle', true, [
     'id' => 'AdminScript',
@@ -91,8 +94,7 @@ $base = $attributes['base'];
   <?php $this->BcBaser->js([
     'admin/startup.bundle'
   ]) ?>
-  <?= $this->fetch('script') ?>
-
+  <?php $this->BcBaser->scripts() ?>
 </head>
 
 <body id="<?php $this->BcBaser->contentsName(true) ?>" class="normal">
@@ -115,7 +117,7 @@ $base = $attributes['base'];
       <?php $this->BcBaser->element('sidebar') ?>
     <?php endif ?>
 
-    <main id="Contents" class="bca-main">
+    <main class="bca-main">
 
       <article id="ContentsBody" class="contents-body bca-main__body">
 

@@ -41,7 +41,7 @@ class BcAdminMiddleware implements MiddlewareInterface
         RequestHandlerInterface $handler
     ): ResponseInterface
     {
-        if(BcUtil::loginUser()) $request = $this->setCurrentSite($request);
+        if(BcUtil::isAdminSystem()) $request = $this->setCurrentSite($request);
         return $handler->handle($request);
     }
 
@@ -52,18 +52,23 @@ class BcAdminMiddleware implements MiddlewareInterface
      * @noTodo
      * @unitTest
      */
-    private function setCurrentSite($request): ServerRequestInterface
+    public function setCurrentSite($request): ServerRequestInterface
     {
         $session = $request->getSession();
         $currentSiteId = 1;
         $queryCurrentSiteId = $request->getQuery('site_id');
         if (!$session->check('BcApp.Admin.currentSite') || $queryCurrentSiteId) {
+            $sitesTable = TableRegistry::getTableLocator()->get('BaserCore.Sites');
             if ($queryCurrentSiteId) {
-                $currentSiteId = $queryCurrentSiteId;
+                if($sitesTable->find()->where(['id' => $queryCurrentSiteId])->count()) {
+                    $currentSiteId = $queryCurrentSiteId;
+                } else {
+                    $request = $request->withQueryParams(['site_id' => 1]);
+                }
             }
-            $currentSite = TableRegistry::getTableLocator()->get('BaserCore.Sites')->get($currentSiteId);
-            $session->write('BcApp.Admin.currentSite', $currentSite);
         }
+        $currentSite = TableRegistry::getTableLocator()->get('BaserCore.Sites')->find()->where(['id' => $currentSiteId])->first();
+        $session->write('BcApp.Admin.currentSite', $currentSite);
         return $request->withAttribute('currentSite', $session->read('BcApp.Admin.currentSite'));
     }
 }

@@ -46,6 +46,7 @@ class PasswordRequestsTableTest extends BcTestCase
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.UserGroups',
+        'plugin.BaserCore.Sites',
     ];
 
     /**
@@ -114,55 +115,6 @@ class PasswordRequestsTableTest extends BcTestCase
                 'maxLength' => 'Eメールは255文字以内で入力してください。',
             ],
         ], $passwordRequest->getErrors());
-    }
-
-    /**
-     * Test getEnableRequestData
-     */
-    public function testGetEnableRequestData()
-    {
-        $passwordRequest = $this->PasswordRequests->getEnableRequestData('testkey1');
-        $this->assertEquals(3, $passwordRequest->id);
-    }
-
-    /**
-     * Test updatePassword
-     */
-    public function testUpdatePassword()
-    {
-        // 変更前のパスワードを取得
-        $user = $this->Users
-            ->find()
-            ->where(['id' => 1])
-            ->first();
-        $beforePassword = $user->password;
-
-        $passwordRequest = $this->PasswordRequests->newEntity(['id' => 3]);
-        $this->assertNotEmpty($this->PasswordRequests->updatePassword($passwordRequest, 'test'));
-
-        $passwordRequest = $this->PasswordRequests
-            ->find()
-            ->where(['id' => 3])
-            ->first();
-        $this->assertEquals(1, $passwordRequest->used);
-
-        // 変更後のパスワードを取得して比較
-        $user = $this->Users
-            ->find()
-            ->where(['id' => 1])
-            ->first();
-        $afterPassword = $user->password;
-
-        $this->assertNotEquals($beforePassword, $afterPassword);
-
-        // 変更後のパスワードでログイン
-        $this->enableSecurityToken();
-        $this->enableCsrfToken();
-        $this->post(Configure::read('BcPrefixAuth.Admin.loginAction'), [
-            'email' => 'testuser1@example.com',
-            'password' => 'test'
-        ]);
-        $this->assertSession(1, 'AuthAdmin.id');
     }
 
 }

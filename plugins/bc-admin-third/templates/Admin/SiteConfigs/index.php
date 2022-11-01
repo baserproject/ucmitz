@@ -21,6 +21,8 @@
  * @var array $widgetAreaList
  * @var array $adminThemeList
  * @var array $editorList
+ * @checked
+ * @unitTest
  */
 
 $this->BcAdmin->setTitle(__d('baser', 'システム基本設定'));
@@ -73,10 +75,10 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'maxlength' => 255,
             'disabled' => !$isWritableEnv]
         ) ?> <small>[SSL]</small>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
+        <i class="bca-icon--question-circle bca-help"></i>
         <?php echo $this->BcAdminForm->error('site_url') ?>
         <?php echo $this->BcAdminForm->error('ssl_url') ?>
-        <div id="helptextSiteUrl" class="helptext">
+        <div class="bca-helptext">
           <?php echo __d('baser', 'baserCMSを設置しているURLを指定します。管理画面等でSSL通信を利用する場合は、SSL通信で利用するURLも指定します。') ?>
         </div>
       </td>
@@ -91,8 +93,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
           'type' => 'select',
           'options' => [0 => __d('baser', '公開中'), 1 => __d('baser', 'メンテナンス中')]
         ]) ?>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <div id="helptextMaintenance" class="helptext">
+        <i class="bca-icon--question-circle bca-help"></i>
+        <div class="bca-helptext">
           <?php echo __d('baser',
             '公開状態を指定します。<br>
             メンテナンス中の場合に、公開ページを確認するには、管理画面にログインする必要があります。<br>
@@ -112,8 +114,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
           'options' => $modeList,
           'disabled' => !$isWritableEnv
         ]) ?>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <div id="helptextDebug" class="helptext">
+        <i class="bca-icon--question-circle bca-help"></i>
+        <div class="bca-helptext">
           <?php echo __d('baser',
             '制作・開発時のモードを指定します。通常は、ノーマルモードを指定しておきます。<br>
             ※ CakePHPのデバッグモードを指します。<br>
@@ -132,8 +134,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
           'type' => 'select',
           'options' => $widgetAreaList
         ]) ?>
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <div id="helptextWidgetArea" class="helptext">
+        <i class="bca-icon--question-circle bca-help"></i>
+        <div class="bca-helptext">
           <?php echo sprintf(
             __d('baser', 'ウィジェットエリアは「%s」より追加できます。'),
             $this->BcBaser->getLink(__d('baser', 'ウィジェットエリア管理'),
@@ -169,9 +171,9 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'legend' => false,
             'disabled' => !$isWritableEnv
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
+          <i class="bca-icon--question-circle bca-help"></i>
           <?php echo $this->BcAdminForm->error('admin_ssl') ?>
-          <div id="helptextAdminSslOn" class="helptext">
+          <div class="bca-helptext">
             <?php echo __d('baser', '管理者ページでSSLを利用する場合は、事前にSSLの申込、設定が必要です。<br>また、SSL用のWebサイトURLの指定が必要です。') ?>
           </div>
         </td>
@@ -198,13 +200,12 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
           ]])
           ?>
           <?php echo $this->BcAdminForm->error('admin_list_num') ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div id="helptextAdminListNum" class="helptext">
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext">
             <?php echo __d('baser', 'ダッシュボードに表示される「最近の動き」などの表示件数を設定します') ?>
           </div>
         </td>
       </tr>
-      <?php /* TODO ucmitz 未実装のためコメントアウト ?>
       <tr>
         <th class="col-head bca-form-table__label">
           <?php echo $this->BcAdminForm->label('login_credit', __d('baser', 'ログインページのクレジット表示')) ?>
@@ -214,12 +215,11 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'type' => 'radio',
             'options' => $this->BcText->booleanDoList(__d('baser', '利用'))
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div class="helptext"><?php echo __d('baser', 'ログインページに表示されているクレジット表示を利用するかどうか設定します。') ?></div>
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext"><?php echo __d('baser', 'ログインページに表示されているクレジット表示を利用するかどうか設定します。') ?></div>
           <?php echo $this->BcAdminForm->error('login_credit') ?>
         </td>
       </tr>
-      */ ?>
       <tr>
         <th class="col-head bca-form-table__label">
           <?php echo $this->BcAdminForm->label('admin_side_banner', __d('baser', 'サイドバーのバナー表示')) ?>
@@ -229,8 +229,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'type' => 'radio',
             'options' => $this->BcText->booleanDoList(__d('baser', '利用'))
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div class="helptext"><?php echo __d('baser', '管理システムのサイド部分にバナーを表示するかどうか設定します。') ?></div>
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext"><?php echo __d('baser', '管理システムのサイド部分にバナーを表示するかどうか設定します。') ?></div>
           <?php echo $this->BcAdminForm->error('admin_side_banner') ?>
         </td>
       </tr>
@@ -261,8 +261,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
         </th>
         <td class="col-input bca-form-table__input">
           <?php echo $this->BcAdminForm->control('address', ['type' => 'text', 'size' => 35, 'maxlength' => 255, 'placeholder' => __d('baser', '住所'), 'data-margin' => 'bottom']) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div id="helptextAddress" class="helptext">
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext">
             <?php echo __d('baser',
               'GoogleMapを利用する場合は地図を表示させたい住所を入力してください。郵便番号からでも大丈夫です。<br><br>
               入力例1) 福岡市中央区大名2-11-25<br>
@@ -290,8 +290,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
         </th>
         <td class="col-input bca-form-table__input">
           <?php echo $this->BcAdminForm->control('google_analytics_id', ['type' => 'text', 'size' => 35, 'maxlength' => 16, 'data-margin' => 'bottom']) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div id="helptextGoogleAnalyticsId" class="helptext">
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext">
             <?php echo __d('baser',
               'Googleの無料のアクセス解析サービス <a href="http://www.google.com/intl/ja/analytics/" target="_blank">Google Analytics</a> を
               利用される方は、取得したトラッキングID (UA-000000-01 のような文字列）を入力してください。'
@@ -372,8 +372,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'size' => 35,
             'maxlength' => 255
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div class="helptext"><?php echo __d('baser', 'サブサイトを利用する際に、メインサイトを特定する識別名称を設定します。') ?></div>
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext"><?php echo __d('baser', 'サブサイトを利用する際に、メインサイトを特定する識別名称を設定します。') ?></div>
           <?php echo $this->BcAdminForm->error('main_site_display_name') ?>
         </td>
       </tr>
@@ -387,8 +387,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'type' => 'checkbox',
             'label' => __d('baser', 'サブサイトでデバイス設定を利用する')
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div class="helptext">
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext">
             <?php echo __d('baser', 'サブサイトにデバイス属性を持たせ、サイトアクセス時、ユーザーエージェントを判定し適切なサイトを表示する機能を利用します。') ?>
           </div>
           <br>
@@ -396,8 +396,8 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'type' => 'checkbox',
             'label' => __d('baser', 'サブサイトで言語設定を利用する')
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div class="helptext">
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext">
             <?php echo __d('baser', 'サブサイトに言語属性を持たせ、サイトアクセス時、ブラウザの言語設定を判定し適切なサイトを表示する機能を利用します。') ?>
           </div>
           <?php echo $this->BcAdminForm->error('use_site_device_setting') ?>
@@ -407,7 +407,7 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
     </table>
   </div>
 </section>
-<?php /* TODO ucmitz 未実装のためコメントアウト（動作の確認ができていない） ?>
+
 <section class="bca-section" data-bca-section-type='form-group'>
   <div class="bca-collapse__action">
     <button type="button"
@@ -458,9 +458,9 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             'rows' => 10,
             'data-input-text-size' => 'full-counter'
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
+          <i class="bca-icon--question-circle bca-help"></i>
           <?php echo $this->BcAdminForm->error('editor_styles') ?>
-          <div id="helptextFormalName" class="helptext">
+          <div class="bca-helptext">
             <p><?php echo __d('baser', '固定ページなどで利用するエディタのスタイルセットをCSS形式で記述する事ができます。') ?></p>
             <pre># <?php echo __d('baser', 'タイトル') ?>
               <?php echo __d('baser', 'タグ') ?> {
@@ -485,6 +485,8 @@ h2 {}
     </table>
   </div>
 </section>
+
+<?php /* TODO ucmitz 未実装のためコメントアウト?>
 <section class="bca-section" data-bca-section-type='form-group'>
   <div class="bca-collapse__action">
     <button type="button"
@@ -508,8 +510,8 @@ h2 {}
             'type' => 'select',
             'options' => $mailEncodeList
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div id="helptextEncode" class="helptext">
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext">
             <?php echo __d('baser', '送信メールの文字コードを選択します。<br>受信したメールが文字化けする場合に変更します。') ?>
           </div>
           <?php echo $this->BcAdminForm->error('mail_encode') ?>
@@ -532,8 +534,8 @@ h2 {}
                   'autocomplete' => 'off'
                 ]) ?>
                 <?php echo $this->BcAdminForm->error('smtp_host') ?>
-                <i class="bca-icon--question-circle btn help bca-help"></i>
-                <div id="helptextSmtpHost" class="helptext">
+                <i class="bca-icon--question-circle bca-help"></i>
+                <div class="bca-helptext">
                   <?php echo __d('baser', 'メールの送信にSMTPサーバーを利用する場合指定します。') ?>
                 </div>
               </td>
@@ -545,8 +547,8 @@ h2 {}
               <td class="bca-form-table__inner-table-input">
                 <?php echo $this->BcAdminForm->control('smtp_port', ['type' => 'text', 'size' => 35, 'maxlength' => 255, 'autocomplete' => 'off']) ?>
                 <?php echo $this->BcAdminForm->error('smtp_port') ?>
-                <i class="bca-icon--question-circle btn help bca-help"></i>
-                <div class="helptext">
+                <i class="bca-icon--question-circle bca-help"></i>
+                <div class="bca-helptext">
                   <?php echo __d('baser', 'メールの送信にSMTPサーバーを利用する場合指定します。入力を省略した場合、25番ポートを利用します。') ?>
                 </div>
               </td>
@@ -563,8 +565,8 @@ h2 {}
                   'autocomplete' => 'off'
                 ]) ?>
                 <?php echo $this->BcAdminForm->error('smtp_user') ?>
-                <i class="bca-icon--question-circle btn help bca-help"></i>
-                <div id="helptextSmtpUsername" class="helptext">
+                <i class="bca-icon--question-circle bca-help"></i>
+                <div class="bca-helptext">
                   <?php echo __d('baser', 'メールの送信にSMTPサーバーを利用する場合指定します。') ?>
                 </div>
               </td>
@@ -581,8 +583,8 @@ h2 {}
                   'autocomplete' => 'off'
                 ]) ?>
                 <?php echo $this->BcAdminForm->error('smtp_password') ?>
-                <i class="bca-icon--question-circle btn help bca-help"></i>
-                <div id="helptextSmtpPassword" class="helptext">
+                <i class="bca-icon--question-circle bca-help"></i>
+                <div class="bca-helptext">
                   <?php echo __d('baser', 'メールの送信にSMTPサーバーを利用する場合指定します。') ?>
                 </div>
               </td>
@@ -597,8 +599,8 @@ h2 {}
                   'options' => $this->BcText->booleanDoList(__d('baser', 'TLS暗号化を利用'))
                 ]) ?>
                 <?php echo $this->BcAdminForm->error('smtp_tls') ?>
-                <i class="bca-icon--question-circle btn help bca-help"></i>
-                <div id="helptextSmtpTls" class="helptext">
+                <i class="bca-icon--question-circle bca-help"></i>
+                <div class="bca-helptext">
                   <?php echo __d('baser', 'SMTPサーバーがTLS暗号化を利用する場合指定します。') ?>
                 </div>
               </td>
@@ -608,7 +610,7 @@ h2 {}
             <?php echo $this->BcAdminForm->button(
               '<i class="bca-icon--mail"></i>' . __d('baser', 'メール送信テスト'),
               ['type' => 'button',
-                'class' => 'button-small bca-btn',
+                'class' => 'bca-btn',
                 'id' => 'BtnCheckSendmail',
                 'escapeTitle' => false
               ]) ?>
@@ -631,8 +633,8 @@ h2 {}
             'maxlength' => 255,
             'placeholder' => '-f webmaster@mail.example.com'
           ]) ?>
-          <i class="bca-icon--question-circle btn help bca-help"></i>
-          <div class="helptext"><?php echo __d('baser', '標準機能によるメール送信時にオプションを追加します。') ?></div>
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext"><?php echo __d('baser', '標準機能によるメール送信時にオプションを追加します。') ?></div>
           <?php echo $this->BcAdminForm->error('mail_encode') ?>
         </td>
       </tr>

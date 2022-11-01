@@ -9,22 +9,23 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-use BaserCore\View\BcAdminAppView;
-
 /**
  * コンテンツ一覧
  *
- * @var BcAdminAppView $this
+ * @var BaserCore\View\BcAdminAppView $this
  * @var array $folders
  * @var array $authorList
  * @var array $typeList
+ * @var \BaserCore\Form\ContentsSearchForm $contentsSearch
+ * @checked
+ * @unitTest
+ * @noTodo
  */
 ?>
 
 
-<?= $this->BcAdminForm->create(null, ['type' => 'get', 'id' => 'ContentIndexForm'], ) ?>
+<?= $this->BcAdminForm->create($contentsSearch, ['type' => 'get', 'id' => 'ContentIndexForm'], ) ?>
 <?= $this->BcAdminForm->control('open', ['type' => 'hidden', 'value' => true]) ?>
-<?= $this->BcAdminForm->control('list_type', ['type' => 'hidden', 'value' => 2]) ?>
 <p class="bca-search__input-list">
 	<span class="bca-search__input-item">
 		<?= $this->BcAdminForm->label('folder_id', __d('baser', 'フォルダ'), ['class' => 'bca-search__input-item-label']) ?>
@@ -46,7 +47,7 @@ use BaserCore\View\BcAdminAppView;
 		<?= $this->BcAdminForm->label('author_id', __d('baser', '作成者'), ['class' => 'bca-search__input-item-label']) ?>
     <?= $this->BcAdminForm->control('author_id', ['type' => 'select', 'options' => $authorList, 'empty' => __d('baser', '指定なし')]) ?>
 	</span>
-  <?= $this->BcSearchBox->dispatchShowField($this->request); ?>
+  <?= $this->BcSearchBox->dispatchShowField(); ?>
 </p>
 <div class="button bca-search__btns">
   <div  class="bca-search__btns-item"><?= $this->BcAdminForm->button(__d('baser', '検索'), ['id' => 'BtnSearchSubmit', 'class' => 'bca-btn', 'data-bca-btn-type' => 'search']) ?></div>

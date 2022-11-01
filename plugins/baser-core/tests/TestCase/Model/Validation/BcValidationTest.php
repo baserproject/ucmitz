@@ -228,22 +228,66 @@ class BcValidationTest extends BcTestCase
     /**
      * Test fileCheck
      *
-     * @return void
+     * @param string $fileName チェック対象ファイル名
+     * @param string $fileSize チェック対象ファイルサイズ
+     * @param boolean $expect
+     * @dataProvider fileCheckDataProvider
      */
-    public function testFileCheck()
+    public function testFileCheck($fileName, $fileSize, $errorCode, $expect)
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $check = [
+            "name" => $fileName,
+            "size" => $fileSize,
+            "error" => $errorCode,
+        ];
+        $size = 1048576;
+
+        $_POST = ['fileCheck require $_POST' => true];
+        $result = $this->BcValidation->fileCheck($check, $size);
+        $this->assertEquals($expect, $result);
+    }
+
+    public function fileCheckDataProvider()
+    {
+        return [
+            ["test.jpg", 1048576, 0, true],
+            ["", 1048576, 0, true],
+            ["test.jpg", null, 2, 'ファイルサイズがオーバーしています。 %s MB以内のファイルをご利用ください。'],
+            [null, null, 4, true],
+        ];
     }
 
     /**
-     * Test fileExt
+     * ファイルの拡張子チェック
      *
-     * @return void
+     * @param string $fileName チェック対象ファイル名
+     * @param string $fileType チェック対象ファイルタイプ
+     * @param boolean $expect
+     * @dataProvider fileExtDataProvider
      */
-    public function testFileExt()
+    public function testFileExt($fileName, $fileType, $expect)
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $check = [
+            "name" => $fileName,
+            "type" => $fileType
+        ];
+        $ext = "jpg,png";
+
+        $result = $this->BcValidation->fileExt($check, $ext);
+        $this->assertEquals($expect, $result);
     }
+
+
+    public function fileExtDataProvider()
+    {
+        return [
+            ["test.jpg", "image/jpeg", true],
+            ["test.png", "image/png", true],
+            ["test.gif", "image/gif", false],
+            ["test", "image/png", true],
+        ];
+    }
+
 
     /**
      * Test notFileEmpty

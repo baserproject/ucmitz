@@ -46,6 +46,9 @@ class SiteConfigsService implements SiteConfigsServiceInterface
 
     /**
      * SiteConfigsService constructor.
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function __construct()
     {
@@ -94,22 +97,13 @@ class SiteConfigsService implements SiteConfigsServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function update(array $postData): SiteConfig
+    public function update(array $postData)
     {
 
         $siteConfig = $this->SiteConfigs->newEntity($postData, ['validate' => 'keyValue']);
         if ($siteConfig->hasErrors()) {
             return $siteConfig;
         }
-
-        // TODO 未実装のためコメントアウト
-        /* >>>
-        $beforeSiteConfig = $this->get();
-        if ($beforeSiteConfig->admin_theme !== $siteConfig->admin_theme) {
-            $this->BcManager->deleteAdminAssets();
-            $this->BcManager->deployAdminAssets();
-        }
-        <<< */
 
         $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
         if ($siteConfig->use_site_device_setting === "0" && $this->SiteConfigs->isChange('use_site_device_setting', "0")) {
@@ -191,6 +185,9 @@ class SiteConfigsService implements SiteConfigsServiceInterface
     /**
      * アプリケーションモードリストを取得
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getModeList(): array
     {

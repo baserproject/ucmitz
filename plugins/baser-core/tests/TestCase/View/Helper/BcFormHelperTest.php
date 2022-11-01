@@ -55,7 +55,7 @@ class BcFormHelperTest extends BcTestCase
         $View->setRequest($View->getRequest()->withAttribute('formTokenData', [
             'unlockedFields' => [],
         ]));
-        $eventedView = $View->setEventManager(EventManager::instance()->on(new BcContentsEventListener())->setEventList(new EventList()));
+        $eventedView = $View->setEventManager(EventManager::instance()->on(new BcContentsEventListener('page'))->setEventList(new EventList()));
         $this->BcForm = new BcFormHelper($eventedView);
     }
     /**
@@ -317,7 +317,7 @@ class BcFormHelperTest extends BcTestCase
                 ]
             ];
         }
-        $result = $this->BcAdminForm->control($fieldName, $options);
+        $result = $this->BcForm->control($fieldName, $options);
         $this->assertMatchesRegularExpression('/' . $expected . '/s', $result);
         $this->resetEvent();
     }
@@ -744,7 +744,7 @@ class BcFormHelperTest extends BcTestCase
 
         $this->BcForm->request['_Token'] = ['key' => 'testKey'];
         $encoding = strtolower(Configure::read('App.encoding'));
-        $result = $this->BcAdminForm->create('Contact', ['url' => '/contacts/add']);
+        $result = $this->BcForm->create('Contact', ['url' => '/contacts/add']);
         $expected = [
             'form' => ['action' => '/contacts/add', 'novalidate' => 'novalidate', 'id' => 'ContactAddForm', 'method' => 'post', 'accept-charset' => $encoding],
             'div' => ['style' => 'display:none;'],
@@ -755,7 +755,7 @@ class BcFormHelperTest extends BcTestCase
             '/div'
         ];
         $this->assertTags($result, $expected);
-        $result = $this->BcAdminForm->create('Contact', ['url' => '/contacts/add', 'id' => 'MyForm']);
+        $result = $this->BcForm->create('Contact', ['url' => '/contacts/add', 'id' => 'MyForm']);
         $expected['form']['id'] = 'MyForm';
         $this->assertTags($result, $expected);
     }

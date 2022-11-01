@@ -11,12 +11,14 @@
 
 namespace BaserCore\View;
 
+use BaserCore\View\Helper\BcFormHelper;
 use BaserCore\View\Helper\BcToolbarHelper;
+use BaserCore\View\Helper\BcUploadHelper;
 use Cake\View\View;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
-use BaserCore\View\Helper\BcContentHelper;
+use BaserCore\View\Helper\BcContentsHelper;
 use BaserCore\View\Helper\BcPageHelper;
 use BaserCore\View\Helper\BcBaserHelper;
 use BaserCore\Event\BcEventDispatcherTrait;
@@ -26,7 +28,9 @@ use BaserCore\Event\BcEventDispatcherTrait;
  * @package BaserCore\View
  * @property BcPageHelper $BcPage
  * @property BcBaserHelper $BcBaser
+ * @property BcUploadHelper $Upload
  * @property BcToolbarHelper $BcToolbar
+ * @property BcFormHelper $BcForm
  */
 class AppView extends View
 {
@@ -48,16 +52,19 @@ class AppView extends View
         // TODO ucmitz 未移行のため暫定措置
         // >>>
 //        $this->loadHelper('BaserCore.BcHtml');
-//        $this->loadHelper('BaserCore.BcForm');
 //        $this->loadHelper('BaserCore.BcWidgetArea');
 //        $this->loadHelper('BaserCore.BcXml');
 //        $this->loadHelper('BaserCore.BcArray');
         // <<<
+        $this->loadHelper('BaserCore.BcForm', ['templates' => 'BaserCore.bc_form']);
         $this->loadHelper('BaserCore.BcAdmin');
         $this->loadHelper('BaserCore.BcContents');
         $this->loadHelper('BaserCore.BcPage');
         $this->loadHelper('BaserCore.BcBaser');
+        $this->loadHelper('BaserCore.BcUpload');
         $this->loadHelper('BaserCore.BcToolbar');
+        $this->loadHelper('Paginator');
+        $this->assign('title', $this->get('title'));
     }
 
     /**

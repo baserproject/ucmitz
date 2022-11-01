@@ -11,17 +11,15 @@
 
 namespace BaserCore\Event;
 
-use Cake\Event\Event;
-use Cake\Core\Configure;
-use Cake\Utility\Inflector;
+use BaserCore\Service\Admin\ContentsAdminServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
+use BaserCore\View\BcAdminAppView;
+use Cake\Event\Event;
 use BaserCore\Annotation\Note;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
-use BaserCore\View\BcAdminAppView;
-use BaserCore\Utility\BcContainerTrait;
-use BaserCore\Service\PermissionsServiceInterface;
 
 /**
  * Class BcContentsEventListener
@@ -59,6 +57,24 @@ class BcContentsEventListener extends BcEventListener
     }
 
     /**
+     * エンティティの変数名
+     * @var string
+     */
+    protected $entityVarName;
+
+    /**
+     * Constructor
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function __construct($entityVarName)
+    {
+        parent::__construct();
+        $this->entityVarName = $entityVarName;
+    }
+
+    /**
      * Form Before Create
      *
      * @param Event $event
@@ -68,13 +84,10 @@ class BcContentsEventListener extends BcEventListener
      */
     public function formBeforeCreate(Event $event)
     {
-        if (!BcUtil::isAdminSystem()) {
-            return;
-        }
+        if (!BcUtil::isAdminSystem()) return;
+        if ($event->getData('id') === 'PermissionAjaxAddForm') return;
         $options = $event->getData('options');
-        if(!is_array($options)) {
-            $options = [];
-        }
+        if(!is_array($options)) $options = [];
         $options += ['type' => 'file'];
         $event->setData('options', $options);
     }
@@ -90,16 +103,10 @@ class BcContentsEventListener extends BcEventListener
      */
     public function formAfterCreate(Event $event)
     {
-        if (!BcUtil::isAdminSystem()) {
-            return;
-        }
+        if (!BcUtil::isAdminSystem()) return;
+        if ($event->getData('id') === 'PermissionAjaxAddForm') return;
+        if (!preg_match('/(AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) return;
         $View = $event->getSubject();
-        if ($event->getData('id') == 'PermissionAdminEditForm') {
-            return;
-        }
-        if (!preg_match('/(AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) {
-            return;
-        }
         return $event->getData('out') . "\n" . $View->element('content_fields');
     }
 
@@ -110,46 +117,30 @@ class BcContentsEventListener extends BcEventListener
      * プレビューを配置する場合は、コンテンツの設定にて、preview を true にする
      *
      * @param Event $event
-     * @return string
+     * @return void|string
      * @checked
      * @noTodo
      * @unitTest
      */
     public function formAfterSubmit(Event $event)
     {
-        $preOut = $event->getData('out');
-
-        if (!BcUtil::isAdminSystem()) {
-            return $preOut;
+        if (!BcUtil::isAdminSystem()) return;
+        if (!preg_match('/(AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) return;
+        /**  @var BcAdminAppView $view*/
+        $view = $event->getSubject();
+        $entity = $view->get($this->entityVarName);
+        if($entity->alias_id) {
+            $content = $entity;
+        } else {
+            $content = $entity->content;
         }
-        /**  @var BcAdminAppView $View*/
-        $View = $event->getSubject();
-        $data = $View->getRequest()->getData();
-        if (!preg_match('/(AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) {
-            return $preOut;
-        }
-        $content = $data['Contents'] ?? array_column($data, 'content')[0]; // Contentエンティティ or 関連エンティティ
-        $setting = Configure::read('BcContents.items.' . $content['plugin'] . '.' . $content['type']);
-        $isAvailablePreview = (!empty($setting['preview']) && $content['type'] != 'ContentFolder');
-        $path = BcUtil::getPrefix() . "/" . Inflector::dasherize($event->getSubject()->getPlugin()) . '/contents/delete';
-        $service = $this->getService(PermissionsServiceInterface::class);
-        $checked = false;
-        foreach(BcUtil::loginUser()->user_groups as $index => $group) {
-            if ($service->check($path, [$index => $group->id])) $checked = true;
-        }
-        $isAvailableDelete = empty($content['site_root']) && $checked;
+        $adminService = $this->getService(ContentsAdminServiceInterface::class);
         $event->setData('out', implode("\n", [
-            $View->element('content_options'),
-            $View->element('content_actions', [
-                'isAvailablePreview' => $isAvailablePreview,
-                'isAvailableDelete' => $isAvailableDelete,
-                'currentAction' => $preOut,
-                'isAlias' => ($content['alias_id'])
-            ]),
-            $View->element('content_related'),
-            $View->element('content_info')
+            $view->element('content_options'),
+            $view->element('content_actions', $adminService->getViewVarsForContentActions($content, $event->getData('out'))),
+            $view->element('content_related'),
+            $view->element('content_info')
         ]));
-        return $event->getData('out');
     }
 
 }

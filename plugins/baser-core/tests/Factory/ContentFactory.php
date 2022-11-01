@@ -42,4 +42,36 @@ class ContentFactory extends CakephpBaseFactory
             ];
         });
     }
+
+    /**
+     * トップページとして設定する
+     * トップだけでよいのでルーティングが必要とするテスト用
+     * @return ContentFactory
+     */
+    public function top()
+    {
+        return $this->setField('url', '/')
+            ->setField('site_id', 1)
+            ->setField('status', true);
+    }
+
+    /**
+     * ツリーのノードとしてのデータを生成する
+     *
+     * lft / rght はセットしない
+     * TreeBehavior::recover() でセットすること
+     * @return ContentFactory
+     */
+    public function treeNode($id, $siteId, $parentId, $name, $url, $entityId, $siteRoot = false)
+    {
+        return $this->setField('id', $id)
+            ->setField('site_id', $siteId)
+            ->setField('parent_id', $parentId)
+            ->setField('name', $name)
+            ->setField('url', $url)
+            ->setField('entity_id', $entityId)
+            ->setField('status', true)
+            ->setField('site_root', $siteRoot);
+    }
+
 }

@@ -9,13 +9,13 @@ sync {
         target = "/var/www/html/",
         delay = 0,
         delete="running",
-        exclude={"node_modules", ".git", ".idea", ".DS_Store", "docker"}
+        exclude={"node_modules", ".git", ".idea", ".DS_Store", "docker", "tmp/sessions"}
 }
 sync {
         default.rsync,
         source = "/var/www/html",
         target = "/var/www/shared",
-        delay = 1,
+        delay = 2,
         delete="running",
-        exclude={"node_modules", ".git", ".idea", ".DS_Store", "docker"}
+        exclude={"node_modules", ".git", ".idea", ".DS_Store", "docker", "tmp/sessions"}
 }

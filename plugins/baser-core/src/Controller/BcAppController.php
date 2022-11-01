@@ -171,7 +171,7 @@ class BcAppController extends AppController
             $this->__updateFirstAccess();
         } else {
             // テーマのヘルパーをセット
-            if (BC_INSTALLED) {
+            if (BcUtil::isInstalled()) {
                 $this->setThemeHelpers();
                 // ショートコード
                 App::uses('BcShortCodeEventListener', 'Event');
@@ -216,17 +216,6 @@ class BcAppController extends AppController
     }
 
     /**
-     * NOT FOUNDページを出力する
-     *
-     * @return    void
-     * @throws    NotFoundException
-     */
-    public function notFound()
-    {
-        throw new NotFoundException(__d('baser', '見つかりませんでした。'));
-    }
-
-    /**
      * View用のデータを読み込む。
      * beforeRenderで呼び出される
      *
@@ -255,7 +244,7 @@ class BcAppController extends AppController
         }
 
         /* ログインユーザー */
-        if (BC_INSTALLED && $user && $this->name !== 'Installations' && !Configure::read('BcRequest.isUpdater') && !Configure::read('BcRequest.isMaintenance') && $this->name !== 'CakeError') {
+        if (BcUtil::isInstalled() && $user && $this->name !== 'Installations' && !Configure::read('BcRequest.isUpdater') && !Configure::read('BcRequest.isMaintenance') && $this->name !== 'CakeError') {
             $this->set('user', $user);
         }
 
@@ -271,28 +260,6 @@ class BcAppController extends AppController
           $emojiData = $this->EmojiData->find('all');
           $this->set('emoji',$this->Emoji->EmojiData($emojiData));
           } */
-    }
-
-    /**
-     * テーマのバージョン番号を取得する
-     *
-     * @param string $theme テーマ名
-     * @return string
-     */
-    protected function getThemeVersion($theme)
-    {
-        $path = WWW_ROOT . 'theme' . DS . $theme . DS . 'VERSION.txt';
-        if (!file_exists($path)) {
-            return false;
-        }
-        $versionFile = new File($path);
-        $versionData = $versionFile->read();
-        $aryVersionData = explode("\n", $versionData);
-        if (empty($aryVersionData[0])) {
-            return false;
-        }
-
-        return $aryVersionData[0];
     }
 
     /**
@@ -339,7 +306,7 @@ class BcAppController extends AppController
             'template' => 'default'
         ], $options);
 
-        /*** Controller.beforeSendEmail ***/
+        // EVENT PluginName.ControllerName.beforeSendEmail
         $event = $this->dispatchLayerEvent('beforeSendMail', [
             'options' => $options
         ]);
@@ -558,8 +525,8 @@ class BcAppController extends AppController
 
             $subDir = $plugin = '';
             // インストール時にSiteは参照できない
-            if ($options['agentTemplate'] && !empty($this->request->getParam('Site.name'))) {
-                $subDir = $this->request->getParam('Site.name');
+            if ($options['agentTemplate'] && !empty($this->request->getAttribute('currentSite')->name)) {
+                $subDir = $this->request->getAttribute('currentSite')->name;
             }
 
             [$plugin, $template] = pluginSplit($options['template']);
@@ -605,140 +572,6 @@ class BcAppController extends AppController
             $this->log($e->getMessage());
             return false;
         }
-    }
-
-    /**
-     * 画面の情報をセットする
-     *
-     * @param array $filterModels
-     * @param array $options オプション
-     * @return    void
-     * @access    public
-     */
-    protected function setViewConditions($filterModels = [], $options = [])
-    {
-        $_options = ['type' => 'post', 'session' => true];
-        $options = am($_options, $options);
-        if ($options['type'] === 'post' && $options['session'] == true) {
-            $this->_saveViewConditions($filterModels, $options);
-        } elseif ($options['type'] === 'get') {
-            $options['session'] = false;
-        }
-        $this->_loadViewConditions($filterModels, $options);
-    }
-
-    /**
-     * 画面の情報をセッションに保存する
-     *
-     * @param array $filterModels
-     * @param array $options オプション
-     * @return    void
-     * @access    protected
-     */
-    protected function _saveViewConditions($filterModels = [], $options = [])
-    {
-        $_options = ['action' => '', 'group' => ''];
-        $options = am($_options, $options);
-
-        if (!is_array($filterModels)) {
-            $filterModels = [$filterModels];
-        }
-
-        if (!$options['action']) {
-            $action = $this->request->action;
-        }
-
-        $contentsName = $this->name . Inflector::classify($action);
-        if ($options['group']) {
-            $contentsName .= "." . $options['group'];
-        }
-
-        foreach($filterModels as $model) {
-            if (isset($this->request->getData[$model])) {
-                $this->Session->write("Baser.viewConditions.{$contentsName}.filter.{$model}", $this->request->getData($model));
-            }
-        }
-
-        if (!empty($this->request->getParam('named'))) {
-            if ($this->Session->check("Baser.viewConditions.{$contentsName}.named")) {
-                $named = array_merge($this->Session->read("Baser.viewConditions.{$contentsName}.named"), $this->request->getParam('named'));
-            } else {
-                $named = $this->request->getParam('named');
-            }
-            $this->Session->write("Baser.viewConditions.{$contentsName}.named", $named);
-        }
-    }
-
-    /**
-     * 画面の情報をセッションから読み込む
-     *
-     * @param array $filterModels
-     * @param array|string $options オプション
-     * @return void
-     * @access    protected
-     */
-    protected function _loadViewConditions($filterModels = [], $options = [])
-    {
-        $_options = ['default' => [], 'action' => '', 'group' => '', 'type' => 'post', 'session' => true];
-        $options = am($_options, $options);
-        $named = [];
-        $filter = [];
-
-        if (!is_array($filterModels)) {
-            $model = (string)$filterModels;
-            $filterModels = [$filterModels];
-        } else {
-            $model = (string)$filterModels[0];
-        }
-
-        if (!$options['action']) {
-            $action = $this->request->action;
-        }
-
-        $contentsName = $this->name . Inflector::classify($action);
-        if ($options['group']) {
-            $contentsName .= "." . $options['group'];
-        }
-
-        if ($options['type'] === 'post' && $options['session']) {
-            foreach($filterModels as $model) {
-                if ($this->Session->check("Baser.viewConditions.{$contentsName}.filter.{$model}")) {
-                    $filter = $this->Session->read("Baser.viewConditions.{$contentsName}.filter.{$model}");
-                } elseif (!empty($default[$model])) {
-                    $filter = $default[$model];
-                } else {
-                    $filter = [];
-                }
-                $this->request->withData($model, $filter);
-            }
-            $named = [];
-            if (!empty($default['named'])) {
-                $named = $default['named'];
-            }
-            if ($this->Session->check("Baser.viewConditions.{$contentsName}.named")) {
-                $named = array_merge($named, $this->Session->read("Baser.viewConditions.{$contentsName}.named"));
-            }
-        } elseif ($options['type'] === 'get') {
-            if (!empty($this->request->getQuery())) {
-                $url = $this->request->getQuery();
-                unset($url['url']);
-                unset($url['ext']);
-                unset($url['x']);
-                unset($url['y']);
-            }
-            if (!empty($url)) {
-                $filter = $url;
-            } elseif (!empty($default[$model])) {
-                $filter = $default[$model];
-            }
-            $this->request->withData($model, $filter);
-            if (!empty($default['named'])) {
-                $named = $default['named'];
-            }
-            $named['?'] = $filter;
-        }
-
-        $this->passedArgs += $named;
     }
 
     /**
@@ -898,33 +731,6 @@ class BcAppController extends AppController
         }
         // <<<
         return parent::requestAction($url, $extra);
-    }
-
-    /**
-     * よく使う項目の表示状態を保存する
-     *
-     * @param mixed $open 1 Or ''
-     * @return void
-     */
-    public function admin_ajax_save_favorite_box($open = '')
-    {
-        $this->Session->write('Baser.favorite_box_opened', $open);
-        echo true;
-        exit();
-    }
-
-    /**
-     * 検索ボックスの表示状態を保存する
-     *
-     * @param string $key キー
-     * @param mixed $open 1 Or ''
-     * @return void
-     */
-    public function admin_ajax_save_search_box($key, $open = '')
-    {
-        $this->Session->write('Baser.searchBoxOpened.' . $key, $open);
-        echo true;
-        exit();
     }
 
     /**

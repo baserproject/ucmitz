@@ -15,7 +15,6 @@ use Cake\Log\Log;
 use Cake\Utility\Hash;
 use Cake\Core\Configure;
 use Cake\I18n\FrozenTime;
-use BaserCore\Model\AppTable;
 use BaserCore\Utility\BcUtil;
 use Cake\Validation\Validation;
 use BaserCore\Annotation\NoTodo;
@@ -74,7 +73,7 @@ class BcValidation extends Validation
      */
     public static function alphaNumericDashUnderscore($value)
     {
-        return preg_match('|^[0-9a-zA-Z_-]*$|', $value);
+        return (bool) preg_match('|^[0-9a-zA-Z_-]*$|', $value);
     }
 
     /**
@@ -178,19 +177,19 @@ class BcValidation extends Validation
      * @param int $size 最大のファイルサイズ
      * @return boolean
      * @link http://php.net/manual/ja/features.file-upload.errors.php
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public static function fileCheck($value, $size)
     {
         // post_max_size オーバーチェック
         // POSTを前提の検証としているため全ての受信データを検証
         // データの更新時は必ず$_POSTにデータが入っていることを前提とする
-        // TODO isConsole未実装の為コメントアウト
-        /* >>>
-        if (!isConsole() && empty($_POST)) {
+        if (!BcUtil::isConsole() && empty($_POST)) {
             Log::error('アップロードされたファイルは、PHPの設定 post_max_size ディレクティブの値を超えています。');
             return false;
         }
-        <<< */
         $file = $value;
         // input[type=file] 自体が送信されていない場合サイズ検証を終了
         if ($file === null || !is_array($file)) {
@@ -198,7 +197,6 @@ class BcValidation extends Validation
         }
 
         // upload_max_filesizeと$sizeを比較し小さい数値でファイルサイズチェック
-        $AppTable = new AppTable();
         $uploadMaxSize = BcUtil::convertSize(ini_get('upload_max_filesize'));
         $size = min([$size, $uploadMaxSize]);
 
@@ -262,24 +260,24 @@ class BcValidation extends Validation
      * @param array $value チェック対象データ
      * @param mixed $exts 許可する拡張子
      * @return boolean
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public static function fileExt($value, $exts)
     {
-        // TODO decodeContent未実装の為コメントアウト
-        /* >>>
         $file = $value;
         if (!empty($file['name'])) {
             if (!is_array($exts)) {
                 $exts = explode(',', $exts);
             }
-            $ext = decodeContent($file['type'], $file['name']);
+            $ext = BcUtil::decodeContent($file['type'], $file['name']);
             if (in_array($ext, $exts)) {
                 return true;
             } else {
                 return false;
             }
         }
-        <<< */
         return true;
     }
 
@@ -290,6 +288,7 @@ class BcValidation extends Validation
      * @return boolean
      * @checked
      * @noTodo
+     * @unitTest
      * @unitTest
      */
     public static function notFileEmpty($value)
@@ -418,10 +417,13 @@ class BcValidation extends Validation
      *
      * @param string $value 確認する値
      * @return boolean
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public static function checkDate($value)
     {
-        if (!$value instanceOf FrozenTime) return false;
+        if (!$value instanceof FrozenTime) return false;
         return true;
     }
 
@@ -481,6 +483,7 @@ class BcValidation extends Validation
      */
     public static function containsScript($value)
     {
+        if(!$value) return true;
         $events = ['onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove',
             'onmouseout', 'onkeypress', 'onkeydown', 'onkeyup', 'onload', 'onunload',
             'onfocus', 'onblur', 'onsubmit', 'onreset', 'onselect', 'onchange'];

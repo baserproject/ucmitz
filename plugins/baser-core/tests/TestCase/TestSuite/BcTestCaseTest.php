@@ -11,14 +11,22 @@
 
 namespace BaserCore\Test\TestCase\TestSuite;
 
+use BaserCore\Database\Schema\BcSchema;
 use BaserCore\Utility\BcContainer;
+use BaserCore\View\Helper\BcFormHelper;
+use Cake\Event\Event;
 use Cake\Event\EventManager;
 use Cake\Http\Session;
 use Cake\Core\Configure;
 use Cake\Log\Log;
+use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Controller\AnalyseController;
+use Cake\View\View;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * BaserCore\TestSuite\BcTestCase
@@ -45,6 +53,7 @@ class BcTestCaseTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
     }
 
@@ -84,7 +93,7 @@ class BcTestCaseTest extends BcTestCase
     public function testGetRequest(): void
     {
         // デフォルトURL $url = '/'
-        $urlList = ['' => '/*', '/about' => '/*', '/baser/admin/users/login' => '/baser/admin/{controller}/{action}/*'];
+        $urlList = ['' => '/*', '/about' => '/*', '/baser/admin/baser-core/users/login' => '/baser/admin/baser-core/{controller}/{action}/*'];
         foreach($urlList as $url => $route) {
             $request = $this->getRequest($url);
             $this->assertEquals($route, $request->getParam('_matchedRoute'));
@@ -134,7 +143,10 @@ class BcTestCaseTest extends BcTestCase
      */
     public function testApiLoginAdmin(): void
     {
-        $this->assertNotEmpty($this->apiLoginAdmin(1));
+        $rs = $this->apiLoginAdmin(1);
+        $this->assertNotEmpty($rs);
+        $this->assertTrue(isset($rs["access_token"]));
+        $this->assertTrue(isset($rs["refresh_token"]));
         $this->assertEmpty($this->apiLoginAdmin(100));
     }
 
@@ -179,4 +191,89 @@ class BcTestCaseTest extends BcTestCase
         unlink(TMP . 'test');
     }
 
+    /**
+     * test entryEventToMock
+     * @return void
+     */
+    public function testEntryEventToMock(){
+
+        $form = new BcFormHelper(new View());
+        $rs = self::entryEventToMock(self::EVENT_LAYER_HELPER, 'Form.afterEnd', function(Event $event){
+            $event->setData('out', 'test');
+        });
+
+        $this->assertEquals('test', $form->end());
+        $this->assertTrue(isset($rs->layer));
+        $this->assertTrue(isset($rs->plugin));
+    }
+    /**
+     * test tearDownFixtureManager and setUpFixtureManager
+     * @return void
+     */
+    public function testSetUpFixtureManagerAndTearDownFixtureManager(){
+        $contents = $this->getTableLocator()->get('BaserCore.Contents');
+        $this->assertTrue((bool) $contents->find()->count());
+
+        self::setUpFixtureManager();
+        self::tearDownFixtureManager();
+
+        $this->assertFalse((bool) $contents->find()->count());
+        $this->assertTrue(isset($this->FixtureManager));
+        $this->assertTrue(isset($this->FixtureInjector));
+        $this->assertTrue(isset($this->fixtures));
+        $this->assertEmpty(self::$fixtureManager);
+    }
+
+    /**
+     * test setFixtureTruncate getFixtureStrategy
+     * @return void
+     */
+    public function testSetFixtureTruncateGetFixtureStrategy()
+    {
+        $bcTestCase = new BcTestCase();
+        $rs = $bcTestCase->getFixtureStrategy();
+        $this->assertNotNull($rs);
+        $this->assertEquals('Cake\TestSuite\Fixture\TransactionStrategy', get_class($rs));
+
+        $bcTestCase->setFixtureTruncate();
+        $rs = $bcTestCase->getFixtureStrategy();
+        $this->assertNotNull($rs);
+        $this->assertEquals('Cake\TestSuite\Fixture\TruncateStrategy', get_class($rs));
+    }
+
+    /**
+     * test setUploadFileToRequest
+     */
+    public function testSetUploadFileToRequest()
+    {
+        $bcTestCase = new BcTestCase();
+        $filename = 'testUpload.txt';
+        $filePath = TMP . $filename;
+        touch($filePath);
+        $bcTestCase->setUploadFileToRequest($name = 'file', $filePath);
+        $this->assertEquals($filename, $_FILES[$name]['name']);
+        $this->assertEquals($filename, $bcTestCase->_request['files'][$name]['name']);
+        unlink($filePath);
+    }
+
+    /**
+     * test dropTable
+     */
+    public function testDropTable()
+    {
+        $table = 'table_for_test_drop_table';
+        $columns = [
+            'id' => ['type' => 'integer'],
+            'contents' => ['type' => 'text'],
+        ];
+        $schema = new BcSchema($table, $columns);
+        $schema->create();
+        $this->dropTable($table);
+        $tableList = TableRegistry::getTableLocator()
+            ->get('BaserCore.App')
+            ->getConnection()
+            ->getSchemaCollection()
+            ->listTables();
+        $this->assertNotContains($table, $tableList);
+    }
 }

@@ -7,7 +7,6 @@ return;
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.Test.Case.View.Helper
  * @since           baserCMS v 3.0.0
  * @license         https://basercms.net/license/index.html
  */
@@ -90,7 +89,7 @@ class BcMobileHelperTest extends BcTestCase
     public function testHeader()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
-        $this->BcMobile->request->params['Site']['device'] = 'mobile';
+        $this->BcMobile->getRequest->withParam('Site.device', 'mobile');
         $this->BcMobile->header();
 
     }

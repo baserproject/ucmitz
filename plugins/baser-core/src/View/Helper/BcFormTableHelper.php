@@ -20,7 +20,6 @@ use BaserCore\Annotation\Note;
 
 /**
  * Class BcFormTableHelper
- * @package BaserCore\View\Helper
  * @uses BcFormTableHelper
  */
 class BcFormTableHelper extends Helper
@@ -41,6 +40,7 @@ class BcFormTableHelper extends Helper
      */
     public function dispatchBefore()
     {
+        // EVENT BcFormTable.before
         $event = $this->dispatchLayerEvent('before', [
             'id' => $this->_View->BcAdminForm->getId(),
             'out' => ''
@@ -62,6 +62,7 @@ class BcFormTableHelper extends Helper
      */
     public function dispatchAfter()
     {
+        // EVENT BcFormTable.after
         $event = $this->dispatchLayerEvent('after', [
             'id' => $this->_View->BcAdminForm->getId(),
             'out' => ''

@@ -20,56 +20,52 @@ use BaserCore\Annotation\Checked;
 
 /**
  * Class UserGroupsController
- *
- * https://localhost/baser/api/baser-core/user_groups/action_name.json で呼び出す
- *
- * @package BaserCore\Controller\Api
  */
 class UserGroupsController extends BcApiController
 {
     /**
      * ユーザーグループ一覧取得
-     * @param UserGroupsServiceInterface $UserGroups
+     * @param UserGroupsServiceInterface $service
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function index(UserGroupsServiceInterface $UserGroups)
+    public function index(UserGroupsServiceInterface $service)
     {
         $this->set([
-            'userGroups' => $this->paginate($UserGroups->getIndex())
+            'userGroups' => $this->paginate($service->getIndex())
         ]);
         $this->viewBuilder()->setOption('serialize', ['userGroups']);
     }
 
     /**
      * ユーザーグループ取得
-     * @param UserGroupsServiceInterface $UserGroups
-     * @param $id
+     * @param UserGroupsServiceInterface $service
+     * @param int $id
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function view(UserGroupsServiceInterface $UserGroups, $id)
+    public function view(UserGroupsServiceInterface $service, $id)
     {
         $this->set([
-            'userGroups' => $UserGroups->get($id)
+            'userGroups' => $service->get($id)
         ]);
         $this->viewBuilder()->setOption('serialize', ['userGroups']);
     }
 
     /**
      * ユーザーグループ登録
-     * @param UserGroupsServiceInterface $UserGroups
+     * @param UserGroupsServiceInterface $service
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function add(UserGroupsServiceInterface $UserGroups)
+    public function add(UserGroupsServiceInterface $service)
     {
         if ($this->request->is('post')) {
             try {
-                $userGroups = $UserGroups->create($this->request->getData());
+                $userGroups = $service->create($this->request->getData());
                 $message = __d('baser', 'ユーザーグループ「{0}」を追加しました。', $userGroups->name);
             } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
                 $userGroups = $e->getEntity();
@@ -87,18 +83,18 @@ class UserGroupsController extends BcApiController
 
     /**
      * ユーザーグループ編集
-     * @param UserGroupsServiceInterface $UserGroups
-     * @param $id
+     * @param UserGroupsServiceInterface $service
+     * @param int $id
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function edit(UserGroupsServiceInterface $UserGroups, $id)
+    public function edit(UserGroupsServiceInterface $service, $id)
     {
-        $userGroups = $UserGroups->get($id);
+        $userGroups = $service->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
             try {
-                $userGroups = $UserGroups->update($userGroups, $this->request->getData());
+                $userGroups = $service->update($userGroups, $this->request->getData());
                 $message = __d('baser', 'ユーザーグループ「{0}」を更新しました。', $userGroups->name);
             } catch (\Exception $e) {
                 $this->setResponse($this->response->withStatus(400));
@@ -115,18 +111,18 @@ class UserGroupsController extends BcApiController
 
     /**
      * ユーザーグループ削除
-     * @param UserGroupsServiceInterface $UserGroups
-     * @param $id
+     * @param UserGroupsServiceInterface $service
+     * @param int $id
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function delete(UserGroupsServiceInterface $UserGroups, $id)
+    public function delete(UserGroupsServiceInterface $service, $id)
     {
-        $userGroups = $UserGroups->get($id);
+        $userGroups = $service->get($id);
         if ($this->request->is(['post', 'delete'])) {
             try {
-                if ($UserGroups->delete($id)) {
+                if ($service->delete($id)) {
                     $message = __d('baser', 'ユーザー: {0} を削除しました。', $userGroups->name);
                 }
             } catch (Exception $e) {
@@ -143,6 +139,9 @@ class UserGroupsController extends BcApiController
     /**
      * リスト出力
      * @param UserGroupsServiceInterface $userGroups
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function list(UserGroupsServiceInterface $userGroups)
     {
@@ -152,4 +151,42 @@ class UserGroupsController extends BcApiController
         $this->viewBuilder()->setOption('serialize', ['userGroups']);
     }
 
+    /**
+     * ユーザーグループコピー
+     * @param UserGroupsServiceInterface $service
+     * @param int $id
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function copy(UserGroupsServiceInterface $service, $id)
+    {
+        $this->request->allowMethod(['patch', 'post', 'put']);
+
+        $userGroup = null;
+        $errors = null;
+        try {
+            $userGroup = $service->get($id);
+            $rs = $this->UserGroups->copy($id);
+            if ($rs) {
+                $message = __d('baser', 'ユーザーグループ「{0}」をコピーしました。', $userGroup->name);
+                $userGroup = $rs;
+            } else {
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
+            }
+        } catch (\Exception $e) {
+            $errors = $e->getMessage();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        }
+
+        $this->set([
+            'message' => $message,
+            'userGroup' => $userGroup,
+            'errors' => $errors,
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['message', 'userGroup', 'errors']);
+    }
 }

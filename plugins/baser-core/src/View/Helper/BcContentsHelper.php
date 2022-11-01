@@ -288,10 +288,10 @@ class BcContentsHelper extends Helper
      */
     public function getCurrentRelatedSiteUrl($siteName)
     {
-        if (empty($this->request->getParam('Site'))) {
+        if (empty($this->request->getAttribute('currentSite'))) {
             return '';
         }
-        $url = $this->getPureUrl('/' . $this->request->url, $this->request->getParam('Site.id'));
+        $url = $this->getPureUrl('/' . $this->request->url, $this->request->getAttribute('currentSite')->id);
         $Site = ClassRegistry::init('Site');
         $site = $Site->find('first', ['conditions' => ['Site.name' => $siteName], 'recursive' => -1]);
         if (!$site) {
@@ -355,8 +355,8 @@ class BcContentsHelper extends Helper
      */
     public function getParent($id = null, $direct = true)
     {
-        if (!$id && !empty($this->request->getParam('Content.id'))) {
-            $id = $this->request->getParam('Content.id');
+        if (!$id && !empty($this->request->getAttribute('currentContent')->id)) {
+            $id = $this->request->getAttribute('currentContent')->id;
         }
         if (!$id) {
             return false;
@@ -419,8 +419,8 @@ class BcContentsHelper extends Helper
         ], $options);
         $this->_Contents->unbindModel(['belongsTo' => ['User']]);
         if (!$id) {
-            if (!empty($this->request->getParam('Content'))) {
-                $content = $this->request->getParam('Content');
+            if (!empty($this->request->getAttribute('currentContent'))) {
+                $content = $this->request->getAttribute('currentContent');
                 if ($content['main_site_content_id']) {
                     $id = $content['main_site_content_id'];
                 } else {
@@ -518,7 +518,7 @@ class BcContentsHelper extends Helper
      */
     public function getContentByEntityId($id, $contentType, $field = null)
     {
-        $conditions = array_merge($this->_Contents->getConditionAllowPublish(), ['type' => $contentType, 'entity_id' => $id]);
+        $conditions = array_merge($this->_Contents->getConditionAllowPublish(), ['Contents.type' => $contentType, 'Contents.entity_id' => $id]);
         return $this->_getContent($conditions, $field);
     }
 
@@ -532,6 +532,9 @@ class BcContentsHelper extends Helper
      *  'name','url','title'など　初期値：Null
      *  省略した場合配列を取得
      * @return array|string|bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getContentByUrl($url, $contentType, $field = null)
     {
@@ -539,12 +542,22 @@ class BcContentsHelper extends Helper
         return $this->_getContent($conditions, $field);
     }
 
-    private function _getContent($conditions, $field)
+    /**
+     * 条件を指定してコンテンツを取得する
+     * フィールドを指定した場合はフィールドの値を取得する
+     * @param array $conditions
+     * @param string|null $field
+     * @return array|EntityInterface|false|mixed
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    private function _getContent($conditions, $field = null)
     {
-        $content = $this->_Contents->find('first', ['conditions' => $conditions, 'order' => ['Content.id'], 'cache' => false]);
+        $content = $this->_Contents->find()->where($conditions)->order(['Contents.id'])->first();
         if (!empty($content)) {
             if ($field) {
-                return $content ['Content'][$field];
+                return $content->{$field};
             } else {
                 return $content;
             }
@@ -552,7 +565,6 @@ class BcContentsHelper extends Helper
             return false;
         }
     }
-
 
     /**
      * IDがコンテンツ自身の親のIDかを判定する
@@ -580,10 +592,10 @@ class BcContentsHelper extends Helper
      */
     public function isFolder()
     {
-        if (BcUtil::isAdminSystem() || !$this->request->getParam('Content.type')) {
+        if (BcUtil::isAdminSystem() || !$this->request->getAttribute('currentContent')->type) {
             return false;
         }
-        return ($this->request->getParam('Content.type') === 'ContentFolder');
+        return ($this->request->getAttribute('currentContent')->type === 'ContentFolder');
     }
 
     /**
@@ -729,7 +741,7 @@ class BcContentsHelper extends Helper
     public function getNextLink($title = '', $options = [])
     {
         $request = $this->getView()->getRequest();
-        if (empty($request->getParam('Content.id')) || empty($request->getParam('Content.parent_id'))) {
+        if (empty($request->getAttribute('currentContent')->id) || empty($request->getAttribute('currentContent')->parent_id)) {
             return false;
         }
         $options = array_merge([
@@ -744,7 +756,7 @@ class BcContentsHelper extends Helper
         unset($options['arrow']);
         unset($options['overFolder']);
 
-        $neighbors = $this->getPageNeighbors($request->getParam('Content'), $overFolder);
+        $neighbors = $this->getPageNeighbors($request->getAttribute('currentContent'), $overFolder);
 
         if (empty($neighbors['next'])) {
             return false;
@@ -795,7 +807,7 @@ class BcContentsHelper extends Helper
     public function getPrevLink($title = '', $options = [])
     {
         $request = $this->getView()->getRequest();
-        if (empty($request->getParam('Content.id')) || empty($request->getParam('Content.parent_id'))) {
+        if (empty($request->getAttribute('currentContent')->id) || empty($request->getAttribute('currentContent')->parent_id)) {
             return false;
         }
         $options = array_merge([
@@ -809,7 +821,7 @@ class BcContentsHelper extends Helper
         $overFolder = $options['overFolder'];
         unset($options['arrow']);
         unset($options['overFolder']);
-        $content = $request->getParam('Content');
+        $content = $request->getAttribute('currentContent');
         $neighbors = $this->getPageNeighbors($content, $overFolder);
 
         if (empty($neighbors['prev'])) {

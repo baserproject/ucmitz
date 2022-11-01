@@ -12,6 +12,8 @@
 namespace BaserCore;
 
 use BaserCore\Error\BcException;
+use BaserCore\Model\Entity\Site;
+use BaserCore\Model\Table\SitesTable;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUpdateLog;
 use BaserCore\Utility\BcUtil;
@@ -21,10 +23,12 @@ use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Datasource\ConnectionManager;
 use Cake\Filesystem\Folder;
+use Cake\Http\ServerRequestFactory;
 use Cake\Log\LogTrait;
 use Cake\ORM\TableRegistry;
 use Cake\Routing\Route\InflectedRoute;
 use Cake\Routing\RouteBuilder;
+use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Migrations\Migrations;
 use Cake\Core\Plugin as CakePlugin;
@@ -208,7 +212,7 @@ class BcPlugin extends BasePlugin
      */
     public function execScript($__version)
     {
-        $__path = CakePlugin::path($this->getName()) . DS . 'config' . DS . 'update' . DS . $__version . DS . 'updater.php';
+        $__path = CakePlugin::path($this->getName()) . 'config' . DS . 'update' . DS . $__version . DS . 'updater.php';
         if (!file_exists($__path)) return true;
         try {
             include $__path;
@@ -237,7 +241,8 @@ class BcPlugin extends BasePlugin
             return [];
         }
 
-        $path = CakePlugin::path($name) . DS . 'config' . DS . 'update';
+        // 有効化されていない可能性があるため CakePlugin::path() は利用しない
+        $path = BcUtil::getPluginPath($name) . 'config' . DS . 'update';
         $folder = new Folder($path);
         $files = $folder->read(true, true);
         $updaters = [];
@@ -284,7 +289,8 @@ class BcPlugin extends BasePlugin
             return [];
         }
 
-        $path = CakePlugin::path($name) . 'config' . DS . 'update';
+        // 有効化されていない可能性があるため CakePlugin::path() は利用しない
+        $path = BcUtil::getPluginPath($name) . 'config' . DS . 'update';
         $folder = new Folder($path);
         $files = $folder->read(true, true);
         $messages = [];
@@ -375,6 +381,30 @@ class BcPlugin extends BasePlugin
     }
 
     /**
+     * ルーティング設定
+     *
+     * 次のルートを設定するが、未インストールの場合はスキップする。
+     *
+     * ### コンテンツ管理のプラグイン用のリバースルーティング
+     * ['plugin' => 'BcBlog', 'controller' => 'Blog', 'action' => 'index'] → /news/
+     * ['plugin' => 'BcBlog', 'controller' => 'Blog', 'action' => 'archives', 1] → /news/archives/1
+     *
+     * ### 管理画面のプラグイン用ルーティング
+     * /baser/admin/plugin-name/controller_name/index
+     * /baser/admin/plugin-name/controller_name/action_name/*
+     *
+     * ### フロントエンドのプラグイン用ルーティング
+     * /plugin-name/controller_name/index
+     * /plugin-name/controller_name/action_name/*
+     *
+     * ### サブサイトのプラグイン用ルーティング
+     * /site_alias/plugin-name/controller_name/index
+     * /site_alias/plugin-name/controller_name/action_name/*
+     *
+     * ### APIのプラグイン用ルーティング
+     * /baser/api/plugin-name/controller_name/index.json
+     * /baser/api/plugin-name/controller_name/action_name/*.json
+     *
      * @param \Cake\Routing\RouteBuilder $routes
      * @checked
      * @unitTest
@@ -382,21 +412,16 @@ class BcPlugin extends BasePlugin
      */
     public function routes($routes): void
     {
-        $plugin = $this->getName();
-
-        /**
-         * インストーラー
-         */
-        if (!Configure::read('BcRequest.isInstalled')) {
-            $routes->connect('/', ['plugin' => 'BaserCore', 'controller' => 'Installations', 'action' => 'index']);
-            $routes->connect('/install', ['plugin' => 'BaserCore', 'controller' => 'Installations', 'action' => 'index']);
-            $routes->fallbacks(InflectedRoute::class);
+        if (!BcUtil::isInstalled()) {
             parent::routes($routes);
             return;
         }
 
+        $plugin = $this->getName();
+
         /**
          * コンテンツ管理ルーティング
+         * リバースルーティングのために必要
          */
         $routes->plugin(
             $plugin,
@@ -409,7 +434,10 @@ class BcPlugin extends BasePlugin
             }
         );
 
-        // プラグインの管理画面用ルーティング
+        /**
+         * プラグインの管理画面用ルーティング
+         * プラグイン名がダッシュ区切りの場合
+         */
         $prefixSettings = Configure::read('BcPrefixAuth');
         foreach($prefixSettings as $prefix => $setting) {
             $routes->prefix(
@@ -429,19 +457,49 @@ class BcPlugin extends BasePlugin
             );
         }
 
-        // プラグインのフロントエンド用ルーティング
+        /**
+         * プラグインのフロントエンド用ルーティング
+         * プラグイン名がダッシュ区切りの場合
+         */
         $routes->plugin(
             $plugin,
-            ['path' => '/' . BcUtil:: getBaserCorePrefix() . '/' . Inflector::dasherize($plugin)],
+            ['path' => '/' . Inflector::dasherize($plugin)],
             function(RouteBuilder $routes) {
-                // AnalyseController で利用
-                $routes->setExtensions(['json']);
-                $routes->connect('/{controller}/index', [], ['routeClass' => InflectedRoute::class]);
+                $routes->setExtensions(['json']);   // AnalyseController で利用
+                $routes->connect('/{controller}/index', ['sitePrefix' => ''], ['routeClass' => InflectedRoute::class]);
+                $routes->connect('/{controller}/{action}/*', ['sitePrefix' => ''], ['routeClass' => InflectedRoute::class]);
                 $routes->fallbacks(InflectedRoute::class);
             }
         );
 
-        // API用ルーティング
+        /**
+         * サブサイトのプラグイン用ルーティング
+         * プラグイン名がダッシュ区切りの場合
+         */
+        $request = Router::getRequest();
+        if(!$request) {
+            $request = ServerRequestFactory::fromGlobals();
+        }
+        /* @var SitesTable $sitesTable */
+        $sitesTable = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        /* @var Site $site */
+        $site = $sitesTable->findByUrl($request->getPath());
+        if($site && $site->alias) {
+            $routes->plugin(
+                $plugin,
+                ['path' => '/' . $site->alias . '/' . Inflector::dasherize($plugin)],
+                function(RouteBuilder $routes) use ($site){
+                    // BcFrontMiddleware にて、sitePrefix によって currentSite を設定
+                    $routes->connect('/{controller}/index', ['sitePrefix' => $site->alias], ['routeClass' => InflectedRoute::class]);
+                    $routes->connect('/{controller}/{action}/*', ['sitePrefix' => $site->alias], ['routeClass' => InflectedRoute::class]);
+                }
+            );
+        }
+
+        /**
+         * APIのプラグイン用ルーティング
+         * プラグイン名がダッシュ区切りの場合
+         */
         $routes->prefix(
             'Api',
             ['path' => '/' . BcUtil::getBaserCorePrefix() . '/api'],
@@ -459,6 +517,21 @@ class BcPlugin extends BasePlugin
         );
 
         parent::routes($routes);
+    }
+
+    /**
+     * テーマを適用する
+     * @param Site $site
+     * @param string $theme
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function applyAsTheme(Site $site, string $theme)
+    {
+        $site->theme = $theme;
+        $siteConfigsTable = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $siteConfigsTable->save($site);
     }
 
 }

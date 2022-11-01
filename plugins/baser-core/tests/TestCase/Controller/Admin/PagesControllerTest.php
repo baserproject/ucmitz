@@ -19,7 +19,6 @@ use BaserCore\Controller\Admin\PagesController;
 /**
  * Class PagesControllerTest
  *
- * @package Baser.Test.Case.Controller
  * @property  PagesController $PagesController
  */
 class PagesControllerTest extends BcTestCase
@@ -31,7 +30,6 @@ class PagesControllerTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.BaserCore.SearchIndexes',
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.SiteConfigs',
         'plugin.BaserCore.Contents',
@@ -83,7 +81,7 @@ class PagesControllerTest extends BcTestCase
         $event = new Event('Controller.beforeFilter', $this->PagesController);
         $this->PagesController->beforeFilter($event);
         $helpers = $this->PagesController->viewBuilder()->getHelpers();
-        $this->assertCount(4, $helpers);
+        $this->assertCount(1, $helpers);
     }
 
     /**

@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Service;
 
+use BaserCore\Test\Factory\PermissionFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Service\PermissionsService;
 
@@ -61,6 +62,12 @@ class PermissionsServiceTest extends BcTestCase
     {
         unset($this->PermissionsService);
         parent::tearDown();
+    }
+
+    public function testConstruct(){
+        $this->execPrivateMethod($this->PermissionsService, 'setDefaultAllow');
+        $this->assertTrue(isset($this->PermissionsService->Permissions));
+        $this->assertTrue(isset($this->PermissionsService->adminUrlPrefix));
     }
 
     /**
@@ -290,8 +297,8 @@ class PermissionsServiceTest extends BcTestCase
      */
     public function testCheck($url, $userGroup, $expected)
     {
-        $result = $this->PermissionsService->addCheck("/fuga", false);
-        $result = $this->PermissionsService->addCheck("/piyo", true);
+        $this->PermissionsService->addCheck("/fuga", false);
+        $this->PermissionsService->addCheck("/piyo", true);
         $result = $this->PermissionsService->check($url, $userGroup);
         $this->assertEquals($expected, $result);
     }
@@ -300,7 +307,7 @@ class PermissionsServiceTest extends BcTestCase
     {
         return [
             ['hoge', [1], true],
-            ['hoge', [2], false],
+            ['hoge', [2], true],
             ['/fuga', [1], true],
             ['/fuga', [2], false],
             ['/piyo', [2], true],
@@ -386,4 +393,57 @@ class PermissionsServiceTest extends BcTestCase
         $this->assertEquals([], $this->PermissionsService->getList());
     }
 
+    /**
+     * test getNamesById
+     * @return void
+     */
+    public function testGetNamesById()
+    {
+        $rs = $this->PermissionsService->getNamesById([1, 2, 3]);
+
+        $this->assertEquals('システム管理', $rs[1]);
+        $this->assertEquals('よく使う項目', $rs[2]);
+        $this->assertEquals('ページ管理', $rs[3]);
+    }
+
+    /**
+     * test setDefaultAllow
+     *
+     * @param $url
+     * @param $expect
+     * @dataProvider setDefaultAllowDataProvider
+     *
+     */
+    public function testSetDefaultAllow($url, $expect){
+        $this->execPrivateMethod($this->PermissionsService, 'setDefaultAllow');
+        $this->assertEquals($this->execPrivateMethod($this->PermissionsService, 'checkDefaultAllow', [$url]), $expect);
+    }
+
+    public function setDefaultAllowDataProvider()
+    {
+        return [
+            ['/baser/admin/baser-core/dashboard/test', true],
+            ['/baser/admin/', true],
+            ['/baser/admin/baser-core/dblogs/test', true],
+            ['/baser/admin/baser-core/users/logout', true],
+            ['/baser/admin/baser-core/user_groups', true],
+            ['/baser/admin/baser-core/baser-core/test', false],
+        ];
+    }
+
+    /**
+     * test batch
+     * @return void
+     */
+    public function testBatch()
+    {
+        PermissionFactory::make(['id' => 100, 'user_group_id' => 100, 'status' => 1], 1)->persist();
+        PermissionFactory::make(['id' => 101, 'user_group_id' => 100, 'status' => 1], 1)->persist();
+        PermissionFactory::make(['id' => 102, 'user_group_id' => 100, 'status' => 1], 1)->persist();
+
+        $this->PermissionsService->batch('delete', [100, 101, 102]);
+
+        $permissions = $this->PermissionsService->getIndex(['user_group_id' => 100])->all();
+        $this->assertEquals(0, count($permissions));
+    }
 }

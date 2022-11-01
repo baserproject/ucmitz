@@ -11,12 +11,13 @@
 
 namespace BaserCore\Controller\Api;
 
-use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\Note;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Service\PagesService;
 use BaserCore\Service\PagesServiceInterface;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
@@ -27,78 +28,122 @@ class PagesController extends BcApiController
 {
 
     /**
+     * initialize
+     * @return void
+     * @checked
+     * @unitTest
+     * @unitTest
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Authentication->allowUnauthenticated(['view']);
+    }
+
+    /**
      * 固定ページ一覧取得
-     * @param PagesServiceInterface $Pages
+     * @param PagesServiceInterface $service
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function index(PagesServiceInterface $Pages)
+    public function index(PagesServiceInterface $service)
     {
         $this->request->allowMethod('get');
         $this->set([
-            'pages' => $this->paginate($Pages->getIndex())
+            'pages' => $this->paginate($service->getIndex())
         ]);
         $this->viewBuilder()->setOption('serialize', ['pages']);
     }
 
     /**
      * 固定ページ取得
-     * @param PagesServiceInterface $Pages
+     *
+     * クエリーパラーメーター
+     * - status: string 公開ステータス（初期値：publish）
+     *  - `publish` 公開されたページ
+     *  - `` 全て
+     *
+     * @param PagesServiceInterface $service
      * @param int $id
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function view(PagesServiceInterface $Pages, $id)
+    public function view(PagesServiceInterface $service, $id)
     {
         $this->request->allowMethod('get');
-        $this->set([
-            'pages' => $Pages->get($id)
+        $queryParams = $this->getRequest()->getQueryParams();
+        if(isset($queryParams['status'])) {
+            if(!$this->Authentication->getIdentity()) throw new ForbiddenException();
+        }
+
+        $queryParams = array_merge($queryParams, [
+            'status' => 'publish'
         ]);
-        $this->viewBuilder()->setOption('serialize', ['pages']);
+
+        $page = $message = null;
+        try {
+            $page = $service->get($id, $queryParams);
+        } catch(\Exception $e) {
+            $this->setResponse($this->response->withStatus(401));
+            $message = $e->getMessage();
+        }
+
+        $this->set([
+            'page' => $page,
+            'message' => $message
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['page', 'message']);
     }
 
     /**
      * 固定ページ登録
-     * @param PagesServiceInterface $Pages
+     * @param PagesServiceInterface $service
      * @checked
      * @unitTest
      * @noTodo
      */
-    public function add(PagesServiceInterface $Pages)
+    public function add(PagesServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
         try {
-            $page = $Pages->create($this->request->getData());
+            $page = $service->create($this->request->getData());
             $message = __d('baser', '固定ページ「{0}」を追加しました。', $page->content->title);
-            $this->set("page", $page);
-            $this->set('content', $page->content);
         } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
             $page = $e->getEntity();
             $message = __d('baser', "入力エラーです。内容を修正してください。\n");
-            $this->set(['errors' => $page->getErrors()]);
             $this->setResponse($this->response->withStatus(400));
         }
-        $this->set(['message' => $message]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'content', 'errors']);
+        $this->set([
+            'page' => $page,
+            'content' => $page->content,
+            'message' => $message,
+            'errors' => $page->getErrors()
+        ]);
+        $this->viewBuilder()->setOption('serialize', [
+            'page',
+            'content',
+            'message',
+            'errors'
+        ]);
     }
 
     /**
      * 固定ページ削除
-     * @param PagesServiceInterface $Pages
+     * @param PagesServiceInterface $service
      * @param int $id
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function delete(PagesServiceInterface $Pages, $id)
+    public function delete(PagesServiceInterface $service, $id)
     {
         $this->request->allowMethod(['delete']);
-        $page = $Pages->get($id);
+        $page = $service->get($id);
         try {
-            if ($Pages->delete($id)) {
-                $message = __d('baser', '固定ページ: {0} を削除しました。', $page->content->title);
+            if ($service->delete($id)) {
+                $message = __d('baser', '固定ページ: {0} をゴミ箱に移動しました。', $page->content->title);
             }
         } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
             $page = $e->getEntity();
@@ -113,17 +158,17 @@ class PagesController extends BcApiController
 
     /**
      * 固定ページ情報編集
-     * @param PagesServiceInterface $pages
+     * @param PagesServiceInterface $service
      * @param int $id
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function edit(PagesServiceInterface $pages, $id)
+    public function edit(PagesServiceInterface $service, $id)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
         try {
-            $page = $pages->update($pages->get($id), $this->request->getData());
+            $page = $service->update($service->get($id), $this->request->getData());
             $message = __d('baser', '固定ページ 「{0}」を更新しました。', $page->content->title);
         } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
@@ -133,6 +178,7 @@ class PagesController extends BcApiController
         $this->set([
             'message' => $message,
             'page' => $page,
+            'content' => $page->content,
             'errors' => $page->getErrors(),
         ]);
         $this->viewBuilder()->setOption('serialize', ['page', 'message', 'errors']);
@@ -140,16 +186,17 @@ class PagesController extends BcApiController
 
     /**
      * コピー
-     * @param PagesServiceInterface $pages
+     * @param PagesServiceInterface $service
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function copy(PagesServiceInterface $pages)
+    public function copy(PagesServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
         try {
-            $page = $pages->copy($this->request->getData());
+            /* @var PagesService $service */
+            $page = $service->copy($this->request->getData());
             $message = __d('baser', '固定ページのコピー「%s」を追加しました。', $page->content->title);
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(500));

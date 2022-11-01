@@ -11,6 +11,10 @@
 
 namespace BaserCore\Test\TestCase\Service;
 
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\PageFactory;
+use BaserCore\Test\Factory\SearchIndexesFactory;
+use BcBlog\Test\Factory\BlogContentFactory;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Routing\Router;
@@ -46,9 +50,11 @@ class ContentsServiceTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
         'plugin.BaserCore.SiteConfigs',
+        'plugin.BaserCore.Factory/Pages',
+        'plugin.BcBlog.Factory/BlogContents',
     ];
 
-        /**
+    /**
      * Set Up
      *
      * @return void
@@ -96,17 +102,6 @@ class ContentsServiceTest extends BcTestCase
     }
 
     /**
-     * testGetEmptyIndex
-     *
-     * @return void
-     */
-    public function testGetEmptyIndex(): void
-    {
-        $result = $this->ContentsService->getEmptyIndex();
-        $this->assertTrue($result->all()->isEmpty());
-        $this->assertInstanceOf('Cake\ORM\Query', $result);
-    }
-    /**
      * testGetTreeIndex
      *
      * @return void
@@ -136,15 +131,15 @@ class ContentsServiceTest extends BcTestCase
         $result = $this->ContentsService->getTableConditions($request->getQueryParams());
         $this->assertEquals([
             'OR' => [
-            'name LIKE' => '%テスト%',
-            'title LIKE' => '%テスト%',
+                'name LIKE' => '%テスト%',
+                'title LIKE' => '%テスト%',
             ],
             'name' => 'テスト',
             'self_status' => '1',
             'type' => 'ContentFolder',
             'site_id' => 1,
             'open' => '1'
-            ], $result);
+        ], $result);
     }
 
     /**
@@ -158,6 +153,7 @@ class ContentsServiceTest extends BcTestCase
         $result = $this->ContentsService->getTableIndex($conditions);
         $this->assertEquals($expected, $result->count());
     }
+
     public function getTableIndexDataProvider()
     {
         return [
@@ -223,6 +219,7 @@ class ContentsServiceTest extends BcTestCase
         $contents = $this->ContentsService->getIndex($request->getQueryParams());
         $this->assertEquals(3, $contents->all()->count());
     }
+
     /**
      * testGetTrashIndex
      *
@@ -256,7 +253,7 @@ class ContentsServiceTest extends BcTestCase
                 20 => '　　　　　　　　　└ツリー階層削除用フォルダー(孫)',
                 21 => '　　　└testEdit',
             ],
-        $result);
+            $result);
         $result = $this->ContentsService->getContentFolderList($siteId, ['conditions' => ['site_root' => false]]);
         $this->assertEquals([
             6 => 'サービス',
@@ -331,7 +328,6 @@ class ContentsServiceTest extends BcTestCase
         }
         try {
             $this->ContentFoldersService->get($content->entity_id);
-            throw new \Exception();
         } catch (\Exception $e) {
             $this->assertSame('Cake\Datasource\Exception\RecordNotFoundException', get_class($e));
         }
@@ -412,13 +408,13 @@ class ContentsServiceTest extends BcTestCase
         // 子要素がある場合
         $children = $this->ContentsService->getChildren(6);
         $this->assertTrue($this->ContentsService->deleteRecursive(6));
-        foreach ($children as $child) {
+        foreach($children as $child) {
             $this->assertNotEmpty($this->ContentsService->getTrash($child->id));
         }
         // 子要素の階層が深い場合
         $children = $this->ContentsService->getChildren(18);
         $this->assertTrue($this->ContentsService->deleteRecursive(18));
-        foreach ($children as $child) {
+        foreach($children as $child) {
             $this->assertNotEmpty($this->ContentsService->getTrash($child->id));
         }
         // エイリアスを子に持つ場合
@@ -438,7 +434,7 @@ class ContentsServiceTest extends BcTestCase
         $this->assertEquals('default', $result);
     }
 
-        /**
+    /**
      * コンテンツIDよりURLを取得する
      *
      * @param int $id コンテンツID
@@ -583,6 +579,7 @@ class ContentsServiceTest extends BcTestCase
         $this->assertEquals($result['title'], $titleExpected);
         $this->assertEquals($result['author_id'], $newAuthorId);
     }
+
     public function copyDataProvider()
     {
         return [
@@ -621,6 +618,18 @@ class ContentsServiceTest extends BcTestCase
      */
     public function testPublish()
     {
+        PageFactory::make([
+            ['id' => 2],
+            ['id' => 16],
+            ['id' => 3],
+            ['id' => 5],
+            ['id' => 6],
+            ['id' => 7],
+            ['id' => 19],
+            ['id' => 20],
+            ['id' => 21]
+        ])->persist();
+        BlogContentFactory::make(['id' => 31, 'description' => ''])->persist();
         $contents = $this->getTableLocator()->get('Contents');
 
         $content = $contents->find()->order(['id' => 'ASC'])->first();
@@ -638,6 +647,18 @@ class ContentsServiceTest extends BcTestCase
      */
     public function testUnpublish()
     {
+        PageFactory::make([
+            ['id' => 2],
+            ['id' => 16],
+            ['id' => 3],
+            ['id' => 5],
+            ['id' => 6],
+            ['id' => 7],
+            ['id' => 19],
+            ['id' => 20],
+            ['id' => 21]
+        ])->persist();
+        BlogContentFactory::make(['id' => 31, 'description' => ''])->persist();
         $contents = $this->getTableLocator()->get('Contents');
 
         $content = $contents->find()->order(['id' => 'ASC'])->first();
@@ -666,6 +687,17 @@ class ContentsServiceTest extends BcTestCase
      */
     public function testMove()
     {
+        PageFactory::make([
+            ['id' => 2],
+            ['id' => 16],
+            ['id' => 3],
+            ['id' => 5],
+            ['id' => 6],
+            ['id' => 7],
+            ['id' => 19],
+            ['id' => 20],
+            ['id' => 21]
+        ])->persist();
         // 移動元のエンティティ
         $originEntity = $this->ContentsService->getIndex(['parent_id' => 1])->order('lft')->first();
         $origin = [
@@ -698,8 +730,8 @@ class ContentsServiceTest extends BcTestCase
     /**
      * メインサイトの場合、連携設定がされている子サイトも移動する
      *
-     *  @return void
-     *  @todo 子サイトが複数ある状況のテストを追加する
+     * @return void
+     * @todo 子サイトが複数ある状況のテストを追加する
      */
     public function testMoveRelateSubSiteContent()
     {
@@ -796,7 +828,7 @@ class ContentsServiceTest extends BcTestCase
     /**
      * testGetNeighbors
      *
-     * @param  mixed $options
+     * @param mixed $options
      * @return void
      */
     public function testGetNeighbors()
@@ -902,4 +934,61 @@ class ContentsServiceTest extends BcTestCase
         $this->assertNull($this->ContentsService->create([]));
     }
 
+    /**
+     * test batch
+     * @return void
+     */
+    public function testBatch()
+    {
+        ContentFactory::make(['id' => 100, 'plugin' => 'BaserCore', 'type' => 'ContentFolder', 'site_id' => 100, 'lft' => 1, 'rght' => 2,], 1)->persist();
+        ContentFactory::make(['id' => 101, 'plugin' => 'BaserCore', 'type' => 'ContentFolder', 'site_id' => 100, 'lft' => 3, 'rght' => 4,], 1)->persist();
+        ContentFactory::make(['id' => 102, 'plugin' => 'BaserCore', 'type' => 'ContentFolder', 'site_id' => 100, 'lft' => 5, 'rght' => 6,], 1)->persist();
+
+
+        $this->ContentsService->batch('delete', [100, 101, 102]);
+
+        $contents = $this->ContentsService->getIndex(['site_id' => 100])->all();
+        $this->assertEquals(0, count($contents));
+    }
+
+    /**
+     * test getTitlesById
+     */
+    public function testGetTitlesById()
+    {
+        ContentFactory::make(['id' => 110, 'title' => 'ID110'], 1)->persist();
+        ContentFactory::make(['id' => 111, 'title' => 'ID111'], 1)->persist();
+        $titles = $this->ContentsService->getTitlesById([110, 111]);
+        $this->assertCount(2, $titles);
+        $this->assertEquals('ID110', $titles[110]);
+        $this->assertEquals('ID111', $titles[111]);
+    }
+
+    /**
+     * test rename
+     */
+    public function testRename()
+    {
+        PageFactory::make(['id' => 16, 'content' => 'test'])->persist();
+        $content = ContentFactory::get(5);
+        $originalName = $content['name'];
+        $postData = ['id' => 5, 'title' => 'タイトル編集済', 'first' => true];
+        $this->ContentsService->rename($content, $postData);
+        // first オプションを有効にした場合、content.name の変更を確認
+        $this->assertNotEquals($originalName, $content['name']);
+
+        PageFactory::make(['id' => 2, 'content' => 'test'])->persist();
+        $countBefore = SearchIndexesFactory::count();
+        $content = ContentFactory::get(4);
+        $originalName = $content['name'];
+        $postData = ['id' => 4, 'title' => 'タイトル編集済'];
+        $this->ContentsService->rename($content, $postData);
+        $content = ContentFactory::get(4);
+        // DBの content.titleの変更を確認
+        $this->assertEquals($postData['title'], $content['title']);
+        // first オプションを無効にした場合、content.name の値を確認
+        $this->assertEquals($originalName, $content['name']);
+        // DBの search_indexes の変更を確認（BcSearchIndexプラグインの有効化が必要）
+        $this->assertEquals($countBefore + 1, SearchIndexesFactory::count());
+    }
 }

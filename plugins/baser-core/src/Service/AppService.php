@@ -18,6 +18,7 @@ use BaserCore\Model\Entity\Site;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Datasource\EntityInterface;
+use Cake\ORM\TableRegistry;
 use Cake\Routing\Router;
 
 /**
@@ -60,7 +61,8 @@ class AppService
         if(!BcUtil::loginUser()) return null;
         $site = Router::getRequest()->getAttribute('currentSite');
         if($site) {
-            return $this->getService(SitesServiceInterface::class)->get($site->id);
+            $sitesTable = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+            return $sitesTable->find()->where(['id' => $site->id])->first();
         } else {
             return null;
         }
@@ -71,6 +73,7 @@ class AppService
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getOtherSiteList(): array
     {
@@ -78,7 +81,8 @@ class AppService
         $site = $this->getCurrentSite();
         if($site) {
             return $this->getService(SitesServiceInterface::class)->getList([
-                'excludeIds' => $site->id
+                'excludeIds' => $site->id,
+                'status' => null
             ]);
         } else {
             return [];

@@ -18,6 +18,7 @@ declare(strict_types=1);
 use Cake\Core\Configure;
 use Cake\Datasource\ConnectionManager;
 use Migrations\TestSuite\Migrator;
+use BaserCore\Utility\BcUtil;
 
 /**
  * Test runner bootstrap.
@@ -68,5 +69,6 @@ session_id('cli');
 // (new SchemaLoader())->loadSqlFiles('./tests/schema.sql', 'test');
 (new Migrator())->runMany([
     ['plugin' => 'BaserCore'],
-    ['plugin' => 'BcBlog']
+    ['plugin' => 'BcBlog'],
+    ['plugin' => 'BcSearchIndex'],
 ]);

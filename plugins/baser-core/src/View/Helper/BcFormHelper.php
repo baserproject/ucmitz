@@ -364,7 +364,7 @@ SCRIPT_END;
 
         $formId = $this->setId($this->createId($context, $options));
 
-        /*** beforeCreate ***/
+        // EVENT Form.beforeCreate
         $event = $this->dispatchLayerEvent('beforeCreate', [
             'id' => $formId,
             'options' => $options
@@ -381,7 +381,7 @@ SCRIPT_END;
 
         // CUSTOMIZE ADD 2014/07/03 ryuring
         // >>>
-        /*** afterCreate ***/
+        // EVENT Form.afterCreate
         $event = $this->dispatchLayerEvent('afterCreate', [
             'id' => $formId,
             'out' => $out
@@ -475,10 +475,10 @@ SCRIPT_END;
 
         // CUSTOMIZE ADD 2014/07/03 ryuring
         // >>>
-        /*** beforeInput ***/
+        // EVENT Form.beforeInput
         $event = $this->dispatchLayerEvent('beforeInput', [
             'formId' => $this->__id,
-            'data' => $this->request->data,
+            'data' => $this->request->getData(),
             'fieldName' => $fieldName,
             'options' => $options
         ], ['class' => 'Form', 'plugin' => '']);
@@ -734,10 +734,10 @@ DOC_END;
             $output = $output . $counter . $this->Html->scriptblock($script);
         }
 
-        /*** afterInput ***/
+        // EVENT Form.afterInput
         $event = $this->dispatchLayerEvent('afterInput', [
             'formId' => $this->__id,
-            'data' => $this->request->data,
+            'data' => $this->request->getData(),
             'fieldName' => $fieldName,
             'out' => $output
         ], ['class' => 'Form', 'plugin' => '']);
@@ -874,7 +874,7 @@ DOC_END;
     {
         // CUSTOMIZE ADD 2016/06/08 ryuring
         // >>>
-        /*** beforeInput ***/
+        // EVENT Form.beforeSubmit
         $event = $this->dispatchLayerEvent('beforeSubmit', [
             'id' => $this->getId(),
             'caption' => $caption,
@@ -886,7 +886,7 @@ DOC_END;
 
         $output = parent::submit($caption, $options);
 
-        /*** afterInput ***/
+        // EVENT Form.afterSubmit
         $event = $this->dispatchLayerEvent('afterSubmit', [
             'id' => $this->getId(),
             'caption' => $caption,
@@ -1626,8 +1626,13 @@ DOC_END;
                     // 複数$contextに設定されてる場合先頭のエンティティを優先
                     $context = array_shift($context);
                 }
-                [, $context] = pluginSplit($context->getSource());
-            } else {
+                if ($context instanceof EntityInterface) {
+                    [, $context] = pluginSplit($context->getSource());
+                } else {
+                    $context = null;
+                }
+            }
+            if(!$context) {
                 $context = empty($request->getParam('controller')) ? false : $request->getParam('controller');
             }
             if ($domId = isset($options['url']['action'])? $options['url']['action'] : $request->getParam('action')) {
@@ -1697,15 +1702,15 @@ DOC_END;
      */
     public function editor($fieldName, $options = [])
     {
-
         $options = array_merge([
-            'editor' => 'BcCkeditor',
+            'editor' => 'BaserCore.BcCkeditor',
             'style' => 'width:99%;height:540px'
         ], $options);
-        [$plugin, $editor] = pluginSplit($options['editor']);
+        $this->_View->loadHelper($options['editor']);
+        [, $editor] = pluginSplit($options['editor']);
         if (!empty($this->getView()->{$editor})) {
             return $this->getView()->{$editor}->editor($fieldName, $options);
-        } elseif ($editor == 'none') {
+        } elseif ($editor === 'none') {
             $_options = [];
             foreach($options as $key => $value) {
                 if (!preg_match('/^editor/', $key)) {
@@ -2087,7 +2092,7 @@ DOC_END;
     {
         $context = $this->context();
         if(!($context instanceof EntityContext)) return false;
-        $entity = $context->entity();
+        $entity = $context->entity(explode('.', $fieldName));
         if(!$entity) return false;
 
         $fieldArray = explode('.', $fieldName);
@@ -2110,6 +2115,28 @@ DOC_END;
         return TableRegistry::getTableLocator()->get($name);
     }
 
+    /**
+     * フォームコントロールを取得
+     *
+     * CakePHPの標準仕様をカスタマイズ
+     * - labelタグを自動で付けない
+     * - legendタグを自動で付けない
+     * - errorタグを自動で付けない
+     *
+     * @param string $fieldName
+     * @param array $options
+     * @return string
+     */
+    public function control(string $fieldName, array $options = []): string
+    {
+        $options = array_replace_recursive([
+            'label' => false,
+            'legend' => false,
+            'error' => false,
+            'templateVars' => ['tag' => 'span', 'groupTag' => 'span']
+        ], $options);
+        return parent::control($fieldName, $options);
+    }
 // <<<
 
 }

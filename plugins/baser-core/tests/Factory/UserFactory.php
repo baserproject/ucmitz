@@ -60,4 +60,19 @@ class UserFactory extends CakephpBaseFactory
         return $this->setField('status', false);
     }
 
+    /**
+     * 管理ユーザーに設定する
+     * @return UserFactory
+     */
+    public function admin()
+    {
+        UserGroupFactory::make()->admins()->persist();
+        UsersUserGroupFactory::make()->admin()->persist();
+
+        return $this->setField('id', 1)
+            ->setField('email', 'admin@example.com')
+            ->setField('name', 'name')
+            ->setField('status', 1)
+            ->setField('method', 'ALL');
+    }
 }

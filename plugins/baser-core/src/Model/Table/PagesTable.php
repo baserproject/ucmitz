@@ -13,17 +13,15 @@ namespace BaserCore\Model\Table;
 
 use ArrayObject;
 use BaserCore\Model\Entity\Content;
-use Cake\ORM\Table;
+use Cake\Core\Plugin;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use BaserCore\Utility\BcUtil;
 use Cake\Event\EventInterface;
 use Cake\Validation\Validator;
-use BaserCore\Model\Entity\Page;
 use Cake\Datasource\EntityInterface;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Event\BcEventDispatcherTrait;
-use BaserCore\Model\Behavior\BcSearchIndexManagerInterface;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -32,7 +30,7 @@ use BaserCore\Annotation\Note;
 /**
  * Class PagesTable
  */
-class PagesTable extends Table implements BcSearchIndexManagerInterface
+class PagesTable extends AppTable
 {
     /**
      * Trait
@@ -85,7 +83,9 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
     {
         parent::initialize($config);
         $this->addBehavior('BaserCore.BcContents');
-        $this->addBehavior('BaserCore.BcSearchIndexManager');
+        if(Plugin::isLoaded('BcSearchIndex')) {
+            $this->addBehavior('BcSearchIndex.BcSearchIndexManager');
+        }
         $this->addBehavior('Timestamp');
         $this->Sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
         $this->Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
@@ -147,7 +147,7 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
     }
 
     /**
-     * afterSave
+     * Before Save
      *
      * @param  EventInterface $event
      * @param  EntityInterface $entity
@@ -157,22 +157,21 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
      * @noTodo
      * @unitTest
      */
-    public function afterSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
+        if (!Plugin::isLoaded('BcSearchIndex') || !$this->searchIndexSaving ) {
+            return;
+        }
         // 検索用テーブルに登録
-        if ($this->searchIndexSaving) {
-            if (!empty($entity->content) && empty($entity->content->exclude_search)) {
-                $this->saveSearchIndex($this->createSearchIndex($entity));
-            } else {
-                $this->deleteSearchIndex($entity->id);
-            }
+        if (empty($entity->content) || !empty($entity->content->exclude_search)) {
+            $this->setExcluded();
         }
     }
 
     /**
      * 検索用データを生成する
      *
-     * @param Page $page
+     * @param EntityInterface $entity
      * @return array|false
      * @checked
      * @unitTest
@@ -185,10 +184,10 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
         }
         $content = $page->content;
         if (!isset($content->publish_begin)) {
-            $content->publish_begin = '';
+            $content->publish_begin = null;
         }
         if (!isset($content->publish_end)) {
-            $content->publish_end = '';
+            $content->publish_end = null;
         }
 
         if (!$content->title) {
@@ -246,7 +245,7 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
         $page = $this->get($id, ['contain' => ['Contents']]);
         $oldPage = clone $page;
 
-        // EVENT Page.beforeCopy
+        // EVENT Pages.beforeCopy
         $event = $this->dispatchLayerEvent('beforeCopy', [
             'data' => $page,
             'id' => $page->id
@@ -273,7 +272,7 @@ class PagesTable extends Table implements BcSearchIndexManagerInterface
         $newPage = $this->patchEntity($this->newEmptyEntity(), $page->toArray());
         $newPage = $this->saveOrFail($newPage);
 
-        // EVENT Page.afterCopy
+        // EVENT Pages.afterCopy
         $this->dispatchLayerEvent('afterCopy', [
             'data' => $newPage,
             'id' => $newPage->id,

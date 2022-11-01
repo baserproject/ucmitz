@@ -21,7 +21,6 @@ use BaserCore\Controller\Admin\ContentFoldersController;
 /**
  * Class ContentFoldersControllerTest
  *
- * @package Baser.Test.Case.Controller
  * @property  ContentFoldersController $ContentFoldersController
  * @property ContentFoldersTable $ContentFolders
  * @property ContentsTable $Contents
@@ -77,18 +76,6 @@ class ContentFoldersControllerTest extends BcTestCase
     public function testInitialize(): void
     {
         $this->assertNotEmpty($this->ContentFoldersController->BcAdminContents);
-    }
-
-    /**
-     * Before Filter
-     */
-    public function testBeforeFilter()
-    {
-        $event = new Event('Controller.beforeFilter', $this->ContentFoldersController);
-        $this->ContentFoldersController->beforeFilter($event);
-        $this->assertNotEmpty($this->ContentFoldersController);
-        $this->assertNotEmpty($this->ContentFoldersController->ContentFolders);
-
     }
 
     /**

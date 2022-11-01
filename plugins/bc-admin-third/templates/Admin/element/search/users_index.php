@@ -5,7 +5,6 @@
  *
  * @copyright    Copyright (c) baserCMS Users Community
  * @link      https://basercms.net baserCMS Project
- * @package      Baser.View
  * @since      baserCMS v 2.0.0
  * @license      https://basercms.net/license/index.html
  */
@@ -15,6 +14,9 @@ use BaserCore\View\BcAdminAppView;
 /**
  * User Index Search
  * @var BcAdminAppView $this
+ * @checked
+ * @unitTest
+ * @noTodo
  */
 $userGroupList = $this->BcAdminForm->getControlSource('Users.user_group_id');
 ?>

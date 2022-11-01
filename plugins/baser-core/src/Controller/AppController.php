@@ -30,8 +30,10 @@ use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManagerInterface;
 use Cake\Http\Exception\BadRequestException;
+use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
+use Cake\Utility\Inflector;
 
 /**
  * Class AppController
@@ -57,6 +59,7 @@ class AppController extends BaseController
      * @param ComponentRegistry|null $components
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function __construct(
         ?ServerRequest         $request = null,
@@ -73,7 +76,7 @@ class AppController extends BaseController
         // インストールされていない場合、トップページにリダイレクトする
         // コンソールベースのインストールの際のページテンプレート生成において、
         // BC_INSTALLED、$isInstall ともに true でない為、コンソールの場合は無視する
-        if (!(BC_INSTALLED || BcUtil::isConsole()) && !$isInstall) {
+        if (!(BcUtil::isInstalled() || BcUtil::isConsole()) && !$isInstall) {
             $this->redirect('/');
         }
         $request->getSession()->start();
@@ -125,7 +128,7 @@ class AppController extends BaseController
 
         // インストーラー、アップデーターの場合はテーマを設定して終了
         // コンソールから利用される場合、$isInstall だけでは判定できないので、BC_INSTALLED も判定に入れる
-        if ((!BC_INSTALLED || $this->getRequest()->is('install') || $this->getRequest()->is('update')) && !in_array($this->getName(), ['Error', 'BcError'])) {
+        if ((!BcUtil::isInstalled() || $this->getRequest()->is('install') || $this->getRequest()->is('update')) && !in_array($this->getName(), ['Error', 'BcError'])) {
             $this->viewBuilder()->setTheme(Configure::read('BcApp.defaultAdminTheme'));
             return;
         }
@@ -136,21 +139,29 @@ class AppController extends BaseController
     }
 
     /**
-     * Before Render
+     * Before render
      * @param EventInterface $event
-     * @return \Cake\Http\Response|void|null
+     * @return Response|void|null
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function beforeRender(EventInterface $event): void
+    public function beforeRender(EventInterface $event)
     {
         parent::beforeRender($event);
-        if (!isset($this->RequestHandler) || !$this->RequestHandler->prefers('json')) {
-            $this->viewBuilder()->setClassName('BaserCore.BcFrontApp');
-            $this->viewBuilder()->setTheme(BcUtil::getCurrentTheme());
-            $this->set($this->getService(AppServiceInterface::class)->getViewVarsForAll());
-        }
+        $this->set($this->getService(AppServiceInterface::class)->getViewVarsForAll());
+    }
+
+    /**
+     * フロント用のViewクラスをセットアップする
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function setupFrontView(): void
+    {
+        $this->viewBuilder()->setClassName('BaserCore.BcFrontApp');
+        $this->viewBuilder()->setTheme(BcUtil::getCurrentTheme());
     }
 
     /**
@@ -169,7 +180,7 @@ class AppController extends BaseController
      */
     public function _blackHoleCallback($err, $exception)
     {
-        $message = __d('baser', '不正なリクエストと判断されました。') . '<br>' . $exception->getMessage();
+        $message = __d('baser', '不正なリクエストと判断されました。') . "\n" . $exception->getMessage();
         throw new BadRequestException($message);
     }
 
@@ -287,10 +298,178 @@ class AppController extends BaseController
         }
 
         $redirectUrl = '/maintenance';
-        if ($this->getRequest()->getParam('Site.alias')) {
-            $redirectUrl = '/' . $this->getRequest()->getParam('Site.alias') . $redirectUrl;
+        if ($this->getRequest()->getAttribute('currentSite')->alias) {
+            $redirectUrl = '/' . $this->getRequest()->getAttribute('currentSite')->alias . $redirectUrl;
         }
         return $this->redirect($redirectUrl);
+    }
+
+    /**
+     * 画面の情報をセットする
+     *
+     * POSTデータとクエリパラメーターをセッションに保存した上で、
+     * 指定されたデフォルト値も含めて ServerRequest に設定する。
+     *
+     * ```
+     * $this->setViewConditions(['Content'], [
+     *     'group' => 'index',
+     *     'default' => [
+     *          'query' => ['limit' => 10],
+     *          'data' => ['title' => 'default']
+     *      ],
+     *     'get' => true
+     * ]);
+     * ```
+     *
+     * @param array $targetModel ターゲットとなるモデル
+     * @param array $options オプション
+     *  - `default`: 読み出す初期値（初期値：[]）
+     *  - `group`: 保存するグループ名（初期値：''）
+     *  - `post`: POSTデータを保存するかどうか（初期値：true）
+     *  - `get`: GETデータを保存するかどうか（初期値：false）
+     * @checked
+     * @noTodo
+     */
+    protected function setViewConditions($targetModel = [], $options = []): void
+    {
+        $this->saveViewConditions($targetModel, $options);
+        $this->loadViewConditions($targetModel, $options);
+    }
+
+    /**
+     * 画面の情報をセッションに保存する
+     *
+     * 次のセッション名に保存。
+     * - POSTデータ: BcApp.viewConditions.{$contentsName}.data.{$model}
+     * - クエリパラメーター: BcApp.viewConditions.{$contentsName}.query
+     *
+     * $contentsNameは次の形式となる。
+     * {$controllerName}{$actionName}.{$group}
+     *
+     * ただし、ページネーションにおいて、1ページ目はクエリパラメーター`page` を付けない仕様となっているため
+     * `page` は保存しない。
+     *
+     * @param array $targetModel
+     * @param array $options オプション
+     *  - `group`: 保存するグループ名（初期値：''）
+     *  - `post`: POSTデータを保存するかどうか（初期値：true）
+     *  - `get`: GETデータを保存するかどうか（初期値：false）
+     * @see setViewConditions
+     * @checked
+     * @noTodo
+     */
+    protected function saveViewConditions($targetModel = [], $options = []): void
+    {
+        $options = array_merge([
+            'group' => '',
+            'post' => true,
+            'get' => false,
+        ], $options);
+
+        $contentsName = $this->getRequest()->getParam('controller') . Inflector::classify($this->getRequest()->getParam('action'));
+        if ($options['group']) $contentsName .= "." . $options['group'];
+        if (!is_array($targetModel)) $targetModel = [$targetModel];
+        $session = $this->getRequest()->getSession();
+
+        if ($options['post'] && $targetModel) {
+            foreach($targetModel as $model) {
+                if(count($targetModel) > 1) {
+                    $data = $this->getRequest()->getData($model);
+                } else {
+                    $data = $this->getRequest()->getData();
+                }
+                if ($data) $session->write("BcApp.viewConditions.{$contentsName}.data.{$model}", $data);
+            }
+        }
+
+        if ($options['get'] && $this->getRequest()->getQueryParams()) {
+            if ($session->check("BcApp.viewConditions.{$contentsName}.query")) {
+                if(!isset($query['page']) && $session->read("BcApp.viewConditions.{$contentsName}.query.page")) {
+                    $session->delete("BcApp.viewConditions.{$contentsName}.query.page");
+                }
+                $query = array_merge(
+                    $session->read("BcApp.viewConditions.{$contentsName}.query"),
+                    $this->getRequest()->getQueryParams()
+                );
+            } else {
+                $query = $this->getRequest()->getQueryParams();
+            }
+            $session->write("BcApp.viewConditions.{$contentsName}.query", $query);
+        }
+    }
+
+    /**
+     * 画面の情報をセッションから読み込む
+     *
+     * 初期値が設定されている場合は初期値を設定した上で、セッションで上書きし、
+     * ServerRequestに設定する。
+     *
+     * @param array $targetModel
+     * @param array|string $options オプション
+     *  - `default`: 読み出す初期値（初期値：[]）
+     *  - `group`: 保存するグループ名（初期値：''）
+     *  - `post`: POSTデータを保存するかどうか（初期値：true）
+     *  - `get`: GETデータを保存するかどうか（初期値：false）
+     * @see setViewConditions, saveViewConditions
+     * @checked
+     * @noTodo
+     */
+    protected function loadViewConditions($targetModel = [], $options = []): void
+    {
+        $options = array_merge([
+            'default' => [],
+            'group' => '',
+            'post' => true,
+            'get' => false,
+        ], $options);
+
+        $contentsName = $this->getRequest()->getParam('controller') . Inflector::classify($this->getRequest()->getParam('action'));
+        if ($options['group']) $contentsName .= "." . $options['group'];
+        if (!is_array($targetModel)) $targetModel = [$targetModel];
+        $session = $this->getRequest()->getSession();
+
+        if ($options['post'] && $targetModel) {
+            foreach($targetModel as $model) {
+                $data = [];
+                if (!empty($options['default'][$model])) $data = $options['default'][$model];
+                if ($session->check("BcApp.viewConditions.{$contentsName}.data.{$model}")) {
+                    $data = array_merge($data, $session->read("BcApp.viewConditions.{$contentsName}.data.{$model}"));
+                }
+                if ($data) {
+                    if(count($targetModel) > 1) {
+                        $this->setRequest($this->getRequest()->withData($model, $data));
+                    } else {
+                        $this->setRequest($this->getRequest()->withParsedBody($data));
+                    }
+                }
+            }
+        }
+
+        if ($options['get']) {
+            $query = [];
+            if (!empty($options['default']['query'])) $query = $options['default']['query'];
+            if ($session->check("BcApp.viewConditions.{$contentsName}.query")) {
+                $query = array_merge($query, $session->read("BcApp.viewConditions.{$contentsName}.query"));
+            }
+            unset($query['url']);
+            unset($query['ext']);
+            unset($query['x']);
+            unset($query['y']);
+            if ($query) $this->setRequest($this->getRequest()->withQueryParams($query));
+        }
+    }
+
+    /**
+     * NOT FOUNDページを出力する
+     *
+     * @return void
+     * @throws NotFoundException
+     * @checked
+     * @noTodo
+     */
+    public function notFound()
+    {
+        throw new NotFoundException(__d('baser', '見つかりませんでした。'));
     }
 
 }

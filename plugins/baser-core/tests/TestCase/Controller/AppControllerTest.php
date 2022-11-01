@@ -73,7 +73,7 @@ class AppControllerTest extends BcTestCase
      */
     public function testConstruct(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertNotEmpty($this->getRequest()->getSession());
     }
 
     /**
@@ -130,6 +130,32 @@ class AppControllerTest extends BcTestCase
     }
 
     /**
+     * test beforeRender
+     */
+    public function test_beforeRender()
+    {
+        $this->AppController->beforeRender(new Event('beforeRender'));
+        $this->assertEquals('BcAdminThird', $this->AppController->viewBuilder()->getVars()['currentAdminTheme']);
+    }
+
+    /**
+     * Test setupFrontView
+     */
+    public function test_setupFrontView()
+    {
+        $this->AppController->setupFrontView();
+        $this->assertEquals('BaserCore.BcFrontApp', $this->AppController->viewBuilder()->getClassName());
+        $this->assertEquals('BcFront', $this->AppController->viewBuilder()->getTheme());
+        $request = $this->AppController->getRequest();
+        $site = $request->getAttribute('currentSite');
+        $site['theme'] = 'test';
+        $request = $request->withParam('Site', $site);
+        $this->AppController->setRequest($request);
+        $this->AppController->setupFrontView();
+        $this->assertEquals('test', $this->AppController->viewBuilder()->getTheme());
+    }
+
+    /**
      * test blackHoleCallback
      */
     public function test_blackHoleCallback()
@@ -141,23 +167,6 @@ class AppControllerTest extends BcTestCase
             'name' => 'Test_test_Man'
         ]);
         $this->assertResponseRegExp('/不正なリクエストと判断されました。/');
-    }
-
-    /**
-     * Test beforeRender
-     */
-    public function testBeforeRender()
-    {
-        $this->AppController->beforeRender(new Event('beforeRender'));
-        $this->assertEquals('BaserCore.BcFrontApp', $this->AppController->viewBuilder()->getClassName());
-        $this->assertEquals('BcFront', $this->AppController->viewBuilder()->getTheme());
-        $request = $this->AppController->getRequest();
-        $site = $request->getParam('Site');
-        $site['theme'] = 'test';
-        $request = $request->withParam('Site', $site);
-        $this->AppController->setRequest($request);
-        $this->AppController->beforeRender(new Event('beforeRender'));
-        $this->assertEquals('test', $this->AppController->viewBuilder()->getTheme());
     }
 
     /**
@@ -193,7 +202,7 @@ class AppControllerTest extends BcTestCase
         $this->AppController->setRequest($this->getRequest('/', [], 'GET', ['ajax' => true]));
         $this->_response = $this->AppController->redirectIfIsRequireMaintenance();
         $this->assertNull($this->_response);
-        $this->AppController->setRequest($this->getRequest('http://localhost/baser/admin'));
+        $this->AppController->setRequest($this->getRequest('https://localhost/baser/admin'));
         $this->_response = $this->AppController->redirectIfIsRequireMaintenance();
         $this->assertNull($this->_response);
         $this->loginAdmin($this->getRequest());

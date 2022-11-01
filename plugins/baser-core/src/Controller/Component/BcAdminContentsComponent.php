@@ -11,21 +11,20 @@
 
 namespace BaserCore\Controller\Component;
 
-use BaserCore\Service\ContentsAdminServiceInterface;
-use Cake\Core\Configure;
-use Cake\ORM\TableRegistry;
-use Cake\Utility\Inflector;
-use Cake\Event\EventManager;
+use BaserCore\Error\BcException;
+use BaserCore\Event\BcContentsEventListener;
+use BaserCore\Service\Admin\BcAdminContentsServiceInterface;
+use BaserCore\Service\Admin\ContentsAdminServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Controller\Component;
-use BaserCore\Utility\BcContainerTrait;
-use BaserCore\Event\BcContentsEventListener;
-use BaserCore\Service\ContentsServiceInterface;
-use BaserCore\Service\SiteConfigsServiceInterface;
+use Cake\Core\Configure;
+use Cake\Event\EventManager;
+use Cake\Routing\Router;
+use Cake\Utility\Inflector;
+use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use BaserCore\Annotation\UnitTest;
-use BaserCore\Annotation\Note;
 
 /**
  * Class BcContentsComponent
@@ -36,7 +35,12 @@ use BaserCore\Annotation\Note;
  */
 class BcAdminContentsComponent extends Component
 {
+
+    /**
+     * Trait
+     */
     use BcContainerTrait;
+
     /**
      * コンテンツ編集用のアクション名
      * 判定に利用
@@ -58,9 +62,9 @@ class BcAdminContentsComponent extends Component
     public function initialize(array $config): void
     {
         parent::initialize($config);
-        $this->ContentsService = $this->getService(ContentsAdminServiceInterface::class);
-        $this->SiteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
-        $this->Sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        if (!isset($config['entityVarName'])) {
+            throw new BcException(__d('baser', '編集画面で利用するエンティティの変数名を entityVarName として定義してください。'));
+        }
         $this->setupAdmin();
     }
 
@@ -90,7 +94,6 @@ class BcAdminContentsComponent extends Component
         $controller->set('contentsItems', $this->getConfig('items'));
         if (in_array($request->getParam('action'), [$this->editAction, 'edit_alias'])) {
             $this->settingForm();
-            EventManager::instance()->on(new BcContentsEventListener());
         }
     }
 
@@ -103,39 +106,24 @@ class BcAdminContentsComponent extends Component
      */
     public function settingForm()
     {
+        EventManager::instance()->on(new BcContentsEventListener($this->getConfig('entityVarName')));
         $controller = $this->getController();
         $entityName = Inflector::classify($controller->getName());
 
         if ($entityName === "Content") {
             $content = $controller->viewBuilder()->getVar(Inflector::variable($entityName));
-            $entityName = Inflector::pluralize($entityName) . ".";
         } else {
             $associated = $controller->viewBuilder()->getVar(Inflector::variable($entityName));
             $content = $associated->content;
-            $entityName = Inflector::pluralize($entityName) . ".content.";
         }
-        $site = $content->site;
-        $theme = $site->theme;
-        $templates = BcUtil::getTemplateList('Layouts', [$controller->getPlugin(), $theme]);
-        if ($content->id != 1) {
-            $parentTemplate = $this->ContentsService->getParentLayoutTemplate($content->id);
-            if (in_array($parentTemplate, $templates)) {
-                unset($templates[$parentTemplate]);
-            }
-            $templates = array_merge($templates, ['' => __d('baser', '親フォルダの設定に従う') . '（' . $parentTemplate . '）']);
-        }
-        $controller->set('layoutTemplates', $templates);
+        $controller->getRequest()->getSession()->write('BcApp.Admin.currentSite', $content->site);
+        $controller->setRequest($controller->getRequest()->withAttribute('currentSite', $content->site));
+        Router::setRequest($controller->getRequest());
 
         if (Configure::read('BcApp.autoUpdateContentCreatedDate')) {
             $content->modified_date = date('Y-m-d H:i:s');
         }
-        $siteList = $this->Sites->find('list', ['fields' => ['id', 'display_name']]);
-        $controller->set('sites', $siteList);
-        $controller->set('mainSiteDisplayName', $this->SiteConfigsService->getValue('main_site_display_name'));
-        $controller->set('relatedContents', $this->Sites->getRelatedContents($content->id));
-
-        if (!$entityName === "content") $associated->content = $content;
-        $controller->set('entityName', $entityName);
-        $controller->set($this->ContentsService->getViewVarsForEdit($content));
+        $bcAdminContentsService = $this->getService(BcAdminContentsServiceInterface::class);
+        $controller->set($bcAdminContentsService->getViewVarsForEdit($content));
     }
 }

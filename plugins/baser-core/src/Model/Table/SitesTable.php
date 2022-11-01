@@ -13,28 +13,27 @@ namespace BaserCore\Model\Table;
 
 use ArrayObject;
 use BaserCore\Service\ContentFoldersService;
+use BaserCore\Service\ContentsService;
 use Cake\Core\Configure;
 use Cake\ORM\TableRegistry;
-use BaserCore\Model\AppTable;
 use BaserCore\Utility\BcLang;
 use BaserCore\Utility\BcUtil;
-use BaserCore\Annotation\Note;
 use BaserCore\Utility\BcAgent;
 use Cake\Event\EventInterface;
 use Cake\Validation\Validator;
-use BaserCore\Annotation\NoTodo;
 use BaserCore\Model\Entity\Site;
-use BaserCore\Annotation\Checked;
-use BaserCore\Annotation\UnitTest;
 use Cake\Datasource\EntityInterface;
 use BaserCore\Utility\BcContainerTrait;
 use Cake\Datasource\ResultSetInterface;
-use BaserCore\Model\Table\ContentsTable;
 use BaserCore\Service\SiteConfigsService;
 use BaserCore\Utility\BcAbstractDetector;
 use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Service\ContentsServiceInterface;
 use BaserCore\Service\ContentFoldersServiceInterface;
+use BaserCore\Annotation\Note;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * Class Site
@@ -187,7 +186,7 @@ class SitesTable extends AppTable
             'status' => true
         ], $options);
 
-        // EVENT Site.beforeGetSiteList
+        // EVENT Sites.beforeGetSiteList
         $event = $this->dispatchLayerEvent('beforeGetSiteList', [
             'options' => $options
         ]);
@@ -246,58 +245,6 @@ class SitesTable extends AppTable
     public function getRootMain($options = [])
     {
         return $this->find()->where(['main_site_id IS' => null])->first();
-    }
-
-    /**
-     * コンテンツに関連したコンテンツをサイト情報と一緒に全て取得する
-     *
-     * @param $contentId
-     * @return array|null $list
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function getRelatedContents($contentId)
-    {
-        $content = $this->Contents->get($contentId, ['contain' => ['Sites']]);
-        $isMainSite = $this->isMain($content->site->id);
-        $fields = ['id', 'name', 'alias', 'display_name', 'main_site_id'];
-        $conditions = ['Sites.status' => true];
-        if (is_null($content->site->main_site_id)) {
-            $mainSiteContentId = $content->id;
-            $conditions['or'] = [
-                ['Sites.id' => $content->site->id],
-                ['Sites.main_site_id' => $this->getRootMain()->id]
-            ];
-        } else {
-            $conditions['or'] = [
-                    ['Sites.main_site_id' => $content->site->main_site_id],
-                    ['Sites.id' => $content->site->main_site_id]
-            ];
-            if ($isMainSite) {
-                $conditions['or'][] = ['Site.main_site_id' => $content->site->id];
-            }
-            $mainSiteContentId = $content->main_site_content_id ?? $content->id;
-        }
-        $sites = $this->find()->select($fields)->where($conditions)->order('main_site_id')->toArray();
-        $conditions = [
-            'or' => [
-                ['Contents.id' => $mainSiteContentId],
-                ['Contents.main_site_content_id' => $mainSiteContentId]
-            ]
-        ];
-        $list= [];
-        $relatedContents = $this->Contents->find()->where($conditions)->toArray();
-        foreach($sites as $key => $site) {
-            foreach($relatedContents as $relatedContent) {
-                $list[$key]['Site'] = $site;
-                if ($relatedContent->site_id == $site->id) {
-                    $list[$key]['Content'] = $relatedContent;
-                    break;
-                }
-            }
-        }
-        return $list;
     }
 
     /**
@@ -373,23 +320,45 @@ class SitesTable extends AppTable
      */
     public function afterDelete(EventInterface $event, EntityInterface $entity, ArrayObject $options)
     {
-        $contentService = $this->getService(ContentsServiceInterface::class);
         $content = $this->Contents->find()->where(['Contents.site_id' => $entity->id, 'Contents.site_root' => true])->first();
+        /* @var ContentsService $contentService */
+        $contentService = $this->getService(ContentsServiceInterface::class);
 
-        $children = $contentService->getChildren($content->id);
+        $children = $this->children($entity->id);
+        if($children) {
+            $eventManager = $this->getEventManager();
+            $beforeSaveEventListener = BcUtil::offEvent($eventManager, 'Model.beforeSave');
+            $afterSaveEventListener = BcUtil::offEvent($eventManager, 'Model.afterSave');
+            foreach($children as $child) {
+                $childRootContent = $contentService->get($this->getRootContentId($child->id));
+                $contentService->update($childRootContent, ['id' => $childRootContent->id, 'parent_id' => 1]);
+                $child->main_site_id = 1;
+                $this->save($child);
+            }
+            BcUtil::onEvent($eventManager, 'Model.beforeSave', $beforeSaveEventListener);
+            BcUtil::onEvent($eventManager, 'Model.afterSave', $afterSaveEventListener);
+        }
+
+        $children = $contentService->getChildren($content->id, ['site_id' => $entity->id]);
         if (isset($children)) {
+
+            $eventManager = $this->Contents->getEventManager();
+            $afterSaveEventListener = BcUtil::offEvent($eventManager, 'Model.afterSave');
             foreach($children as $child) {
                 $child->site_id = 1;
-                // バリデートすると name が変換されてしまう
-                $this->Contents->getEventManager()->off('Model.afterSave');
-                $this->Contents->save($child, false);
+                $this->Contents->save($child);
             }
+            BcUtil::onEvent($eventManager, 'Model.afterSave', $afterSaveEventListener);
+
             $children = $contentService->getChildren($content->id);
             foreach($children as $child) {
-                $contentService->deleteRecursive($child->id);
+                $contentService->delete($child->id);
             }
         }
-        if (!$this->Contents->hardDel($content)) return false;
+        /* @var ContentsService $contentsService */
+        $contentsService = $this->getService(ContentsServiceInterface::class);
+        if (!$contentsService->hardDelete($content->id)) return false;
+        return true;
     }
 
     /**
@@ -427,12 +396,13 @@ class SitesTable extends AppTable
      */
     public function getRootContentId($id)
     {
-        if ($id == 0) {
+        if ($id == 1) {
             return 1;
         }
         $Contents = TableRegistry::getTableLocator()->get('BaserCore.Contents');
         $contents = $Contents->find()->select(['id'])->where(['Contents.site_root' => true, 'Contents.site_id' => $id]);
         if (!$contents->all()->isEmpty()) return $contents->first()->id;
+        return 1;
     }
 
     /**
@@ -627,7 +597,7 @@ class SitesTable extends AppTable
         $conditions = [
             'id IS NOT' => $currentSiteId
         ];
-        if($mainSiteId) {
+        if ($mainSiteId) {
             $conditions['main_site_id'] = $mainSiteId;
         } else {
             $conditions['main_site_id IS'] = null;
@@ -661,7 +631,7 @@ class SitesTable extends AppTable
         $conditions = [
             'id IS NOT' => $currentSiteId
         ];
-        if($mainSiteId) {
+        if ($mainSiteId) {
             $conditions['main_site_id'] = $mainSiteId;
         } else {
             $conditions['main_site_id IS'] = null;

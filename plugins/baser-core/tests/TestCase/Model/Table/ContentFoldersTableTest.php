@@ -38,7 +38,6 @@ class ContentFoldersTableTest extends BcTestCase
         'plugin.BaserCore.Service/SearchIndexesService/ContentsReconstruct',
         'plugin.BaserCore.Service/SearchIndexesService/PagesReconstruct',
         'plugin.BaserCore.Service/SearchIndexesService/ContentFoldersReconstruct',
-        'plugin.BaserCore.Service/SearchIndexesService/SearchIndexesReconstruct'
     ];
 
     public $autoFixtures = false;
@@ -89,16 +88,6 @@ class ContentFoldersTableTest extends BcTestCase
     }
 
     /**
-     * implementedEvents
-     *
-     *  @return void
-     */
-    public function testImplementedEvents()
-    {
-        $this->assertTrue(is_array($this->ContentFolders->implementedEvents()));
-    }
-
-    /**
      * testValidationDefault
      *
      * @return void
@@ -141,7 +130,6 @@ class ContentFoldersTableTest extends BcTestCase
 	        'Service\SearchIndexesService\ContentsReconstruct',
 	        'Service\SearchIndexesService\PagesReconstruct',
 	        'Service\SearchIndexesService\ContentFoldersReconstruct',
-            'Service\SearchIndexesService\SearchIndexesReconstruct'
         );
         $contentFolder = $this->ContentFolders->get(1, ['contain' => ['Contents']]);
         $this->SearchIndexes->deleteAll([]);
@@ -151,17 +139,6 @@ class ContentFoldersTableTest extends BcTestCase
         // reconstructされてるか
         $this->assertEquals(4, $this->SearchIndexes->find()->count());
 
-    }
-
-    /**
-     * testBeforeMove
-     *
-     * @return void
-     */
-    public function testBeforeMove(): void
-    {
-        $this->ContentFolders->dispatchEvent('Controller.Contents.beforeMove', [new ContentFolder(), new ArrayObject(), 'data.currentType' => 'ContentFolder', 'data.entityId' => 1]);
-        $this->assertTrue($this->ContentFolders->beforeStatus);
     }
 
     /**

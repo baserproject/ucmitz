@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.View
  * @since           baserCMS v 4.0.0
  * @license         https://basercms.net/license/index.html
  */
@@ -19,6 +18,9 @@ use BaserCore\View\BcAdminAppView;
  * @var array $deviceList
  * @var array $langList
  * @var array $siteList
+ * @checked
+ * @unitTest
+ * @noTodo
  */
 
 $this->BcListTable->setColumnNumber(8);

@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Controller\Api;
 
+use BaserCore\Service\PermissionsService;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\Core\Configure;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -33,7 +34,8 @@ class PermissionsControllerTest extends BcTestCase
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.Permissions',
         'plugin.BaserCore.Sites',
-        'plugin.BaserCore.SiteConfigs'
+        'plugin.BaserCore.SiteConfigs',
+        'plugin.BaserCore.Dblogs'
     ];
 
     /**
@@ -63,7 +65,10 @@ class PermissionsControllerTest extends BcTestCase
         $this->loadFixtures(
             'Users',
             'UsersUserGroups',
-            'UserGroups'
+            'UserGroups',
+            'Permissions',
+            'Sites',
+            'SiteConfigs'
         );
         $token = $this->apiLoginAdmin(1);
         $this->accessToken = $token['access_token'];
@@ -88,7 +93,13 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->post('/baser/api/baser-core/permissions/index/1.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $this->get('/baser/api/baser-core/permissions/index/2.json?token=' . $this->accessToken);
+        $this->assertResponseSuccess();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals(15, count($result->permissions));
     }
 
     /**
@@ -98,11 +109,6 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testAdd()
     {
-        $this->loadFixtures(
-            'Permissions',
-            'Sites',
-            'SiteConfigs'
-        );
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         $data = [
@@ -131,7 +137,25 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testEdit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $permissionsService = new PermissionsService();
+        $data = $permissionsService->getIndex(['name' => 'システム管理'])->first();
+        $data->name = "システム管理 Update";
+        $id = $data->id;
+
+        $this->post("/baser/api/baser-core/permissions/edit/${id}.json?token=". $this->accessToken, $data->toArray());
+        $this->assertResponseSuccess();
+        $result = json_decode((string)$this->_response->getBody());
+        $permission = $permissionsService->getIndex(['id' => $id])->first();
+        $this->assertEquals($result->permission->name, $permission->name);
+        $this->assertEquals('アクセス制限設定「システム管理 Update」を更新しました。', $result->message);
+
+
+        $dataError["test"] = "システム管理 Update";
+
+        $this->post("/baser/api/baser-core/permissions/edit/1.json?token=". $this->accessToken, $dataError);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
     }
 
     /**
@@ -141,7 +165,35 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testDelete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $permissionsService = new PermissionsService();
+        $newPermission = [
+            'no' => 10,
+            'sort' => 20,
+            'name' => 'test delete',
+            'user_group_id' => 2,
+            'url' => '/baser/admin/baser-core/contents/index',
+            'auth' => true,
+            'method' => 'ALL',
+            'status' => true,
+            'modified' => time(),
+            'created' => time(),
+        ];
+        $newPermission = $permissionsService->create($newPermission);
+
+        $id = $newPermission->id;
+        $data = $permissionsService->get($id);
+
+
+        $this->post("/baser/api/baser-core/permissions/delete/${id}.json?token=" . $this->accessToken);
+        $this->assertResponseSuccess();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals($result->permission->name, $data->name);
+        $this->assertEquals('アクセス制限設定「test delete」を削除しました。', $result->message);
+
+        $this->post("/baser/api/baser-core/permissions/delete/test.json?token=" . $this->accessToken);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データベース処理中にエラーが発生しました。Cannot convert value of type `string` to integer', $result->message);
     }
 
     /**
@@ -149,6 +201,121 @@ class PermissionsControllerTest extends BcTestCase
      */
     public function testView()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->get('/baser/api/baser-core/permissions/view/1.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('システム管理', $result->permission->name);
+        $this->assertEquals('2', $result->permission->user_group_id);
+        $this->assertEquals('/baser/admin/*', $result->permission->url);
     }
+
+    /**
+     * test copy
+     * @return void
+     */
+    public function testCopy()
+    {
+        $this->get('/baser/api/baser-core/permissions/copy/1.json?token=' . $this->accessToken);
+        $this->assertResponseCode(405);
+
+        $this->post('/baser/api/baser-core/permissions/copy/1.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('アクセス制限設定「システム管理」をコピーしました。', $result->message);
+        $this->assertEquals('システム管理', $result->permission->name);
+        $this->assertEmpty($result->errors);
+
+        $this->post('/baser/api/baser-core/permissions/copy/test.json?token=' . $this->accessToken);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEmpty($result->permission);
+        $this->assertNull($result->errors);
+        $this->assertEquals('処理に失敗しました。', $result->message);
+    }
+
+
+    /**
+     * 表示順変更
+     */
+    public function testUpdate_sort()
+    {
+        $this->post('/baser/api/baser-core/permissions/update_sort/2.json?token=' . $this->accessToken);
+        $this->assertResponseFailure();
+
+        $data = [
+            'id' => 1,
+            'offset' => 2
+        ];
+        $permissions = $this->getTableLocator()->get('Permissions');
+        $permissionList = $permissions
+            ->find()
+            ->order(['sort' => 'ASC'])
+            ->select('id')
+            ->limit(3)
+            ->all();
+        $beforeOrderId = [];
+        foreach($permissionList as $permission) {
+            $beforeOrderId[] = $permission->id;
+        }
+        $this->post('/baser/api/baser-core/permissions/update_sort/2.json?token=' . $this->accessToken, $data);
+        $permissionList = $permissions
+            ->find()
+            ->order(['sort' => 'ASC'])
+            ->select('id')
+            ->limit(3)
+            ->all();
+
+        $afterOrderId = [];
+        foreach($permissionList as $permission) {
+            $afterOrderId[] = $permission->id;
+        }
+        $this->assertNotEquals($beforeOrderId, $afterOrderId);
+    }
+
+    /**
+     * 一括処理
+     *
+     */
+    public function testBatch()
+    {
+        $permissions = $this->getTableLocator()->get('Permissions');
+
+        // 空データ送信
+        $this->post('/baser/api/baser-core/permissions/batch.json?token=' . $this->accessToken, []);
+        $this->assertResponseFailure();
+
+        // unpublish
+        $data = [
+            'batch' => 'unpublish',
+            'batch_targets' => [1],
+        ];
+        $this->post('/baser/api/baser-core/permissions/batch.json?token=' . $this->accessToken, $data);
+        $this->assertResponseNotEmpty();
+
+        $permission = $permissions->find()->where(['id' => 1])->all()->last();
+        $this->assertFalse($permission->status);
+
+        // publish
+        $data = [
+            'batch' => 'publish',
+            'batch_targets' => [1],
+        ];
+        $this->post('/baser/api/baser-core/permissions/batch.json?token=' . $this->accessToken, $data);
+        $this->assertResponseOk();
+
+        $permission = $permissions->find()->where(['id' => 1])->all()->last();
+        $this->assertTrue($permission->status);
+
+        // delete
+        $data = [
+            'batch' => 'delete',
+            'batch_targets' => [1],
+        ];
+        $this->post('/baser/api/baser-core/permissions/batch.json?token=' . $this->accessToken, $data);
+        $this->assertResponseOk();
+
+        $permission = $permissions->find()->where(['id' => 1])->all()->last();
+        $this->assertNull($permission);
+    }
+
 }

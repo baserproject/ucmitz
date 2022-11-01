@@ -15,6 +15,9 @@
  * @var AppView $this
  * @var array $corePlugins
  * @var \BaserCore\Model\Entity\Plugin $plugin
+ * @checked
+ * @unitTest
+ * @noTodo
  */
 
 /**
@@ -35,7 +38,7 @@ $class = ' class="' . implode(' ', $classies) . '"';
 <tr id="Row<?= h($count) ?>" <?= $class ?>>
   <td class="row-tools bca-table-listup__tbody-td" nowrap>
     <?php if ($this->BcBaser->isAdminUser()): ?>
-      <?php echo $this->BcAdminForm->control('ListTool.batch_targets.' . $plugin->id, [
+      <?php echo $this->BcAdminForm->control('batch_targets.' . $plugin->id, [
         'type' => 'checkbox', 'label' => '<span class="bca-visually-hidden">' . __d('baser', 'チェックする') . '</span>',
         'class' => 'batch-targets bca-checkbox__input',
         'escape' => false
@@ -44,7 +47,7 @@ $class = ' class="' . implode(' ', $classies) . '"';
     <?php if ($this->request->getQuery('sortmode')): ?>
       <span class="sort-handle"><i class="bca-btn-icon-text"
                                   data-bca-btn-type="draggable"></i><?php echo __d('baser', 'ドラッグ可能') ?></span>
-      <?php echo $this->BcAdminForm->control('Sort.id' . $plugin->id, ['type' => 'hidden', 'class' => 'id', 'value' => $plugin->id]) ?>
+      <?php echo $this->BcAdminForm->control('id' . $plugin->id, ['type' => 'hidden', 'class' => 'id', 'value' => $plugin->id]) ?>
     <?php endif ?>
   </td>
   <td class="bca-table-listup__tbody-td" style="min-width:150px;">
@@ -56,6 +59,7 @@ $class = ' class="' . implode(' ', $classies) . '"';
     <?php echo h($plugin->name) ?><?php if ($plugin->title): ?>（<?php echo h($plugin->title) ?>）<?php endif ?>
   </td>
   <td class="bca-table-listup__tbody-td"><?php echo $plugin->version ?></td>
+  <?php if(!$this->request->getQuery('sortmode')): ?>
   <td class="bca-table-listup__tbody-td" style="min-width:200px;"><?php echo h($plugin->description) ?></td>
   <td class="bca-table-listup__tbody-td">
     <?php if ($plugin->author): ?>
@@ -66,6 +70,7 @@ $class = ' class="' . implode(' ', $classies) . '"';
       <?php endif ?>
     <?php endif ?>
   </td>
+  <?php endif ?>
   <td class="bca-table-listup__tbody-td" style="width:10%;white-space: nowrap">
     <?php echo $this->BcTime->format($plugin->created, 'yyyy-MM-dd') ?><br/>
     <?php echo $this->BcTime->format($plugin->modified, 'yyyy-MM-dd') ?>
@@ -114,7 +119,7 @@ $class = ' class="' . implode(' ', $classies) . '"';
       <?= $this->BcAdminForm->postLink(
         '',
         ['action' => 'uninstall', $plugin->name],
-        ['block' => true,
+        [
           'confirm' => __d('baser', "本当に削除してもいいですか？\nプラグインフォルダ内のファイル、データベースのデータも全て削除されます。"),
           'title' => __d('baser', '削除'),
           'class' => 'btn-delete bca-btn-icon',

@@ -15,7 +15,13 @@ use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
+use BaserCore\Event\BcContainerEventListener;
+use BaserCore\Event\BcControllerEventDispatcher;
+use BaserCore\Event\BcModelEventDispatcher;
+use BaserCore\Event\BcViewEventDispatcher;
 use BaserCore\Middleware\BcAdminMiddleware;
+use BaserCore\Middleware\BcFrontMiddleware;
+use BaserCore\Middleware\BcRedirectSubSiteFilter;
 use BaserCore\Middleware\BcRequestFilterMiddleware;
 use BaserCore\ServiceProvider\BcServiceProvider;
 use BaserCore\Utility\BcUtil;
@@ -26,7 +32,6 @@ use Cake\Event\EventManager;
 use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Http\ServerRequestFactory;
-use Cake\ORM\TableRegistry;
 use Cake\Routing\Route\InflectedRoute;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
@@ -51,6 +56,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * bootstrap
      *
      * @param PluginApplicationInterface $application
+     *
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function bootstrap(PluginApplicationInterface $application): void
     {
@@ -63,6 +72,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         ));
 
         parent::bootstrap($application);
+
+        if(BcUtil::isInstalled()) {
+            BcUtil::checkTmpFolders();
+        }
 
         if (file_exists(CONFIG . 'setting.php')) {
             Configure::load('setting', 'baser');
@@ -87,6 +100,15 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             }
         }
         $this->setupDefaultTemplatesPath();
+
+        /**
+         * グローバルイベント登録
+         */
+        $event = EventManager::instance();
+        $event->on(new BcControllerEventDispatcher());
+        $event->on(new BcModelEventDispatcher());
+        $event->on(new BcViewEventDispatcher());
+        $event->on(new BcContainerEventListener());
     }
 
     /**
@@ -171,8 +193,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             // Authorization (AuthComponent to Authorization)
             ->add(new AuthenticationMiddleware($this))
             ->add(new BcAdminMiddleware())
+            ->add(new BcFrontMiddleware())
 //            ->add(new BcUpdateFilterMiddleware())
-            ->add(new BcRequestFilterMiddleware());
+            ->add(new BcRequestFilterMiddleware())
+            ->add(new BcRedirectSubSiteFilter());
 
         // APIへのアクセスの場合、CSRFを強制的に利用しない設定に変更
         $ref = new ReflectionClass($middlewareQueue);
@@ -209,7 +233,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         if(!$authSetting && $prefix === 'Api') {
             $authSetting = Configure::read('BcPrefixAuth.Admin');
         }
-        if (!$authSetting || !Configure::read('BcRequest.isInstalled')) {
+        if (!$authSetting || !BcUtil::isInstalled()) {
             $service->loadAuthenticator('Authentication.Form');
             return $service;
         }
@@ -237,13 +261,14 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                     'resolver' => [
                         'className' => 'Authentication.Orm',
                         'userModel' => $authSetting['userModel'],
+                        'finder' => 'available'
                     ],
                 ]);
                 $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
                     'fields' => [
                         'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
                         'password' => $authSetting['password']
-                    ]
+                    ],
                 ]);
                 $service->loadIdentifier('Authentication.Password', [
                     'returnPayload' => false,
@@ -256,7 +281,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'userModel' => $authSetting['userModel'],
                         'finder' => 'available'
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 // ログインの際のみ、管理画面へのログイン状態を維持するためセッションの設定を追加
                 // TODO ログインURLの判定方法を検討必要
@@ -273,7 +297,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                 $service->setConfig([
                     'unauthenticatedRedirect' => Router::url($authSetting['loginAction'], true),
                     'queryParam' => 'redirect',
-                    'contain' => 'UserGroups',
                 ]);
                 $service->loadAuthenticator('Authentication.Session', [
                     'sessionKey' => $authSetting['sessionKey'],
@@ -295,7 +318,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'userModel' => $authSetting['userModel'],
                         'finder' => 'available'
                     ],
-                    'contain' => 'UserGroups',
                 ]);
                 break;
 
@@ -306,7 +328,26 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
 
     /**
      * Routes
-     * App として管理画面を作成するためのルーティングを設定
+     *
+     * 次のルートを設定するが、未インストール時はインストーラーのみ設定し他はスキップする。
+     *
+     * ### インストーラー
+     * /
+     * /install
+     *
+     * ### アップデーター
+     * /{update-key}
+     *
+     * ### コンテンツルーティング
+     * /*
+     *
+     * ### 管理画面ダッシュボード
+     * /baser/admin
+     *
+     * ### JWTトークン検証用
+     * /baser/api/baser-core/.well-known/jwks.json
+     *
+     *
      * @param RouteBuilder $routes
      * @checked
      * @noTodo
@@ -341,7 +382,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         /**
          * インストーラー
          */
-        if (!Configure::read('BcRequest.isInstalled')) {
+        if (!BcUtil::isInstalled()) {
+            $routes->connect('/', ['plugin' => 'BaserCore', 'controller' => 'Installations', 'action' => 'index']);
+            $routes->connect('/install', ['plugin' => 'BaserCore', 'controller' => 'Installations', 'action' => 'index']);
+            $routes->fallbacks(InflectedRoute::class);
             parent::routes($routes);
             return;
         }
@@ -371,8 +415,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             function(RouteBuilder $routes) {
                 // ダッシュボード
                 $routes->connect('', ['plugin' => 'BaserCore', 'controller' => 'Dashboard', 'action' => 'index']);
-                $routes->connect('/{controller}/index', [], ['routeClass' => InflectedRoute::class]);
-                $routes->fallbacks(InflectedRoute::class);
             }
         );
 
@@ -395,41 +437,12 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             }
         );
 
+        /**
+         * フィード出力
+         * 拡張子rssの場合は、rssディレクトリ内のビューを利用する
+         */
         if (!BcUtil::isAdminSystem()) {
-
-            /**
-             * サブサイト標準ルーティング
-             */
-            try {
-                $sites = TableRegistry::getTableLocator()->get('BaserCore.Sites');
-                $site = $sites->findByUrl($request->getPath());
-                $siteAlias = $sitePrefix = '';
-                if ($site) {
-                    $siteAlias = $site->alias;
-                    $sitePrefix = $site->name;
-                }
-                if ($siteAlias) {
-                    // プラグイン
-                    $routes->connect("/{$siteAlias}/:plugin/:controller", ['prefix' => $sitePrefix, 'action' => 'index']);
-                    $routes->connect("/{$siteAlias}/:plugin/:controller/:action/*", ['prefix' => $sitePrefix]);
-                    // TODO baserCMS4のコード
-                    // 使うタイミングまでコメントアウト、テストもなし
-                    /* >>>
-                    $routes->connect("/{$siteAlias}/:plugin/:action/*", ['prefix' => $sitePrefix]);
-                    // モバイルノーマル
-                    $routes->connect("/{$siteAlias}/:controller/:action/*", ['prefix' => $sitePrefix]);
-                    $routes->connect("/{$siteAlias}/:controller", ['prefix' => $sitePrefix, 'action' => 'index']);
-                    <<< */
-                }
-            } catch (Exception $e) {
-            }
-
-            /**
-             * フィード出力
-             * 拡張子rssの場合は、rssディレクトリ内のビューを利用する
-             */
             $routes->setExtensions('rss');
-
         }
         parent::routes($routes);
     }

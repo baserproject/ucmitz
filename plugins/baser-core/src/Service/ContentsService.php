@@ -11,6 +11,7 @@
 
 namespace BaserCore\Service;
 
+use Cake\Core\Plugin;
 use Cake\Datasource\QueryInterface;
 use Exception;
 use Cake\ORM\Query;
@@ -146,39 +147,27 @@ class ContentsService implements ContentsServiceInterface
     /**
      * コンテンツの子要素を取得する
      *
-     * @param  int $id
+     * @param int $id
+     * @param array $conditions
      * @return Query|null
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function getChildren($id)
+    public function getChildren($id, $conditions = [])
     {
         try {
-            $query = $this->Contents->find('children', ['for' => $id]);
+            $query = $this->Contents->find('children', ['for' => $id])->where($conditions);
         } catch (\Exception $e) {
             return null;
         }
-        return $query->all()->isEmpty() ? null : $query;
-    }
-
-    /**
-     * 空のQueryを返す
-
-     * @return Query
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function getEmptyIndex(): Query
-    {
-        return $this->getIndex(['site_id' => 0]);
+        return $query->all()->isEmpty()? null : $query;
     }
 
     /**
      * getTreeIndex
      *
-     * @param  array $queryParams
+     * @param array $queryParams
      * @return Query
      * @checked
      * @unitTest
@@ -186,13 +175,22 @@ class ContentsService implements ContentsServiceInterface
      */
     public function getTreeIndex(array $queryParams): Query
     {
+        unset(
+            $queryParams['folder_id'],
+            $queryParams['name'],
+            $queryParams['type'],
+            $queryParams['self_status'],
+            $queryParams['author_id'],
+            $queryParams['limit'],
+            $queryParams['withTrash']
+        );
         return $this->getIndex($queryParams, 'threaded')->order(['lft']);
     }
 
     /**
      * テーブルインデックス用の条件を返す
      *
-     * @param  array $queryParams
+     * @param array $queryParams
      * @return array
      * @checked
      * @noTodo
@@ -201,8 +199,7 @@ class ContentsService implements ContentsServiceInterface
     public function getTableConditions(array $queryParams): array
     {
         $customFields = ['name', 'folder_id', 'self_status'];
-        $options = [];
-        foreach ($queryParams as $key => $value) {
+        foreach($queryParams as $key => $value) {
             if (!empty($queryParams[$key])) {
                 if (!in_array($key, $customFields)) {
                     $conditions[$key] = $value;
@@ -235,7 +232,7 @@ class ContentsService implements ContentsServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function getIndex(array $queryParams=[], ?string $type="all"): Query
+    public function getIndex(array $queryParams = [], ?string $type = "all"): Query
     {
         $columns = ConnectionManager::get('default')->getSchemaCollection()->describe('contents')->columns();
 
@@ -253,17 +250,13 @@ class ContentsService implements ContentsServiceInterface
             unset($queryParams['name']);
         }
 
-        if (!empty($queryParams['title'])) {
-            $query = $query->andWhere(['Contents.title LIKE' => '%' . $queryParams['title'] . '%']);
-        }
-
         if (!empty($queryParams['folder_id'])) {
             $folder = $this->Contents->find()->select(['lft', 'rght'])->where(['id' => $queryParams['folder_id']])->first();
             $query = $query->andWhere(['rght <' => $folder->rght, 'lft >' => $folder->lft]);
         }
 
         foreach($queryParams as $key => $value) {
-            if(is_null($value)) continue;
+            if (is_null($value)) continue;
             if (in_array($key, $columns)) {
                 $query = $query->andWhere(['Contents.' . $key => $value]);
             } elseif ($key[-1] === '!' && in_array($key = mb_substr($key, 0, -1), $columns)) {
@@ -281,7 +274,7 @@ class ContentsService implements ContentsServiceInterface
     /**
      * テーブル用のコンテンツ管理の一覧データを取得
      *
-     * @param  array $queryParams
+     * @param array $queryParams
      * @return Query
      * @checked
      * @noTodo
@@ -302,7 +295,7 @@ class ContentsService implements ContentsServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function getTrashIndex(array $queryParams=[], string $type="all"): Query
+    public function getTrashIndex(array $queryParams = [], string $type = "all"): Query
     {
         $queryParams = array_merge($queryParams, ['withTrash' => true]);
         return $this->getIndex($queryParams, $type)->where(['deleted_date IS NOT NULL']);
@@ -373,7 +366,7 @@ class ContentsService implements ContentsServiceInterface
     /**
      * aliasを作成する
      *
-     * @param  array $postData
+     * @param array $postData
      * @return \Cake\Datasource\EntityInterface
      * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
@@ -397,7 +390,9 @@ class ContentsService implements ContentsServiceInterface
 
     /**
      * コンテンツ情報を論理削除する
+     *
      * ※ エイリアスの場合は直接削除
+     * 削除前に検索インデックスを削除するが、削除前でないと、ContentFolder の子の取得ができないため。
      * @param int $id
      * @return bool
      * @checked
@@ -406,19 +401,57 @@ class ContentsService implements ContentsServiceInterface
      */
     public function delete($id): bool
     {
+        /* @var Content $content */
         $content = $this->get($id);
-        if ($content->alias_id) {
-            $result = $this->Contents->hardDelete($content);
-        } else {
+        $content->parent_id = null;
+        $content->url = '';
+        $content->status = false;
+        $content->self_status = false;
+        // lft / rght をリセットしておかないと 複数データの save() 実行時、
+        // 2つ目以降の lft / rght がおかしくなる
+        unset($content->lft);
+        unset($content->rght);
+
+        $this->Contents->disableUpdatingSystemData();
+        $this->Contents->updatingRelated = false;
+        $afterEventListener = BcUtil::offEvent($this->Contents->getEventManager(), 'Model.afterSave');
+        $beforeEventListener = BcUtil::offEvent($this->Contents->getEventManager(), 'Model.beforeSave');
+
+        $content = $this->Contents->save($content, ['validate' => false]);
+
+        if(!$content->alias_id) {
+            $this->Contents->deleteRelateSubSiteContent($content);
+            $this->Contents->deleteAlias($content);
+            // TreeBehavior　をオフにした上で、一旦階層構造から除外しリセットしてゴミ箱に移動（論理削除）
+            $this->Contents->Behaviors()->unload('Tree');
+            $content->lft = null;
+            $content->rght = null;
+            $content->level = null;
+            $this->Contents->save($content, ['validate' => false]);
+            $this->deleteSearchIndex($id);
             $result = $this->Contents->delete($content);
+            $this->Contents->Behaviors()->load('Tree');
+        } else {
+            // エイリアスの場合直接削除
+            $result = $this->Contents->hardDelete($content);
         }
+
+        BcUtil::onEvent($this->Contents->getEventManager(), 'Model.afterSave', $afterEventListener);
+        BcUtil::onEvent($this->Contents->getEventManager(), 'Model.beforeSave', $beforeEventListener);
+        $this->Contents->enableUpdatingSystemData();
+        $this->Contents->updatingRelated = true;
+        // =====================================================================
+        // 通常の削除の際、afterDelete で、関連コンテンツのキャッシュを削除しているが、
+        // 論理削除の場合、afterDelete が呼ばれない為、ここで削除する
+        // =====================================================================
+        $this->Contents->deleteAssocCache($content);
         return $result;
     }
 
     /**
      * コンテンツ情報を削除する
      * @param int $id
-     * @param bool $enableTree(デフォルト:false) TreeBehaviorの有無
+     * @param bool $enableTree (デフォルト:false) TreeBehaviorの有無
      * @return bool
      * @checked
      * @noTodo
@@ -426,8 +459,20 @@ class ContentsService implements ContentsServiceInterface
      */
     public function hardDelete($id, $enableTree = false): bool
     {
+        $content = $this->Contents->find()->where(['id' => $id])->first();
+        if ($content && empty($content->deleted_date)) {
+            $this->delete($content->id);
+        }
         $content = $this->getTrash($id);
-        return $this->Contents->hardDel($content, $enableTree);
+        // 2022/10/20 ryuring
+        // 原因不明の下記のエラーが出てしまったが、sleep() を実行する事で回避できた。根本的な解決に至らず
+        // デバッガで１行ずつステップ実行すると成功したため sleep() で回避できることに気づいた
+        // Cannot commit transaction - rollback() has been already called in the nested transaction
+        sleep(1);
+        $this->Contents->Behaviors()->unload('Tree');
+        $result = $this->Contents->hardDelete($content);
+        $this->Contents->Behaviors()->load('Tree');
+        return $result;
     }
 
     /**
@@ -443,32 +488,29 @@ class ContentsService implements ContentsServiceInterface
         /* @var Content $content */
         $content = $this->getTrash($id);
         $service = $content->plugin . '\\Service\\' . Inflector::pluralize($content->type) . 'ServiceInterface';
-        if (interface_exists($service)) {
+        $table = $content->plugin . '\\Model\\Table\\' . Inflector::pluralize($content->type) . 'Table';
+        $isPluginEnabled = Plugin::isLoaded($content->plugin);
+        if ($isPluginEnabled && interface_exists($service)) {
             $target = $this->getService($service);
-        } else {
+            return $target->delete($content->entity_id);
+        } elseif ($isPluginEnabled && class_exists($table)) {
             $target = TableRegistry::getTableLocator()->get($content->plugin . '.' . Inflector::pluralize($content->type));
-        }
-        if (!$target) {
-            throw new \Cake\Datasource\Exception\RecordNotFoundException();
-        }
-        if (is_a($target, 'Cake\ORM\Table')) {
             return $target->delete($content);
         } else {
-            return $target->delete($content->entity_id);
+            return $this->hardDelete($id);
         }
     }
-
 
     /**
      * 該当するコンテンツ情報をすべて論理削除する
      *
-     * @param  array $conditions
+     * @param array $conditions
      * @return int
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function deleteAll(array $conditions=[]): int
+    public function deleteAll(array $conditions = []): int
     {
         $conditions = array_merge(['deleted_date IS NULL'], $conditions);
         return $this->Contents->deleteAll($conditions);
@@ -477,7 +519,7 @@ class ContentsService implements ContentsServiceInterface
     /**
      * 指定日時以前の該当する論理削除されたコンテンツ情報をすべて物理削除する
      *
-     * @param  \Datetime $dateTime
+     * @param \Datetime $dateTime
      * @return int
      * @checked
      * @noTodo
@@ -491,7 +533,7 @@ class ContentsService implements ContentsServiceInterface
     /**
      * 論理削除されたコンテンツを復元する
      *
-     * @param  int $id
+     * @param int $id
      * @return EntityInterface|array|null $trash
      * @checked
      * @noTodo
@@ -500,13 +542,41 @@ class ContentsService implements ContentsServiceInterface
     public function restore($id)
     {
         $trash = $this->getTrash($id);
-        return $this->Contents->restore($trash) ? $trash : null;
+
+        // ゴミ箱に入っているデータは、lft / rght が null のため、
+        // TreeBehavior が有効だと エラーとので一旦無効化したうえでレストア
+        $this->Contents->Behaviors()->unload('Tree');
+        $this->Contents->disableUpdatingSystemData();
+        $this->Contents->updatingRelated = false;
+        $content = $this->Contents->restore($trash)? $trash : null;
+        $this->Contents->updatingRelated = true;
+        $this->Contents->enableUpdatingSystemData();
+        $this->Contents->Behaviors()->load('Tree', ['level' => 'level']);
+
+        if ($content) {
+            // lft / rght が null の場合、新規登録の場合でないと正常な値が割り振られないため、
+            // 重複しない値を割り振ってから、parent_id を元に、level / left / rght をTreeBehavior に更新してもらう。
+            $max = $this->Contents->getMax('rght');
+            $siteRoot = $this->getSiteRoot($content->site_id);
+            $result = $this->update($content, [
+                'id' => $content->id,
+                'name' => $content->name,
+                'level' => null,
+                'parent_id' => $siteRoot->id,
+                'lft' => $max + 1,
+                'rght' => $max + 2
+            ]);
+            $this->saveSearchIndex($id);
+            return $result;
+        } else {
+            return null;
+        }
     }
 
     /**
      * ゴミ箱内のコンテンツをすべて元に戻す
      *
-     * @param  array $queryParams
+     * @param array $queryParams
      * @return int $count
      * @checked
      * @noTodo
@@ -516,7 +586,7 @@ class ContentsService implements ContentsServiceInterface
     {
         $count = 0;
         $trash = $this->getTrashIndex($queryParams);
-        foreach ($trash as $entity) {
+        foreach($trash as $entity) {
             if ($this->Contents->restore($entity)) {
                 $count++;
             }
@@ -525,23 +595,23 @@ class ContentsService implements ContentsServiceInterface
     }
 
     /**
-      * コンテンツ情報を取得する
-      * @return array
-      * @checked
-      * @noTodo
-      * @unitTest
-      */
+     * コンテンツ情報を取得する
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
     public function getContentsInfo()
     {
         $sites = $this->Sites->getPublishedAll();
         $contentsInfo = [];
         foreach($sites as $key => $site) {
             $contentsInfo[$key]['published'] = $this->Contents->find()
-                    ->where(['site_id' => $site->id, 'status' => true])
-                    ->count();
+                ->where(['site_id' => $site->id, 'status' => true])
+                ->count();
             $contentsInfo[$key]['unpublished'] = $this->Contents->find()
-                    ->where(['site_id' => $site->id, 'status' => false])
-                    ->count();
+                ->where(['site_id' => $site->id, 'status' => false])
+                ->count();
             $contentsInfo[$key]['total'] = $contentsInfo[$key]['published'] + $contentsInfo[$key]['unpublished'];
             $contentsInfo[$key]['display_name'] = $site->display_name;
         }
@@ -573,11 +643,11 @@ class ContentsService implements ContentsServiceInterface
      *
      * @param int $id
      * @return void
-     * @throws Exception
      * @return bool $result
      * @checked
-      * @noTodo
+     * @noTodo
      * @unitTest
+     * @throws Exception
      */
     public function deleteRecursive($id): bool
     {
@@ -592,26 +662,9 @@ class ContentsService implements ContentsServiceInterface
         } else {
             $target = [$parent];
         }
+
         foreach($target as $node) {
-            // 一旦階層構造から除外しリセットしてゴミ箱に移動（論理削除）
-            // エイリアスの場合直接削除
-            $node->parent_id = null;
-            $node->url = '';
-            $node->status = false;
-            $node->self_status = false;
-            unset($node->lft);
-            unset($node->rght);
-            $this->Contents->disableUpdatingSystemData();
-            // ここでは callbacks を false にすると lft rght が更新されないので callbacks は true に設定する（default: true）
-            $this->Contents->save($node, ['validate' => false]); // 論理削除用のvalidationを用意するべき
-            $this->Contents->enableUpdatingSystemData();
             $result = $this->delete($node->id);
-            // =====================================================================
-            // 通常の削除の際、afterDelete で、関連コンテンツのキャッシュを削除しているが、
-            // 論理削除の場合、afterDelete が呼ばれない為、ここで削除する
-            // =====================================================================
-            $this->Contents->deleteAssocCache($node);
-            if (!$result) return false;
         }
         return $result;
     }
@@ -666,7 +719,7 @@ class ContentsService implements ContentsServiceInterface
         } catch (RecordNotFoundException $e) {
             return false;
         }
-        return $data ? $this->getUrl($data->url, $full, $data->site->use_subdomain) : "";
+        return $data? $this->getUrl($data->url, $full, $data->site->use_subdomain) : "";
     }
 
     /**
@@ -720,7 +773,7 @@ class ContentsService implements ContentsServiceInterface
                 $url = $originUrl;
             }
         } else {
-            if (BC_INSTALLED) {
+            if (BcUtil::isInstalled()) {
                 if (!is_array($url)) {
                     $site = $this->Sites->findByUrl($url);
                     if ($site && $site->same_main_url) {
@@ -753,9 +806,9 @@ class ContentsService implements ContentsServiceInterface
     /**
      * コンテンツ情報を更新する
      *
-     * @param  EntityInterface $content
-     * @param  array $contentData
-     * @param  array $options
+     * @param EntityInterface $content
+     * @param array $contentData
+     * @param array $options
      * @return EntityInterface
      * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
@@ -819,11 +872,12 @@ class ContentsService implements ContentsServiceInterface
     public function publish($id): EntityInterface
     {
         $content = $this->get($id);
-        // 日付をどこで入れるかを確認する
-        $content->self_publish_begin = FrozenTime::now();
+        $content->self_publish_begin = null;
         $content->self_publish_end = null;
         $content->self_status = true;
-        return $this->Contents->save($content);
+        $result = $this->Contents->save($content);
+        if ($result) $this->saveSearchIndex($id);
+        return $result;
     }
 
     /**
@@ -838,16 +892,18 @@ class ContentsService implements ContentsServiceInterface
     public function unpublish($id): EntityInterface
     {
         $content = $this->get($id);
-        // 日付をどこで入れるかを確認する
-        $content->self_publish_end = FrozenTime::now();
+        $content->self_publish_begin = null;
+        $content->self_publish_end = null;
         $content->self_status = false;
-        return $this->Contents->save($content);
+        $result = $this->Contents->save($content);
+        if ($result) $this->saveSearchIndex($id);
+        return $result;
     }
 
     /**
      * exists
      *
-     * @param  int $id
+     * @param int $id
      * @param bool $withTrash ゴミ箱の物も含めるか
      * @return bool
      * @checked
@@ -862,6 +918,12 @@ class ContentsService implements ContentsServiceInterface
             $exists = !$this->getIndex(['id' => $id])->all()->isEmpty();
         }
         return $exists;
+    }
+
+    public function isTreeModifiedByAnotherUser($listDisplayed)
+    {
+        $siteConfig = TableRegistry::getTableLocator()->get('BaserCore.SiteConfigs');
+        return $siteConfig->isChangedContentsSortLastModified($listDisplayed);
     }
 
     /**
@@ -879,11 +941,18 @@ class ContentsService implements ContentsServiceInterface
      */
     public function move($origin, $target)
     {
+        if (!$this->exists($origin['id'])) {
+            throw new BcException(__d('baser', 'データが存在しません。'));
+        } elseif (!$this->isMovable($origin['id'], $target['parentId'])) {
+            throw new BcException(__d('baser', '同一URLのコンテンツが存在するため処理に失敗しました。（現在のサイトに存在しない場合は、関連サイトに存在します）'));
+        }
+
         $this->moveRelateSubSiteContent($origin['id'], $target['parentId'], $target['id']);
         $targetSort = $this->Contents->getOrderSameParent($target['id'], $target['parentId']);
         if ($origin['parentId'] != $target['parentId']) {
             $content = $this->get($origin['id']);
             // 親を変更
+            /* @var Content $content */
             $content = $this->update($content, [
                 'id' => $origin['id'],
                 'name' => $content->name,
@@ -907,7 +976,101 @@ class ContentsService implements ContentsServiceInterface
             $offset--;
         }
         // オフセットを元に移動
-        return $this->Contents->moveOffset($origin['id'], $offset);
+        $result = $this->Contents->moveOffset($origin['id'], $offset);
+        if ($result && $origin['parentId'] === $target['parentId']) {
+            // 親が違う場合は、Contentモデルで更新してくれるが同じ場合更新しない仕様のためここで更新する
+            $siteConfig = TableRegistry::getTableLocator()->get('BaserCore.SiteConfigs');
+            $siteConfig->updateContentsSortLastModified();
+        }
+        if ($result) $this->saveSearchIndex($origin['id']);
+        return $result;
+    }
+
+    /**
+     * 検索インデックスを生成する
+     *
+     * 対象が ContentFolder の場合は、子の検索インデックスも更新する
+     * 子の検索インデックス更新時には、親の status を引き継ぐ
+     * @param $id
+     * @checked
+     * @noTodo
+     */
+    public function saveSearchIndex($id)
+    {
+        if (!Plugin::isLoaded('BcSearchIndex')) return;
+        /* @var Content $currentContent */
+        $currentContent = $this->get($id);
+        $contents = [$currentContent];
+        if ($currentContent->type === 'ContentFolder') {
+            $contents = array_merge(
+                $contents,
+                $this->Contents->find('children', ['for' => $currentContent->id])
+                    ->select(['plugin', 'type', 'entity_id'])
+                    ->order('lft')
+                    ->all()
+                    ->toArray()
+            );
+        }
+        $tables = [];
+        $this->Contents->getConnection()->begin();
+        foreach($contents as $content) {
+            if (!isset($tables[$content->type])) {
+                $tables[$content->type] = TableRegistry::getTableLocator()->get(
+                    $content->plugin . '.' . Inflector::pluralize($content->type)
+                );
+            }
+            if ($content->type === 'ContentFolder' || !$tables[$content->type]->hasBehavior('BcSearchIndexManager')) continue;
+            $entity = $tables[$content->type]->get($content->entity_id, ['contain' => 'Contents']);
+            $entity->setDirty('id', true);
+            if ($currentContent->type === 'ContentFolder') {
+                $entity->content->status = $currentContent->status;
+            }
+            if(!$tables[$content->type]->save($entity)) {
+                $this->Contents->getConnection()->rollback();
+            }
+        }
+        $this->Contents->getConnection()->commit();
+    }
+
+    /**
+     * 検索インデックスを削除する
+     *
+     * 対象が ContentFolder の場合は、子の検索インデックスも削除する
+     * @param int $id
+     * @checked
+     * @noTodo
+     */
+    public function deleteSearchIndex($id)
+    {
+        if (!Plugin::isLoaded('BcSearchIndex')) return;
+        /* @var Content $currentContent */
+        $currentContent = $this->Contents->get($id);
+        $contents = [$currentContent];
+        if ($currentContent->type === 'ContentFolder' && $this->Contents->hasBehavior('Tree')) {
+            $contents = array_merge(
+                $contents,
+                $this->Contents->find('children', ['for' => $currentContent->id])
+                    ->select(['plugin', 'type', 'entity_id'])
+                    ->order('lft')
+                    ->all()
+                    ->toArray()
+            );
+        }
+        $tables = [];
+        $this->Contents->getConnection()->begin();
+        foreach($contents as $content) {
+            if (!isset($tables[$content->type])) {
+                $tables[$content->type] = TableRegistry::getTableLocator()->get(
+                    $content->plugin . '.' . Inflector::pluralize($content->type)
+                );
+            }
+            if ($content->type === 'ContentFolder' || !$tables[$content->type]->hasBehavior('BcSearchIndexManager')) continue;
+            if(!$tables[$content->type]->deleteSearchIndex($content->entity_id)) {
+                $this->Contents->getConnection()->rollback();
+                return;
+            }
+        }
+        $this->Contents->getConnection()->commit();
     }
 
     /**
@@ -1062,7 +1225,7 @@ class ContentsService implements ContentsServiceInterface
         $allowPublish = $content[$fields['status']];
         // 期限を設定している場合に条件に該当しない場合は強制的に非公開とする
         $invalidBegin = $content[$fields['publish_begin']] instanceof FrozenTime && $content[$fields['publish_begin']]->isFuture();
-        $invalidEnd = $content[$fields['publish_end']] instanceof FrozenTime  && $content[$fields['publish_end']]->isPast();
+        $invalidEnd = $content[$fields['publish_end']] instanceof FrozenTime && $content[$fields['publish_end']]->isPast();
         if ($invalidBegin || $invalidEnd) {
             $allowPublish = false;
         }
@@ -1094,7 +1257,7 @@ class ContentsService implements ContentsServiceInterface
      */
     public function existsContentByUrl($url)
     {
-        return (bool) $this->Contents->find()->where(['url' => $url])->count();
+        return (bool)$this->Contents->find()->where(['url' => $url])->count();
     }
 
     /**
@@ -1110,13 +1273,13 @@ class ContentsService implements ContentsServiceInterface
     public function isChangedStatus($id, $newData)
     {
         try {
-        $before = $this->get($id);
-        } catch(\Cake\Datasource\Exception\RecordNotFoundException $e) {
+            $before = $this->get($id);
+        } catch (\Cake\Datasource\Exception\RecordNotFoundException $e) {
             return true;
         }
-        $beforeStatus = $this->Contents->isPublish($before->self_status,  $before->self_publish_begin, $before->self_publish_end);
+        $beforeStatus = $this->Contents->isPublish($before->self_status, $before->self_publish_begin, $before->self_publish_end);
         $afterStatus = $this->Contents->isPublish($newData['self_status'], $newData['self_publish_begin'], $newData['self_publish_end']);
-        if ($beforeStatus != $afterStatus || $before->title  != $newData['title'] || $before->url != $newData['url']) {
+        if ($beforeStatus != $afterStatus || $before->title != $newData['title'] || $before->url != $newData['url']) {
             return true;
         }
         return false;
@@ -1125,8 +1288,8 @@ class ContentsService implements ContentsServiceInterface
     /**
      * TreeBehaviorの設定値を更新する
      *
-     * @param  string $targetConfig
-     * @param  array $conditions
+     * @param string $targetConfig
+     * @param array $conditions
      * @return TreeBehavior
      * @checked
      * @unitTest
@@ -1153,7 +1316,7 @@ class ContentsService implements ContentsServiceInterface
     /**
      * 条件に基づいて指定したフィールドの隣のデータを所得する
      *
-     * @param  array $options
+     * @param array $options
      * @return array $neighbors
      * @throws BcException site_idがない場合Exceptionを投げる
      * @checked
@@ -1188,7 +1351,7 @@ class ContentsService implements ContentsServiceInterface
     /**
      * エンコードされたURLをデコードせずにパースする
      * ※DBのレコードがエンコードされたまま保存されてる場合があるためその値を取得する際にデコードが邪魔になる際使用する
-     * @param  string $fullUrl
+     * @param string $fullUrl
      * @return array $parsedUrl
      * @checked
      * @noTodo
@@ -1221,6 +1384,72 @@ class ContentsService implements ContentsServiceInterface
     public function getPath($id): QueryInterface
     {
         return $this->Contents->find('path', ['for' => $id]);
+    }
+
+    /**
+     * 一括処理
+     * @param array $ids
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function batch($method, array $ids): bool
+    {
+        if (!$ids) return true;
+        $db = $this->Contents->getConnection();
+        $db->begin();
+        foreach($ids as $id) {
+            if (!$this->{$method}($id)) {
+                $db->rollback();
+                throw new BcException(__d('baser', 'データベース処理中にエラーが発生しました。'));
+            }
+        }
+        $db->commit();
+        return true;
+    }
+
+    /**
+     * IDを指定してタイトルリストを取得する
+     * @param $ids
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getTitlesById($ids): array
+    {
+        return $this->Contents->find('list')->select(['id', 'title'])->where(['id IN' => $ids])->toArray();
+    }
+
+    /**
+     * リネーム処理
+     * @param EntityInterface $content
+     * @param array $postData
+     * @return EntityInterface|null
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function rename($content, $postData)
+    {
+        if (empty($postData['id'])) {
+            throw new BcException(__d('baser', '送信データが不正です。'));
+        }
+        $newContent = array_merge($content->toArray(), ['title' => $postData['title']]);
+        unset($newContent['site']);
+        $options = ['validate' => false];
+        if (!empty($postData['first'])) {
+            unset($newContent['name']);
+            $options['firstCreate'] = true;
+        }
+        try {
+            $result = $this->update($content, $newContent, $options);
+            if ($result) $this->saveSearchIndex($content->id);
+            return $result;
+        } catch (BcException $e) {
+            throw $e;
+        }
     }
 
 }

@@ -12,10 +12,9 @@
 namespace BaserCore\Model\Table;
 
 use ArrayObject;
-use BaserCore\Service\SearchIndexesService;
-use BaserCore\Service\SearchIndexesServiceInterface;
+use BcSearchIndex\Service\SearchIndexesService;
+use BcSearchIndex\Service\SearchIndexesServiceInterface;
 use BaserCore\Utility\BcContainerTrait;
-use BaserCore\Model\AppTable;
 use Cake\Event\EventInterface;
 use Cake\Validation\Validator;
 use BaserCore\Annotation\NoTodo;
@@ -67,23 +66,6 @@ class ContentFoldersTable extends AppTable
     }
 
     /**
-     * Implemented Events
-     *
-     * @return array
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function implementedEvents(): array
-    {
-        return array_merge(parent::implementedEvents(), [
-            'Controller.Contents.beforeMove' => ['callable' => 'beforeMove'],
-            'Controller.Contents.afterMove' => ['callable' => 'afterMove']
-        ]);
-    }
-
-
-    /**
      * validationDefault
      *
      * @param  Validator $validator
@@ -95,27 +77,10 @@ class ContentFoldersTable extends AppTable
     public function validationDefault(Validator $validator): Validator
     {
         $validator
-        ->integer('id')
-        ->allowEmptyString('id', null, 'create')
-        ->add('id', 'valid', ['rule' => 'numeric', 'message' => __d('baser', 'IDに不正な値が利用されています。')]);
-
+            ->integer('id')
+            ->allowEmptyString('id', null, 'create')
+            ->add('id', 'valid', ['rule' => 'numeric', 'message' => __d('baser', 'IDに不正な値が利用されています。')]);
         return $validator;
-    }
-
-    /**
-     * Before Move
-     * @param EventInterface $event
-     * @param EntityInterface $entity
-     * @param ArrayObject $options
-     * @checked
-     * @unitTest
-     * @noTodo
-     */
-    public function beforeMove(EventInterface $event, EntityInterface $entity, ArrayObject $options)
-    {
-        if ($event->getData('data.currentType') == 'ContentFolder') {
-            $this->setBeforeRecord($event->getData('data.entityId'));
-        }
     }
 
     /**

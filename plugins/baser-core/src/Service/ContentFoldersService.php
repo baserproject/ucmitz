@@ -12,6 +12,7 @@
 
 namespace BaserCore\Service;
 
+use BaserCore\Model\Table\SitesTable;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use BaserCore\Utility\BcUtil;
@@ -96,9 +97,19 @@ class ContentFoldersService implements ContentFoldersServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function get($id): EntityInterface
+    public function get($id, array $queryParams = []): EntityInterface
     {
-        return $this->ContentFolders->get($id, ['contain' => ['Contents' => ['Sites']]]);
+        $queryParams = array_merge([
+            'status' => ''
+        ], $queryParams);
+        $conditions = [];
+        if($queryParams['status'] === 'published') {
+            $conditions = $this->ContentFolders->Contents->getConditionAllowPublish();
+        }
+        return $this->ContentFolders->get($id, [
+            'contain' => ['Contents' => ['Sites']],
+            'conditions' => $conditions
+        ]);
     }
 
     /**
@@ -163,17 +174,17 @@ class ContentFoldersService implements ContentFoldersServiceInterface
     }
 
     /**
-     * コンテンツフォルダーを削除する
+     * 物理削除
      * @param int $id
      * @return bool
      * @checked
-     * @unitTest
      * @noTodo
+     * @unitTest
      */
-    public function delete($id): bool
+    public function delete(int $id): bool
     {
-        $ContentFolder = $this->get($id);
-        return $this->ContentFolders->delete($ContentFolder);
+        $contentFolder = $this->get($id);
+        return $this->ContentFolders->delete($contentFolder);
     }
 
     /**
@@ -260,17 +271,25 @@ class ContentFoldersService implements ContentFoldersServiceInterface
     public function saveSiteRoot($site, $isUpdateChildrenUrl = false)
     {
         if ($site->id === 1) return false;
+        $rootContentId = 1;
+        if($site->main_site_id) {
+            /* @var SitesTable $sitesTable */
+            $sitesTable = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+            $parentSite = $sitesTable->get($site->main_site_id);
+            $rootContentId = $sitesTable->getRootContentId($parentSite->id);
+        }
         if ($site->isNew()) {
             $data = [
                 'folder_template' => 'default',
                 'content' => [
-                    'layout_template' => 'default',
                     'site_id' => $site->id,
-                    'name' => ($site->alias) ? $site->alias : $site->name,
-                    'parent_id' => 1,
+                    'name' => ($site->alias) ? : $site->name,
+                    'parent_id' => $rootContentId,
                     'title' => $site->title,
                     'self_status' => $site->status,
+                    'author_id' => BcUtil::loginUser()['id'],
                     'site_root' => true,
+                    'layout_template' => 'default',
                 ]
             ];
             $contentFolder = $this->create($data);
@@ -280,10 +299,10 @@ class ContentFoldersService implements ContentFoldersServiceInterface
             $data = [
                 'content' => [
                     'id' => $contentFolder->content->id,
-                    'name' => ($site->alias) ? $site->alias : $site->name,
+                    'name' => ($site->alias) ? : $site->name,
+                    'parent_id' => $rootContentId,
                     'title' => $site->title,
                     'self_status' => $site->status,
-                    'parent_id' => $contentFolder->content->parent_id
                 ]
             ];
             $contentFolder = $this->update($contentFolder, $data);

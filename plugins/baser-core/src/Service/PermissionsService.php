@@ -11,6 +11,7 @@
 
 namespace BaserCore\Service;
 
+use BaserCore\Error\BcException;
 use BaserCore\Model\Entity\Permission;
 use BaserCore\Model\Table\PermissionsTable;
 use Cake\Core\Configure;
@@ -54,6 +55,10 @@ class PermissionsService implements PermissionsServiceInterface
 
     /**
      * PermissionsService constructor.
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -83,6 +88,9 @@ class PermissionsService implements PermissionsServiceInterface
      * リストデータを取得
      * 対応しない
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getList(): array
     {
@@ -326,6 +334,9 @@ class PermissionsService implements PermissionsServiceInterface
      * 標準アクセス許可リクエストを設定
      *
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     private function setDefaultAllow(): void
     {
@@ -335,6 +346,7 @@ class PermissionsService implements PermissionsServiceInterface
             '/^' . preg_quote($this->adminUrlPrefix . '/baser-core/dashboard/', '/') . '.*?/',
             '/^' . preg_quote($this->adminUrlPrefix . '/baser-core/dblogs/', '/') . '.*?/',
             '/^' . preg_quote($this->adminUrlPrefix . '/baser-core/users/logout', '/') . '$/',
+            '/^' . preg_quote($this->adminUrlPrefix . '/baser-core/users/back_agent', '/') . '$/',
             '/^' . preg_quote($this->adminUrlPrefix . '/baser-core/user_groups', '/') . '$/',
         ];
         $sessionKey = Configure::read('BcPrefixAuth.Admin.sessionKey');
@@ -394,7 +406,7 @@ class PermissionsService implements PermissionsServiceInterface
      */
     private function checkGroup(string $url, array $groupPermission): bool
     {
-        $ret = false;
+        $ret = true;
         foreach($groupPermission as $permission) {
             $pattern = $permission->url;
             $pattern = preg_quote($pattern, '/');
@@ -483,6 +495,42 @@ class PermissionsService implements PermissionsServiceInterface
         }
 
         return true;
+    }
+
+    /**
+     * 一括処理
+     * @param array $ids
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function batch($method, array $ids): bool
+    {
+        if (!$ids) return true;
+        $db = $this->Permissions->getConnection();
+        $db->begin();
+        foreach($ids as $id) {
+            if (!$this->{$method}($id)) {
+                $db->rollback();
+                throw new BcException(__d('baser', 'データベース処理中にエラーが発生しました。'));
+            }
+        }
+        $db->commit();
+        return true;
+    }
+
+    /**
+     * IDを指定して名前リストを取得する
+     * @param $ids
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getNamesById($ids): array
+    {
+        return $this->Permissions->find('list')->where(['id IN' => $ids])->toArray();
     }
 
 }

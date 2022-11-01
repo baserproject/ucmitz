@@ -22,16 +22,27 @@ class PluginsSeed extends AbstractSeed
     {
         $data = [
             [
-                'id' => '6',
-                'name' => 'BcSpaSample',
-                'title' => 'SPAサンプル',
-                'version' => NULL,
+                'id' => '1',
+                'name' => 'BcBlog',
+                'title' => 'ブログ',
+                'version' => '2.0.0',
                 'status' => '1',
                 'db_init' => '1',
-                'priority' => '6',
+                'priority' => '1',
                 'created' => NULL,
-                'modified' => '2021-12-09 17:16:53',
+                'modified' => '2022-10-01 09:00:00',
             ],
+            [
+                'id' => '2',
+                'name' => 'BcSearchIndex',
+                'title' => 'サイト内検索',
+                'version' => '2.0.0',
+                'status' => '1',
+                'db_init' => '1',
+                'priority' => '2',
+                'created' => NULL,
+                'modified' => '2022-10-01 09:00:00',
+            ]
         ];
 
         $table = $this->table('plugins');

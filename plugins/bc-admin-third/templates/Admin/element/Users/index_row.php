@@ -16,6 +16,9 @@ use BaserCore\View\AppView;
  * users index row
  * @var AppView $this
  * @var User $user
+ * @checked
+ * @unitTest
+ * @noTodo
  */
 ?>
 
@@ -44,7 +47,7 @@ use BaserCore\View\AppView;
     <?= $this->BcAdminForm->postLink(
       '',
       ['action' => 'delete', $user->id],
-      ['block' => true,
+      [
         'confirm' => __d('baser', "{0} を本当に削除してもいいですか？", $user->name),
         'title' => __d('baser', '削除'),
         'class' => 'btn-delete bca-btn-icon',

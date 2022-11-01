@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.View
  * @since           baserCMS v 2.0.0
  * @license         https://basercms.net/license/index.html
  */
@@ -30,7 +29,7 @@
   <?php if ($this->request->action == 'admin_edit'): ?>
     <li>
       <?php echo __d('baser', 'システム設定より設定できる標準ウィジェットエリアの他、個別にウィジェットを配置する場合は、テンプレートや、ページ記事中（ソース）に次のコードを貼り付けます。') ?>
-      <pre>&lt;?php $this->BcBaser->element('widget_area', array('no'=> <?php echo $this->BcForm->getSourceValue('WidgetArea.id') ?> )) ?&gt;</pre>
+      <pre>&lt;?php $this->BcBaser->element('widget_area', array('no'=> <?php echo $this->BcAdminForm->getSourceValue('WidgetArea.id') ?> )) ?&gt;</pre>
     </li>
   <?php endif ?>
 </ul>

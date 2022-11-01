@@ -13,13 +13,15 @@ namespace BaserCore\Test\TestCase\Model\Table;
 
 use ArrayObject;
 use BaserCore\Model\Entity\Page;
+use BaserCore\Model\Table\PagesTable;
+use Cake\Event\Event;
+use Cake\ORM\Entity;
 use Cake\Validation\Validator;
 use BaserCore\TestSuite\BcTestCase;
 
 /**
  * Class PagesTable Test
  *
- * @package Baser.Test.Case.Model
  * @property Page $Page
  */
 class PagesTableTest extends BcTestCase
@@ -35,8 +37,7 @@ class PagesTableTest extends BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.Contents',
         'plugin.BaserCore.ContentFolders',
-        'plugin.BaserCore.Pages',
-        'plugin.BaserCore.SearchIndexes'
+        'plugin.BaserCore.Pages'
     ];
 
     /**
@@ -154,36 +155,6 @@ class PagesTableTest extends BcTestCase
     }
 
     /**
-     * afterSave
-     *
-     * @param boolean $created
-     * @param array $options
-     * @dataProvider afterSaveDataProvider
-     */
-    public function testAfterSave($exclude_search, $exist)
-    {
-        $page = $this->Pages->find()->contain(['Contents' => ['Sites']])->where(['Pages.id' => 5])->first();
-        if ($exclude_search) {
-            $page->content->exclude_search = $exclude_search;
-            $this->assertEquals(false, $this->SearchIndexes->findByModelId($page->id)->isEmpty());
-        } else {
-            $page->id = 100; // 存在しない新規のIDを入れた場合
-        }
-        $this->Pages->dispatchEvent('Model.afterSave', [$page, new ArrayObject()]);
-        $this->assertEquals($exist, $this->SearchIndexes->findByModelId($page->id)->isEmpty());
-    }
-
-    public function afterSaveDataProvider()
-    {
-        return [
-            // exclude_searchがある場合削除されているかを確認
-            [1, true],
-            // exclude_searchがなく、なおかつ新規の場合索引が作成されて存在するかをテスト
-            [0, false]
-        ];
-    }
-
-    /**
      * 検索用データを生成する
      */
     public function testCreateSearchIndex()
@@ -226,5 +197,37 @@ class PagesTableTest extends BcTestCase
         return [
             [2, 1, 'hoge1', 10, 1]
         ];
+    }
+
+    /**
+     * test beforeSave
+     * @return void
+     */
+    public function testBeforeSave()
+    {
+        $event = new Event("copy");
+        $object = new ArrayObject();
+
+        $data = new Entity([
+            'test' => 'テストBeforeSave',
+            'content' => [
+                'title' => 'abc'
+            ]
+        ]);
+
+        $this->Pages->beforeSave($event, $data, $object);
+        $this->assertFalse($this->Pages->isExcluded());
+
+        $this->Pages->searchIndexSaving = false;
+        $this->Pages->beforeSave($event, $data, $object);
+        $this->assertFalse($this->Pages->isExcluded());
+
+        $data = new Entity([
+            'test' => 'テストBeforeSave',
+        ]);
+
+        $this->Pages->searchIndexSaving = true;
+        $this->Pages->beforeSave($event, $data, $object);
+        $this->assertTrue($this->Pages->isExcluded());
     }
 }

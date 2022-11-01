@@ -11,6 +11,10 @@
 
 namespace BaserCore\View\Helper;
 
+use BaserCore\Error\BcException;
+use BaserCore\Service\SitesService;
+use BaserCore\Service\SitesServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\View\Helper;
@@ -29,6 +33,11 @@ class BcToolbarHelper extends Helper
 {
 
     /**
+     * Trait
+     */
+    use BcContainerTrait;
+
+    /**
      * Helper
      * @var string[]
      */
@@ -44,7 +53,7 @@ class BcToolbarHelper extends Helper
     public function isAvailableEditLink(): bool
     {
         $request = $this->_View->getRequest();
-        return ($this->BcAdmin->existsEditLink() && !isset($request->getQuery['preview']));
+        return ($this->BcAdmin->existsEditLink() && !$request->getQuery('preview'));
     }
 
     /**
@@ -273,10 +282,16 @@ class BcToolbarHelper extends Helper
      */
     public function getLogoLink()
     {
+        $currentSite = $this->_View->getRequest()->getAttribute('currentSite');
+        /* @var SitesService $siteService */
+        $siteService = $this->getService(SitesServiceInterface::class);
+        $content = $siteService->getRootContent($currentSite->id);
+        $normalUrl = '/';
+        if($content) $normalUrl = $this->BcBaser->getContentsUrl($content->url, true, $currentSite->use_subdomain);
         $links = [
             'install' => Configure::read('BcLinks.installManual'),
             'update' => Configure::read('BcLinks.updateManual'),
-            'normal' => '/',
+            'normal' => $normalUrl,
             'frontAdminAvailable' => ['prefix' => 'Admin', 'controller' => 'dashboard', 'action' => 'index'],
             'frontAdminNotAvailable' => $this->BcAuth->getCurrentLoginRedirectUrl(),
         ];

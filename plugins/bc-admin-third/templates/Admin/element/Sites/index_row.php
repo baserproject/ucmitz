@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.View
  * @since           baserCMS v 4.0.0
  * @license         https://basercms.net/license/index.html
  */
@@ -21,6 +20,9 @@ use BaserCore\View\BcAdminAppView;
  * @var array $devices
  * @var array $langs
  * @var array $siteList
+ * @checked
+ * @unitTest
+ * @noTodo
  */
 
 $classies = [];

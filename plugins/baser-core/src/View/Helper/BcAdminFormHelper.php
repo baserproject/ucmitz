@@ -15,7 +15,6 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Event\BcEventDispatcherTrait;
-use Cake\Utility\Inflector;
 
 /**
  * Class BcAdminFormHelper
@@ -27,21 +26,6 @@ class BcAdminFormHelper extends BcFormHelper
      * Trait
      */
     use BcEventDispatcherTrait;
-
-    /**
-     * Other helpers used by FormHelper
-     *
-     * @var array
-     */
-    public $helpers = [
-        'Url',
-        'Js',
-        'Html',
-        'BaserCore.BcHtml',
-        'BaserCore.BcTime',
-        'BaserCore.BcText',
-        'BaserCore.BcUpload'
-    ];
 
     /**
      * control
@@ -147,6 +131,32 @@ class BcAdminFormHelper extends BcFormHelper
 
         return parent::control($name, $options);
 
+    }
+
+    /**
+     * postLink
+     * CSSクラスに bca-submit-token を追加する
+     * @param string $title
+     * @param null $url
+     * @param array $options
+     * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function postLink(string $title, $url = null, array $options = []): string
+    {
+        $class = 'bca-submit-token';
+        if(!empty($options['class'])) {
+            $classes = explode(' ', $options['class']);
+            if(!in_array($class, $classes)) {
+                $classes[] = $class;
+            }
+            $options['class'] = implode(' ', $classes);
+        } else {
+                $options['class'] = $class;
+        }
+        return parent::postLink($title, $url, $options);
     }
 
 }

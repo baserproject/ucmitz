@@ -9,14 +9,21 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
+/**
+ * @var \BaserCore\View\BcAdminAppView $this
+ * @var \Cake\ORM\ResultSet $dblogs
+ * @checked
+ * @unitTest
+ * @noTodo
+ */
 $this->BcListTable->setColumnNumber(4);
 ?>
 
 <div class="bca-data-list__top">
   <?php if ($this->BcBaser->isAdminUser() && $dblogs->count()): ?>
     <div class="submit clear bca-update-log__delete">
-      <?php echo $this->BcForm->postButton(__d('baser', 'ログを全て削除'), ['action' => 'delete_all'], [
-          'class' => 'btn-gray button submit-token bca-btn',
+      <?php echo $this->BcAdminForm->postButton(__d('baser', 'ログを全て削除'), ['action' => 'delete_all'], [
+          'class' => 'button bca-submit-token bca-btn',
           'data-bca-btn-type' => 'delete',
           'confirm' => __d('baser', '最近の動きのログを削除します。いいですか？')
       ]) ?>

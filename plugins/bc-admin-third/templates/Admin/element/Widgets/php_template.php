@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.View
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
@@ -18,7 +17,7 @@ $description = __d('baser', 'PHPコードが書かれたテンプレートの読
 ?>
 
 
-<?php echo $this->BcForm->label($key . '.template', __d('baser', 'PHPテンプレート名')) ?>
+<?php echo $this->BcAdminForm->label($key . '.template', __d('baser', 'PHPテンプレート名')) ?>
 <?php echo $this->BcAdminForm->control($key . '.template', ['type' => 'text', 'size' => 14]) ?> <?php echo $this->ext ?>
 <p style="text-align:left"><small>
     <?php

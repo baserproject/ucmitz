@@ -12,6 +12,7 @@
 namespace BaserCore\Test\TestCase;
 
 use BaserCore\BcPlugin;
+use BaserCore\Service\SitesService;
 use BaserCore\Test\Factory\PluginFactory;
 use BaserCore\Test\Factory\UserFactory;
 use BaserCore\TestSuite\BcTestCase;
@@ -21,8 +22,7 @@ use Cake\Datasource\ConnectionManager;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
-use Cake\Routing\RouteBuilder;
-use Cake\Routing\RouteCollection;
+use Cake\Routing\Router;
 
 /**
  * Class BcPluginTest
@@ -45,6 +45,8 @@ class BcPluginTest extends BcTestCase
         'plugin.BaserCore.Plugins',
         'plugin.BaserCore.Users',
         'plugin.BaserCore.SiteConfigs',
+        'plugin.BaserCore.Sites',
+        'plugin.BaserCore.Contents',
     ];
 
     /**
@@ -54,6 +56,7 @@ class BcPluginTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->BcPlugin = new BcPlugin(['name' => 'BcBlog']);
     }
@@ -67,6 +70,11 @@ class BcPluginTest extends BcTestCase
     {
         unset($this->BcPlugin);
         parent::tearDown();
+        $this->truncateTable('blog_categories');
+        $this->truncateTable('blog_contents');
+        $this->truncateTable('blog_posts');
+        $this->truncateTable('blog_tags');
+        $this->truncateTable('blog_posts_blog_tags');
     }
 
     /**
@@ -107,7 +115,6 @@ class BcPluginTest extends BcTestCase
             'schema' => Folder::OVERWRITE
         ]);
         $this->BcPlugin->install(['connection' => 'test']);
-
     }
 
     /**
@@ -130,22 +137,57 @@ class BcPluginTest extends BcTestCase
      */
     public function testRoutes()
     {
-        $collection = new RouteCollection();
-        $routes = new RouteBuilder($collection, '/');
+        $routes = Router::createRouteBuilder('/');
         $this->BcPlugin->routes($routes);
-        $all = $collection->routes();
-        // connect・fallbacksにより3つコネクションあり|拡張子jsonあり
-        $this->assertEquals($all[0]->defaults, ['plugin' => 'BcBlog', 'action' => 'index']);
-        $this->assertEquals($all[0]->getExtensions()[0], "json");
-        // connect・fallbacksにより3つコネクションあり|拡張子jsonあり
-        $this->assertEquals($all[3]->defaults, ['plugin' => 'BcBlog', 'action' => 'index', 'prefix' => 'Api']);
-        $this->assertEquals($all[3]->getExtensions()[0], "json");
-        // connect・fallbacksにより3つコネクションあり|拡張子jsonなし
-        $this->assertEquals($all[6]->defaults, ['plugin' => 'BcBlog', 'action' => 'index', 'prefix' => 'Admin']);
-        $this->assertEmpty($all[6]->getExtensions());
-        // connectにより1つコネクションあり|拡張子jsonなし
-        $this->assertEquals($all[9]->defaults, ['plugin' => 'BcBlog', 'action' => 'index']);
-        $this->assertEmpty($all[9]->getExtensions());
+
+        // コンテンツ管理のプラグイン用のリバースルーティング
+        $this->getRequest('/');
+        $this->assertEquals('/news/', Router::url([
+            'plugin' => 'BcBlog',
+            'controller' => 'Blog',
+            'action' => 'index',
+            'entityId' => 31
+        ]));
+        $this->assertEquals('/news/archives/1', Router::url([
+            'plugin' => 'BcBlog',
+            'controller' => 'Blog',
+            'action' => 'archives',
+            'entityId' => 31,
+            1
+        ]));
+
+        // 管理画面のプラグイン用ルーティング
+        $result = Router::parseRequest($this->getRequest('/baser/admin/bc-blog/blog_contents/index'));
+        $this->assertEquals('BlogContents', $result['controller']);
+        $result = Router::parseRequest($this->getRequest('/baser/admin/bc-blog/blog_contents/edit/1'));
+        $this->assertEquals('BlogContents', $result['controller']);
+
+        // フロントエンドのプラグイン用ルーティング
+        $result = Router::parseRequest($this->getRequest('/bc-blog/blog_contents/index'));
+        $this->assertEquals('BlogContents', $result['controller']);
+        $result = Router::parseRequest($this->getRequest('/bc-blog/blog_contents/edit/1'));
+        $this->assertEquals('BlogContents', $result['controller']);
+
+        // サブサイトのプラグイン用ルーティング
+        Router::reload();
+        $routes = Router::createRouteBuilder('');
+        $_SERVER['REQUEST_URI'] = '/s/';
+        $this->BcPlugin->routes($routes);
+        $result = Router::parseRequest($this->getRequest('/s/bc-blog/blog_contents/index'));
+        $this->assertEquals('BlogContents', $result['controller']);
+        $this->assertEquals('s', $result['sitePrefix']);
+        $result = Router::parseRequest($this->getRequest('/s/bc-blog/blog_contents/edit/1'));
+        $this->assertEquals('BlogContents', $result['controller']);
+        $this->assertEquals('s', $result['sitePrefix']);
+
+        // 管理画面のプラグイン用ルーティング
+        $result = Router::parseRequest($this->getRequest('/baser/api/bc-blog/blog_contents/index.json'));
+        $this->assertEquals('BlogContents', $result['controller']);
+        $this->assertEquals('json', $result['_ext']);
+        $result = Router::parseRequest($this->getRequest('/baser/api/bc-blog/blog_contents/edit/1.json'));
+        $this->assertEquals('BlogContents', $result['controller']);
+        $this->assertEquals('json', $result['_ext']);
+        unset($_SERVER['REQUEST_URI']);
     }
 
     /**
@@ -418,6 +460,23 @@ $table->updateAll([\'name\' => \'2022-06-26\'], []);');
         $folder->delete($updaterPath);
         rename(BASER . 'VERSION.bak.txt', BASER . 'VERSION.txt');
         unlink($migrationFile);
+    }
+
+    /**
+     * テーマを適用する
+     */
+    public function test_applyAsTheme()
+    {
+        $targetId = 1;
+        $currentTheme = 'BcFront';
+        $SiteService = new SitesService();
+        $site = $SiteService->get($targetId);
+        $this->assertEquals($currentTheme, $site->theme);
+
+        $updateTheme = 'BcSpaSample';
+        $this->BcPlugin->applyAsTheme($site, $updateTheme);
+        $site = $SiteService->get($targetId);
+        $this->assertEquals($updateTheme, $site->theme);
     }
 
 }

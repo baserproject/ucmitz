@@ -11,10 +11,19 @@
 
 namespace BcBlog\Test\TestCase;
 
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcUtil;
+use BcBlog\Service\Admin\BlogCategoriesAdminServiceInterface;
+use BcBlog\Service\Admin\BlogContentsAdminServiceInterface;
+use BcBlog\Service\BlogCategoriesServiceInterface;
+use BcBlog\Service\BlogContentsServiceInterface;
+use BcBlog\Service\Front\BlogFrontServiceInterface;
+use Cake\Core\Container;
 use Cake\Core\Plugin;
 use Cake\Datasource\ConnectionManager;
+use Cake\Http\ServerRequest;
+use Cake\Routing\Router;
 
 /**
  * Class BcPluginTest
@@ -32,8 +41,8 @@ class PluginTest extends BcTestCase
      *
      * @var array
      */
-    protected $fixtures = [
-        'plugin.BaserCore.Plugins',
+    public $fixtures = [
+        'plugin.BaserCore.Factory/Sites',
     ];
 
     /**
@@ -43,6 +52,7 @@ class PluginTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         BcUtil::includePluginClass('BcBlog');
         $plugins = Plugin::getCollection();
@@ -66,14 +76,14 @@ class PluginTest extends BcTestCase
      */
     public function testInstall()
     {
-        // blog_posts / bc_blog_phinxlog テーブルを削除
-        $connection = ConnectionManager::get('test');
-        $schema = $connection->getDriver()->newTableSchema('blog_posts');
-        $sql = $schema->dropSql($connection);
-        $connection->execute($sql[0])->closeCursor();
-        $schema = $connection->getDriver()->newTableSchema('bc_blog_phinxlog');
-        $sql = $schema->dropSql($connection);
-        $connection->execute($sql[0])->closeCursor();
+        // テーブルを削除
+        $this->dropTable('blog_posts');
+        $this->dropTable('blog_categories');
+        $this->dropTable('blog_contents');
+        $this->dropTable('blog_comments');
+        $this->dropTable('blog_tags');
+        $this->dropTable('blog_posts_blog_tags');
+        $this->dropTable('bc_blog_phinxlog');
 
         // plugins テーブルより blog_posts を削除
         $plugins = $this->getTableLocator()->get('BaserCore.Plugins');
@@ -82,16 +92,11 @@ class PluginTest extends BcTestCase
         $expected = ['blog_posts'];
         $this->Plugin->install(['connection' => 'test']);
         // インストールされたテーブルをチェック
+        $connection = ConnectionManager::get('test');
         $tables = $connection->getSchemaCollection()->listTables();
         foreach($expected as $value) {
             $this->assertContains($value, $tables);
         }
-        // インストーラーで追加したテーブルを削除
-        $this->Plugin->migrations->rollback(['plugin' => 'BcBlog', 'connection' => 'test']);
-        // bc_blog_phinxlog 削除
-        $schema = $connection->getDriver()->newTableSchema('bc_blog_phinxlog');
-        $sql = $schema->dropSql($connection);
-        $connection->execute($sql[0])->closeCursor();
     }
 
     /**
@@ -100,5 +105,39 @@ class PluginTest extends BcTestCase
     public function testUninstall()
     {
         $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    /**
+     * test service
+     */
+    public function testService()
+    {
+        $container = new Container();
+        $this->Plugin->services($container);
+        $this->assertTrue($container->has(BlogCategoriesServiceInterface::class));
+        $this->assertTrue($container->has(BlogCategoriesAdminServiceInterface::class));
+        $this->assertTrue($container->has(BlogContentsServiceInterface::class));
+        $this->assertTrue($container->has(BlogContentsAdminServiceInterface::class));
+        $this->assertTrue($container->has(BlogFrontServiceInterface::class));
+    }
+
+    /**
+     * test routes
+     */
+    public function testRoutes() {
+        $routes = Router::createRouteBuilder('/');
+        $this->Plugin->routes($routes);
+
+        $result = Router::parseRequest($this->getRequest('/rss/index'));
+        $this->assertEquals('blog', $result['controller']);
+
+        $result = Router::parseRequest($this->getRequest('/tags/test'));
+        $this->assertEquals('tags', $result['action']);
+
+        SiteFactory::make(['alias' => 'as', 'name' => 'LoremIpsum'])->persist();
+        Router::setRequest(new ServerRequest(['url' => '/as/']));
+        $this->Plugin->routes($routes);
+        $result = Router::parseRequest($this->getRequest('/as/tags/bla'));
+        $this->assertEquals('LoremIpsum', $result['sitePrefix']);
     }
 }

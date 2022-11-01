@@ -11,6 +11,10 @@
 
 namespace BaserCore\Utility;
 
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+
 /**
  * Trait BcContainerTrait
  * @package BaserCore\Utility
@@ -21,10 +25,26 @@ trait BcContainerTrait
      * Get Service
      * @param $service
      * @return array|mixed|object
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getService($service)
     {
         return BcContainer::get()->get($service);
+    }
+
+    /**
+     * Has Service
+     * @param $service
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function hasService($service)
+    {
+        return BcContainer::get()->has($service);
     }
 
 }

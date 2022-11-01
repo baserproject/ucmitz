@@ -11,6 +11,8 @@
 
 namespace BaserCore\Test\TestCase\Controller\Component;
 
+use BaserCore\Test\Factory\ContentFactory;
+use Cake\Controller\Controller;
 use Cake\Routing\Router;
 use BaserCore\Service\PagesService;
 use BaserCore\TestSuite\BcTestCase;
@@ -19,20 +21,6 @@ use Cake\Controller\ComponentRegistry;
 use BaserCore\Controller\BcAppController;
 use BaserCore\Controller\PagesController;
 use BaserCore\Controller\Component\BcFrontContentsComponent;
-
-
-/**
- * Class BcFrontContentsTestController
- */
-class BcFrontContentsTestController extends BcAppController
-{
-    public function initialize(): void
-    {
-        parent::initialize();
-        $this->loadModel('BaserCore.Contents');
-        $this->Contents->addBehavior('Tree', ['level' => 'level']);
-    }
-}
 
 /**
  * Class BcFrontContentsComponentTest
@@ -61,8 +49,7 @@ class BcFrontContentsComponentTest extends BcTestCase
     {
         parent::setUp();
         $this->getRequest('baser/admin');
-        $this->Controller = new BcFrontContentsTestController($this->getRequest());
-        $this->ComponentRegistry = new ComponentRegistry($this->Controller);
+        $this->ComponentRegistry = new ComponentRegistry(new Controller());
         $this->BcFrontContents = new BcFrontContentsComponent($this->ComponentRegistry);
         $this->PagesService = new PagesService();
         $this->ContentsService = new ContentsService();
@@ -105,5 +92,20 @@ class BcFrontContentsComponentTest extends BcTestCase
     public function testGetCrumbs()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test setLayout
+     */
+    public function testSetLayout()
+    {
+        // currentContent の layout_template に値がある場合
+        $this->BcFrontContents->setLayout(ContentFactory::get(6));
+        $currentLayout = $this->BcFrontContents->getController()->viewBuilder()->getLayout();
+        $this->assertEquals('serviceTemplate', $currentLayout);
+        // currentContent の layout_template に値がなく、親にはある場合
+        $this->BcFrontContents->setLayout(ContentFactory::get(4));
+        $currentLayout = $this->BcFrontContents->getController()->viewBuilder()->getLayout();
+        $this->assertEquals('default', $currentLayout);
     }
 }

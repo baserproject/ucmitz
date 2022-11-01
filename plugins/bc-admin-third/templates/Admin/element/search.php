@@ -19,21 +19,29 @@ use BaserCore\View\BcAdminAppView;
  * @var BcAdminAppView $this
  * @var string $search 検索条件テンプレート
  * @var bool $adminSearchOpened 検索エリアが開いているかどうか
- * @var string $adminSearchOpenedSaveUrl 検索エリアの開閉状態を保存するためのURL
+ * @var string $adminSearchOpenedTarget 検索エリアの開閉状態を保存するためのURL
  */
 $this->BcBaser->js('admin/search.bundle', true, [
   'id' => 'AdminSearchScript',
   'data-adminSearchOpened' => $adminSearchOpened,
-  'data-adminSearchOpenedSaveUrl' => $adminSearchOpenedSaveUrl
+  'data-adminSearchOpenedTarget' => $adminSearchOpenedTarget
 ]);
+if (strpos($search, '.') !== false) {
+  [$plugin, $search] = explode('.', $search);
+}
+if (!empty($plugin)) {
+  $search = $plugin . '.search/' . $search;
+} else {
+  $search = 'search/' . $search;
+}
 ?>
 
 
 <div class="bca-search">
   <h2 class="head bca-search__head">
-    <a href="javascript:void(0)" id="BtnMenuSearch"class="bca-icon--search"><?php echo __d('baser', '絞り込み検索') ?></a>
+    <a href="javascript:void(0)" id="BtnMenuSearch" class="bca-icon--search"><?php echo __d('baser', '絞り込み検索') ?></a>
   </h2>
   <div id="Search" class="body bca-search__body">
-    <?php $this->BcBaser->element('search/' . $search) ?>
+    <?php $this->BcBaser->element($search) ?>
   </div>
   <!-- / #Search clearfix --></div>

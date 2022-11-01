@@ -11,7 +11,7 @@
 
 namespace BaserCore\Controller\Admin;
 
-use BaserCore\Service\SiteConfigsAdminServiceInterface;
+use BaserCore\Service\Admin\SiteConfigsAdminServiceInterface;
 use BaserCore\Utility\BcUtil;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -37,12 +37,15 @@ class SiteConfigsController extends BcAdminAppController
 
     /**
      * 基本設定
+     * @param SiteConfigsAdminServiceInterface $service
      * @return void|Response
+     * @checked
+     * @noTodo
      */
-    public function index(SiteConfigsAdminServiceInterface $siteConfigs)
+    public function index(SiteConfigsAdminServiceInterface $service)
     {
         if ($this->request->is('post')) {
-            $siteConfig = $siteConfigs->update($this->getRequest()->getData());
+            $siteConfig = $service->update($this->getRequest()->getData());
             if (!$siteConfig->getErrors()) {
                 BcUtil::clearAllCache();
                 $this->BcMessage->setInfo(__d('baser', 'システム設定を保存しました。'));
@@ -50,9 +53,9 @@ class SiteConfigsController extends BcAdminAppController
             }
             $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
         } else {
-            $siteConfig = $siteConfigs->get();
+            $siteConfig = $service->get();
         }
-        $this->set($siteConfigs->getViewVarsForIndex($siteConfig));
+        $this->set($service->getViewVarsForIndex($siteConfig));
     }
 
 }

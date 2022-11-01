@@ -24,7 +24,6 @@ use Cake\Event\Event;
 
 /**
  * Class PluginsControllerTest
- * @package BaserCore\Test\TestCase\Controller
  */
 class PluginsControllerTest extends BcTestCase
 {
@@ -61,6 +60,7 @@ class PluginsControllerTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->PluginsController = new PluginsController($this->loginAdmin($this->getRequest()));
     }
@@ -71,6 +71,11 @@ class PluginsControllerTest extends BcTestCase
     public function tearDown(): void
     {
         parent::tearDown();
+        $this->truncateTable('blog_categories');
+        $this->truncateTable('blog_contents');
+        $this->truncateTable('blog_posts');
+        $this->truncateTable('blog_tags');
+        $this->truncateTable('blog_posts_blog_tags');
     }
 
     /**
@@ -117,18 +122,6 @@ class PluginsControllerTest extends BcTestCase
     {
         $this->get('/baser/admin/baser-core/plugins/get_market_plugins');
         $this->assertResponseOk();
-    }
-
-    /**
-     * 並び替えを更新する
-     */
-    public function testAjax_update_sort()
-    {
-        $this->enableSecurityToken();
-        $this->enableCsrfToken();
-        $this->post('/baser/admin/baser-core/plugins/update_sort', ['connection' => 'test', 'Sort' => ['id' => 1, 'offset' => 1]]);
-        $this->assertResponseOk();
-        $this->assertSame('true', $this->_getBodyAsString());
     }
 
     /**
@@ -193,7 +186,6 @@ class PluginsControllerTest extends BcTestCase
             'schema' => Folder::OVERWRITE
         ]);
         $this->put('/baser/admin/baser-core/plugins/install/BcBlog', $data);
-
     }
 
 
@@ -271,27 +263,8 @@ class PluginsControllerTest extends BcTestCase
             'version' => "1.0.0",
             'permission' => "1"
         ];
+        Plugin::getCollection()->remove('BcBlog');
         $this->put('/baser/admin/baser-core/plugins/install/BcBlog', $data);
     }
 
-    /**
-     * 一括処理できてるかテスト
-     */
-    public function testAjax_batch()
-    {
-        $this->enableSecurityToken();
-        $this->enableCsrfToken();
-        $batchList = [1, 2];
-        $this->post('/baser/admin/baser-core/plugins/batch', ['connection' => 'test', 'ListTool' => ['batch' => 'detach', 'batch_targets' => $batchList]]);
-        $this->assertResponseOk();
-        $plugins = $this->getTableLocator()->get('Plugins');
-        $query = $plugins->find()->select(['id', 'status']);
-        // 複数detachされてるかテスト
-        foreach($query as $plugin) {
-            if (in_array($plugin->id, $batchList)) {
-                $this->assertFalse($plugin->status);
-            }
-        }
-        $this->assertSame('true', $this->_getBodyAsString());
-    }
 }

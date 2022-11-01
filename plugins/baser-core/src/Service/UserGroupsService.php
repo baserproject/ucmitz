@@ -34,6 +34,9 @@ class UserGroupsService implements UserGroupsServiceInterface
 
     /**
      * UserGroupsService constructor.
+     * @checked
+     * @unitTest
+     * @noTodo
      */
     public function __construct()
     {
@@ -135,6 +138,9 @@ class UserGroupsService implements UserGroupsServiceInterface
     /**
      * リストを取得する
      * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getList(): array
     {

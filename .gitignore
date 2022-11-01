@@ -51,7 +51,7 @@ nbproject/*
 /docker/phpmyadmin
 /docker/volumes
 /docker/docker-compose.yml
-/docker/inited
+/docker_inited
 # plugins
 /plugins/*
 !/plugins/baser-core
@@ -61,7 +61,16 @@ nbproject/*
 !/plugins/bc-blog
 !/plugins/bc-mail
 !/plugins/bc-uploader
+!/plugins/bc-favorite
+!/plugins/bc-editor-template
+!/plugins/bc-theme-config
+!/plugins/bc-theme-file
+!/plugins/bc-widget-area
+!/plugins/bc-installer
+!/plugins/bc-search-index
+!/plugins/bc-content-link
 !/plugins/BcSpaSample
+!/plugins/BcThemeSample
 /plugins/*/vendor
 /plugins/*/composer.lock
 # vagrant
@@ -74,9 +83,20 @@ node_modules
 # uploaded files
 /webroot/files/*
 # plugin symbolic link
-/webroot/bc_spa_sample
 /webroot/bc_front
 /webroot/baser_core
+/webroot/bc_favorite
+/webroot/bc_theme_config
+/webroot/bc_theme_file
+/webroot/bc_widget_area
+/webroot/bc_blog
+/webroot/bc_editor_template
+/webroot/bc_mail
+/webroot/bc_uploader
+/webroot/bc_search_index
+/webroot/bc_spa_sample
+/webroot/bc_theme_sample
+/webroot/debug_kit
 # jwt
 /config/jwt.key
 /config/jwt.pem

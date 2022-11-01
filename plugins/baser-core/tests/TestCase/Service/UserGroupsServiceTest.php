@@ -63,6 +63,14 @@ class UserGroupsServiceTest extends BcTestCase
     }
 
     /**
+     * test construct
+     * @return void
+     */
+    public function testConstruct(){
+        $this->assertTrue(isset($this->UserGroups->UserGroups));
+    }
+
+    /**
      * Test getNew
      */
     public function testGetNew()
@@ -137,5 +145,24 @@ class UserGroupsServiceTest extends BcTestCase
         $this->UserGroups->delete(3);
         $group = $this->UserGroups->UserGroups->find('all');
         $this->assertEquals(2, $group->count());
+    }
+
+    /**
+     * test getList
+     * @return void
+     */
+    public function test_getList(){
+        $expected = '一般ユーザー';
+        $data = [
+            'name' => 'user',
+            'title' => $expected,
+            'use_move_contents' => '1',
+            'auth_prefix' => ['_user']
+        ];
+        $this->UserGroups->create($data);
+
+        $rs = $this->UserGroups->getList();
+
+        $this->assertEquals($expected, end($rs));
     }
 }

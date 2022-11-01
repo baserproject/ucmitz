@@ -36,8 +36,7 @@ class PermissionsController extends BcAdminAppController
 	/**
 	 * beforeFilter
      *
-	 * @return void
-     *
+     * @param EventInterface $event
      * @checked
      * @noTodo
      * @unitTest
@@ -45,7 +44,6 @@ class PermissionsController extends BcAdminAppController
 	public function beforeFilter(EventInterface $event)
 	{
 		parent::beforeFilter($event);
-        $this->loadModel('BaserCore.Permissions');
         $this->viewBuilder()->addHelpers(
             ['BcTime',
             // 'BcFreeze'
@@ -59,23 +57,31 @@ class PermissionsController extends BcAdminAppController
 	/**
 	 * アクセス制限設定の一覧を表示する
 	 *
-	 * @return void
+     * @param PermissionsServiceInterface $service
+     * @param UserGroupsServiceInterface $userGroupsService
+     * @param int $userGroupId
      * @checked
      * @unitTest
      * @noTodo
 	 */
-	public function index(PermissionsServiceInterface $permissionService, UserGroupsServiceInterface $userGroups, $userGroupId = '')
-	{
-		$currentUserGroup = $userGroups->get($userGroupId);
+	public function index(
+	    PermissionsServiceInterface $service,
+	    UserGroupsServiceInterface $userGroupsService,
+	    $userGroupId = ''
+	) {
+		$currentUserGroup = $userGroupsService->get($userGroupId);
 
-        $this->request = $this->request->withQueryParams(['user_group_id' => $userGroupId]);
+        $this->request = $this->request->withQueryParams(array_merge(
+            $this->getRequest()->getQueryParams(),
+            ['user_group_id' => $userGroupId]
+        ));
         $this->setViewConditions('Permission', ['default' => ['query' => [
             'sort' => 'sort',
             'direction' => 'asc',
         ]]]);
 
         $this->set('currentUserGroup', $currentUserGroup);
-        $this->set('permissions', $permissionService->getIndex($this->request->getQueryParams()));
+        $this->set('permissions', $service->getIndex($this->request->getQueryParams()));
 
 		$this->set('sortmode', $this->request->getQuery('sortmode'));
 	}
@@ -84,20 +90,21 @@ class PermissionsController extends BcAdminAppController
 	 * [ADMIN] 登録処理
      *
      * @param PermissionsServiceInterface $userService
-     * @param UserGroupsServiceInterface $userGroups
+     * @param UserGroupsServiceInterface $userGroupsService
      * @param int $userGroupId
-     * @return void
-     *
      * @checked
      * @noTodo
      * @unitTest
 	 */
-	public function add(PermissionsServiceInterface $permissionService, UserGroupsServiceInterface $userGroups, $userGroupId)
-	{
-		$currentUserGroup = $userGroups->get($userGroupId);
+	public function add(
+	    PermissionsServiceInterface $service,
+	    UserGroupsServiceInterface $userGroupsService,
+	    $userGroupId
+	) {
+		$currentUserGroup = $userGroupsService->get($userGroupId);
         if ($this->request->is('post')) {
             try {
-                $permission = $permissionService->create($this->request->withData('user_group_id', $currentUserGroup->id)->getData());
+                $permission = $service->create($this->request->withData('user_group_id', $currentUserGroup->id)->getData());
                 $this->BcMessage->setSuccess(sprintf(__d('baser', '新規アクセス制限設定「%s」を追加しました。'), $permission->name));
                 return $this->redirect(['action' => 'index', $userGroupId]);
             } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
@@ -105,7 +112,7 @@ class PermissionsController extends BcAdminAppController
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
         }
-        $this->set('permission', $permission ?? $permissionService->getNew($userGroupId));
+        $this->set('permission', $permission ?? $service->getNew($userGroupId));
         $this->set('currentUserGroup', $currentUserGroup);
 	}
 
@@ -113,23 +120,24 @@ class PermissionsController extends BcAdminAppController
      * [ADMIN] 編集処理
      *
      * @param PermissionsServiceInterface $userService
-     * @param UserGroupsServiceInterface $userGroups
+     * @param UserGroupsServiceInterface $userGroupsService
      * @param int $userGroupId
      * @param int $permissionId
-     * @return void
-     *
      * @checked
      * @noTodo
      * @unitTest
      */
-
-	public function edit(PermissionsServiceInterface $permissionService, UserGroupsServiceInterface $userGroups, $userGroupId, $permissionId)
-    {
-		$currentUserGroup = $userGroups->get($userGroupId);
-        $permission = $permissionService->get($permissionId);
+	public function edit(
+	    PermissionsServiceInterface $service,
+	    UserGroupsServiceInterface $userGroupsService,
+	    $userGroupId,
+	    $permissionId
+	) {
+		$currentUserGroup = $userGroupsService->get($userGroupId);
+        $permission = $service->get($permissionId);
         if ($this->request->is(['patch', 'post', 'put'])) {
             try {
-                $permission = $permissionService->update($permission, $this->request->withData('user_group_id', $currentUserGroup->id)->getData());
+                $permission = $service->update($permission, $this->request->withData('user_group_id', $currentUserGroup->id)->getData());
                 $this->BcMessage->setSuccess(sprintf(__d('baser', 'アクセス制限設定「%s」を更新しました。'), $permission->name));
                 return $this->redirect(['action' => 'index', $userGroupId]);
             } catch (\Exception $e) {
@@ -144,21 +152,20 @@ class PermissionsController extends BcAdminAppController
     /**
      * [ADMIN] 削除処理
      *
-     * @param int $id
-     * @return void
-     *
+     * @param PermissionsServiceInterface $service
+     * @param int $permissionId
      * @checked
      * @noTodo
      * @unitTest
      */
-	public function delete(PermissionsServiceInterface $permissionService, $permissionId)
+	public function delete(PermissionsServiceInterface $service, $permissionId)
     {
-        $permission = $permissionService->get($permissionId);
+        $permission = $service->get($permissionId);
         $permissionName = $permission->name;
         $userGroupId = $permission->user_group_id;
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            $permission = $permissionService->delete($permissionId);
+            $service->delete($permissionId);
             $this->BcMessage->setSuccess(sprintf(__d('baser', 'アクセス制限設定「%s」を削除しました。'), $permissionName));
         }
         return $this->redirect(['action' => 'index', $userGroupId]);
@@ -168,21 +175,18 @@ class PermissionsController extends BcAdminAppController
      * [ADMIN] 複製処理
      *
      * @param PermissionsServiceInterface $userService
-     * @param int $userGroupId
      * @param int $permissionId
-     * @return void
-     *
      * @checked
      * @noTodo
      * @unitTest
      */
-	public function copy(PermissionsServiceInterface $permissionService, $permissionId)
+	public function copy(PermissionsServiceInterface $service, $permissionId)
     {
-        $permission = $permissionService->get($permissionId);
+        $permission = $service->get($permissionId);
         $userGroupId = $permission->user_group_id;
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            if ($permissionService->copy($permissionId)) {
+            if ($service->copy($permissionId)) {
                 $this->BcMessage->setSuccess(sprintf(__d('baser', 'アクセス制限設定「%s」を複製しました。'), $permission->name));
                 return $this->redirect(['action' => 'index', $userGroupId]);
             }
@@ -194,20 +198,19 @@ class PermissionsController extends BcAdminAppController
     /**
      * [ADMIN] 無効状態にする（AJAX）
      *
-     * @param $id
-     * @return void
-     *
+     * @param PermissionsServiceInterface $service
+     * @param int $permissionId
      * @checked
      * @noTodo
      * @unitTest
      */
-	public function unpublish(PermissionsServiceInterface $permissionService, $permissionId)
+	public function unpublish(PermissionsServiceInterface $service, $permissionId)
     {
-        $permission = $permissionService->get($permissionId);
+        $permission = $service->get($permissionId);
         $userGroupId = $permission->user_group_id;
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            if ($permissionService->unpublish($permissionId)) {
+            if ($service->unpublish($permissionId)) {
                 $this->BcMessage->setSuccess(sprintf(__d('baser', 'アクセス制限設定「%s」を無効にしました。'),
                     $permission->name));
             }
@@ -218,20 +221,19 @@ class PermissionsController extends BcAdminAppController
     /**
      * [ADMIN] 有効状態にする（AJAX）
      *
-     * @param $id
-     * @return void
-     *
+     * @param PermissionsServiceInterface $service
+     * @param int $permissionId
      * @checked
      * @noTodo
      * @unitTest
      */
-	public function publish(PermissionsServiceInterface $permissionService, $permissionId)
+	public function publish(PermissionsServiceInterface $service, $permissionId)
     {
-        $permission = $permissionService->get($permissionId);
+        $permission = $service->get($permissionId);
         $userGroupId = $permission->user_group_id;
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-            if ($permissionService->publish($permissionId)) {
+            if ($service->publish($permissionId)) {
                 $this->BcMessage->setSuccess(sprintf(__d('baser', 'アクセス制限設定「%s」を有効にしました。'),
                     $permission->name));
             }
@@ -239,73 +241,4 @@ class PermissionsController extends BcAdminAppController
         return $this->redirect(['action' => 'index', $userGroupId]);
     }
 
-    /**
-     * 一括処理
-     *
-     * @return void|Response
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function batch(PermissionsServiceInterface $permissionService)
-    {
-        $this->disableAutoRender();
-        $allowMethod = [
-            'publish' => '有効化',
-            'unpublish' => '無効化',
-            'delete' => '削除',
-        ];
-
-        $method = $this->request->getData('ListTool.batch');
-        if (!isset($allowMethod[$method])) {
-            return;
-        }
-
-        $methodText = $allowMethod[$method];
-
-        foreach($this->request->getData('ListTool.batch_targets') as $id) {
-            $permission = $permissionService->get($id);
-            if ($permissionService->$method($id)) {
-                $this->BcMessage->setSuccess(
-                    sprintf(__d('baser', 'プラグイン「%s」 を %sしました。'), $permission->name, $methodText),
-                    true,
-                    false
-                );
-            }
-        }
-        return $this->response->withStringBody('true');
-    }
-
-    /**
-     * 並び替えを更新する [AJAX]
-     *
-     * @access    public
-     * @param $userGroupId
-     * @return void
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function update_sort(PermissionsServiceInterface $permissionService, $userGroupId)
-    {
-
-        $this->disableAutoRender();
-
-        if (!$this->request->getData()) {
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
-            return;
-        }
-
-        $conditions = [
-            'user_group_id' => $userGroupId,
-        ];
-        if (!$permissionService->changeSort($this->request->getData('Sort.id'), $this->request->getData('Sort.offset'), $conditions)) {
-            $this->ajaxError(500, __d('baser', '一度リロードしてから再実行してみてください。'));
-            return;
-        }
-
-        return $this->response->withStringBody('1');
-    }
 }

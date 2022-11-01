@@ -27,8 +27,8 @@ if (Configure::read('BcRequest.isMaintenance')) {
     return;
 }
 $siteId = 0;
-if (!empty($this->request->params['Site']['id'])) {
-    $siteId = $this->request->params['Site']['id'];
+if (!empty($this->request->getAttribute('currentSite')->id)) {
+    $siteId = $this->request->getAttribute('currentSite')->id;
 }
 if (!empty($this->passedArgs['num'])) {
     $url = ['plugin' => null, 'controller' => 'search_indices', 'action' => 'search', 'num' => $this->passedArgs['num']];

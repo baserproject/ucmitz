@@ -20,7 +20,6 @@ use ReflectionClass;
 
 /**
  * Class SitesTableTest
- * @package BaserCore\Test\TestCase\Model\Table
  * @property SitesTable $Sites
  */
 class SitesTableTest extends BcTestCase
@@ -106,18 +105,6 @@ class SitesTableTest extends BcTestCase
     public function testGetRootMain()
     {
         $this->assertEquals(1, $this->Sites->getRootMain()->id);
-    }
-
-    /**
-     * コンテンツに関連したコンテンツをサイト情報と一緒に全て取得する
-     */
-    public function testGetRelatedContents()
-    {
-        $list = $this->Sites->getRelatedContents(24);
-        $this->assertCount(5, $list);
-        $sample = array_shift($list);
-        $this->assertNotEmpty($sample['Site']);
-        $this->assertNotEmpty($sample['Content']);
     }
 
     /**

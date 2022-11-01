@@ -14,16 +14,17 @@ use BaserCore\Model\Entity\Permission;
 use BaserCore\View\BcAdminAppView;
 
 /**
- * [ADMIN] ユーザーグループ登録/編集フォーム
- *
  * @var BcAdminAppView $this
  * @var array $currentUserGroup
  * @var Permission $permission
  * @var array $permissionMethodList
  * @var array $permissionAuthList
+ * @checked
+ * @unitTest
+ * @noTodo
  */
 
-$this->BcBaser->js('admin/permissions/form', false);
+$this->BcBaser->js('admin/permissions/form.bundle', false);
 ?>
 
 
@@ -41,34 +42,34 @@ $this->BcBaser->js('admin/permissions/form', false);
       </tr>
     <?php endif ?>
     <tr>
-      <th class="col-head bca-form-table__label"><?php echo $this->BcForm->label('user_group_id', __d('baser', 'ユーザーグループ')) ?></th>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('user_group_id', __d('baser', 'ユーザーグループ')) ?></th>
       <td class="col-input bca-form-table__input">
         <?php echo h($currentUserGroup->title) ?>
       </td>
     </tr>
 
     <tr>
-      <th class="col-head bca-form-table__label"><?php echo $this->BcForm->label('name', __d('baser', 'ルール名')) ?>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('name', __d('baser', 'ルール名')) ?>
         &nbsp;<span class="bca-label" data-bca-label-type="required"><?php echo __d('baser', '必須') ?></span>
       </th>
       <td class="col-input bca-form-table__input">
         <?php echo $this->BcAdminForm->control('name', ['type' => 'text', 'size' => 40, 'maxlength' => 255, 'autofocus' => true, 'placeholder' => 'ユーザー管理']) ?>
 
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <div id="helptextName" class="helptext"><?php echo __d('baser', 'ルール名には日本語が利用できます。特定しやすいわかりやすい名称を入力してください。') ?></div>
+        <i class="bca-icon--question-circle bca-help"></i>
+        <div class="bca-helptext"><?php echo __d('baser', 'ルール名には日本語が利用できます。特定しやすいわかりやすい名称を入力してください。') ?></div>
         <?php echo $this->BcAdminForm->error('name') ?>
       </td>
     </tr>
 
     <tr>
-      <th class="col-head bca-form-table__label"><?php echo $this->BcForm->label('name', __d('baser', 'URL設定')) ?>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('name', __d('baser', 'URL設定')) ?>
         &nbsp;<span class="bca-label" data-bca-label-type="required"><?php echo __d('baser', '必須') ?></span>
       </th>
       <td class="col-input bca-form-table__input">
         <?php echo $this->BcAdminForm->control('url', ['type' => 'text', 'size' => 40, 'maxlength' => 255, 'autofocus' => true, 'placeholder' => '/baser/admin/baser-core/users/index']) ?>
 
-        <i class="bca-icon--question-circle btn help bca-help"></i>
-        <div id="helptextUrl" class="helptext">
+        <i class="bca-icon--question-circle bca-help"></i>
+        <div class="bca-helptext">
           <ul>
             <li><?php echo __d('baser', 'スラッシュから始まるURLを入力してください。') ?></li>
             <li><?php echo __d('baser', '特定のフォルダ配下に対しアクセスできないようにする場合などにはワイルドカード（*）を利用します。<br>（例）ユーザー管理内のURL全てアクセスさせない場合： <br />/baser/admin/baser-core/users/* ') ?></li>
@@ -79,24 +80,24 @@ $this->BcBaser->js('admin/permissions/form', false);
     </tr>
 
     <tr>
-      <th class="col-head bca-form-table__label"><?php echo $this->BcForm->label('method', __d('baser', '権限')) ?></th>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('method', __d('baser', '権限')) ?></th>
       <td class="col-input bca-form-table__input">
         <?php echo $this->BcAdminForm->control('method', ['type' => 'select', 'options' => $permissionMethodList]) ?>
-        <?php echo $this->BcForm->error('method') ?>
+        <?php echo $this->BcAdminForm->error('method') ?>
       </td>
     </tr>
     <tr>
-      <th class="col-head bca-form-table__label"><?php echo $this->BcForm->label('method', __d('baser', 'アクセス')) ?></th>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('method', __d('baser', 'アクセス')) ?></th>
       <td class="col-input bca-form-table__input">
         <?php echo $this->BcAdminForm->control('auth', ['type' => 'radio', 'options' => $permissionAuthList]) ?>
-        <?php echo $this->BcForm->error('auth') ?>
+        <?php echo $this->BcAdminForm->error('auth') ?>
       </td>
     </tr>
     <tr>
-      <th class="col-head bca-form-table__label"><?php echo $this->BcForm->label('Permission.status', __d('baser', '利用状態')) ?></th>
+      <th class="col-head bca-form-table__label"><?php echo $this->BcAdminForm->label('Permission.status', __d('baser', '利用状態')) ?></th>
       <td class="col-input bca-form-table__input">
         <?php echo $this->BcAdminForm->control('status', ['type' => 'checkbox', 'label' => __d('baser', '有効')]) ?>
-        <?php echo $this->BcForm->error('status') ?>
+        <?php echo $this->BcAdminForm->error('status') ?>
       </td>
     </tr>
   </table>

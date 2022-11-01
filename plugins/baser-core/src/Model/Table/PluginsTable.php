@@ -14,7 +14,6 @@ namespace BaserCore\Model\Table;
 use BaserCore\Event\BcEventDispatcherTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
-use BaserCore\Model\AppTable;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Inflector;
 use BaserCore\Annotation\UnitTest;
@@ -50,7 +49,7 @@ class PluginsTable extends AppTable
         $this->addBehavior('Timestamp');
     }
 
-  /**
+    /**
      * Validation Default
      *
      * @param Validator $validator
@@ -74,13 +73,13 @@ class PluginsTable extends AppTable
                     'rule' => 'validateUnique',
                     'provider' => 'table',
                     'message' => __d('baser', '指定のプラグインは既に使用されています。')
-            ]])
+                ]])
             ->add('name', [
                 'nameAlphaNumericPlus' => [
                     'rule' => ['alphaNumericPlus'],
                     'provider' => 'bc',
                     'message' => __d('baser', 'プラグイン名は半角英数字とハイフン、アンダースコアのみが利用可能です。')
-            ]]);
+                ]]);
 
         $validator
             ->scalar('title')
@@ -100,17 +99,24 @@ class PluginsTable extends AppTable
      */
     public function getPluginConfig($name)
     {
-        if(!$name) $name = 'BaserCore';
+        if (!$name) $name = 'BaserCore';
         $pluginName = Inflector::camelize($name, '-');
 
         // プラグインのバージョンを取得
-        $corePlugins = Configure::read('BcApp.corePlugins');
+        $corePlugins = array_merge(Configure::read('BcApp.core'), Configure::read('BcApp.corePlugins'));
         if (in_array($pluginName, $corePlugins)) {
             $core = true;
             $version = BcUtil::getVersion();
         } else {
             $core = false;
             $version = BcUtil::getVersion($pluginName);
+        }
+
+        $pluginPath = BcUtil::getPluginPath($name);
+        if (file_exists($pluginPath . 'screenshot.png')) {
+            $hasScreenshot = true;
+        } else {
+            $hasScreenshot = false;
         }
 
         $result = $this->find()
@@ -124,7 +130,8 @@ class PluginsTable extends AppTable
                 'update' => false,
                 'core' => $core,
                 'permission' => 1,
-                'registered' => true
+                'registered' => true,
+                'screenshot' => $hasScreenshot
             ]);
             if (BcUtil::verpoint($pluginRecord->version) < BcUtil::verpoint($version) &&
                 !in_array($pluginRecord->name, Configure::read('BcApp.corePlugins'))
@@ -142,11 +149,12 @@ class PluginsTable extends AppTable
                 'core' => $core,
                 'permission' => 1,
                 'registered' => false,
+                'screenshot' => $hasScreenshot
             ]);
         }
 
         // 設定ファイル読み込み
-        $appConfigPath = BcUtil::getPluginPath($name) . 'config.php';
+        $appConfigPath = $pluginPath . 'config.php';
         if (file_exists($appConfigPath)) {
             $this->patchEntity($pluginRecord, include $appConfigPath);
         }
@@ -202,6 +210,8 @@ class PluginsTable extends AppTable
     public function uninstall($name): bool
     {
         $targetPlugin = $this->find()->where(['name' => $name])->first();
+        if (!$targetPlugin) return true;
+        \Cake\Core\Plugin::getCollection()->remove($name);
         return $this->delete($targetPlugin);
     }
 
@@ -222,63 +232,30 @@ class PluginsTable extends AppTable
         }
         $targetPlugin->status = false;
         $result = $this->save($targetPlugin);
+        \Cake\Core\Plugin::getCollection()->remove($name);
         BcUtil::clearAllCache();
         return $result !== false;
     }
 
     /**
-     * 優先順位を変更する
+     * プラグインを有効化する
      *
-     * @param string|int $id 起点となるプラグインのID
-     * @param string|int $offset 変更する範囲の相対位置
-     * @param array $conditions find条件
+     * @param $name
      * @return bool
      * @checked
-     * @noTodo
      * @unitTest
+     * @noTodo
      */
-    public function changePriority($id, $offset, $conditions = []): bool
+    public function attach($name): bool
     {
-        $offset = intval($offset);
-        if ($offset === 0) {
-            return true;
-        }
-
-        $current = $this->get($id);
-
-        // currentを含め変更するデータを取得
-        if ($offset > 0) { // DOWN
-            $order = ["priority"];
-            $conditions["priority >="] = $current->priority;
-        } else { // UP
-            $order = ["priority DESC"];
-            $conditions["priority <="] = $current->priority;
-        }
-
-        $result = $this->find()
-            ->where($conditions)
-            ->select(["id", "priority", "name"])
-            ->order($order)
-            ->limit(abs($offset) + 1)
-            ->all();
-
-        $count = $result->count();
-        if (!$count) {
+        $targetPlugin = $this->find()->where(['name' => $name])->first();
+        if ($targetPlugin === null) {
             return false;
         }
-        $plugins = $result->toList();
-        //データをローテーション
-        $currentNewValue = $plugins[$count - 1]->priority;
-        for($i = $count - 1; $i > 0; $i--) {
-            $plugins[$i]->priority = $plugins[$i - 1]->priority;
-        }
-        $plugins[0]->priority = $currentNewValue;
-
-        if (!$this->saveMany($plugins)) {
-            return false;
-        }
-
-        return true;
+        $targetPlugin->status = true;
+        $result = $this->save($targetPlugin);
+        BcUtil::clearAllCache();
+        return $result !== false;
     }
 
     /**
@@ -291,14 +268,14 @@ class PluginsTable extends AppTable
      */
     public function update($name, $version): bool
     {
-        if(!$name || $name === 'BaserCore') {
+        if (!$name || $name === 'BaserCore') {
             $siteConfigs = TableRegistry::getTableLocator()->get('BaserCore.SiteConfigs');
-            return (bool) $siteConfigs->saveKeyValue(['version' => $version]);
+            return (bool)$siteConfigs->saveKeyValue(['version' => $version]);
         } else {
             $plugin = $this->find()->select()->where(['name' => $name])->first();
-            if($plugin) {
+            if ($plugin) {
                 $plugin->version = $version;
-                return (bool) $this->save($plugin);
+                return (bool)$this->save($plugin);
             } else {
                 return true;
             }

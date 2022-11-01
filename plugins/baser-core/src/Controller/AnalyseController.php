@@ -20,11 +20,9 @@ use ReflectionMethod;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use BaserCore\Controller\AppController;
 
 /**
  * Class AnalyseController
- * @package BaserCore\Controller
  */
 class AnalyseController extends AppController
 {
@@ -138,6 +136,7 @@ class AnalyseController extends AppController
                 }
                 $meta['class'] = $className;
                 $class = new ReflectionClass($className);
+                if($class->isInterface()) continue;
                 $traitMethodsArray = $this->getTraitMethod($class);
             } catch (Exception $e) {
                 $metas[] = $meta;
@@ -209,10 +208,12 @@ class AnalyseController extends AppController
         $traits = $reflection->getTraits();
         $traitMethodsArray = [];
         if ($traits) {
-            $trait = new ReflectionClass($traits[key($traits)]->name);
-            $traitMethods = $trait->getMethods();
-            foreach($traitMethods as $traitMethod) {
-                $traitMethodsArray[] = $traitMethod->name;
+            foreach($traits as $value) {
+                $trait = new ReflectionClass($value->name);
+                $traitMethods = $trait->getMethods();
+                foreach($traitMethods as $traitMethod) {
+                    $traitMethodsArray[] = $traitMethod->name;
+                }
             }
         }
         return $traitMethodsArray;
@@ -238,6 +239,14 @@ class AnalyseController extends AppController
         $file = str_replace('bc-blog', 'BcBlog', $file);
         $file = str_replace('bc-mail', 'BcMail', $file);
         $file = str_replace('bc-uploader', 'BcUploader', $file);
+        $file = str_replace('bc-editor-template', 'BcEditorTemplate', $file);
+        $file = str_replace('bc-favorite', 'BcFavorite', $file);
+        $file = str_replace('bc-front', 'BcFront', $file);
+        $file = str_replace('bc-installer', 'BcInstaller', $file);
+        $file = str_replace('bc-search-index', 'BcSearchIndex', $file);
+        $file = str_replace('bc-theme-config', 'BcThemeConfig', $file);
+        $file = str_replace('bc-theme-file', 'BcThemeFile', $file);
+        $file = str_replace('bc-widget-area', 'BcWidgetArea', $file);
         return str_replace('baser-core', 'BaserCore', $file);
     }
 

@@ -11,6 +11,8 @@
 
 namespace BaserCore\Test\TestCase\Controller\Api;
 
+use BaserCore\Test\Factory\PageFactory;
+use BcBlog\Test\Factory\BlogContentFactory;
 use Cake\Core\Configure;
 use BaserCore\Service\ContentsService;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -41,11 +43,11 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.SiteConfigs',
         'plugin.BaserCore.Pages',
-        'plugin.BaserCore.SearchIndexes',
         'plugin.BaserCore.Service/SearchIndexesService/ContentsReconstruct',
         'plugin.BaserCore.Service/SearchIndexesService/PagesReconstruct',
         'plugin.BaserCore.Service/SearchIndexesService/ContentFoldersReconstruct',
-        'plugin.BaserCore.Service/SearchIndexesService/SearchIndexesReconstruct'
+        'plugin.BaserCore.Dblogs',
+        'plugin.BcBlog.Factory/BlogContents'
     ];
 
     public $autoFixtures = false;
@@ -77,7 +79,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
             'Sites',
             'SiteConfigs',
             'Pages',
-            'SearchIndexes'
+//            'SearchIndexes'
         );
         $token = $this->apiLoginAdmin(1);
         $this->accessToken = $token['access_token'];
@@ -121,6 +123,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('削除済みフォルダー(親)', $result->trash->title);
     }
+
     /**
      * Test index method
      *
@@ -170,21 +173,6 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->get('/baser/api/baser-core/contents/view/6.json?token=' . $this->accessToken); // 親要素削除チェック
         $this->assertResponseError();
         $this->get('/baser/api/baser-core/contents/view/11.json?token=' . $this->accessToken); // 子要素削除チェック
-        $this->assertResponseError();
-    }
-
-    /**
-     * Test delete method
-     *
-     * @return void
-     */
-    public function testDelete_trash()
-    {
-        $this->post('/baser/api/baser-core/contents/delete_trash/16.json?token=' . $this->accessToken);
-        $this->assertResponseOk();
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals("ゴミ箱: 削除済みフォルダー(親) を削除しました。", $result->message);
-        $this->get('/baser/api/baser-core/contents/view_trash/16.json?token=' . $this->accessToken);
         $this->assertResponseError();
     }
 
@@ -243,8 +231,10 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     public function testChange_status_toUnpublish()
     {
         $this->loadFixtures(
-	        'Service\SearchIndexesService\ContentsReconstruct'
+            'Service\SearchIndexesService\ContentsReconstruct'
         );
+        // 従来のフィクスチャで足りないデータを追加
+        PageFactory::make([['id' => 1], ['id' => 4]])->persist();
         $data = ['id' => 1, 'status' => 'unpublish'];
         $this->patch("/baser/api/baser-core/contents/change_status.json?token=" . $this->accessToken, $data);
         $this->assertResponseOk();
@@ -259,8 +249,10 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     public function testChange_status_toPublish()
     {
         $this->loadFixtures(
-	        'Service\SearchIndexesService\ContentsReconstruct'
+            'Service\SearchIndexesService\ContentsReconstruct'
         );
+        // 従来のフィクスチャで足りないデータを追加
+        PageFactory::make([['id' => 1], ['id' => 4]])->persist();
         $content = $this->ContentsService->get(1);
         $this->ContentsService->update($content, ['id' => $content->id, 'status' => false, 'name' => 'test']);
         $data = ['id' => 1, 'status' => 'publish'];
@@ -303,6 +295,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testRename()
     {
+        BlogContentFactory::make(['id' => 31, 'description' => ''])->persist();
         $this->patch("/baser/api/baser-core/contents/rename.json?token=" . $this->accessToken);
         $this->assertResponseFailure();
         $data = ['id' => 1, 'title' => 'testRename'];
@@ -322,13 +315,13 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         $content = $this->ContentsService->get(1);
         $data = [
             'content' => [
-                "parent_id" =>  $content->parent_id,
+                "parent_id" => $content->parent_id,
                 "title" => 'テストエイリアス',
-                "plugin"=> $content->plugin,
-                "type"=> $content->type,
-                "site_id"=> $content->site_id,
-                "alias_id"=> $content->id,
-                "entity_id"=> $content->entity_id,
+                "plugin" => $content->plugin,
+                "type" => $content->type,
+                "site_id" => $content->site_id,
+                "alias_id" => $content->id,
+                "entity_id" => $content->entity_id,
             ]];
         $this->post("/baser/api/baser-core/contents/add_alias.json?token=" . $this->accessToken, $data);
         $this->assertResponseOk();
@@ -372,7 +365,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     {
         // postDataがない場合
         $this->patch("/baser/api/baser-core/contents/move.json?token=" . $this->accessToken);
-        $this->assertEquals('無効な処理です。', json_decode($this->_response->getBody())->message);
+        $this->assertEquals('データ保存中にエラーが発生しました。Record not found in table "contents" with primary key [NULL]', json_decode($this->_response->getBody())->message);
         // サービス1をサービス2の後ろに移動する場合
         $title = 'サービス１';
         $originEntity = $this->ContentsService->getIndex(['title' => $title])->first();
@@ -395,4 +388,66 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         $service2Left = $this->ContentsService->get(($originEntity->id + $targetEntity->id) / 2)->lft;
         $this->assertGreaterThan($service2Left, json_decode($this->_response->getBody())->content->lft);
     }
+
+    /**
+     * testBatch
+     *
+     * @return void
+     */
+    public function testBatch()
+    {
+        // 空データ送信
+        $this->post('/baser/api/baser-core/contents/batch.json?token=' . $this->accessToken, []);
+        $this->assertResponseFailure();
+        // delete
+        $data = [
+            'batch' => 'delete',
+            'batch_targets' => [1],
+        ];
+        $this->post('/baser/api/baser-core/contents/batch.json?token=' . $this->accessToken, $data);
+        $this->assertResponseSuccess();
+        $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
+        $this->ContentsService->get(1);
+    }
+
+    /**
+     * testBatchUnpublish
+     * NOTE: publishとunPublishのテストを同じ場所に書くとupdateDataが走らないため分離
+     *
+     * @return void
+     */
+    public function testBatchUnpublish()
+    {
+        BlogContentFactory::make(['id' => 31, 'description' => ''])->persist();
+        // unpublish
+        $data = [
+            'batch' => 'unpublish',
+            'batch_targets' => [1],
+        ];
+        $this->post('/baser/api/baser-core/contents/batch.json?token=' . $this->accessToken, $data);
+        $this->assertResponseSuccess();
+        $content = $this->ContentsService->get(1);
+        $this->assertFalse($content->status);
+    }
+
+    /**
+     * testBatchUnpublish
+     *
+     * @return void
+     */
+    public function testBatchPublish()
+    {
+        $content = $this->ContentsService->get(4);
+        $this->ContentsService->update($content, ['id' => $content->id, 'status' => false, 'name' => 'test']);
+        // publish
+        $data = [
+            'batch' => 'publish',
+            'batch_targets' => [4],
+        ];
+        $this->post('/baser/api/baser-core/contents/batch.json?token=' . $this->accessToken, $data);
+        $this->assertResponseSuccess();
+        $content = $this->ContentsService->get(4);
+        $this->assertTrue($content->status);
+    }
+
 }
