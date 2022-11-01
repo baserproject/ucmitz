@@ -416,7 +416,7 @@ class PluginsServiceTest extends BcTestCase
         $files = new UploadedFile(
             $testFile,
             268435456,
-            UPLOAD_ERR_INI_SIZE,
+            UPLOAD_ERR_OK,
             $plugin . '.zip',
             $type
         );
