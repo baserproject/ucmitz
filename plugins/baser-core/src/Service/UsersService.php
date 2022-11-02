@@ -459,7 +459,7 @@ class UsersService implements UsersServiceInterface
      * ユーザーが有効化チェックする
      *
      * `status` フィールドが false の場合は無効とみなす。
-     * 
+     *
      * @param int $id
      * @return bool
      * @checked
