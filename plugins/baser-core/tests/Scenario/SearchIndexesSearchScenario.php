@@ -36,7 +36,6 @@ class SearchIndexesSearchScenario implements FixtureScenarioInterface
             'id' => 5,
             'title' => 'test data 5',
             'site_id' => 3,
-            'priority' => 0.5,
             'modified' => '2022-09-14 21:10:41',
         ])->persist();
         SearchIndexFactory::make([
@@ -44,7 +43,6 @@ class SearchIndexesSearchScenario implements FixtureScenarioInterface
             'model' => 'Page',
             'title' => 'test data 6',
             'site_id' => 3,
-            'priority' => 1,
             'modified' => '2022-09-15 21:10:41',
         ])->persist();
     }

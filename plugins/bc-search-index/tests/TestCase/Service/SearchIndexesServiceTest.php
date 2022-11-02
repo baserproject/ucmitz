@@ -174,8 +174,8 @@ class SearchIndexesServiceTest extends BcTestCase
         $this->assertEquals('test data 1', $rs['title']);
         $rs = $this->SearchIndexesService->getIndex(['m' => 'Page', 's' => 3])->first();
         $this->assertEquals('test data 6', $rs['title']);
-        $rs = $this->SearchIndexesService->getIndex(['priority' => '0.5', 's' => 3])->first();
-        $this->assertEquals('test data 5', $rs['title']);
+        $rs = $this->SearchIndexesService->getIndex(['priority' => '1', 's' => 2])->first();
+        $this->assertEquals('test data 3', $rs['title']);
     }
 
     /**
