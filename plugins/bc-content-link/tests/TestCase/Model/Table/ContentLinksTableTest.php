@@ -13,6 +13,7 @@ namespace BcContentLink\Test\TestCase\Model\Table;
 
 use BcContentLink\Model\Table\ContentLinksTable;
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Validation\Validator;
 
 /**
  * Class ContentLinksTableTest
@@ -57,7 +58,13 @@ class ContentLinksTableTest extends BcTestCase
      */
     public function testValidationDefault()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $validator = $this->ContentLinks->validationDefault(new Validator());
+        $fields = [];
+        foreach($validator->getIterator() as $key => $value) {
+            $fields[] = $key;
+        }
+        $this->assertEquals(['id', 'url'], $fields);
+
     }
 
 }
