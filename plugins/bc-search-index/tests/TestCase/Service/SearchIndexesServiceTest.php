@@ -170,12 +170,36 @@ class SearchIndexesServiceTest extends BcTestCase
         $this->assertEquals('test data 5', $rs[1]['title']);
 
         // その他条件(createIndexConditions)
-        $rs = $this->SearchIndexesService->getIndex(['type' => 'admin', 'site_id' => 1])->first();
-        $this->assertEquals('test data 1', $rs['title']);
-        $rs = $this->SearchIndexesService->getIndex(['m' => 'Page', 's' => 3])->first();
-        $this->assertEquals('test data 6', $rs['title']);
-        $rs = $this->SearchIndexesService->getIndex(['priority' => '1', 's' => 2])->first();
-        $this->assertEquals('test data 3', $rs['title']);
+        $rs = $this->SearchIndexesService->getIndex(['keyword' => 'inc', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['site_id' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['content_id' => 2, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['content_filter_id' => 3, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['type' => 'ページ', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['model' => 'Page', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['priority' => 0.5, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['status' => 1, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['folder_id' => 1, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['cf' => 3, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['m' => 'Page', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['s' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['c' => 2, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['f' => 1, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['q' => 'inc', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
     }
 
     /**
