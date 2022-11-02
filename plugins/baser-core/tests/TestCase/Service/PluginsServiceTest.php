@@ -407,7 +407,8 @@ class PluginsServiceTest extends BcTestCase
     /**
      * test add false
      */
-    public function test_add_false(){
+    public function test_add_false()
+    {
         // post_max_size　を超えた場合、サーバーに設定されているサイズ制限を超えた場合、
         $this->setUploadFileToRequest('file', 'test.zip');
         $postMaxSizeMega = preg_replace('/M\z/', '', ini_get('post_max_size'));
@@ -422,7 +423,7 @@ class PluginsServiceTest extends BcTestCase
             'zip'
         );
         $this->expectException("BaserCore\Error\BcException");
-        $this->expectExceptionMessage("送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。");
+        $this->expectExceptionMessage("送信できるデータ量を超えています。合計で " . ini_get('post_max_size') . " 以内のデータを送信してください。");
         $this->Plugins->add(["file" => $files]);
     }
 }
