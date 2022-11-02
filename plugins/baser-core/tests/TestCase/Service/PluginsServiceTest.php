@@ -244,13 +244,13 @@ class PluginsServiceTest extends BcTestCase
     public function test_update()
     {
         // プラグイン
-        $this->Plugins->install('BcThemeSample', 'test');
-        $pluginPath = Plugin::path('BcThemeSample');
+        $this->Plugins->install('BcSpaSample', 'test');
+        $pluginPath = Plugin::path('BcSpaSample');
         rename($pluginPath . 'VERSION.txt', $pluginPath . 'VERSION.bak.txt');
         $file = new File($pluginPath . 'VERSION.txt');
         $file->write('10.0.0');
-        $this->Plugins->update('BcThemeSample', 'test');
-        $this->assertEquals('10.0.0', $this->Plugins->getVersion('BcThemeSample'));
+        $this->Plugins->update('BcSpaSample', 'test');
+        $this->assertEquals('10.0.0', $this->Plugins->getVersion('BcSpaSample'));
         rename($pluginPath . 'VERSION.bak.txt', $pluginPath . 'VERSION.txt');
 
         // コア
@@ -402,23 +402,24 @@ class PluginsServiceTest extends BcTestCase
         $folder->delete(ROOT . DS . 'plugins' . DS . $plugin);
         $folder->delete(ROOT . DS . 'plugins' . DS . 'BcThemeSample22');
         $folder->delete($zipSrcPath);
+    }
 
+    /**
+     * test add false
+     */
+    public function test_add_false(){
         // post_max_size　を超えた場合、サーバーに設定されているサイズ制限を超えた場合、
-        $folder->create($zipSrcPath, 0777);
-        $folder->copy($zipSrcPath . 'BcThemeSample2', ['from' => $path, 'mode' => 0777]);
-        $zip = new ZipArchiver();
-        $zip->archive($zipSrcPath, $testFile, true);
-        $this->setUploadFileToRequest('file', $testFile);
+        $this->setUploadFileToRequest('file', 'test.zip');
         $postMaxSizeMega = preg_replace('/M\z/', '', ini_get('post_max_size'));
         $postMaxSizeByte = $postMaxSizeMega * 1024 * 1024;
         $_SERVER['CONTENT_LENGTH'] = $postMaxSizeByte + 1;
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $files = new UploadedFile(
-            $testFile,
-            268435456,
+            'test.zip',
+            1,
             UPLOAD_ERR_OK,
-            $plugin . '.zip',
-            $type
+            'test.zip',
+            'zip'
         );
         $this->expectException("BaserCore\Error\BcException");
         $this->expectExceptionMessage("送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。");
