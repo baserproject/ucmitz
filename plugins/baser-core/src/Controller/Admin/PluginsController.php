@@ -187,6 +187,7 @@ class PluginsController extends BcAdminAppController
      * @param PluginsServiceInterface $service
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function add(PluginsServiceInterface $service)
     {
