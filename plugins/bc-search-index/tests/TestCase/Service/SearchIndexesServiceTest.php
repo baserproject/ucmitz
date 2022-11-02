@@ -12,6 +12,7 @@
 namespace BcSearchIndex\Test\TestCase\Service;
 
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Test\Scenario\SearchIndexesSearchScenario;
 use BcSearchIndex\Model\Table\SearchIndexesTable;
 use BcSearchIndex\Service\SearchIndexesService;
 use BaserCore\TestSuite\BcTestCase;
@@ -149,22 +150,7 @@ class SearchIndexesServiceTest extends BcTestCase
      */
     public function testGetIndex(): void
     {
-        SearchIndexFactory::make(['id' => 1, 'title' => 'test data 1', 'type' => 'admin', 'site_id' => 1])->persist();
-        SearchIndexFactory::make(['id' => 2, 'title' => 'test data 2', 'type' => 'admin', 'site_id' => 1])->persist();
-        SearchIndexFactory::make(['id' => 3, 'title' => 'test data 3', 'priority' => '1', 'site_id' => 2])->persist();
-        SearchIndexFactory::make(['id' => 4, 'title' => 'test data 4', 'priority' => '2', 'site_id' => 2])->persist();
-        SearchIndexFactory::make([
-            'id' => 5,
-            'title' => 'test data 5',
-            'modified' => '2022-09-14 21:10:41',
-            'site_id' => 3
-        ])->persist();
-        SearchIndexFactory::make([
-            'id' => 6,
-            'title' => 'test data 6',
-            'modified' => '2022-09-15 21:10:41',
-            'site_id' => 3
-        ])->persist();
+        $this->loadFixtureScenario(SearchIndexesSearchScenario::class);
 
         $rs = $this->SearchIndexesService->getIndex(['limit' => 2, 'site_id' => 1])->toArray();
         // `limit`: 取得件数
@@ -186,6 +172,10 @@ class SearchIndexesServiceTest extends BcTestCase
         // その他条件(createIndexConditions)
         $rs = $this->SearchIndexesService->getIndex(['type' => 'admin', 'site_id' => 1])->first();
         $this->assertEquals('test data 1', $rs['title']);
+        $rs = $this->SearchIndexesService->getIndex(['m' => 'Page', 's' => 3])->first();
+        $this->assertEquals('test data 6', $rs['title']);
+        $rs = $this->SearchIndexesService->getIndex(['priority' => '0.5', 's' => 3])->first();
+        $this->assertEquals('test data 5', $rs['title']);
     }
 
     /**
