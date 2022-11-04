@@ -29,14 +29,39 @@ class SearchIndexesSearchScenario implements FixtureScenarioInterface
      */
     public function load(...$args)
     {
-        SearchIndexFactory::make(['id' => 1, 'title' => 'test data 1', 'type' => 'admin', 'site_id' => 1])->persist();
-        SearchIndexFactory::make(['id' => 2, 'title' => 'test data 2', 'type' => 'admin', 'site_id' => 1])->persist();
-        SearchIndexFactory::make(['id' => 3, 'title' => 'test data 3', 'priority' => '1', 'site_id' => 2])->persist();
-        SearchIndexFactory::make(['id' => 4, 'title' => 'test data 4', 'priority' => '2', 'site_id' => 2])->persist();
+        SearchIndexFactory::make([
+            'id' => 1,
+            'title' => 'test data 1',
+            'type' => 'admin',
+            'site_id' => 1,
+            'status' => true,
+        ])->persist();
+        SearchIndexFactory::make([
+            'id' => 2,
+            'title' => 'test data 2',
+            'type' => 'admin',
+            'site_id' => 1,
+            'status' => true,
+        ])->persist();
+        SearchIndexFactory::make([
+            'id' => 3,
+            'title' => 'test data 3',
+            'priority' => '1',
+            'site_id' => 2,
+            'status' => true,
+        ])->persist();
+        SearchIndexFactory::make([
+            'id' => 4,
+            'title' => 'test data 4',
+            'priority' => '2',
+            'site_id' => 2,
+            'status' => true,
+        ])->persist();
         SearchIndexFactory::make([
             'id' => 5,
             'title' => 'test data 5',
             'site_id' => 3,
+            'status' => true,
             'modified' => '2022-09-14 21:10:41',
         ])->persist();
         SearchIndexFactory::make([
@@ -44,6 +69,7 @@ class SearchIndexesSearchScenario implements FixtureScenarioInterface
             'model' => 'Page',
             'title' => 'test data 6',
             'site_id' => 3,
+            'status' => true,
             'modified' => '2022-09-15 21:10:41',
         ])->persist();
         SearchIndexFactory::make([
@@ -59,7 +85,7 @@ class SearchIndexesSearchScenario implements FixtureScenarioInterface
             'title' => '会社案内',
             'detail' => 'baserCMS inc.の会社案内ページ 会社案内会社データ会社名baserCMS inc.  [デモ]設立2009年11月所在地福岡県福岡市博多区博多駅前（ダミー）事業内容インターネットサービス業（ダミー）Webサイト制作事業（ダミー）WEBシステム開発事業（ダミー）アクセスマップ※ JavaScript を有効にしてください。var latlng = new google.maps.LatLng(33.6065756,130.4182970);var options = {zoom: 16,center: latlng,mapTypeId: google.maps.MapTypeId.ROADMAP,navigationControl: true,mapTypeControl: true,scaleControl: true,scrollwheel: false,};var map = new google.maps.Map(document.getElementById("map"), options);var marker = new google.maps.Marker({position: latlng,map: map,title:"baserCMS inc. [デモ]"});var infowindow = new google.maps.InfoWindow({content: "baserCMS inc. [デモ]福岡県""});infowindow.open(map,marker);google.maps.event.addListener(marker, "click", function() {infowindow.open(map,marker);});',
             'url' => '/about',
-            'status' => 1,
+            'status' => true,
             'priority' => 0.5,
             'created' => '2016-07-21 11:49:19',
             'modified' => NULL,
