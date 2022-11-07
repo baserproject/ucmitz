@@ -286,6 +286,12 @@ class PluginsControllerTest extends BcTestCase
         $testFile = $zipSrcPath . $plugin . '.zip';
         $zip->archive($zipSrcPath, $testFile, true);
 
+        $this->setUploadFileToRequest('file', $testFile, '', 1);
+        $this->setUnlockedFields(['file']);
+        $this->post('/baser/admin/baser-core/plugins/add');
+        $this->assertResponseCode(302);
+        $this->assertFlashMessage('ファイルのアップロードに失敗しました。Cannot retrieve stream due to upload error: The uploaded file exceeds the upload_max_filesize directive in php.ini');
+
         $this->setUploadFileToRequest('file', $testFile);
         $this->setUnlockedFields(['file']);
         $this->post('/baser/admin/baser-core/plugins/add');
