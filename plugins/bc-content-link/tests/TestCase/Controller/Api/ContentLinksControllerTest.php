@@ -44,6 +44,7 @@ class ContentLinksControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BcContentLink.Factory/ContentLinks',
+        'plugin.BaserCore.Factory/Contents',
     ];
 
     /**
@@ -99,10 +100,10 @@ class ContentLinksControllerTest extends BcTestCase
         $this->get('/baser/api/bc-content-link/content_links/delete/1.json?token=' . $this->accessToken);
         $this->assertResponseCode(405);
 
-        $this->post('/baser/api/bc-content-link/content_links/delete/0.json?token=' . $this->accessToken);
-        $this->assertResponseCode(400);
+        $this->post('/baser/api/bc-content-link/content_links/delete/10000.json?token=' . $this->accessToken);
+        $this->assertResponseCode(404);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "search_indexes"', $result->message);
+        $this->assertEquals('Record not found in table "content_links"', $result->message);
     }
 
 }
