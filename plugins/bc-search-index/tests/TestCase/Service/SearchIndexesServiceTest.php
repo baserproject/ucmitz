@@ -12,6 +12,7 @@
 namespace BcSearchIndex\Test\TestCase\Service;
 
 use BaserCore\Model\Table\ContentsTable;
+use BaserCore\Test\Scenario\SearchIndexesSearchScenario;
 use BcSearchIndex\Model\Table\SearchIndexesTable;
 use BcSearchIndex\Service\SearchIndexesService;
 use BaserCore\TestSuite\BcTestCase;
@@ -142,19 +143,63 @@ class SearchIndexesServiceTest extends BcTestCase
         $searchIndexes = $this->SearchIndexesService->getIndex(['site_id' => $data['site_id'], 'keyword' => $data['title']])->first();
         $this->assertNull($searchIndexes);
     }
-    /*
+
+    /**
      * test getIndex
      * @return void
      */
-    public function testGetIndex()
+    public function testGetIndex(): void
     {
-        SearchIndexFactory::make(['title' => 'test data', 'type' => 'admin', 'site_id' => 1], 2)->persist();
+        $this->loadFixtureScenario(SearchIndexesSearchScenario::class);
 
-        $rs = $this->SearchIndexesService->getIndex(['limit' => 1]);
-        $this->assertEquals(1, $rs->all()->count());
+        $rs = $this->SearchIndexesService->getIndex(['limit' => 2, 'site_id' => 1])->toArray();
+        // `limit`: 取得件数
+        $this->assertCount(2, $rs);
+        // 並び順 - id: 昇順
+        $this->assertEquals('test data 1', $rs[0]['title']);
+        $this->assertEquals('test data 2', $rs[1]['title']);
 
-        $rs = $this->SearchIndexesService->getIndex(['type' => 'admin', 'site_id' => 1])->first();
-        $this->assertEquals('test data', $rs['title']);
+        // 並び順 - priority: 降順
+        $rs = $this->SearchIndexesService->getIndex(['site_id' => 2])->toArray();
+        $this->assertEquals('test data 4', $rs[0]['title']);
+        $this->assertEquals('test data 3', $rs[1]['title']);
+
+        // 並び順 - modified: 降順
+        $rs = $this->SearchIndexesService->getIndex(['site_id' => 3])->toArray();
+        $this->assertEquals('test data 6', $rs[0]['title']);
+        $this->assertEquals('test data 5', $rs[1]['title']);
+
+        // その他条件(createIndexConditions)
+        $rs = $this->SearchIndexesService->getIndex(['keyword' => 'inc', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['site_id' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['content_id' => 2, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['content_filter_id' => 3, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['type' => 'ページ', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['model' => 'Page', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['priority' => 0.5, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['status' => 1, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['folder_id' => 1, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['cf' => 3, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['m' => 'Page', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['s' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['c' => 2, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['f' => 1, 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
+        $rs = $this->SearchIndexesService->getIndex(['q' => 'inc', 's' => 4])->toArray();
+        $this->assertEquals('会社案内', $rs[0]['title']);
     }
 
     /**
@@ -171,5 +216,58 @@ class SearchIndexesServiceTest extends BcTestCase
 
         $searchIndexes = $this->SearchIndexesService->getIndex(['site_id' => 5])->all();
         $this->assertEquals(0, count($searchIndexes));
+    }
+
+    /**
+     * Test createIndexConditions
+     * @dataProvider createIndexConditionsDataProvider
+     */
+    public function testCreateIndexConditions($isLoadScenario, $options, $expected)
+    {
+        if ($isLoadScenario) {
+            $this->loadFixtureScenario(SearchIndexesServiceScenario::class);
+        }
+        $result = $this->execPrivateMethod($this->SearchIndexesService, "createIndexConditions", [$options]);
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * createIndexConditionsテストのデータプロバイダ
+     * @return array
+     */
+    public function createIndexConditionsDataProvider(): array
+    {
+        return [
+            // 空配列の結果テスト
+            [false, [], []],
+            [false, ['priority_123' => 1], []],
+            // keyword(q): 検索キーワード
+            [false, ['keyword' => 'test'], [
+                'SearchIndexes.site_id' => 1,
+                'and' => [0 => ['or' => [0 => ['SearchIndexes.title LIKE' => '%test%'], 1 => ['SearchIndexes.detail LIKE' => '%test%']]]]
+            ]],
+            [false, ['q' => 'test'], [
+                'SearchIndexes.site_id' => 1,
+                'and' => [0 => ['or' => [0 => ['SearchIndexes.title LIKE' => '%test%'], 1 => ['SearchIndexes.detail LIKE' => '%test%']]]]
+            ]],
+            // site_id(s): サイトID
+            [false, ['site_id' => 2], ['SearchIndexes.site_id' => 2]],
+            [false, ['s' => 2], ['SearchIndexes.site_id' => 2]],
+            // content_id(c): コンテンツID
+            [false, ['content_id' => 2], ['SearchIndexes.site_id' => 1, 'SearchIndexes.content_id' => 2]],
+            [false, ['c' => 2], ['SearchIndexes.site_id' => 1, 'SearchIndexes.content_id' => 2]],
+            // content_filter_id(cf): コンテンツフィルダーID
+            [false, ['content_filter_id' => 2], ['SearchIndexes.site_id' => 1, 'SearchIndexes.content_filter_id' => 2]],
+            [false, ['cf' => 2], ['SearchIndexes.site_id' => 1, 'SearchIndexes.content_filter_id' => 2]],
+            // type: コンテンツタイプ
+            [false, ['type' => 'ページ'], ['SearchIndexes.site_id' => 1, 'SearchIndexes.type' => 'ページ']],
+            // model(m): モデル名（エンティティ名）
+            [false, ['model' => 'Page'], ['SearchIndexes.site_id' => 1, 'SearchIndexes.model' => 'Page']],
+            [false, ['m' => 'Page'], ['SearchIndexes.site_id' => 1, 'SearchIndexes.model' => 'Page']],
+            // priority: 優先度
+            [false, ['priority' => 2], ['SearchIndexes.site_id' => 1, 'SearchIndexes.priority' => 2]],
+            // folder_id(f): フォルダーID
+            [true, ['folder_id' => 2], ['SearchIndexes.site_id' => 1, 'SearchIndexes.rght <' => 3, 'SearchIndexes.lft >' => 2]],
+        ];
     }
 }
