@@ -9,7 +9,7 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcSearchIndex\Test\TestCase\Service;
+namespace BcContentLink\Test\TestCase\Service;
 
 use BcContentLink\Service\ContentLinksService;
 use BaserCore\TestSuite\BcTestCase;
