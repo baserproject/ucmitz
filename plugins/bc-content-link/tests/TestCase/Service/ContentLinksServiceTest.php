@@ -58,6 +58,15 @@ class ContentLinksServiceTest extends BcTestCase
     }
 
     /**
+     * @test construct
+     * @return void
+     */
+    public function test__construct(): void
+    {
+        $this->assertTrue(isset($this->ContentLinksService->ContentLinks));
+    }
+
+    /**
      * test delete
      */
     public function test_delete()
