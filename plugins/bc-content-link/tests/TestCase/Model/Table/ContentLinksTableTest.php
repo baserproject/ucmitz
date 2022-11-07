@@ -13,7 +13,6 @@ namespace BcContentLink\Test\TestCase\Model\Table;
 
 use BcContentLink\Model\Table\ContentLinksTable;
 use BaserCore\TestSuite\BcTestCase;
-use Cake\Validation\Validator;
 
 /**
  * Class ContentLinksTableTest
@@ -58,13 +57,16 @@ class ContentLinksTableTest extends BcTestCase
      */
     public function testValidationDefault()
     {
-        $validator = $this->ContentLinks->validationDefault(new Validator());
-        $fields = [];
-        foreach($validator->getIterator() as $key => $value) {
-            $fields[] = $key;
-        }
-        $this->assertEquals(['id', 'url'], $fields);
-
+        $contentLink = $this->ContentLinks->newEntity(['id' => 'test']);
+        $this->assertSame([
+            'id' => [
+                'integer' => 'The provided value is invalid',
+            ],
+            // BcContentsBehaviorのafterMarshalにて、contentを他のフィールド同様必要前提としている
+            'content' => [
+                '_required' => '関連するコンテンツがありません'
+            ]
+        ], $contentLink->getErrors());
     }
 
 }
