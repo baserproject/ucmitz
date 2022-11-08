@@ -47,6 +47,7 @@ class SearchIndexesController extends BcFrontAppController
      *
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function search(SearchIndexesFrontServiceInterface $service)
     {
