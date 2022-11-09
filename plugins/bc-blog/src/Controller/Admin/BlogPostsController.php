@@ -137,7 +137,12 @@ $this->paginate = [
     }
 
     /**
-     * [ADMIN] 登録処理
+     * [ADMIN] ブログ記事追加処理
+     * 
+     * 指定したブログに記事を追加して、ブログ記事編集画面へリダイレクトする。
+     * 
+     * ###エラー
+     * ブログ記事の追加に失敗した場合、PersistenceFailedExceptionかBcExceptionが発生する。
      *
      * @param BlogPostsService $service
      * @param int $blogContentId
