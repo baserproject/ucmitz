@@ -191,7 +191,10 @@ $this->paginate = [
     }
 
     /**
-     * [ADMIN] 編集処理
+     * [ADMIN] ブログ記事編集処理
+     * 
+     * 指定したブログ記事を編集する。
+     * 記事の保存に失敗した場合、PersistenceFailedExceptionかBcExceptionのエラーが発生する。
      *
      * @param BlogPostsService $service
      * @param int $blogContentId
