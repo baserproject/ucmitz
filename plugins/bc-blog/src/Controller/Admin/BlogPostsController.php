@@ -306,6 +306,9 @@ $this->paginate = [
 
     /**
      * [ADMIN] コピー
+     * 
+     * 指定したブログ記事をコピーする。
+     * HTTPメソッドがGETの場合はコピー処理は行わず、ブログ記事一覧へリダイレクトする。
      *
      * @param BlogPostsServiceInterface $service
      * @param int $blogContentId
