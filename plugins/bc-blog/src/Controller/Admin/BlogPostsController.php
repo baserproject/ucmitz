@@ -294,7 +294,9 @@ $this->paginate = [
     }
 
     /**
-     * [ADMIN] 公開状態にする
+     * [ADMIN] ブログ記事を公開状態にする
+     * 
+     * 指定したブログ記事を公開状態にしてブログ記事一覧にリダイレクトする。
      *
      * @param string $blogContentId
      * @param int $id
