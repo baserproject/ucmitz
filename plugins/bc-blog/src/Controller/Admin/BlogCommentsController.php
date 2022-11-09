@@ -125,7 +125,7 @@ class BlogCommentsController extends BlogAdminAppController
     /**
      * [ADMIN] ブログコメントを公開状態にする
      * 
-     * idで指定したBlogCommentsモデルのstatusをtrueにする
+     * 
      *
      * @param BlogCommentsService $service
      * @param int $blogContentId
