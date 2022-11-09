@@ -40,6 +40,9 @@ class BlogPostsController extends BlogAdminAppController
 
     /**
      * initialize
+     * 
+     * ブログ記事に関する処理の初期化を行う
+     * 
      * @return void
      * @checked
      * @noTodo
