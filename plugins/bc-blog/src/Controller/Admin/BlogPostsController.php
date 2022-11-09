@@ -272,7 +272,9 @@ $this->paginate = [
     }
 
     /**
-     * [ADMIN] 無効状態にする
+     * [ADMIN] ブログ記事を非公開状態にする
+     * 
+     * 指定したブログ記事を非公開にしてブログ記事一覧へリダイレクトする。
      *
      * @param string $blogContentId
      * @param int $id
