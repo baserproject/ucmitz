@@ -238,7 +238,9 @@ $this->paginate = [
     }
 
     /**
-     * [ADMIN] 削除処理
+     * [ADMIN] ブログ記事削除処理
+     * 
+     * 指定したブログ記事を削除し、ブログ記事一覧へリダイレクトする。
      *
      * @param BlogPostsServiceInterface $service
      * @param int $blogContentId
