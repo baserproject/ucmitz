@@ -106,6 +106,8 @@ class BlogCommentsController extends BlogAdminAppController
 
     /**
      * [ADMIN] ブログを一覧表示する
+     * 
+     * 第２引数を指定するとブログポストIDでフィルタリングができる
      *
      * @return void
      */
