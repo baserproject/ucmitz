@@ -90,7 +90,10 @@ class BlogPostsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] 一覧表示
+     * [ADMIN] ブログ記事一覧表示
+     * 
+     * ブログ記事の一覧を表示する。
+     * ページネーションで次の記事が見つからなかった場合は、１ページ目にリダイレクトする。
      *
      * @param BlogPostsAdminServiceInterface $service
      * @param int $blogContentId
