@@ -26,7 +26,11 @@ class BlogTagsController extends BcApiController
 {
 
     /**
-     * [ADMIN] タグ登録
+     * [ADMIN] ブログタグ登録
+     * 
+     * ブログのタグを登録する
+     * ブログタグの登録に失敗した場合、HTTPレスポンスのステータスに400を返します。
+     * 
      */
     public function add(BlogTagsServiceInterface $service)
     {
