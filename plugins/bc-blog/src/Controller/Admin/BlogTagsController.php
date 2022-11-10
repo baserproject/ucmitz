@@ -66,8 +66,11 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] タグ登録
+     * [ADMIN] ブログタグ登録
      *
+     * ブロブのタグを登録する。
+     * 登録に成功した場合、タグの一覧へリダイレクトする。
+     * 
      * @param BlogTagsService $service
      * @return void
      */
@@ -121,7 +124,7 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] 削除処理
+     * [ADMIN] タグの削除処理
      *
      * @param BlogTagsService $service
      * @param int $id
