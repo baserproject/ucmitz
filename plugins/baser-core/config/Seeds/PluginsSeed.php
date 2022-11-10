@@ -42,7 +42,7 @@ class PluginsSeed extends AbstractSeed
                 'priority' => '2',
                 'created' => NULL,
                 'modified' => '2022-10-01 09:00:00',
-            ],
+            ]
         ];
 
         $table = $this->table('plugins');
