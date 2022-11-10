@@ -11,8 +11,11 @@
 
 namespace BcContentLink\Test\TestCase\Controller;
 
+use BaserCore\Test\Factory\ContentFactory;
 use BcContentLink\Controller\ContentLinksController;
 use BaserCore\TestSuite\BcTestCase;
+use BcContentLink\Service\ContentLinksServiceInterface;
+use BcContentLink\Test\Factory\ContentLinkFactory;
 
 /**
  * ContentLinksControllerTest
@@ -20,6 +23,16 @@ use BaserCore\TestSuite\BcTestCase;
  */
 class ContentLinksControllerTest extends BcTestCase
 {
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    protected $fixtures = [
+        'plugin.BcContentLink.Factory/ContentLinks',
+        'plugin.BaserCore.Factory/Contents',
+    ];
 
     /**
      * set up
@@ -49,4 +62,32 @@ class ContentLinksControllerTest extends BcTestCase
         $this->assertNotEmpty($this->ContentLinksController->BcFrontContents);
     }
 
+    /**
+     * test view
+     *
+     * @return void
+     */
+    public function test_view(): void
+    {
+        ContentLinkFactory::make(['id' => 1, 'url' => '/test-new'])->persist();
+        ContentFactory::make([
+            'id' => 1,
+            'plugin' => 'BcContentLink',
+            'type' => 'ContentLink',
+            'site_id' => 1,
+            'title' => 'test new link',
+            'lft' => 1,
+            'rght' => 2,
+            'entity_id' => 1,
+            "status" => true,
+        ])->persist();
+        $request = $this->getRequest()->withAttribute('currentContent', ContentFactory::get(1));
+        $controller = new ContentLinksController($request);
+
+        $service = $this->getService(ContentLinksServiceInterface::class);
+        $controller->view($service);
+        $rs = $controller->viewBuilder()->getVars()['contentLink']->toArray();
+        $this->assertEquals('/test-new', $rs['url']);
+        $this->assertEquals('test new link', $rs['content']['title']);
+    }
 }
