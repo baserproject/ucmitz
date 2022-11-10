@@ -95,8 +95,10 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] タグ編集
+     * [ADMIN] ブログタグ編集
      *
+     * 指定したブログのタグを編集し、ブログのタグ一覧へリダイレクトする
+     * 
      * @param BlogTagsService $service
      * @param int $id タグID
      * @return void
