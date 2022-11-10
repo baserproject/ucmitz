@@ -1005,7 +1005,7 @@ class BcFormHelperTest extends BcTestCase
         $this->assertStringContainsString('type="radio"', $result);
         $this->assertStringNotContainsString('legend', $result);
         $this->assertStringNotContainsString('error', $result);
-        $this->assertStringNotContainsString('<label>Country</label>', $result);
+        $this->assertStringNotContainsString('<label>', $result);
     }
 
 }
