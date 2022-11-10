@@ -12,9 +12,11 @@
 namespace BaserCore\Test\TestCase\Middleware;
 
 use BaserCore\Middleware\BcRedirectSubSiteFilter;
-use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\PageFactory;
+use BaserCore\Test\Factory\SiteConfigFactory;
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\TestSuite\BcTestCase;
-use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Class BcRedirectSubSiteFilterTest
@@ -22,20 +24,16 @@ use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
  */
 class BcRedirectSubSiteFilterTest extends BcTestCase
 {
-
     /**
-     * Trait
+     * Fixtures
+     *
+     * @var array
      */
-    use ScenarioAwareTrait;
-
-    /**
-     * fixtures
-     * @var string[]
-     */
-    public $fixtures = [
+    protected $fixtures = [
         'plugin.BaserCore.Factory/Sites',
-        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/Contents',
         'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/Pages',
     ];
 
     /**
@@ -65,15 +63,45 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
      */
     public function test_process(): void
     {
-        $this->loadFixtureScenario(InitAppScenario::class);
-//        $request = $this->getRequest('/baser/admin/baser-core/themes/');
-//        $this->loginAdmin($request);
-        $a = $this->BcRedirectSubSiteFilter->process($this->getRequest('/baser/api/baser-core/themes/view/BcFront.json'), $this->Application);
-//        $this->get('/baser/api/baser-core/themes/view/BcFront.json?token=' . $this->accessToken);
+        SiteFactory::make([
+            'id' => 1,
+            'name' => '',
+            'title' => 'baserCMS inc.',
+            'status' => true
+        ])->persist();
+        SiteFactory::make([
+            'id' => 2,
+            'name' => '',
+            'title' => 'baserCMS inc. sub',
+            'status' => true,
+            'main_site_id' => 1,
+            'device' => 'smartphone',
+            'auto_redirect' => true
+        ])->persist();
+        PageFactory::make(['id' => 1])->persist();
+        ContentFactory::make([
+            'id' => 1,
+            'url' => '/about',
+            'name' => 'about',
+            'plugin' => 'BaserCore',
+            'type' => 'Page',
+            'site_id' => 1,
+            'parent_id' => null,
+            'lft' => 1,
+            'rght' => 2,
+            'entity_id' => 1,
+            'site_root' => 2,
+            'status' => true
+        ])->persist();
+        SiteConfigFactory::make([
+            'name' => 'use_site_device_setting',
+            'value' => 'iPhone'
+        ])->persist();
 
-
-//        $this->get('/about');
-        $request = $this->getRequest();
+        $_SERVER['HTTP_USER_AGENT'] = 'iPhone';
+        $request = $this->getRequest('/about')->withParam('plugin', 'BaserCore')->withParam('controller', 'Pages')->withParam('action', 'view');
+        $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        $this->assertResponseCode(302);
     }
 
 }
