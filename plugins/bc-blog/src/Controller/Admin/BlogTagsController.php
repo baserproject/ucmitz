@@ -124,8 +124,10 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] タグの削除処理
+     * [ADMIN] ブログタグの削除処理
      *
+     * 指定したブログのタグを削除して、ブログのタグ一覧へリダイレクトする。
+     * 
      * @param BlogTagsService $service
      * @param int $id
      * @return void
