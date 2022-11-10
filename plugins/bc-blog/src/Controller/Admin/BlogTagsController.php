@@ -30,6 +30,9 @@ class BlogTagsController extends BlogAdminAppController
 
     /**
      * initialize
+     * 
+     * Admin/BlogTagsControllerの初期化を行う
+     * 
      * @return void
      * @checked
      * @noTodo
