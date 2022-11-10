@@ -41,7 +41,10 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] タグ一覧
+     * [ADMIN] ブログタグ一覧
+     * 
+     * ブログのタグ一覧を表示する。
+     * ページネーションによる遷移先でレコードがなければ１ページ目にリダイレクトする。
      *
      * @param BlogTagsService $service
      * @return void
