@@ -54,7 +54,13 @@ class BlogTagsController extends BcApiController
     }
 
     /**
-     * バッチ処理
+     * ブログタグのバッチ処理
+     * 
+     * 指定したブログのコメントに対して削除処理を一括で行う
+     * 
+     * ###エラー
+     * delete以外のHTTPメソッドには500エラーを返す
+     * 一括処理に失敗すると400エラーを返す
      *
      * @param BlogTagsService $service
      * @checked
