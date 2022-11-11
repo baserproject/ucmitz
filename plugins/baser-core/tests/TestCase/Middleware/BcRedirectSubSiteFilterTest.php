@@ -104,4 +104,110 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
         $this->assertResponseCode(302);
     }
 
+    /**
+     * test Process
+     */
+    public function test_process_auto_redirect_off(): void
+    {
+        SiteFactory::make([
+            'id' => 1,
+            'name' => '',
+            'title' => 'baserCMS inc.',
+            'status' => true
+        ])->persist();
+        SiteFactory::make([
+            'id' => 2,
+            'name' => '',
+            'title' => 'baserCMS inc. sub',
+            'status' => true,
+            'main_site_id' => 1,
+            'device' => 'smartphone',
+            'auto_redirect' => false
+        ])->persist();
+        PageFactory::make(['id' => 1])->persist();
+        ContentFactory::make([
+            'id' => 1,
+            'url' => '/about',
+            'name' => 'about',
+            'plugin' => 'BaserCore',
+            'type' => 'Page',
+            'site_id' => 1,
+            'parent_id' => null,
+            'lft' => 1,
+            'rght' => 2,
+            'entity_id' => 1,
+            'site_root' => 2,
+            'status' => true
+        ])->persist();
+        SiteConfigFactory::make([
+            'name' => 'use_site_device_setting',
+            'value' => 'iPhone'
+        ])->persist();
+
+        $_SERVER['HTTP_USER_AGENT'] = 'iPhone';
+        $request = $this->getRequest('/about')->withParam('plugin', 'BaserCore')->withParam('controller', 'Pages')->withParam('action', 'view');
+        $this->expectException(\RuntimeException::class);
+        $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+    }
+
+    /**
+     * test Process
+     */
+    public function test_process_site_private(): void
+    {
+        SiteFactory::make([
+            'id' => 1,
+            'name' => '',
+            'title' => 'baserCMS inc.',
+            'status' => false
+        ])->persist();
+        SiteFactory::make([
+            'id' => 2,
+            'name' => '',
+            'title' => 'baserCMS inc. sub',
+            'status' => false,
+            'main_site_id' => 1,
+            'device' => 'smartphone',
+            'auto_redirect' => true
+        ])->persist();
+        PageFactory::make(['id' => 1])->persist();
+        ContentFactory::make([
+            'id' => 1,
+            'url' => '/about',
+            'name' => 'about',
+            'plugin' => 'BaserCore',
+            'type' => 'Page',
+            'site_id' => 1,
+            'parent_id' => null,
+            'lft' => 1,
+            'rght' => 2,
+            'entity_id' => 1,
+            'site_root' => 2,
+            'status' => true
+        ])->persist();
+        SiteConfigFactory::make([
+            'name' => 'use_site_device_setting',
+            'value' => 'iPhone'
+        ])->persist();
+
+        $_SERVER['HTTP_USER_AGENT'] = 'iPhone';
+        $request = $this->getRequest('/about')->withParam('plugin', 'BaserCore')
+            ->withParam('controller', 'Pages')->withParam('action', 'view')
+            ->withAttribute('currentContent', PageFactory::get(1));
+        $this->expectException(\RuntimeException::class);
+        $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+    }
+
+    /**
+     * test Process
+     */
+    public function test_process_admin(): void
+    {
+        $request = $this->getRequest('/update');
+        $this->expectException(\RuntimeException::class);
+        $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        $request = $this->getRequest('/baser/admin');
+        $this->expectException(\RuntimeException::class);
+        $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+    }
 }
