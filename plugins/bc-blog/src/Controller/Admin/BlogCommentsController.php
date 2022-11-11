@@ -108,11 +108,12 @@ class BlogCommentsController extends BlogAdminAppController
      * @param BlogCommentsServiceInterface $service
      * @param int $blogContentId
      * @param int $id
-     * @return void
+     * @return Response|null
      * @checked
      * @noTodo
+     * @unitTest
      */
-    public function unpublish(BlogCommentsServiceInterface $service, int $blogContentId, int $id)
+    public function unpublish(BlogCommentsServiceInterface $service, int $blogContentId, int $id): ?Response
     {
         if ($this->request->is(['patch', 'post', 'put'])) {
             $result = $service->unpublish($id);
