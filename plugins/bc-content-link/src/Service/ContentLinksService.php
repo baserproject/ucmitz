@@ -89,6 +89,7 @@ class ContentLinksService implements ContentLinksServiceInterface
      * @throws \Cake\ORM\Exception\PersistenceFailedException
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $target, array $postData): ?EntityInterface
     {
@@ -96,4 +97,18 @@ class ContentLinksService implements ContentLinksServiceInterface
         return $this->ContentLinks->saveOrFail($entity);
     }
 
+    /**
+     * リンクをを削除する
+     *
+     * @param int $id
+     * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete($id): bool
+    {
+        $entity = $this->get($id);
+        return $this->ContentLinks->delete($entity);
+    }
 }

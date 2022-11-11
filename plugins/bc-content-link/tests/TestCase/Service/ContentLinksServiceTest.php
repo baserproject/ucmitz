@@ -11,8 +11,12 @@
 
 namespace BcContentLink\Test\TestCase\Service;
 
+use BaserCore\Test\Factory\ContentFactory;
 use BcContentLink\Service\ContentLinksService;
 use BaserCore\TestSuite\BcTestCase;
+use BcContentLink\Service\ContentLinksServiceInterface;
+use BcContentLink\Test\Factory\ContentLinkFactory;
+use BaserCore\Utility\BcContainerTrait;
 
 /**
  * Class ContentLinksServiceTest
@@ -21,6 +25,17 @@ use BaserCore\TestSuite\BcTestCase;
 class ContentLinksServiceTest extends BcTestCase
 {
 
+    use BcContainerTrait;
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    protected $fixtures = [
+        'plugin.BcContentLink.Factory/ContentLinks',
+        'plugin.BaserCore.Factory/Contents',
+    ];
+
     /**
      * Set Up
      *
@@ -28,8 +43,9 @@ class ContentLinksServiceTest extends BcTestCase
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
-        $this->ContentLinksService = new ContentLinksService();
+        $this->ContentLinksService = $this->getService(ContentLinksServiceInterface::class);
     }
 
     /**
@@ -52,6 +68,14 @@ class ContentLinksServiceTest extends BcTestCase
         $this->assertTrue(isset($this->ContentLinksService->ContentLinks));
     }
 
+    /**
+     * test delete
+     */
+    public function test_delete()
+    {
+        ContentLinkFactory::make(['id' => 1, 'url' => '/test-delete'])->persist();
+        $this->assertTrue($this->ContentLinksService->delete(1));
+    }
     /**
      * @test get
      * @return void
@@ -76,6 +100,33 @@ class ContentLinksServiceTest extends BcTestCase
      */
     public function test_update(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        ContentLinkFactory::make(['id' => 1, 'url' => '/test-new'])->persist();
+        ContentFactory::make([
+            'id' => 2,
+            'plugin' => 'BcContentLink',
+            'type' => 'ContentLink',
+            'site_id' => 1,
+            'title' => 'test new link',
+            'lft' => 1,
+            'rght' => 2,
+            'entity_id' => 1,
+        ])->persist();
+
+        $contentLink = $this->ContentLinksService->get(1);
+        $data = [
+            'url' => '/test-edit',
+            'content' => [
+                'title' => 'test edit link',
+            ]
+        ];
+        //実行成功
+        $rs = $this->ContentLinksService->update($contentLink, $data);
+        $this->assertEquals($rs['url'], '/test-edit');
+        $this->assertEquals($rs['content']['title'], 'test edit link');
+
+        //実行失敗
+        $this->expectException("Cake\ORM\Exception\PersistenceFailedException");
+        $this->expectExceptionMessage("関連するコンテンツがありません");
+        $this->ContentLinksService->update($contentLink, []);
     }
 }
