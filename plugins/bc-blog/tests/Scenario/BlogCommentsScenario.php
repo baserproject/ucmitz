@@ -64,7 +64,7 @@ class BlogCommentsScenario implements FixtureScenarioInterface
             'blog_content_id' => 1,
             'blog_post_id' => 1,
             'no' => 3,
-            'status' => 1,
+            'status' => false,
             'name' => 'baserCMS',
             'email' => '',
             'url' => 'https://basercms.net',
