@@ -81,6 +81,7 @@ class BlogCommentsController extends BlogAdminAppController
      * @return Response|null
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(BlogCommentsServiceInterface $service, int $blogContentId, int $id): ?Response
     {
