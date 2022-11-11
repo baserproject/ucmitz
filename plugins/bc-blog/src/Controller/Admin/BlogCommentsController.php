@@ -138,11 +138,12 @@ class BlogCommentsController extends BlogAdminAppController
      * @param BlogCommentsService $service
      * @param int $blogContentId
      * @param int $id
-     * @return void
+     * @return Response|null
      * @checked
      * @noTodo
+     * @unitTest
      */
-    public function publish(BlogCommentsServiceInterface $service, int $blogContentId, int $id)
+    public function publish(BlogCommentsServiceInterface $service, int $blogContentId, int $id): ?Response
     {
         if ($this->request->is(['patch', 'post', 'put'])) {
             $result = $service->publish($id);
