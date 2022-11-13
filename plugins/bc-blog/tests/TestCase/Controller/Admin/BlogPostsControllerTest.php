@@ -55,7 +55,6 @@ class BlogPostsControllerTest extends BcTestCase
         $this->setFixtureTruncate();
         parent::setUp();
         $this->loadFixtureScenario(InitAppScenario::class);
-        $this->BlogPostsController = new BlogPostsController($this->loginAdmin($this->getRequest()));
     }
 
     /**
@@ -73,7 +72,8 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function testInitialize(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->BlogPostsController = new BlogPostsController($this->getRequest());
+        $this->assertNotEmpty($this->BlogPostsController->BcAdminContents);
     }
 
     /**
