@@ -16,6 +16,7 @@ namespace BcBlog\Test\TestCase\Controller\Admin;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Admin\BlogTagsController;
+use BcBlog\Test\Factory\BlogTagFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -98,7 +99,28 @@ class BlogTagsControllerTest extends BcTestCase
      */
     public function test_edit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        BlogTagFactory::make(['id' => 1, 'name' => 'test'])->persist();
+
+        $this->get('/baser/admin/bc-blog/blog_tags/edit/1', ['name' => null]);
+        $this->assertResponseCode(200);
+        $vars = $this->_controller->viewBuilder()->getVars();
+        $this->assertEquals('test', $vars['blogTag']['name']);
+
+        $this->post('/baser/admin/bc-blog/blog_tags/edit/1', ['name' => 'updated']);
+        $this->assertResponseCode(302);
+        $this->assertRedirect(['action' => 'index']);
+        $this->assertFlashMessage('タグ「updated」を更新しました。');
+
+        $this->post('/baser/admin/bc-blog/blog_tags/edit/1', ['name' => null]);
+        $vars = $this->_controller->viewBuilder()->getVars();
+        $this->assertEquals(['name' => ['_empty' => "ブログタグを入力してください。"]], $vars['blogTag']->getErrors());
+        $this->assertResponseCode(200);
+
+        $this->post('/baser/admin/bc-blog/blog_tags/edit/11', ['name' => null]);
+        $this->assertResponseCode(404);
     }
 
     /**
