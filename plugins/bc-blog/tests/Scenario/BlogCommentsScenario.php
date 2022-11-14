@@ -19,7 +19,7 @@ use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 /**
  * BlogContentScenario
  *
- * ブログコンテンツを生成する
+ * ブログコメントを生成する
  * BlogComment を生成する
  *
  * 利用する場合は、テーブルの初期化に次のフィクスチャの定義が必要
