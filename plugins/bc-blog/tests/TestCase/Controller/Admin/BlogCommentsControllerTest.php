@@ -137,7 +137,7 @@ class BlogCommentsControllerTest extends BcTestCase
         $this->assertFlashMessage('ブログコメント No.2 を非公開状態にしました。');
         $this->assertFalse(BlogCommentFactory::get(2)->status);
 
-        $this->delete("/baser/admin/bc-blog/blog_comments/unpublish/1/2?blog_post_id=1");
+        $this->post("/baser/admin/bc-blog/blog_comments/unpublish/1/2?blog_post_id=1");
         $this->assertRedirect(['action' => 'index/1?blog_post_id=1']);
     }
 

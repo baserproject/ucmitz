@@ -115,13 +115,12 @@ class BlogCommentsController extends BlogAdminAppController
      */
     public function unpublish(BlogCommentsServiceInterface $service, int $blogContentId, int $id): ?Response
     {
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $result = $service->unpublish($id);
-            if ($result) {
-                $this->BcMessage->setSuccess(sprintf(__d('baser', 'ブログコメント No.%s を非公開状態にしました。'), $result->no));
-            } else {
-                $this->BcMessage->setSuccess(__d('baser', 'データベース処理中にエラーが発生しました。'));
-            }
+        $this->request->allowMethod(['patch', 'post', 'put']);
+        $result = $service->unpublish($id);
+        if ($result) {
+            $this->BcMessage->setSuccess(sprintf(__d('baser', 'ブログコメント No.%s を非公開状態にしました。'), $result->no));
+        } else {
+            $this->BcMessage->setSuccess(__d('baser', 'データベース処理中にエラーが発生しました。'));
         }
         $url = ['action' => 'index', $blogContentId];
         if($this->getRequest()->getQuery('blog_post_id')) {
