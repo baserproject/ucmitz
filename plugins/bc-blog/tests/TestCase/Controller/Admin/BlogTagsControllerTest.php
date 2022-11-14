@@ -82,7 +82,23 @@ class BlogTagsControllerTest extends BcTestCase
      */
     public function test_add(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        $data = [
+            'name' => 'test add'
+        ];
+        $this->post('/baser/admin/bc-blog/blog_tags/add', $data);
+        $this->assertResponseCode(302);
+        $this->assertRedirect(['action' => 'index']);
+        $this->assertFlashMessage('タグ「test add」を追加しました。');
+
+        $data = [
+            'name' => null
+        ];
+        $this->post('/baser/admin/bc-blog/blog_tags/add', $data);
+        $vars = $this->_controller->viewBuilder()->getVars();
+        $this->assertEquals(['name' => ['_empty' => "ブログタグを入力してください。"]], $vars['blogTag']->getErrors());
+        $this->assertResponseCode(200);
     }
 
     /**
