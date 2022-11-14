@@ -58,7 +58,7 @@ class BlogTagsController extends BcApiController
      * 
      * 指定したブログのコメントに対して削除処理を一括で行う
      * 
-     * ###エラー
+     * ### エラー
      * delete以外のHTTPメソッドには500エラーを返す
      * 一括処理に失敗すると400エラーを返す
      *
