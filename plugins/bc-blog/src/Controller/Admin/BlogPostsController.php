@@ -155,6 +155,7 @@ $this->paginate = [
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function add(BlogPostsAdminServiceInterface $service, int $blogContentId)
     {
