@@ -16,6 +16,7 @@ namespace BcBlog\Test\TestCase\Controller\Admin;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Admin\BlogTagsController;
+use BcBlog\Test\Factory\BlogTagFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -106,6 +107,12 @@ class BlogTagsControllerTest extends BcTestCase
      */
     public function test_index()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        BlogTagFactory::make(['name' => 'name test'])->persist();
+        $this->post('/baser/admin/bc-blog/blog_tags/index/1');
+        $vars = $this->_controller->viewBuilder()->getVars()['blogTags'];
+        $this->assertEquals(1, count($vars));
+        $this->assertResponseOk();
     }
 }
