@@ -118,7 +118,7 @@ class BlogCommentsControllerTest extends BcTestCase
         $this->assertFlashMessage('ブログコメント No.3 を公開状態にしました。');
         $this->assertTrue(BlogCommentFactory::get(3)->status);
 
-        $this->delete("/baser/admin/bc-blog/blog_comments/publish/1/3?blog_post_id=1");
+        $this->post("/baser/admin/bc-blog/blog_comments/publish/1/3?blog_post_id=1");
         $this->assertRedirect(['action' => 'index/1?blog_post_id=1']);
     }
 
