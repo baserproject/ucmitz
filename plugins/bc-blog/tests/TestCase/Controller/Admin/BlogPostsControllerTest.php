@@ -44,6 +44,7 @@ class BlogPostsControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BcBlog.Factory/BlogPosts',
+        'plugin.BaserCore.Factory/Contents',
     ];
 
     /**
