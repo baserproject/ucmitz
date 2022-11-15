@@ -48,7 +48,6 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->setFixtureTruncate();
         parent::setUp();
         $this->BlogCommentsService = new BlogCommentsService();
-        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
     }
 
     /**
@@ -114,6 +113,7 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testBatch()
     {
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         $ids = [1, 2, 3];
 
         // test batch unpublish
