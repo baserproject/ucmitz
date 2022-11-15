@@ -48,7 +48,6 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->setFixtureTruncate();
         parent::setUp();
         $this->BlogCommentsService = new BlogCommentsService();
-        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
     }
 
     /**
@@ -74,6 +73,8 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testGetIndex()
     {
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
+
         $query = $this->BlogCommentsService->getIndex(['blog_post_id' => 1, 'num' => 2]);
         $this->assertCount(2, $query->toArray());
         $this->assertEquals(1, $query->toArray()[0]['blog_post']['id']);
