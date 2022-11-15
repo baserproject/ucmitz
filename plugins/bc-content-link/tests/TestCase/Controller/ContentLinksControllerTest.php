@@ -16,6 +16,7 @@ use BcContentLink\Controller\ContentLinksController;
 use BaserCore\TestSuite\BcTestCase;
 use BcContentLink\Service\ContentLinksServiceInterface;
 use BcContentLink\Test\Factory\ContentLinkFactory;
+use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * ContentLinksControllerTest
@@ -23,6 +24,10 @@ use BcContentLink\Test\Factory\ContentLinkFactory;
  */
 class ContentLinksControllerTest extends BcTestCase
 {
+    /**
+     * Trait
+     */
+    use IntegrationTestTrait;
 
     /**
      * Fixtures
