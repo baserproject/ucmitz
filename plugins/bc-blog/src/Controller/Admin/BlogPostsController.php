@@ -121,15 +121,15 @@ class BlogPostsController extends BlogAdminAppController
             'request' => $this->getRequest()
         ]);
         if ($event !== false) {
-            $this->setRequest(($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult());
+            $this->setRequest(($event->getResult() === null || $event->getResult() === true) ? $event->getData('request') : $event->getResult());
         }
 
         try {
-$this->paginate = [
-    'sortableFields' => [
-        'BlogCategories.name'
-    ]
-];
+            $this->paginate = [
+                'sortableFields' => [
+                    'BlogCategories.name'
+                ]
+            ];
             $entities = $this->paginate($service->getIndex(array_merge(
                 ['blog_content_id' => $blogContentId],
                 $this->getRequest()->getQueryParams()
@@ -165,7 +165,7 @@ $this->paginate = [
                 'data' => $this->getRequest()->getData()
             ]);
             if ($event !== false) {
-                $data = ($event->getResult() === null || $event->getResult() === true)? $event->getData('data') : $event->getResult();
+                $data = ($event->getResult() === null || $event->getResult() === true) ? $event->getData('data') : $event->getResult();
                 $this->setRequest($this->getRequest()->withParsedBody($data));
             }
             try {
@@ -219,7 +219,7 @@ $this->paginate = [
                 'data' => $this->request->getData()
             ]);
             if ($event !== false) {
-                $data = ($event->getResult() === null || $event->getResult() === true)? $event->getData('data') : $event->getResult();
+                $data = ($event->getResult() === null || $event->getResult() === true) ? $event->getData('data') : $event->getResult();
                 $this->setRequest($this->getRequest()->withParsedBody($data));
             }
             try {
@@ -332,16 +332,20 @@ $this->paginate = [
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function copy(BlogPostsServiceInterface $service, $blogContentId, $id = null)
     {
         $post = $service->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            if ($service->copy($id)) {
+            try {
+                $service->copy($id);
                 $this->BcMessage->setSuccess(sprintf(__d('baser', 'ブログ記事「%s」をコピーしました。'), $post->title));
                 return $this->redirect(['action' => 'index', $blogContentId]);
+
+            } catch (\Exception $e) {
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
-            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
         }
         return $this->redirect(['action' => 'index', $blogContentId]);
     }
