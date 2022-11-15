@@ -48,7 +48,6 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->setFixtureTruncate();
         parent::setUp();
         $this->BlogCommentsService = new BlogCommentsService();
-        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
     }
 
     /**
@@ -82,6 +81,8 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testGet()
     {
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
+
         $comment = $this->BlogCommentsService->get(1);
         $this->assertEquals(1, $comment['id']);
         $this->assertEquals(1, $comment['blog_post']['id']);
