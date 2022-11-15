@@ -115,6 +115,7 @@ class ContentLinksServiceTest extends BcTestCase
         $this->ContentLinksService->create($data);
 
         $data = [
+            'url' => null,
             'content' => [
                 'plugin' => 'BcContentLink',
                 'type' => 'ContentLink',
