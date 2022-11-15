@@ -11,16 +11,14 @@
 
 namespace BcBlog\Test\Scenario;
 
-use BaserCore\Test\Factory\ContentFactory;
 use BcBlog\Test\Factory\BlogCommentFactory;
-use BcBlog\Test\Factory\BlogContentFactory;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 /**
  * BlogContentScenario
  *
- * ブログコンテンツを生成する
- * Content / BlogComment を生成する
+ * ブログコメントを生成する
+ * BlogComment を生成する
  *
  * 利用する場合は、テーブルの初期化に次のフィクスチャの定義が必要
  * - plugin.BcBlog.Factory/BlogComments
