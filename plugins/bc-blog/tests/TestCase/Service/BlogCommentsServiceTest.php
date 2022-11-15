@@ -48,7 +48,6 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->setFixtureTruncate();
         parent::setUp();
         $this->BlogCommentsService = new BlogCommentsService();
-        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
     }
 
     /**
@@ -106,6 +105,7 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testDelete()
     {
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         $count = $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count();
 
         $comment = $this->BlogCommentsService->delete(1);
