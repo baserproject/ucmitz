@@ -19,7 +19,8 @@ use BcBlog\Model\Table\BlogCommentsTable;
 use Cake\ORM\TableRegistry;
 
 /**
- * BlogCommentsService
+ * ブログコメントサービスの初期化
+ * 
  * @property BlogCommentsTable $BlogComments
  */
 class BlogCommentsService implements BlogCommentsServiceInterface
