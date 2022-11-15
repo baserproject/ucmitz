@@ -19,7 +19,7 @@ use BcBlog\Model\Table\BlogCommentsTable;
 use Cake\ORM\TableRegistry;
 
 /**
- * ブログコメントサービスの初期化
+ * BlogCommentsService
  * 
  * @property BlogCommentsTable $BlogComments
  */
@@ -27,7 +27,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
 {
 
     /**
-     * Constructor
+     * ブログコメンツを初期化する
      */
     public function __construct()
     {
@@ -114,7 +114,14 @@ class BlogCommentsService implements BlogCommentsServiceInterface
     }
 
     /**
-     * ブログコメントに対して一括処理を実行する
+     * アップロード対象となるフィールドに格納するファイル名を、指定したフィールドの値を利用したファイル名に変更する
+     *
+     * ### リネーム例
+     * 元ファイル名が、sample.png
+     * id フィールドを利用する
+     * id に 585 が入っている
+     * nameformat が %08d となっている
+     * 結果：00000585.png
      *
      * @param string $method
      * @param array $ids
