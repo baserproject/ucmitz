@@ -11,15 +11,15 @@ declare(strict_types=1);
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcContentLink\Test\Factory;
+namespace BcBlog\Test\Factory;
 
 use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
 /**
- * ContentLinkFactory
+ * BlogCommentFactory
  */
-class ContentLinkFactory extends CakephpBaseFactory
+class BlogCommentFactory extends CakephpBaseFactory
 {
 
     /**
@@ -29,7 +29,7 @@ class ContentLinkFactory extends CakephpBaseFactory
      */
     protected function getRootTableRegistryName(): string
     {
-        return 'BcContentLink.ContentLinks';
+        return 'BcBlog.BlogComments';
     }
 
     /**
