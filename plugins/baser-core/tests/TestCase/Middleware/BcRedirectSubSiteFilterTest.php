@@ -16,7 +16,9 @@ use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\PageFactory;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Factory\SiteFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Class BcRedirectSubSiteFilterTest
@@ -24,6 +26,11 @@ use BaserCore\TestSuite\BcTestCase;
  */
 class BcRedirectSubSiteFilterTest extends BcTestCase
 {
+    /**
+     * Trait
+     */
+    use ScenarioAwareTrait;
+
     /**
      * Fixtures
      *
@@ -117,14 +124,14 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
         ])->persist();
         SiteFactory::make([
             'id' => 2,
-            'name' => '',
+            'name' => 'smartphone',
             'title' => 'baserCMS inc. sub',
             'status' => true,
             'main_site_id' => 1,
             'device' => 'smartphone',
             'auto_redirect' => false
         ])->persist();
-        PageFactory::make(['id' => 1])->persist();
+        PageFactory::make(['id' => 1, 'page_template' => 'default'])->persist();
         ContentFactory::make([
             'id' => 1,
             'url' => '/about',
@@ -145,9 +152,12 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
         ])->persist();
 
         $_SERVER['HTTP_USER_AGENT'] = 'iPhone';
-        $request = $this->getRequest('/about')->withParam('plugin', 'BaserCore')->withParam('controller', 'Pages')->withParam('action', 'view');
-        $this->expectException(\RuntimeException::class);
+        $request = $this->getRequest('/about?smartphone_auto_redirect=off')
+            ->withParam('plugin', 'BaserCore')
+            ->withParam('controller', 'Pages')
+            ->withParam('action', 'view');
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        $this->assertResponseSuccess();
     }
 
     /**
@@ -194,8 +204,8 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
         $request = $this->getRequest('/about')->withParam('plugin', 'BaserCore')
             ->withParam('controller', 'Pages')->withParam('action', 'view')
             ->withAttribute('currentContent', PageFactory::get(1));
-        $this->expectException(\RuntimeException::class);
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        $this->assertResponseSuccess();
     }
 
     /**
@@ -203,11 +213,12 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
      */
     public function test_process_admin(): void
     {
-        $request = $this->getRequest('/update');
-        $this->expectException(\RuntimeException::class);
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $request = $this->loginAdmin($this->getRequest('/update'));
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
-        $request = $this->getRequest('/baser/admin');
-        $this->expectException(\RuntimeException::class);
+        $this->assertResponseSuccess();
+        $request = $this->loginAdmin($this->getRequest('/baser/admin'));
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        $this->assertResponseSuccess();
     }
 }
