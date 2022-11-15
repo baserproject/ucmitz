@@ -122,9 +122,5 @@ class ContentLinksControllerTest extends BcTestCase
         $this->post('/baser/admin/bc-content-link/content_links/edit/1', $data);
         $vars = $this->_controller->viewBuilder()->getVars();
         $this->assertEquals(['content' => ['_required' => "関連するコンテンツがありません"]], $vars['contentLink']->getErrors());
-
-        $this->get('/baser/admin/bc-content-link/content_links/edit/1', $data);
-        $contentLink = $contentLinkService->get(1);
-        $this->assertEquals('/test-edit', $contentLink['url']);
     }
 }
