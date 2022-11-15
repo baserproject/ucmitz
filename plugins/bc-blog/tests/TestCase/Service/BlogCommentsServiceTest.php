@@ -82,7 +82,9 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testGet()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $comment = $this->BlogCommentsService->get(1);
+        $this->assertEquals(1, $comment['id']);
+        $this->assertEquals(1, $comment['blog_post']['id']);
     }
 
     /**
