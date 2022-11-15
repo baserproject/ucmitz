@@ -27,7 +27,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
 {
 
     /**
-     * ブログコメンツを初期化する
+     * ブログコメントを初期化する
      */
     public function __construct()
     {
