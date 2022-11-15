@@ -66,7 +66,7 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function test__construct()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertTrue(isset($this->BlogCommentsService->BlogComments));
     }
 
     /**
