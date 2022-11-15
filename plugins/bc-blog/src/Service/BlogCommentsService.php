@@ -20,7 +20,7 @@ use Cake\ORM\TableRegistry;
 
 /**
  * BlogCommentsService
- * 
+ *
  * @property BlogCommentsTable $BlogComments
  */
 class BlogCommentsService implements BlogCommentsServiceInterface
@@ -121,7 +121,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
      *  - id フィールドを利用する
      *  - id に 585 が入っている
      *  - nameformat が %08d となっている
-     * 
+     *
      * 結果：00000585.png
      *
      * @param string $method
@@ -129,6 +129,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function batch(string $method, array $ids): bool
     {
