@@ -98,7 +98,8 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testUnpublish()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $comment = $this->BlogCommentsService->unpublish(1);
+        $this->assertFalse($comment['status']);
     }
 
     /**
