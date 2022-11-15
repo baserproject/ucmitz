@@ -106,7 +106,12 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testDelete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $count = $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count();
+
+        $comment = $this->BlogCommentsService->delete(1);
+        $this->assertTrue($comment);
+
+        $this->assertEquals($count - 1, $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count());
     }
 
     /**
