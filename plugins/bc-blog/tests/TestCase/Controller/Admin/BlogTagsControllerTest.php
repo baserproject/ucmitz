@@ -110,9 +110,12 @@ class BlogTagsControllerTest extends BcTestCase
         $this->enableSecurityToken();
         $this->enableCsrfToken();
         BlogTagFactory::make(['name' => 'name test'])->persist();
+        //実行成功場合
         $this->post('/baser/admin/bc-blog/blog_tags/index/1');
+        //取得データを確認
         $vars = $this->_controller->viewBuilder()->getVars()['blogTags'];
         $this->assertEquals(1, count($vars));
+        //リダイレクトを確認
         $this->assertResponseOk();
     }
 }
