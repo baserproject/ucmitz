@@ -100,6 +100,7 @@ class ContentLinksControllerTest extends BcTestCase
             'entity_id' => 1,
         ])->persist();
 
+        //実行成功場合、
         $data = [
             'id' => 1,
             'url' => '/test-edit',
@@ -108,18 +109,25 @@ class ContentLinksControllerTest extends BcTestCase
             ]
         ];
         $this->post('/baser/admin/bc-content-link/content_links/edit/1', $data);
-        $this->assertResponseSuccess();
+        //リダイレクトを確認
+        $this->assertResponseCode(302);
         $this->assertRedirect('/baser/admin/bc-content-link/content_links/edit/1');
-
+        //更新したデータを確認
         $contentLinkService = $this->getService(ContentLinksServiceInterface::class);
         $contentLink = $contentLinkService->get(1);
         $this->assertEquals('/test-edit', $contentLink['url']);
         $this->assertEquals('更新 BcContentLink', $contentLink['content']['title']);
+        //メッセージを確認
+        $this->assertFlashMessage('リンク「更新 BcContentLink」を更新しました。');
 
+        //実行失敗場合、
         $data = [
             'url' => '/test-edit-2'
         ];
         $this->post('/baser/admin/bc-content-link/content_links/edit/1', $data);
+        //リダイレクトしないを確認
+        $this->assertResponseCode(200);
+        //エラーメッセージを確認
         $vars = $this->_controller->viewBuilder()->getVars();
         $this->assertEquals(['content' => ['_required' => "関連するコンテンツがありません"]], $vars['contentLink']->getErrors());
     }
