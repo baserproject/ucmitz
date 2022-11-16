@@ -11,12 +11,15 @@
 
 namespace BcContentLink\Test\TestCase\Service;
 
+use BcContentLink\Test\Scenario\ContentLinksServiceScenario;
 use BaserCore\Test\Factory\ContentFactory;
 use BcContentLink\Service\ContentLinksService;
 use BaserCore\TestSuite\BcTestCase;
 use BcContentLink\Service\ContentLinksServiceInterface;
 use BcContentLink\Test\Factory\ContentLinkFactory;
 use BaserCore\Utility\BcContainerTrait;
+use Cake\Datasource\Exception\RecordNotFoundException;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Class ContentLinksServiceTest
@@ -25,15 +28,21 @@ use BaserCore\Utility\BcContainerTrait;
 class ContentLinksServiceTest extends BcTestCase
 {
 
+    /**
+     * Trait
+     */
+    use ScenarioAwareTrait;
     use BcContainerTrait;
+
     /**
      * Fixtures
      *
      * @var array
      */
-    protected $fixtures = [
-        'plugin.BcContentLink.Factory/ContentLinks',
+    public $fixtures = [
+        'plugin.BaserCore.Factory/Sites',
         'plugin.BaserCore.Factory/Contents',
+        'plugin.BcContentLink.Factory/ContentLinks',
     ];
 
     /**
@@ -82,7 +91,11 @@ class ContentLinksServiceTest extends BcTestCase
      */
     public function test_get(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(ContentLinksServiceScenario::class);
+        $data = $this->ContentLinksService->get(1);
+        $this->assertNotEmpty($data);
+        $this->expectException(RecordNotFoundException::class);
+        $this->ContentLinksService->get(1, ['status' => 'publish']);
     }
 
     /**

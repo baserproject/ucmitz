@@ -14,7 +14,8 @@
         "firebase/php-jwt": "6.1.0",
         "imo-tikuwa/cakephp-soft-delete": "^2.0",
         "josegonzalez/dotenv": "^3.2",
-        "mobiledetect/mobiledetectlib": "^2.8"
+        "mobiledetect/mobiledetectlib": "^2.8",
+        "ext-pdo": "*"
     },
     "require-dev": {
         "cakephp/bake": "^2.6",
