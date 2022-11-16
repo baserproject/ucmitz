@@ -12,11 +12,12 @@
 namespace BcContentLink\Test\TestCase\Controller;
 
 use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Scenario\MultiSiteScenario;
 use BcContentLink\Controller\ContentLinksController;
 use BaserCore\TestSuite\BcTestCase;
-use BcContentLink\Service\ContentLinksServiceInterface;
 use BcContentLink\Test\Factory\ContentLinkFactory;
 use Cake\TestSuite\IntegrationTestTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * ContentLinksControllerTest
@@ -28,6 +29,7 @@ class ContentLinksControllerTest extends BcTestCase
      * Trait
      */
     use IntegrationTestTrait;
+    use ScenarioAwareTrait;
 
     /**
      * Fixtures
@@ -35,8 +37,10 @@ class ContentLinksControllerTest extends BcTestCase
      * @var array
      */
     protected $fixtures = [
-        'plugin.BcContentLink.Factory/ContentLinks',
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BaserCore.Factory/Contents',
+        'plugin.BcContentLink.Factory/ContentLinks',
     ];
 
     /**
@@ -74,25 +78,29 @@ class ContentLinksControllerTest extends BcTestCase
      */
     public function test_view(): void
     {
+        //データ生成
+        $this->loadFixtureScenario(MultiSiteScenario::class);
         ContentLinkFactory::make(['id' => 1, 'url' => '/test-new'])->persist();
         ContentFactory::make([
-            'id' => 1,
+            'id' => 6,
+            'name' => 'index',
             'plugin' => 'BcContentLink',
             'type' => 'ContentLink',
+            'entity_id' => 1,
+            'url' => '/index',
             'site_id' => 1,
             'title' => 'test new link',
             'lft' => 1,
             'rght' => 2,
-            'entity_id' => 1,
-            "status" => true,
+            'status' => true,
         ])->persist();
-        $request = $this->getRequest()->withAttribute('currentContent', ContentFactory::get(1));
-        $controller = new ContentLinksController($request);
 
-        $service = $this->getService(ContentLinksServiceInterface::class);
-        $controller->view($service);
-        $rs = $controller->viewBuilder()->getVars()['contentLink']->toArray();
+        //テスト実行成功場合、
+        $this->get('/bc-content-link/content_links/view');
+        $this->assertResponseSuccess();
+
+        //戻る値を確認
+        $rs = $this->_controller->viewBuilder()->getVars()['contentLink']->toArray();
         $this->assertEquals('/test-new', $rs['url']);
-        $this->assertEquals('test new link', $rs['content']['title']);
     }
 }
