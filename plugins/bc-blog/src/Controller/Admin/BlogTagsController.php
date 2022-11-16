@@ -36,6 +36,7 @@ class BlogTagsController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
