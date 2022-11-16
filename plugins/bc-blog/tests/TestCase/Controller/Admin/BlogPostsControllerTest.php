@@ -204,6 +204,7 @@ class BlogPostsControllerTest extends BcTestCase
     {
         $this->enableSecurityToken();
         $this->enableCsrfToken();
+        //データを作成
         SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
         ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
         BlogPostFactory::make(
@@ -230,16 +231,25 @@ class BlogPostsControllerTest extends BcTestCase
             ]
         )->persist();
         BlogPostFactory::make(['id' => 2])->persist();
+
+        //実行成功のテスト
         $this->post('/baser/admin/bc-blog/blog_posts/copy/1/1');
+        // ステータスを確認
         $this->assertResponseCode(302);
+        // メッセージを確認
         $this->assertFlashMessage('ブログ記事「test」をコピーしました。');
+        // リダイレクトを確認
+        $this->assertRedirect(['action' => 'index', 1]);
+        // データのコピーを確認
         $BlogPostsService = $this->getService(BlogPostsServiceInterface::class);
         $copyBlogPost = $BlogPostsService->getIndex(['title' => 'test_copy'])->first();
         $this->assertEquals($copyBlogPost->content, 'content test');
 
+        //実行失敗のテスト　存在しないBlogPostIDを利用
         $this->post('/baser/admin/bc-blog/blog_posts/copy/1/2');
         $this->assertResponseCode(302);
         $this->assertFlashMessage('入力エラーです。内容を修正してください。');
+        $this->assertRedirect(['action' => 'index', 1]);
     }
 
 }
