@@ -108,9 +108,11 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         $count = $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count();
 
+        // ブログコメントを削除するテスト
         $comment = $this->BlogCommentsService->delete(1);
         $this->assertTrue($comment);
 
+        // 削除が成功ならコメント数が１単位減る
         $this->assertEquals($count - 1, $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count());
     }
 
