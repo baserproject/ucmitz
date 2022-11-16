@@ -83,8 +83,10 @@ class BlogCommentsServiceTest extends BcTestCase
     {
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
 
+        // ブログコメントの単一データを取得するテスト
         $comment = $this->BlogCommentsService->get(1);
         $this->assertEquals(1, $comment['id']);
+        // BlogPostsのデータが含まれるテスト
         $this->assertEquals(1, $comment['blog_post']['id']);
     }
 
