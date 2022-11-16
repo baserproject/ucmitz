@@ -206,10 +206,6 @@ class BlogPostsControllerTest extends BcTestCase
         $this->enableCsrfToken();
         SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
         ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
-        BlogContentFactory::make([
-            'id' => 1,
-            'use_content' => '1'
-        ])->persist();
         BlogPostFactory::make(
             [
                 'id' => '1',
