@@ -12,11 +12,13 @@
 namespace BaserCore\Test\TestCase\Middleware;
 
 use BaserCore\Middleware\BcRedirectSubSiteFilter;
+use BaserCore\Service\SitesServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\PageFactory;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\Test\Scenario\MultiSiteScenario;
 use BaserCore\TestSuite\BcTestCase;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -39,6 +41,7 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
     protected $fixtures = [
         'plugin.BaserCore.Factory/Sites',
         'plugin.BaserCore.Factory/Contents',
+        'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BaserCore.Factory/SiteConfigs',
         'plugin.BaserCore.Factory/Pages',
     ];
@@ -67,6 +70,7 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
 
     /**
      * test Process
+     * リダイレクトを確認
      */
     public function test_process(): void
     {
@@ -113,27 +117,15 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
 
     /**
      * test Process
+     * 「クエリーパラメーターに、{$site->name}_auto_redirect=off と設定されている場合はリダイレクトしない」を確認
      */
     public function test_process_auto_redirect_off(): void
     {
-        SiteFactory::make([
-            'id' => 1,
-            'name' => '',
-            'title' => 'baserCMS inc.',
-            'status' => true
-        ])->persist();
-        SiteFactory::make([
-            'id' => 2,
-            'name' => 'smartphone',
-            'title' => 'baserCMS inc. sub',
-            'status' => true,
-            'main_site_id' => 1,
-            'device' => 'smartphone',
-            'auto_redirect' => false
-        ])->persist();
+        //データ生成
+        $this->loadFixtureScenario(MultiSiteScenario::class);
         PageFactory::make(['id' => 1, 'page_template' => 'default'])->persist();
         ContentFactory::make([
-            'id' => 1,
+            'id' => 6,
             'url' => '/about',
             'name' => 'about',
             'plugin' => 'BaserCore',
@@ -146,79 +138,54 @@ class BcRedirectSubSiteFilterTest extends BcTestCase
             'site_root' => 2,
             'status' => true
         ])->persist();
-        SiteConfigFactory::make([
-            'name' => 'use_site_device_setting',
-            'value' => 'iPhone'
-        ])->persist();
 
-        $_SERVER['HTTP_USER_AGENT'] = 'iPhone';
         $request = $this->getRequest('/about?smartphone_auto_redirect=off')
             ->withParam('plugin', 'BaserCore')
             ->withParam('controller', 'Pages')
             ->withParam('action', 'view');
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        //リダイレクトしない確認
         $this->assertResponseSuccess();
     }
 
     /**
      * test Process
+     * 「リダイレクト先のサイトが非公開の場合はリダイレクトしない」を確認
      */
     public function test_process_site_private(): void
     {
-        SiteFactory::make([
-            'id' => 1,
-            'name' => '',
-            'title' => 'baserCMS inc.',
-            'status' => false
-        ])->persist();
-        SiteFactory::make([
-            'id' => 2,
-            'name' => '',
-            'title' => 'baserCMS inc. sub',
-            'status' => false,
-            'main_site_id' => 1,
-            'device' => 'smartphone',
-            'auto_redirect' => true
-        ])->persist();
-        PageFactory::make(['id' => 1])->persist();
-        ContentFactory::make([
-            'id' => 1,
-            'url' => '/about',
-            'name' => 'about',
-            'plugin' => 'BaserCore',
-            'type' => 'Page',
-            'site_id' => 1,
-            'parent_id' => null,
-            'lft' => 1,
-            'rght' => 2,
-            'entity_id' => 1,
-            'site_root' => 2,
-            'status' => true
-        ])->persist();
-        SiteConfigFactory::make([
-            'name' => 'use_site_device_setting',
-            'value' => 'iPhone'
-        ])->persist();
+        //データ生成
+        $this->loadFixtureScenario(InitAppScenario::class);
 
-        $_SERVER['HTTP_USER_AGENT'] = 'iPhone';
-        $request = $this->getRequest('/about')->withParam('plugin', 'BaserCore')
-            ->withParam('controller', 'Pages')->withParam('action', 'view')
-            ->withAttribute('currentContent', PageFactory::get(1));
+        //サイトが非公開を設定する
+        $SitesService = $this->getService(SitesServiceInterface::class);
+        $SitesService->unpublish(1);
+
+        $request = $this->loginAdmin($this->getRequest('/baser/admin/?site_id=1'));
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        //リダイレクトしない確認
         $this->assertResponseSuccess();
     }
 
     /**
      * test Process
+     * 「アップデーターや管理画面へのアクセスの場合には無視する。」を確認
      */
     public function test_process_admin(): void
     {
+        //データ生成
         $this->loadFixtureScenario(InitAppScenario::class);
+
+        //アップデータのURLを確認
         $request = $this->loginAdmin($this->getRequest('/update'));
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        //リダイレクトしない確認
         $this->assertResponseSuccess();
+
+        //管理画面へのアクセスを確認
         $request = $this->loginAdmin($this->getRequest('/baser/admin'));
         $this->_response = $this->BcRedirectSubSiteFilter->process($request, $this->Application);
+        //リダイレクトしない確認
         $this->assertResponseSuccess();
     }
 }
