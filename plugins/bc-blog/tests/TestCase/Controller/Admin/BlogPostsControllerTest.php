@@ -18,6 +18,7 @@ use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Admin\BlogPostsController;
+use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -189,7 +190,60 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function testPublish()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        // データ生成
+        SiteConfigFactory::make([
+            'name' => 'content_types',
+            'value' => ''
+        ])->persist();
+        ContentFactory::make([
+            'id' => 1,
+            'url' => '/blog/',
+            'name' => 'blog',
+            'plugin' => 'BcBlog',
+            'type' => 'BlogContent',
+            'site_id' => 1,
+            'entity_id' => 2,
+            'status' => true
+        ])->persist();
+        BlogContentFactory::make([
+            'id' => 2,
+        ])->persist();
+        BlogPostFactory::make([
+            'id' => 1,
+            'blog_content_id' => 2,
+            'title' => 'baser ブログのタイトル',
+            'blog_category_id' => 1,
+            'user_id' => 1,
+            'status' => false,
+        ])->persist();
+        // 公開設定コール
+        $this->patch('/baser/admin/bc-blog/blog_posts/publish/2/1');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // メッセージを確認
+        $this->assertFlashMessage('ブログ記事「baser ブログのタイトル」を公開状態にしました。');
+        // リダイレクトを確認
+        $this->assertRedirect([
+            'plugin' => 'BcBlog',
+            'prefix' => 'Admin',
+            'controller' => 'blog_posts',
+            'action' => 'index/2'
+        ]);
+        // データの変更を確認
+        $blogPost = BlogPostFactory::get(1);
+        $this->assertEquals(true, $blogPost['status']);
+        $this->assertEquals(null, $blogPost['publish_begin']);
+        $this->assertEquals(null, $blogPost['publish_end']);
+
+        // テスト失敗確認
+        // 公開設定コール
+        $this->patch('/baser/admin/bc-blog/blog_posts/publish/2/99');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        $this->assertFlashMessage('データベース処理中にエラーが発生しました。Record not found in table "blog_posts"');
     }
 
     /**
