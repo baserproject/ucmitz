@@ -13,7 +13,6 @@ namespace BcBlog\Test\TestCase\Service;
 
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Service\BlogCommentsService;
-use BcBlog\Test\Scenario\BlogCommentsServiceScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
