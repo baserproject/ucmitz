@@ -104,6 +104,7 @@ class BlogPostsController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(BlogPostsAdminServiceInterface $service, int $blogContentId)
     {
@@ -121,15 +122,15 @@ class BlogPostsController extends BlogAdminAppController
             'request' => $this->getRequest()
         ]);
         if ($event !== false) {
-            $this->setRequest(($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult());
+            $this->setRequest(($event->getResult() === null || $event->getResult() === true) ? $event->getData('request') : $event->getResult());
         }
 
         try {
-$this->paginate = [
-    'sortableFields' => [
-        'BlogCategories.name'
-    ]
-];
+            $this->paginate = [
+                'sortableFields' => [
+                    'BlogCategories.name'
+                ]
+            ];
             $entities = $this->paginate($service->getIndex(array_merge(
                 ['blog_content_id' => $blogContentId],
                 $this->getRequest()->getQueryParams()
