@@ -18,6 +18,7 @@ use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Admin\BlogPostsController;
+use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -133,7 +134,70 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function testDelete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        // データ生成
+        SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
+        ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
+        BlogContentFactory::make([
+            'id' => '1',
+            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
+            'template' => 'default',
+            'list_count' => '10',
+            'list_direction' => 'DESC',
+            'feed_count' => '10',
+            'tag_use' => '1',
+            'comment_use' => '1',
+            'comment_approve' => '0',
+            'auth_captcha' => '1',
+            'widget_area' => '2',
+            'eye_catch_size' => 'YTo0OntzOjExOiJ0aHVtYl93aWR0aCI7czozOiIzMDAiO3M6MTI6InRodW1iX2hlaWdodCI7czozOiIzMDAiO3M6MTg6Im1vYmlsZV90aHVtYl93aWR0aCI7czozOiIxMDAiO3M6MTk6Im1vYmlsZV90aHVtYl9oZWlnaHQiO3M6MzoiMTAwIjt9',
+            'use_content' => '1',
+            'created' => '2015-08-10 18:57:47',
+            'modified' => NULL,
+        ])->persist();
+        BlogPostFactory::make([
+            'id' => '1',
+            'blog_content_id' => '1',
+            'no' => '1',
+            'name' => 'ホームページをオープンしました',
+            'title' => 'test delete',
+            'content' => 'content test',
+            'detail' => 'detail test',
+            'blog_category_id' => '1',
+            'user_id' => '1',
+            'status' => '1',
+            'posts_date' => '2015-01-27 12:57:59',
+            'content_draft' => '',
+            'detail_draft' => '',
+            'publish_begin' => null,
+            'publish_end' => null,
+            'exclude_search' => 0,
+            'eye_catch' => 'template1.jpg',
+            'created' => '2015-01-27 12:56:53',
+            'modified' => '2015-01-27 12:57:59'
+        ])->persist();
+        // 記事削除コール
+        $this->delete('/baser/admin/bc-blog/blog_posts/delete/1/1');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // メッセージを確認
+        $this->assertFlashMessage('ブログ記事「test delete」を削除しました。');
+        // リダイレクトを確認
+        $this->assertRedirect(['action' => 'index', 1]);
+        // データ削除確認
+        $result = BlogPostFactory::find()->where(['id' => 1])->count();
+        $this->assertEquals(0, $result);
+
+        // error
+        $this->delete('/baser/admin/bc-blog/blog_posts/delete/1/1');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // メッセージを確認
+        $this->assertFlashMessage('データベース処理中にエラーが発生しました。Record not found in table "blog_posts"');
+        // リダイレクトを確認
+        $this->assertRedirect(['action' => 'index', 1]);
     }
 
     /**
