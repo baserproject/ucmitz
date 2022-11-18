@@ -210,6 +210,7 @@ $this->paginate = [
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function edit(BlogPostsAdminServiceInterface $service, int $blogContentId, int $id)
     {
