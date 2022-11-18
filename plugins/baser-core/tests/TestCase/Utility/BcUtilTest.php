@@ -1266,15 +1266,16 @@ class BcUtilTest extends BcTestCase
      */
     public function testIsMigrations()
     {
+        $this->markTestIncomplete('このテストは未実装です。');
         //異常場合のテスト
-//        $_ENV['IS_CONSOLE'] = false;
-//        $result = BcUtil::isMigrations();
-//        $this->assertFalse($result);
-//
-//        //正常場合のテスト
-//        $_ENV['IS_CONSOLE'] = true;
-//        $_SERVER['argv'][1] = 'migrations';
-//        $result = BcUtil::isMigrations();
-//        $this->assertTrue($result);
+        $_ENV['IS_CONSOLE'] = false;
+        $result = BcUtil::isMigrations();
+        $this->assertFalse($result);
+
+        //正常場合のテスト
+        $_ENV['IS_CONSOLE'] = true;
+        $_SERVER['argv'][1] = 'migrations';
+        $result = BcUtil::isMigrations();
+        $this->assertTrue($result);
     }
 }
