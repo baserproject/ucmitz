@@ -1266,7 +1266,6 @@ class BcUtilTest extends BcTestCase
      */
     public function testIsMigrations()
     {
-        $this->markTestIncomplete('このテストは未実装です。');
         //異常場合のテスト
         $_ENV['IS_CONSOLE'] = false;
         $result = BcUtil::isMigrations();
