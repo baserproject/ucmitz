@@ -141,7 +141,7 @@ class BlogPostsControllerTest extends BcTestCase
         SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
         ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
         BlogContentFactory::make([
-            'id' => '1',
+            'id' => '2',
             'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
             'template' => 'default',
             'list_count' => '10',
@@ -159,7 +159,7 @@ class BlogPostsControllerTest extends BcTestCase
         ])->persist();
         BlogPostFactory::make([
             'id' => '1',
-            'blog_content_id' => '1',
+            'blog_content_id' => '2',
             'no' => '1',
             'name' => 'ホームページをオープンしました',
             'title' => 'test delete',
