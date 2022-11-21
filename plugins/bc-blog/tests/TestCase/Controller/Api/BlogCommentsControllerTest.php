@@ -129,7 +129,6 @@ class BlogCommentsControllerTest extends BcTestCase
         }
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
-        $this->assertEquals(1, $dblogsData->id);
         $this->assertEquals('ブログコメント「21, 22」を 公開 しました。', $dblogsData->message);
         $this->assertEquals(1, $dblogsData->user_id);
         $this->assertEquals('BlogComments', $dblogsData->controller);
@@ -151,7 +150,6 @@ class BlogCommentsControllerTest extends BcTestCase
         }
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
-        $this->assertEquals(2, $dblogsData->id);
         $this->assertEquals('ブログコメント「21, 22」を 非公開に しました。', $dblogsData->message);
         $this->assertEquals(1, $dblogsData->user_id);
         $this->assertEquals('BlogComments', $dblogsData->controller);
@@ -171,7 +169,6 @@ class BlogCommentsControllerTest extends BcTestCase
         $this->assertEquals(0, $data);
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
-        $this->assertEquals(3, $dblogsData->id);
         $this->assertEquals('ブログコメント「21, 22」を 削除 しました。', $dblogsData->message);
         $this->assertEquals(1, $dblogsData->user_id);
         $this->assertEquals('BlogComments', $dblogsData->controller);
