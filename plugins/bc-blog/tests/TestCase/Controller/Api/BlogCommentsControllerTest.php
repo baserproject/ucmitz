@@ -97,7 +97,6 @@ class BlogCommentsControllerTest extends BcTestCase
      */
     public function test_batch()
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
         // サービスクラス
         $blogCommentsService = $this->getService(BlogCommentsServiceInterface::class);
         $dblogsService = $this->getService(DblogsServiceInterface::class);
