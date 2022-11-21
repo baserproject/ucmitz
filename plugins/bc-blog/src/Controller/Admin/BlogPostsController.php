@@ -41,7 +41,7 @@ class BlogPostsController extends BlogAdminAppController
     /**
      * initialize
      *
-     * ブログ記事に関する処理の初期化を行う
+     * コンテンツ管理用のコンポーネントをロードする。
      *
      * @return void
      * @checked
@@ -156,6 +156,7 @@ $this->paginate = [
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function add(BlogPostsAdminServiceInterface $service, int $blogContentId)
     {
@@ -281,6 +282,7 @@ $this->paginate = [
      * @param int $id
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function unpublish(BlogPostsServiceInterface $service, $blogContentId, $id)
     {

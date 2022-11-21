@@ -35,6 +35,9 @@ if [ ! -e '/var/www/html/docker_inited' ]; then
     chmod -R 777 /var/www/html/logs
     chmod 777 /var/www/html/plugins
 
+    # Setup install setting
+    cp /var/www/html/config/test_install.php /var/www/html/config/install.php
+
     # Migrations
     echo "[$(date +"%Y/%m/%d %H:%M:%S")] Migration start."
     TIMES=0
@@ -61,6 +64,8 @@ if [ ! -e '/var/www/html/docker_inited' ]; then
         /var/www/html/bin/cake migrations seed --plugin BcSearchIndex
         /var/www/html/bin/cake migrations migrate --plugin BcContentLink
         /var/www/html/bin/cake migrations seed --plugin BcContentLink
+        /var/www/html/bin/cake migrations migrate --plugin BcMail
+        /var/www/html/bin/cake migrations seed --plugin BcMail
         /var/www/html/bin/cake plugin assets symlink
     else
         echo "[$(date +"%Y/%m/%d %H:%M:%S")] Migration failed."
