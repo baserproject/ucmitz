@@ -49,7 +49,10 @@ class BlogControllerTest extends BcTestCase
     public function testInitialize()
     {
         $this->BlogController = new BlogController($this->getRequest());
+        // コンポーネント設定を確認するテスト
         $this->assertNotEmpty($this->BlogController->BcFrontContents);
+        // configを確認するテスト
+        $this->assertFalse($this->BlogController->BcFrontContents->getConfig('isContentsPage'));
     }
 
     /**
