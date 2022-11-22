@@ -11,9 +11,16 @@
 
 namespace BcBlog\Test\TestCase\Service\Admin;
 
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\UserFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
+use BcBlog\Service\Admin\BlogPostsAdminService;
+use BcBlog\Service\Admin\BlogPostsAdminServiceInterface;
+use BcBlog\Test\Factory\BlogContentFactory;
 use Cake\TestSuite\IntegrationTestTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Class BlogContentsAdminServiceTest
@@ -26,6 +33,7 @@ class BlogPostsAdminServiceTest extends BcTestCase
      */
     use BcContainerTrait;
     use IntegrationTestTrait;
+    use ScenarioAwareTrait;
 
     /**
      * Fixtures
@@ -33,8 +41,14 @@ class BlogPostsAdminServiceTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/UsersUserGroups',
+        'plugin.BaserCore.Factory/UserGroups',
         'plugin.BaserCore.Factory/Contents',
         'plugin.BcBlog.Factory/BlogPosts',
+//        'plugin.BaserCore.Contents',
     ];
 
     /**
@@ -63,7 +77,23 @@ class BlogPostsAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを作成する
+        $this->loadFixtureScenario(InitAppScenario::class);
+        ContentFactory::make(['id' => 4, 'url' => '/index', 'site_id' => 1, 'status' => true])->persist();
+        BlogContentFactory::make(['id' => 1])->persist();
+
+        // 対象メーソドを実行する
+        /** @var BlogPostsAdminService $service */
+        $service = $this->getService(BlogPostsAdminServiceInterface::class);
+        $post = ['id' => 1];
+        $request = $this->loginAdmin($this->getRequest()->withParam('pass.0', 1));
+        $result = $service->getViewVarsForIndex($post, $request);
+
+        // 戻り値の中身を確認する
+        $this->assertEquals($post, $result['posts']);
+        $this->assertEquals(1, $result['blogContent']->id);
+        $this->assertNotEmpty($result['users']);
+        $this->assertEquals('https://localhost/', $result['publishLink']);
     }
 
     /**
