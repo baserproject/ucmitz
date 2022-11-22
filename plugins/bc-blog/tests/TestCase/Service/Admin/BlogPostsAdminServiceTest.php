@@ -19,6 +19,7 @@ use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Service\Admin\BlogPostsAdminService;
 use BcBlog\Service\Admin\BlogPostsAdminServiceInterface;
 use BcBlog\Test\Factory\BlogContentFactory;
+use BcBlog\Test\Factory\BlogPostFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -99,7 +100,7 @@ class BlogPostsAdminServiceTest extends BcTestCase
     public function test_getViewVarsForAdd()
     {
         // データを作成する
-        ContentFactory::make(['id' => 4, 'url' => '/index', 'site_id' => 1, 'status' => true])->persist();
+        BlogPostFactory::make(['id' => 1])->persist();
         BlogContentFactory::make(['id' => 1])->persist();
         $this->loadFixtureScenario(InitAppScenario::class);
 
@@ -107,7 +108,7 @@ class BlogPostsAdminServiceTest extends BcTestCase
         /** @var BlogPostsAdminService $service */
         $service = $this->getService(BlogPostsAdminServiceInterface::class);
         $request = $this->getRequest('/baser/admin')->withParam('pass.0', 1);
-        $post = ContentFactory::get(4);
+        $post = BlogPostFactory::get(1);
         /** @var UsersService $userService */
         $userService = $this->getService(UsersServiceInterface::class);
         $user = $userService->get(1);
