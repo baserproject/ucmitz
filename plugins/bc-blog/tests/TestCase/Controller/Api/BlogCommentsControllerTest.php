@@ -183,15 +183,6 @@ class BlogCommentsControllerTest extends BcTestCase
             'batch_targets' => [1, 2]
         ]);
         $this->assertResponseCode(500);
-
-        // 無効なIDを指定
-        $this->post('/baser/api/bc-blog/blog_comments/batch.json?token=' . $this->accessToken, [
-            'batch' => 'delete',
-            'batch_targets' => [99, 100]
-        ]);
-        $this->assertResponseCode(400);
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('Record not found in table "blog_comments"', $result->message);
     }
 
 }

@@ -63,9 +63,6 @@ class BlogCommentsController extends BcApiController
         } catch (BcException $e) {
             $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', $e->getMessage());
-        } catch (\Exception $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', $e->getMessage());
         }
         $this->set(['message' => $message]);
         $this->viewBuilder()->setOption('serialize', ['message']);
