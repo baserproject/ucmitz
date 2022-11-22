@@ -18,8 +18,10 @@ use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use BcBlog\Service\BlogContentsService;
+use BcBlog\Service\BlogContentsServiceInterface;
 use BcBlog\Service\Front\BlogFrontService;
 use BcBlog\Test\Factory\BlogContentFactory;
+use BcBlog\Test\Factory\BlogPostFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -195,7 +197,84 @@ class BlogFrontServiceTest extends BcTestCase
      */
     public function test_getViewVarsForSingle()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // サービスクラス
+        $BlogContentsService = $this->getService(BlogContentsServiceInterface::class);
+        // データ生成
+        $this->loadFixtureScenario(InitAppScenario::class);
+        BlogContentFactory::make([
+            'id' => 1,
+            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
+            'template' => 'default',
+            'list_count' => '10',
+            'list_direction' => 'DESC',
+            'feed_count' => '10',
+            'tag_use' => '1',
+            'comment_use' => '1',
+            'comment_approve' => '0',
+            'auth_captcha' => '1',
+            'widget_area' => '2',
+            'eye_catch_size' => BcUtil::serialize([
+                'thumb_width' => 600,
+                'thumb_height' => 600,
+                'mobile_thumb_width' => 150,
+                'mobile_thumb_height' => 150,
+            ]),
+            'use_content' => '1'
+        ])->persist();
+        ContentFactory::make([
+            'id' => 1,
+            'title' => 'news',
+            'plugin' => 'BcBlog',
+            'type' => 'BlogContent',
+            'entity_id' => 1,
+            'url' => '/test',
+            'site_id' => 1,
+            'alias_id' => null,
+            'main_site_content_id' => null,
+            'parent_id' => null,
+            'lft' => 1,
+            'rght' => 2,
+            'level' => 1,
+
+        ])->persist();
+        BlogPostFactory::make([
+            'id' => 1,
+            'blog_content_id' => 1,
+            'no' => 1,
+            'title' => 'blog post title',
+            'status' => true
+        ])->persist();
+        //リクエストバリューを設定
+        $request = $this->loginAdmin($this->getRequest(), 1);
+        // メソードをコール
+        $rs = $this->BlogFrontService->getViewVarsForSingle(
+            $request->withParam('pass', [1]),
+            $BlogContentsService->get(1),
+            ['blog', 'test']
+        );
+        //戻り値を確認
+        $this->assertEquals($rs['post']['title'], 'blog post title');
+        $this->assertEquals($rs['blogContent']['description'], 'baserCMS inc. [デモ] の最新の情報をお届けします。');
+        $editLinkExpected = [
+            'prefix' => 'Admin',
+            'plugin' => 'BcBlog',
+            'controller' => 'BlogPosts',
+            'action' => 'edit',
+            1,
+            1
+        ];
+        $this->assertEquals($rs['editLink'], $editLinkExpected);
+        $this->assertTrue($rs['commentUse']);
+        $this->assertTrue($rs['single']);
+        $this->assertEquals($rs['crumbs'], ['blog', 'test']);
+
+        //$noが存在しない場合、
+        $this->expectException('Cake\Http\Exception\NotFoundException');
+        $this->BlogFrontService->getViewVarsForSingle(
+            $this->getRequest(),
+            $BlogContentsService->get(1),
+            ['blog', 'test']
+        );
     }
 
     /**
