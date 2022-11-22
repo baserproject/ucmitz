@@ -12,7 +12,6 @@
 namespace BcBlog\Test\TestCase\Service\Admin;
 
 use BaserCore\Test\Factory\ContentFactory;
-use BaserCore\Test\Factory\UserFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
@@ -48,7 +47,6 @@ class BlogPostsAdminServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BaserCore.Factory/Contents',
         'plugin.BcBlog.Factory/BlogPosts',
-//        'plugin.BaserCore.Contents',
     ];
 
     /**
