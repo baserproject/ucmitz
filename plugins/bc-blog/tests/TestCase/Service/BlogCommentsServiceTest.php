@@ -141,7 +141,7 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->assertTrue($result);
         foreach ($ids as $id) {
             $comment = $this->BlogCommentsService->get($id);
-            $this->assertFalse($comment['status']);
+            $this->assertFalse($comment->status);
         }
 
         // 一括でブログコメントを公開するテスト
@@ -149,7 +149,7 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->assertTrue($result);
         foreach ($ids as $id) {
             $comment = $this->BlogCommentsService->get($id);
-            $this->assertTrue($comment['status']);
+            $this->assertTrue($comment->status);
         }
 
         // 一括でブログコメントを削除するテスト
