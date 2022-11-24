@@ -22,6 +22,7 @@ use BcBlog\Service\Front\BlogFrontService;
 use BcBlog\Service\Front\BlogFrontServiceInterface;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -209,42 +210,7 @@ class BlogFrontServiceTest extends BcTestCase
         $BlogContentsService = $this->getService(BlogContentsServiceInterface::class);
         // データ生成
         $this->loadFixtureScenario(InitAppScenario::class);
-        BlogContentFactory::make([
-            'id' => 1,
-            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
-            'template' => 'default',
-            'list_count' => '10',
-            'list_direction' => 'DESC',
-            'feed_count' => '10',
-            'tag_use' => '1',
-            'comment_use' => '1',
-            'comment_approve' => '0',
-            'auth_captcha' => '1',
-            'widget_area' => '2',
-            'eye_catch_size' => BcUtil::serialize([
-                'thumb_width' => 600,
-                'thumb_height' => 600,
-                'mobile_thumb_width' => 150,
-                'mobile_thumb_height' => 150,
-            ]),
-            'use_content' => '1'
-        ])->persist();
-        ContentFactory::make([
-            'id' => 1,
-            'title' => 'news',
-            'plugin' => 'BcBlog',
-            'type' => 'BlogContent',
-            'entity_id' => 1,
-            'url' => '/test',
-            'site_id' => 1,
-            'alias_id' => null,
-            'main_site_content_id' => null,
-            'parent_id' => null,
-            'lft' => 1,
-            'rght' => 2,
-            'level' => 1,
-
-        ])->persist();
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/');
         BlogPostFactory::make([
             'id' => 1,
             'blog_content_id' => 1,
@@ -262,7 +228,7 @@ class BlogFrontServiceTest extends BcTestCase
         );
         //戻り値を確認
         $this->assertEquals($rs['post']['title'], 'blog post title');
-        $this->assertEquals($rs['blogContent']['description'], 'baserCMS inc. [デモ] の最新の情報をお届けします。');
+        $this->assertEquals($rs['blogContent']->content->name, 'test');
         $editLinkExpected = [
             'prefix' => 'Admin',
             'plugin' => 'BcBlog',
