@@ -54,6 +54,7 @@ class BlogTagsController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(BlogTagsServiceInterface $service, $blogContentId = [])
     {
@@ -80,6 +81,9 @@ class BlogTagsController extends BlogAdminAppController
      *
      * @param BlogTagsService $service
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(BlogTagsServiceInterface $service)
     {
