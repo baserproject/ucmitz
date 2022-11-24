@@ -252,15 +252,11 @@ class BcUploadBehaviorTest extends BcTestCase
         // 初期化
         $entity = $this->table->get(1);
         $entity->eyecatch = $filename;
-        /** @var BcFileUploader $uploader */
-        $uploader = $this->table->getBehavior('BcUpload')->BcFileUploader[$this->table->getAlias()];
+        $uploader = $this->BcUploadBehavior->getFileUploader();
         $uploader->setUploadingFiles(['eyecatch' => ['name' => $filename, 'ext' => 'txt']]);
 
-        // パス情報
-        $filePath = $this->savePath . $filename;
-
         // ダミーファイルの生成
-        touch($filePath);
+        touch($this->savePath . $filename);
 
         // テスト実行
         $this->BcUploadBehavior->renameToBasenameFields($entity, $copy);
@@ -268,7 +264,6 @@ class BcUploadBehaviorTest extends BcTestCase
             $this->assertFileExists($path = $this->savePath . $file);
             @unlink($path);
         }
-
     }
 
     /**
