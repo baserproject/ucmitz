@@ -354,13 +354,13 @@ class BlogCategoriesTableTest extends BcTestCase
         //データを生成
 
         //アクセス制限を持っているデータを生成
-        UserFactory::make(['id' => 1])->persist();
-        UserGroupFactory::make(['id' => 1])->persist();
-        UsersUserGroupFactory::make(['id' => 1, 'user_id' => 1, 'user_group_id' => 1])->persist();
+        UserFactory::make(['id' => 3])->persist();
+        UserGroupFactory::make(['id' => 3])->persist();
+        UsersUserGroupFactory::make(['id' => 3, 'user_id' => 3, 'user_group_id' => 3])->persist();
         PermissionFactory::make([
-            'id' => 1,
+            'id' => 3,
             'name' => '新着情報記事管理',
-            'user_group_id' => 1,
+            'user_group_id' => 3,
             'url' => '/baser/api/bc-blog/*',
             'auth' => true,
             'status' => true
@@ -382,7 +382,7 @@ class BlogCategoriesTableTest extends BcTestCase
         BlogCategoryFactory::make(['id' => 1])->persist();
 
         //アクセス制限を持っている検証
-        $result = $this->BlogCategoriesTable->hasNewCategoryAddablePermission([1], 1);
+        $result = $this->BlogCategoriesTable->hasNewCategoryAddablePermission([3], 1);
         $this->assertTrue($result);
 
         //アクセス制限を持っていない検証
