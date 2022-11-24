@@ -11,12 +11,16 @@
 
 namespace BaserCore\Middleware;
 
+use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\Http\Response;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * Class BcRedirectSubSiteFilter
@@ -44,6 +48,9 @@ class BcRedirectSubSiteFilter implements MiddlewareInterface
      * @param ServerRequestInterface $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function process(
         ServerRequestInterface  $request,
@@ -53,7 +60,7 @@ class BcRedirectSubSiteFilter implements MiddlewareInterface
         if (Configure::read('BcRequest.isUpdater')) {
             return $handler->handle($request);
         }
-        if ($request->is('admin')) {
+        if ($request->is('admin') || !BcUtil::isInstalled()) {
             return $handler->handle($request);
         }
         $sites = \Cake\ORM\TableRegistry::getTableLocator()->get('BaserCore.Sites');
