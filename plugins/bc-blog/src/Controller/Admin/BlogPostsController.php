@@ -270,7 +270,7 @@ class BlogPostsController extends BlogAdminAppController
             if ($service->delete($id)) {
                 $this->BcMessage->setSuccess(__d('baser', 'ブログ記事「{0}」を削除しました。', $blogPost->title));
             }
-        } catch (\Exception $e) {
+        } catch (BcException $e) {
             $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
         }
 

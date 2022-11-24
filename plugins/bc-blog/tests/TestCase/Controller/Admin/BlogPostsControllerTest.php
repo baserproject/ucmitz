@@ -141,25 +141,7 @@ class BlogPostsControllerTest extends BcTestCase
         $this->enableCsrfToken();
 
         // データ生成
-        SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
-        ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
-        BlogContentFactory::make([
-            'id' => '2',
-            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
-            'template' => 'default',
-            'list_count' => '10',
-            'list_direction' => 'DESC',
-            'feed_count' => '10',
-            'tag_use' => '1',
-            'comment_use' => '1',
-            'comment_approve' => '0',
-            'auth_captcha' => '1',
-            'widget_area' => '2',
-            'eye_catch_size' => 'YTo0OntzOjExOiJ0aHVtYl93aWR0aCI7czozOiIzMDAiO3M6MTI6InRodW1iX2hlaWdodCI7czozOiIzMDAiO3M6MTg6Im1vYmlsZV90aHVtYl93aWR0aCI7czozOiIxMDAiO3M6MTk6Im1vYmlsZV90aHVtYl9oZWlnaHQiO3M6MzoiMTAwIjt9',
-            'use_content' => '1',
-            'created' => '2015-08-10 18:57:47',
-            'modified' => NULL,
-        ])->persist();
+        $this->loadFixtureScenario(BlogContentScenario::class, 2, 2, null, 'news', '/news');
         BlogPostFactory::make([
             'id' => '1',
             'blog_content_id' => '2',
@@ -182,25 +164,21 @@ class BlogPostsControllerTest extends BcTestCase
             'modified' => '2015-01-27 12:57:59'
         ])->persist();
         // 記事削除コール
-        $this->delete('/baser/admin/bc-blog/blog_posts/delete/1/1');
+        $this->delete('/baser/admin/bc-blog/blog_posts/delete/2/1');
         // ステータスを確認
         $this->assertResponseCode(302);
         // メッセージを確認
         $this->assertFlashMessage('ブログ記事「test delete」を削除しました。');
         // リダイレクトを確認
-        $this->assertRedirect(['action' => 'index', 1]);
+        $this->assertRedirect(['action' => 'index', 2]);
         // データ削除確認
         $result = BlogPostFactory::find()->where(['id' => 1])->count();
         $this->assertEquals(0, $result);
 
         // error
-        $this->delete('/baser/admin/bc-blog/blog_posts/delete/1/1');
+        $this->delete('/baser/admin/bc-blog/blog_posts/delete/2/1');
         // ステータスを確認
-        $this->assertResponseCode(302);
-        // メッセージを確認
-        $this->assertFlashMessage('データベース処理中にエラーが発生しました。Record not found in table "blog_posts"');
-        // リダイレクトを確認
-        $this->assertRedirect(['action' => 'index', 1]);
+        $this->assertResponseCode(404);
     }
 
     /**
