@@ -201,19 +201,7 @@ class BlogPostsControllerTest extends BcTestCase
             'name' => 'content_types',
             'value' => ''
         ])->persist();
-        ContentFactory::make([
-            'id' => 1,
-            'url' => '/blog/',
-            'name' => 'blog',
-            'plugin' => 'BcBlog',
-            'type' => 'BlogContent',
-            'site_id' => 1,
-            'entity_id' => 2,
-            'status' => true
-        ])->persist();
-        BlogContentFactory::make([
-            'id' => 2,
-        ])->persist();
+        $this->loadFixtureScenario(BlogContentScenario::class, 2, 1, null, 'news', '/news');
         BlogPostFactory::make([
             'id' => 1,
             'blog_content_id' => 2,
