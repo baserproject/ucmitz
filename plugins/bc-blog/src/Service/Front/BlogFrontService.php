@@ -50,6 +50,7 @@ class BlogFrontService implements BlogFrontServiceInterface
      *
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -367,6 +368,7 @@ class BlogFrontService implements BlogFrontServiceInterface
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getArchivesTemplate(BlogContent $blogContent): string
     {
