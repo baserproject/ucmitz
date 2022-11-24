@@ -245,8 +245,7 @@ class BlogPostsControllerTest extends BcTestCase
         // 公開設定コール
         $this->patch('/baser/admin/bc-blog/blog_posts/publish/2/99');
         // ステータスを確認
-        $this->assertResponseCode(302);
-        $this->assertFlashMessage('データベース処理中にエラーが発生しました。Record not found in table "blog_posts"');
+        $this->assertResponseCode(404);
     }
 
     /**

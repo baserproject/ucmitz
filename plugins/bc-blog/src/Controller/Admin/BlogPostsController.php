@@ -316,7 +316,7 @@ class BlogPostsController extends BlogAdminAppController
                 /* @var BlogPostsService $service */
                 $result = $service->publish($id);
                 $this->BcMessage->setSuccess(sprintf(__d('baser', 'ブログ記事「%s」を公開状態にしました。'), $result->title));
-            } catch (\Exception $e) {
+            } catch (BcException $e) {
                 $this->BcMessage->setSuccess(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
             }
         }
