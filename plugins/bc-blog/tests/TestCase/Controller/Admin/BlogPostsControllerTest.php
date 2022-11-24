@@ -124,7 +124,7 @@ class BlogPostsControllerTest extends BcTestCase
         //パラメータクエリを確認
         $this->assertEquals(1, $this->_controller->getRequest()->getQuery('num'));
 
-        //正常の場合を確認
+        //異常の場合を確認
         $this->post('/baser/admin/bc-blog/blog_posts/index/2?num=1&page=3');
         // ステータスを確認
         $this->assertResponseCode(302);
