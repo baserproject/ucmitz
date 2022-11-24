@@ -66,6 +66,62 @@ class InstallationsServiceTest extends BcTestCase
         $this->assertNotEmpty($result, '環境情報を取得できません');
     }
 
+    /**
+     * test constructionDb
+     */
+    public function testConstructionDb()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getRealDbName
+     */
+    public function testGetRealDbName()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test testConnectDb
+     */
+    public function testTestConnectDb()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test setAdminEmail
+     */
+    public function testSetAdminEmail()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test setSecuritySalt
+     */
+    public function testSetSecuritySalt()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test addDefaultUser
+     */
+    public function testAddDefaultUser()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test setSiteName
+     */
+    public function testSetSiteName()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
     public function test_deployAdminAssets()
     {
         $this->markTestIncomplete('このテストは未実装です。');
@@ -127,6 +183,46 @@ class InstallationsServiceTest extends BcTestCase
         unset($this->Plugin);
         $this->assertEquals($expected, $plugin, 'プラグインのステータスを正しく更新できません');
         $this->assertTrue($result, 'データベースのデータに初期更新に失敗しました');
+    }
+
+    /**
+     * test _updateContents
+     */
+    public function test_updateContents()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test _updatePluginStatus
+     */
+    public function test_updatePluginStatus()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test installCorePlugin
+     */
+    public function testInstallCorePlugin()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test installPlugin
+     */
+    public function testInstallPlugin()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test initPlugin
+     */
+    public function testInitPlugin()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
@@ -215,6 +311,21 @@ class InstallationsServiceTest extends BcTestCase
 
     }
 
+    /**
+     * test _getDbSource
+     */
+    public function test_getDbSource()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getAllDefaultDataPatterns
+     */
+    public function testGetAllDefaultDataPatterns()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
     /**
      * アップロード用初期フォルダを作成する
      */
