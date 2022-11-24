@@ -81,7 +81,9 @@ class ContentsAdminServiceTest extends \BaserCore\TestSuite\BcTestCase
             'ContentFolder' => 'フォルダー',
             'ContentAlias' => 'エイリアス',
             'Page' => '固定ページ',
-            'BlogContent' => 'ブログ'
+            'BlogContent' => 'ブログ',
+            'ContentLink' => 'リンク',
+            'MailContent' => 'メールフォーム'
         ];
         $this->assertEquals($expected, $this->ContentsAdmin->getTypes());
     }

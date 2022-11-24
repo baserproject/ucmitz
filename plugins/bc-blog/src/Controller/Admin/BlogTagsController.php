@@ -30,12 +30,13 @@ class BlogTagsController extends BlogAdminAppController
 
     /**
      * initialize
-     * 
+     *
      * Admin/BlogTagsControllerの初期化を行う
-     * 
+     *
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
@@ -45,7 +46,7 @@ class BlogTagsController extends BlogAdminAppController
 
     /**
      * [ADMIN] ブログタグ一覧
-     * 
+     *
      * ブログのタグ一覧を表示する。
      * ページネーションによる遷移先でレコードがなければ１ページ目にリダイレクトする。
      *
@@ -53,6 +54,7 @@ class BlogTagsController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(BlogTagsServiceInterface $service, $blogContentId = [])
     {
@@ -72,13 +74,16 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] ブログタグ登録
+     * [ADMIN] ブログタグを登録する
      *
      * ブロブのタグを登録する。
      * 登録に成功した場合、タグの一覧へリダイレクトする。
-     * 
+     *
      * @param BlogTagsService $service
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(BlogTagsServiceInterface $service)
     {
@@ -104,7 +109,7 @@ class BlogTagsController extends BlogAdminAppController
      * [ADMIN] ブログタグ編集
      *
      * 指定したブログのタグを編集し、ブログのタグ一覧へリダイレクトする
-     * 
+     *
      * @param BlogTagsService $service
      * @param int $id タグID
      * @return void
@@ -135,7 +140,7 @@ class BlogTagsController extends BlogAdminAppController
      * [ADMIN] ブログタグの削除処理
      *
      * 指定したブログのタグを削除して、ブログのタグ一覧へリダイレクトする。
-     * 
+     *
      * @param BlogTagsService $service
      * @param int $id
      * @return void

@@ -40,12 +40,13 @@ class BlogPostsController extends BlogAdminAppController
 
     /**
      * initialize
-     * 
-     * ブログ記事に関する処理の初期化を行う
-     * 
+     *
+     * コンテンツ管理用のコンポーネントをロードする。
+     *
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
@@ -94,7 +95,7 @@ class BlogPostsController extends BlogAdminAppController
 
     /**
      * [ADMIN] ブログ記事一覧表示
-     * 
+     *
      * ブログ記事の一覧を表示する。
      * ページネーションで次の記事が見つからなかった場合は、１ページ目にリダイレクトする。
      *
@@ -120,15 +121,15 @@ class BlogPostsController extends BlogAdminAppController
             'request' => $this->getRequest()
         ]);
         if ($event !== false) {
-            $this->setRequest(($event->getResult() === null || $event->getResult() === true)? $event->getData('request') : $event->getResult());
+            $this->setRequest(($event->getResult() === null || $event->getResult() === true) ? $event->getData('request') : $event->getResult());
         }
 
         try {
-$this->paginate = [
-    'sortableFields' => [
-        'BlogCategories.name'
-    ]
-];
+            $this->paginate = [
+                'sortableFields' => [
+                    'BlogCategories.name'
+                ]
+            ];
             $entities = $this->paginate($service->getIndex(array_merge(
                 ['blog_content_id' => $blogContentId],
                 $this->getRequest()->getQueryParams()
@@ -144,9 +145,9 @@ $this->paginate = [
 
     /**
      * [ADMIN] ブログ記事追加処理
-     * 
+     *
      * 指定したブログに記事を追加して、ブログ記事編集画面へリダイレクトする。
-     * 
+     *
      * ###エラー
      * ブログ記事の追加に失敗した場合、PersistenceFailedExceptionかBcExceptionが発生する。
      *
@@ -155,6 +156,7 @@ $this->paginate = [
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function add(BlogPostsAdminServiceInterface $service, int $blogContentId)
     {
@@ -164,7 +166,7 @@ $this->paginate = [
                 'data' => $this->getRequest()->getData()
             ]);
             if ($event !== false) {
-                $data = ($event->getResult() === null || $event->getResult() === true)? $event->getData('data') : $event->getResult();
+                $data = ($event->getResult() === null || $event->getResult() === true) ? $event->getData('data') : $event->getResult();
                 $this->setRequest($this->getRequest()->withParsedBody($data));
             }
             try {
@@ -198,7 +200,7 @@ $this->paginate = [
 
     /**
      * [ADMIN] ブログ記事編集処理
-     * 
+     *
      * 指定したブログ記事を編集する。
      * 記事の保存に失敗した場合、PersistenceFailedExceptionかBcExceptionのエラーが発生する。
      *
@@ -218,7 +220,7 @@ $this->paginate = [
                 'data' => $this->request->getData()
             ]);
             if ($event !== false) {
-                $data = ($event->getResult() === null || $event->getResult() === true)? $event->getData('data') : $event->getResult();
+                $data = ($event->getResult() === null || $event->getResult() === true) ? $event->getData('data') : $event->getResult();
                 $this->setRequest($this->getRequest()->withParsedBody($data));
             }
             try {
@@ -248,7 +250,7 @@ $this->paginate = [
 
     /**
      * [ADMIN] ブログ記事削除処理
-     * 
+     *
      * 指定したブログ記事を削除し、ブログ記事一覧へリダイレクトする。
      *
      * @param BlogPostsServiceInterface $service
@@ -273,13 +275,14 @@ $this->paginate = [
 
     /**
      * [ADMIN] ブログ記事を非公開状態にする
-     * 
+     *
      * 指定したブログ記事を非公開にしてブログ記事一覧へリダイレクトする。
      *
      * @param string $blogContentId
      * @param int $id
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function unpublish(BlogPostsServiceInterface $service, $blogContentId, $id)
     {
@@ -297,7 +300,7 @@ $this->paginate = [
 
     /**
      * [ADMIN] ブログ記事を公開状態にする
-     * 
+     *
      * 指定したブログ記事を公開状態にしてブログ記事一覧にリダイレクトする。
      *
      * @param string $blogContentId
@@ -321,7 +324,7 @@ $this->paginate = [
 
     /**
      * [ADMIN] コピー
-     * 
+     *
      * 指定したブログ記事をコピーする。
      * HTTPメソッドがGETの場合はコピー処理は行わず、ブログ記事一覧へリダイレクトする。
      *
@@ -331,16 +334,20 @@ $this->paginate = [
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function copy(BlogPostsServiceInterface $service, $blogContentId, $id = null)
     {
         $post = $service->get($id);
         if ($this->request->is(['patch', 'post', 'put'])) {
-            if ($service->copy($id)) {
+            try {
+                $service->copy($id);
                 $this->BcMessage->setSuccess(sprintf(__d('baser', 'ブログ記事「%s」をコピーしました。'), $post->title));
                 return $this->redirect(['action' => 'index', $blogContentId]);
+
+            } catch (\Exception $e) {
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
             }
-            $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
         }
         return $this->redirect(['action' => 'index', $blogContentId]);
     }

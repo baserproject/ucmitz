@@ -17,7 +17,7 @@ use CakephpFixtureFactories\Factory\BaseFactory as CakephpBaseFactory;
 use Faker\Generator;
 
 /**
- * SearchIndexFactory
+ * ContentLinkFactory
  */
 class ContentLinkFactory extends CakephpBaseFactory
 {
@@ -29,7 +29,7 @@ class ContentLinkFactory extends CakephpBaseFactory
      */
     protected function getRootTableRegistryName(): string
     {
-        return 'BaserCore.ContentLinks';
+        return 'BcContentLink.ContentLinks';
     }
 
     /**
