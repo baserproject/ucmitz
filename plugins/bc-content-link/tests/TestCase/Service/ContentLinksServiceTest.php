@@ -126,22 +126,6 @@ class ContentLinksServiceTest extends BcTestCase
         $this->expectException("Cake\ORM\Exception\PersistenceFailedException");
         $this->expectExceptionMessage("関連するコンテンツがありません");
         $this->ContentLinksService->create($data);
-
-        $data = [
-            'url' => null,
-            'content' => [
-                'plugin' => 'BcContentLink',
-                'type' => 'ContentLink',
-                'site_id' => 1,
-                'title' => 'test create link',
-                'lft' => 1,
-                'rght' => 2,
-                'name' => 'test create',
-            ]
-        ];
-        $rs = $this->ContentLinksService->create($data);
-        $this->assertEquals($rs['url'], '');
-        $this->assertEquals($rs['content']['title'], 'test create link');
     }
 
     /**
