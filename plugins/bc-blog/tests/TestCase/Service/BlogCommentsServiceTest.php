@@ -94,9 +94,9 @@ class BlogCommentsServiceTest extends BcTestCase
 
         // ブログコメントの単一データを取得するテスト
         $comment = $this->BlogCommentsService->get(1);
-        $this->assertEquals(1, $comment['id']);
+        $this->assertEquals(1, $comment->id);
         // BlogPostsのデータが含まれるテスト
-        $this->assertEquals(1, $comment['blog_post']['id']);
+        $this->assertEquals(1, $comment->blog_post->id);
     }
 
     /**
