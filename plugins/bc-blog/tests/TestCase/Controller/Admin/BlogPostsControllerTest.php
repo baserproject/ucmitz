@@ -270,7 +270,7 @@ class BlogPostsControllerTest extends BcTestCase
                 'modified' => '2015-01-27 12:57:59'
             ]
         )->persist();
-        BlogPostFactory::make(['id' => 2])->persist();
+        BlogPostFactory::make(['id' => 2, 'blog_content_id' => null])->persist();
 
         //実行成功のテスト
         $this->post('/baser/admin/bc-blog/blog_posts/copy/1/1');
