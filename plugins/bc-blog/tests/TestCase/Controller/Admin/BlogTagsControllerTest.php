@@ -16,6 +16,7 @@ namespace BcBlog\Test\TestCase\Controller\Admin;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Admin\BlogTagsController;
+use BcBlog\Test\Factory\BlogTagFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -82,7 +83,30 @@ class BlogTagsControllerTest extends BcTestCase
      */
     public function test_add(): void
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        //実行成功場合、
+        $data = [
+            'name' => 'test add'
+        ];
+        $this->post('/baser/admin/bc-blog/blog_tags/add', $data);
+        //リダイレクトを確認
+        $this->assertResponseCode(302);
+        $this->assertRedirect(['action' => 'index']);
+        //メッセージを確認
+        $this->assertFlashMessage('タグ「test add」を追加しました。');
+
+        //実行失敗場合、
+        $data = [
+            'name' => null
+        ];
+        $this->post('/baser/admin/bc-blog/blog_tags/add', $data);
+        //メッセージを確認
+        $vars = $this->_controller->viewBuilder()->getVars();
+        $this->assertEquals(['name' => ['_empty' => "ブログタグを入力してください。"]], $vars['blogTag']->getErrors());
+        //リダイレクトしないを確認
+        $this->assertResponseCode(200);
     }
 
     /**
@@ -106,6 +130,15 @@ class BlogTagsControllerTest extends BcTestCase
      */
     public function test_index()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        BlogTagFactory::make(['name' => 'name test'])->persist();
+        //実行成功場合
+        $this->post('/baser/admin/bc-blog/blog_tags/index/1');
+        //取得データを確認
+        $vars = $this->_controller->viewBuilder()->getVars()['blogTags'];
+        $this->assertEquals(1, count($vars));
+        //リダイレクトを確認
+        $this->assertResponseOk();
     }
 }

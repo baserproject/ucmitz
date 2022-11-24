@@ -365,12 +365,14 @@ class BcTestCase extends TestCase
 
     /**
      * private・protectedプロパティの値を取得する
+     *
      * @param object $class
      * @param string $property
      * @return mixed
      * @throws \ReflectionException
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function getPrivateProperty(object $class, string $property)
     {
