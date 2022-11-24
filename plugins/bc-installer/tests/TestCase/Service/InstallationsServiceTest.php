@@ -47,6 +47,14 @@ class InstallationsServiceTest extends BcTestCase
     }
 
     /**
+     * test constructor
+     */
+    public function test__construct()
+    {
+        $this->assertNotEmpty($this->Installations->BcDatabase);
+    }
+
+    /**
      * 環境チェック
      *
      * @return array
