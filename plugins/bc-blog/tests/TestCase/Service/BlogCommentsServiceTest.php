@@ -101,7 +101,7 @@ class BlogCommentsServiceTest extends BcTestCase
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
 
         $comment = $this->BlogCommentsService->publish(3);
-        $this->assertTrue($comment['status']);
+        $this->assertTrue($comment->status);
     }
 
     /**
