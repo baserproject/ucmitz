@@ -45,8 +45,12 @@ class BlogFrontService implements BlogFrontServiceInterface
 
     /**
      * Constructor
+     *
+     * サービスクラスを初期化する
+     *
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -357,10 +361,13 @@ class BlogFrontService implements BlogFrontServiceInterface
     /**
      * アーカイブページ用のテンプレート名を取得する
      *
+     * ブログコンテンツの設定に依存する
+     *
      * @param BlogContent $blogContent
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getArchivesTemplate(BlogContent $blogContent): string
     {
@@ -368,7 +375,9 @@ class BlogFrontService implements BlogFrontServiceInterface
     }
 
     /**
-     * 詳細ページ用のテンプレート名を取得する
+     * ブログ詳細ページ用のテンプレート名を取得する
+     *
+     * ブログコンテンツの設定に依存する
      *
      * @param BlogContent $blogContent
      * @return string
