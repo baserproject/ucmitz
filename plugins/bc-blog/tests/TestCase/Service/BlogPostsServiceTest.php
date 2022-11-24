@@ -12,12 +12,46 @@
 namespace BcBlog\Test\TestCase\Service;
 
 use BaserCore\TestSuite\BcTestCase;
+use BcBlog\Service\BlogPostsService;
+use BcBlog\Service\BlogPostsServiceInterface;
 
 /**
  * BlogPostsServiceTest
+ *
+ * @property BlogPostsService $BlogPostsService
  */
 class BlogPostsServiceTest extends BcTestCase
 {
+
+    /**
+     * set up
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->BlogPostsService = $this->getService(BlogPostsServiceInterface::class);
+    }
+
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        parent::tearDown();
+    }
+
+    /**
+     * test constructor
+     */
+    public function test__construct()
+    {
+        // テーブルを初期化のテスト
+        $this->assertEquals('blog_posts', $this->BlogPostsService->BlogPosts->getTable());
+    }
 
     /**
      * コントロールソースを取得する
