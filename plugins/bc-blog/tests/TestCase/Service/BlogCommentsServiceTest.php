@@ -65,7 +65,7 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function test__construct()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertTrue(isset($this->BlogCommentsService->BlogComments));
     }
 
     /**
@@ -73,7 +73,16 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testGetIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
+
+        // ブログコメント一覧データを取得できるテスト
+        $query = $this->BlogCommentsService->getIndex(['blog_post_id' => 1, 'num' => 2]);
+        $this->assertCount(2, $query->toArray());
+        $this->assertEquals(1, $query->toArray()[0]['blog_post']['id']);
+
+        // ブログコメント一覧データを取得できないテスト
+        $query = $this->BlogCommentsService->getIndex(['blog_post_id' => 9, 'num' => 2]);
+        $this->assertEmpty($query->toArray());
     }
 
     /**
@@ -95,7 +104,10 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testPublish()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
+
+        $comment = $this->BlogCommentsService->publish(3);
+        $this->assertTrue($comment['status']);
     }
 
     /**
@@ -111,7 +123,15 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testDelete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
+        $count = $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count();
+
+        // ブログコメントを削除するテスト
+        $comment = $this->BlogCommentsService->delete(1);
+        $this->assertTrue($comment);
+
+        // 削除が成功ならコメント数が１単位減る
+        $this->assertEquals($count - 1, $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count());
     }
 
     /**
