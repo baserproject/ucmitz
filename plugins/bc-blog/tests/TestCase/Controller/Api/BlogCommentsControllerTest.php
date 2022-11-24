@@ -127,7 +127,7 @@ class BlogCommentsControllerTest extends BcTestCase
         // データが更新されていること
         $datas = $blogCommentsService->getIndex([])->all();
         foreach ($datas as $value) {
-            $this->assertTrue($value['status']);
+            $this->assertTrue($value->status);
         }
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
@@ -148,7 +148,7 @@ class BlogCommentsControllerTest extends BcTestCase
         // データが更新されていること
         $datas = $blogCommentsService->getIndex([])->all();
         foreach ($datas as $value) {
-            $this->assertFalse($value['status']);
+            $this->assertFalse($value->status);
         }
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
