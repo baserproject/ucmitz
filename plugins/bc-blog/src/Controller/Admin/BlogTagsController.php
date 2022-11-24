@@ -156,7 +156,7 @@ class BlogTagsController extends BlogAdminAppController
             if ($service->delete($id)) {
                 $this->BcMessage->setSuccess(__d('baser', 'ブログタグ「{0}」を削除しました。', $blogTag->name));
             }
-        } catch (\Exception $e) {
+        } catch (BcException $e) {
             $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
         }
         return $this->redirect(['action' => 'index']);

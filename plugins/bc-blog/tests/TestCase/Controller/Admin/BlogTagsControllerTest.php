@@ -141,8 +141,7 @@ class BlogTagsControllerTest extends BcTestCase
 
         //失敗テスト
         $this->delete('/baser/admin/bc-blog/blog_tags/delete/1');
-        $this->assertResponseCode(302);
-        $this->assertFlashMessage('データベース処理中にエラーが発生しました。Record not found in table "blog_tags"');
+        $this->assertResponseCode(404);
     }
 
     /**
