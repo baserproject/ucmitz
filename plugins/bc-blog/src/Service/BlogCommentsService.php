@@ -28,6 +28,10 @@ class BlogCommentsService implements BlogCommentsServiceInterface
 
     /**
      * ブログコメントを初期化する
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -41,6 +45,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
      * @return \Cake\ORM\Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndex(array $queryParams)
     {
@@ -76,6 +81,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
      * @return \Cake\Datasource\EntityInterface|false
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function publish(int $id)
     {
@@ -106,6 +112,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
      * @return bool
      * @noTodo
      * @checked
+     * @unitTest
      */
     public function delete(int $id)
     {
