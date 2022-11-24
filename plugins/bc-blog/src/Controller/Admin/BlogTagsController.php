@@ -54,6 +54,7 @@ class BlogTagsController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(BlogTagsServiceInterface $service, $blogContentId = [])
     {
@@ -73,13 +74,16 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] ブログタグ登録
+     * [ADMIN] ブログタグを登録する
      *
      * ブロブのタグを登録する。
      * 登録に成功した場合、タグの一覧へリダイレクトする。
      *
      * @param BlogTagsService $service
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(BlogTagsServiceInterface $service)
     {
