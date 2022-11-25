@@ -52,7 +52,7 @@ class InstallationsAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForStep2()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->assertNotEmpty($this->Installations->getViewVarsForStep2());
     }
 
     /**
@@ -60,7 +60,10 @@ class InstallationsAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForStep3()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $vars = $this->Installations->getViewVarsForStep3(true);
+        $this->assertArrayHasKey('dbsource', $vars);
+        $this->assertTrue($vars['blDBSettingsOK']);
+        $this->assertArrayHasKey('dbDataPatterns', $vars);
     }
 
     /**
