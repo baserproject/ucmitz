@@ -17,8 +17,9 @@ use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
-use BcBlog\Service\BlogContentsService;
+use BcBlog\Service\BlogContentsServiceInterface;
 use BcBlog\Service\Front\BlogFrontService;
+use BcBlog\Service\Front\BlogFrontServiceInterface;
 use BcBlog\Test\Factory\BlogContentFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -59,7 +60,7 @@ class BlogFrontServiceTest extends BcTestCase
     {
         $this->setFixtureTruncate();
         parent::setUp();
-        $this->BlogFrontService = new BlogFrontService();
+        $this->BlogFrontService = $this->getService(BlogFrontServiceInterface::class);
     }
 
     /**
@@ -73,6 +74,15 @@ class BlogFrontServiceTest extends BcTestCase
         parent::tearDown();
     }
 
+
+    /**
+     * test __construct
+     */
+    public function test__construct()
+    {
+        $this->assertTrue(isset($this->BlogFrontService->BlogContentsService));
+        $this->assertTrue(isset($this->BlogFrontService->BlogPostsService));
+    }
 
     /**
      * test getViewVarsForIndex
@@ -161,8 +171,71 @@ class BlogFrontServiceTest extends BcTestCase
             'id' => 1,
             'template' => 'template-1'
         ])->persist();
-        $BlogContentsService = new BlogContentsService();
+        $BlogContentsService =  $this->getService(BlogContentsServiceInterface::class);
         $rs = $this->BlogFrontService->getIndexTemplate($BlogContentsService->get(1));
         $this->assertEquals($rs, 'Blog/template-1/index');
+    }
+
+    /**
+     * test getSingleTemplate
+     */
+    public function test_getSingleTemplate()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getArchivesTemplate
+     */
+    public function test_getArchivesTemplate()
+    {
+        // サービスクラス
+        $BlogContentsService = $this->getService(BlogContentsServiceInterface::class);
+        // データ生成
+        BlogContentFactory::make(['id' => 1, 'template' => 'template-1'])->persist();
+        // ブログコンテンツの設定に依存するメソードをコール
+        $rs = $this->BlogFrontService->getArchivesTemplate($BlogContentsService->get(1));
+        //戻り値を確認
+        $this->assertEquals($rs, 'Blog/template-1/archives');
+    }
+
+    /**
+     * test getViewVarsForSingle
+     */
+    public function test_getViewVarsForSingle()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getViewVarsForArchivesByTag
+     */
+    public function test_getViewVarsForArchivesByTag()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getViewVarsForArchivesByDate
+     */
+    public function test_getViewVarsForArchivesByDate()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getViewVarsForArchivesByCategory
+     */
+    public function test_getViewVarsForArchivesByCategory()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getViewVarsForArchivesByAuthor
+     */
+    public function test_getViewVarsForArchivesByAuthor()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 }
