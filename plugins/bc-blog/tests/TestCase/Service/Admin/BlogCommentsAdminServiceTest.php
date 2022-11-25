@@ -41,6 +41,7 @@ class BlogCommentsAdminServiceTest extends BcTestCase
     public $fixtures = [
         'plugin.BcBlog.Factory/BlogPosts',
         'plugin.BcBlog.Factory/BlogComments',
+        'plugin.BcBlog.Factory/BlogContents',
     ];
 
     /**
@@ -72,6 +73,7 @@ class BlogCommentsAdminServiceTest extends BcTestCase
     public function test_getViewVarsForIndex()
     {
         //データ生成
+        $this->truncateTable('blog_posts');
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         BlogContentFactory::make(['id' => 1, 'description' => 'test view'])->persist();
 
