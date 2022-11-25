@@ -80,7 +80,7 @@ class BlogCommentsAdminServiceTest extends BcTestCase
     {
         //データ生成
         BlogContentFactory::make(['id' => 1, 'description' => 'test view'])->persist();
-        BlogPostFactory::make(['id' => 1, 'title' => 'post title'])->persist();
+        BlogPostFactory::make(['id' => 2, 'title' => 'post title'])->persist();
         BlogCommentFactory::make([
             'id' => 1,
             'blog_content_id' => 1,
@@ -101,7 +101,7 @@ class BlogCommentsAdminServiceTest extends BcTestCase
         //メソードをコル
         $rs = $this->BlogCommentsAdminService->getViewVarsForIndex(
             1,
-            1,
+            2,
             $this->BlogCommentsAdminService->getIndex([])->all()
         );
 
