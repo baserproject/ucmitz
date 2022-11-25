@@ -229,27 +229,22 @@ class BlogPostsControllerTest extends BcTestCase
             'name' => 'content_types',
             'value' => ''
         ])->persist();
-        $this->loadFixtureScenario(BlogContentScenario::class, 2, 1, null, 'news', '/news');
-        BlogPostFactory::make([
-            'id' => 1,
-            'blog_content_id' => 2,
-            'title' => 'baser ブログのタイトル',
-            'blog_category_id' => 1,
-            'user_id' => 1,
-            'status' => false,
-        ])->persist();
+        $this->loadFixtureScenario(BlogContentScenario::class, 3, 1, null, 'news', '/news');
+        //非公開を設定
+        BlogPostFactory::make([])->unpubish(1,3)->persist();
+
         // 公開設定コール
-        $this->patch('/baser/admin/bc-blog/blog_posts/publish/2/1');
+        $this->patch('/baser/admin/bc-blog/blog_posts/publish/3/1');
         // ステータスを確認
         $this->assertResponseCode(302);
         // メッセージを確認
-        $this->assertFlashMessage('ブログ記事「baser ブログのタイトル」を公開状態にしました。');
+        $this->assertMatchesRegularExpression('/ブログ記事「.+」を公開状態にしました。/', $_SESSION["Flash"]["flash"][0]["message"]);
         // リダイレクトを確認
         $this->assertRedirect([
             'plugin' => 'BcBlog',
             'prefix' => 'Admin',
             'controller' => 'blog_posts',
-            'action' => 'index/2'
+            'action' => 'index/3'
         ]);
         // データの変更を確認
         $blogPost = BlogPostFactory::get(1);
@@ -259,7 +254,7 @@ class BlogPostsControllerTest extends BcTestCase
 
         // テスト失敗確認
         // 公開設定コール
-        $this->patch('/baser/admin/bc-blog/blog_posts/publish/2/99');
+        $this->patch('/baser/admin/bc-blog/blog_posts/publish/3/99');
         // ステータスを確認
         $this->assertResponseCode(404);
     }
