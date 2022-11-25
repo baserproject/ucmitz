@@ -24,6 +24,7 @@ use BcBlog\Service\Front\BlogFrontService;
 use BcBlog\Service\Front\BlogFrontServiceInterface;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Scenario\BlogContentScenario;
 use BcBlog\Test\Scenario\MultiSiteBlogScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
