@@ -12,7 +12,6 @@
 namespace BcBlog\Test\TestCase\Service\Admin;
 
 use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\Admin\BlogCommentsAdminService;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Scenario\BlogCommentsServiceScenario;
@@ -29,8 +28,6 @@ class BlogCommentsAdminServiceTest extends BcTestCase
     /**
      * Trait
      */
-    use BcContainerTrait;
-    use IntegrationTestTrait;
     use ScenarioAwareTrait;
 
     /**
@@ -73,7 +70,6 @@ class BlogCommentsAdminServiceTest extends BcTestCase
     public function test_getViewVarsForIndex()
     {
         //データ生成
-        $this->truncateTable('blog_posts');
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         BlogContentFactory::make(['id' => 1, 'description' => 'test view'])->persist();
 
