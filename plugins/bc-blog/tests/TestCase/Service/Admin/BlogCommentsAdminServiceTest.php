@@ -14,10 +14,10 @@ namespace BcBlog\Test\TestCase\Service\Admin;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\Admin\BlogCommentsAdminService;
-use BcBlog\Test\Factory\BlogCommentFactory;
 use BcBlog\Test\Factory\BlogContentFactory;
-use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Scenario\BlogCommentsServiceScenario;
 use Cake\TestSuite\IntegrationTestTrait;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * BlogCommentsAdminServiceTest
@@ -31,6 +31,7 @@ class BlogCommentsAdminServiceTest extends BcTestCase
      */
     use BcContainerTrait;
     use IntegrationTestTrait;
+    use ScenarioAwareTrait;
 
     /**
      * Fixtures
@@ -38,8 +39,6 @@ class BlogCommentsAdminServiceTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.BaserCore.Factory/Contents',
-        'plugin.BcBlog.Factory/BlogContents',
         'plugin.BcBlog.Factory/BlogPosts',
         'plugin.BcBlog.Factory/BlogComments',
     ];
@@ -73,40 +72,24 @@ class BlogCommentsAdminServiceTest extends BcTestCase
     public function test_getViewVarsForIndex()
     {
         //データ生成
+        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         BlogContentFactory::make(['id' => 1, 'description' => 'test view'])->persist();
-        BlogPostFactory::make(['id' => 2, 'title' => 'post title'])->persist();
-        BlogCommentFactory::make([
-            'id' => 1,
-            'blog_content_id' => 1,
-            'blog_post_id' => 1,
-            'name' => 'name comment',
-            'email' => 'test@test.com',
-            'url' => '/test'
-        ])->persist();
-        BlogCommentFactory::make([
-            'id' => 2,
-            'blog_content_id' => 1,
-            'blog_post_id' => 1,
-            'name' => 'name comment 2',
-            'email' => 'test2@test.com',
-            'url' => '/test-2'
-        ])->persist();
 
         //メソードをコル
         $rs = $this->BlogCommentsAdminService->getViewVarsForIndex(
             1,
-            2,
+            1,
             $this->BlogCommentsAdminService->getIndex([])->all()
         );
 
         //戻り値を確認
         $this->assertEquals($rs['blogContent']['description'], 'test view');
-        $this->assertEquals($rs['blogPost']['title'], 'post title');
+        $this->assertEquals($rs['blogPost']->id, 1);
 
         //blogComment値を確認
         $blogComment = $rs['blogComments']->first();
-        $this->assertEquals(count($rs['blogComments']), 2);
-        $this->assertEquals($blogComment['name'], 'name comment');
-        $this->assertEquals($blogComment['email'], 'test@test.com');
+        $this->assertEquals(count($rs['blogComments']), 3);
+        $this->assertEquals($blogComment['name'], 'baserCMS');
+        $this->assertEquals($blogComment['url'], 'https://basercms.net');
     }
 }
