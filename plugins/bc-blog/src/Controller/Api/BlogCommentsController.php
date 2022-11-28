@@ -17,6 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Error\BcException;
 use BcBlog\Service\BlogCommentsService;
 use BcBlog\Service\BlogCommentsServiceInterface;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * BlogCommentsController
@@ -38,6 +39,40 @@ class BlogCommentsController extends BcApiController
             'blogComments' => $this->paginate($blogCommentsService->getIndex($this->request->getQueryParams()))
         ]);
         $this->viewBuilder()->setOption('serialize', ['blogComments']);
+    }
+
+    /**
+     * [API] ブログコメント削除
+     * @param BlogCommentsServiceInterface $service
+     * @param $blogCommentId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete(BlogCommentsServiceInterface $service, $blogCommentId)
+    {
+        if ($this->request->is(['post', 'delete'])) {
+            try {
+                $blogComment = $service->get($blogCommentId);
+                if ($service->delete($blogCommentId)) {
+                    $message = __d('baser', 'ブログコメント「{0}」を削除しました。', $blogComment->message);
+                } else {
+                    $this->setResponse($this->response->withStatus(400));
+                    $message = __d('baser', '入力エラーです。内容を修正してください。');
+                }
+            } catch (PersistenceFailedException $e) {
+                $this->setResponse($this->response->withStatus(400));
+                $blogComment = $e->getEntity();
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
+            }
+            $this->set([
+                'message' => $message,
+                'blogComment' => $blogComment,
+                'errors' => $blogComment->getErrors()
+            ]);
+            $this->viewBuilder()->setOption('serialize', ['blogComment', 'message', 'errors']);
+        }
     }
 
     /**
