@@ -49,7 +49,7 @@ MailContentsControllerTest extends BcTestCase
         // コンポーネントが設定されたかどうかを確認する
         $this->assertNotEmpty($controller->BcAdminContents);
         // 設定されたconfigを確認する
-        $this->assertEquals('blogContent', $controller->BcAdminContents->getConfig('entityVarName'));
+        $this->assertEquals('mailContent', $controller->BcAdminContents->getConfig('entityVarName'));
         $this->assertTrue($controller->BcAdminContents->getConfig('useForm'));
     }
 
