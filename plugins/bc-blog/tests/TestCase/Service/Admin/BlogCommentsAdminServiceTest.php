@@ -14,7 +14,8 @@ namespace BcBlog\Test\TestCase\Service\Admin;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Service\Admin\BlogCommentsAdminService;
 use BcBlog\Test\Factory\BlogContentFactory;
-use BcBlog\Test\Scenario\BlogCommentsServiceScenario;
+use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Scenario\BlogCommentsScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -69,7 +70,8 @@ class BlogCommentsAdminServiceTest extends BcTestCase
     public function test_getViewVarsForIndex()
     {
         //データ生成
-        $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
+        BlogPostFactory::make(['id' => 1])->persist();
+        $this->loadFixtureScenario(BlogCommentsScenario::class);
         BlogContentFactory::make(['id' => 1, 'description' => 'test view'])->persist();
 
         //メソードをコル
