@@ -57,7 +57,6 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function tearDown(): void
     {
-        unset($this->BlogCommentsService);
         parent::tearDown();
     }
 
