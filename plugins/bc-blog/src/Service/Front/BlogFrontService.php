@@ -244,6 +244,7 @@ class BlogFrontService implements BlogFrontServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getViewVarsForArchivesByDate(ResultSet $posts, string $year, string $month, string $day): array
     {
