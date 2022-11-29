@@ -90,11 +90,11 @@ class BlogTagsControllerTest extends BcTestCase
         // ５件タグを作成する
         BlogTagFactory::make([], 5)->persist();
 
-        // クエリはトークンの以外で何も設定しない場合、全てのコメントを取得する
+        // クエリはトークンの以外で何も設定しない場合、全てのタグを取得する
         $this->get('/baser/api/bc-blog/blog_tags/index.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        // コメント一覧は全て５件が返す
+        // タグ一覧は全て５件が返す
         $this->assertCount(5, $result->blogTags);
 
         // クエリを設定し(limit = 4)、該当の結果が返す
