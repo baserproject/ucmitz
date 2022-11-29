@@ -16,11 +16,13 @@ use BaserCore\Service\UsersServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\Admin\BlogPostsAdminService;
 use BcBlog\Service\Admin\BlogPostsAdminServiceInterface;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class BlogContentsAdminServiceTest
@@ -32,6 +34,8 @@ class BlogPostsAdminServiceTest extends BcTestCase
      * Trait
      */
     use ScenarioAwareTrait;
+    use BcContainerTrait;
+    use IntegrationTestTrait;
 
     /**
      * Fixtures
