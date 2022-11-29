@@ -14,6 +14,7 @@ namespace BcBlog\Test\TestCase\Controller\Api;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Admin\BlogTagsController;
+use BcBlog\Test\Factory\BlogTagFactory;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -106,6 +107,25 @@ class BlogTagsControllerTest extends BcTestCase
         $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+    }
+
+    /**
+     * test delete
+     */
+    public function testDelete()
+    {
+        // タグのデータを作成する
+        BlogTagFactory::make(['id' => 1, 'name' => 'tag1'])->persist();
+
+        // タグ削除APIを叩く
+        $this->post('/baser/api/bc-blog/blog_tags/delete/1.json?token=' . $this->accessToken);
+        // レスポンスのステータスを確認する
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        // レスポンスのメッセージを確認する
+        $this->assertEquals('ブログタグ「tag1」を削除しました。', $result->message);
+        // 削除されたタグのidを確認する
+        $this->assertEquals(1, $result->blogTag->id);
     }
 
 }
