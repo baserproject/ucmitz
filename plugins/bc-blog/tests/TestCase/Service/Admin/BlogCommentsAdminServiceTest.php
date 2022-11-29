@@ -15,7 +15,6 @@ use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Service\Admin\BlogCommentsAdminService;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Scenario\BlogCommentsServiceScenario;
-use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
