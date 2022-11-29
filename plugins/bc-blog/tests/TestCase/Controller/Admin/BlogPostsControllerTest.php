@@ -308,7 +308,7 @@ class BlogPostsControllerTest extends BcTestCase
         $copyBlogPost = $BlogPostsService->getIndex(['title' => 'test_copy'])->first();
         $this->assertEquals($copyBlogPost->content, 'content test');
 
-        //実行失敗のテスト　存在しないBlogPostIDを利用
+        //実行失敗のテスト　BlogPostコンテンツ準備足りないのを利用
         $this->post('/baser/admin/bc-blog/blog_posts/copy/1/2');
         $this->assertResponseCode(302);
         $this->assertFlashMessage('入力エラーです。内容を修正してください。');
