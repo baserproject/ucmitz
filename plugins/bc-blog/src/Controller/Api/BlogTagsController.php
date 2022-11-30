@@ -18,6 +18,7 @@ use BaserCore\Error\BcException;
 use BcBlog\Service\BlogTagsService;
 use BcBlog\Service\BlogTagsServiceInterface;
 use Cake\ORM\Exception\PersistenceFailedException;
+use Throwable;
 
 /**
  * BlogTagsController
@@ -76,7 +77,7 @@ class BlogTagsController extends BcApiController
             $this->setResponse($this->response->withStatus(400));
             $blogTag = $e->getEntity();
             $message = __d('baser', '入力エラーです。内容を修正してください。');
-        } catch (BcException $e) {
+        } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
