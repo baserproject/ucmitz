@@ -120,7 +120,7 @@ class BlogCommentsControllerTest extends BcTestCase
     public function test_delete()
     {
         // コメントを作成する
-        BlogCommentFactory::make(['id' => 1, 'message' => 'いいね！'])->persist();
+        BlogCommentFactory::make(['id' => 1, 'no' => 1])->persist();
 
         // APIを叩く
         $this->post('/baser/api/bc-blog/blog_comments/delete/1.json?token=' . $this->accessToken);
@@ -129,7 +129,7 @@ class BlogCommentsControllerTest extends BcTestCase
         // 削除されたコメントのidを確認する
         $this->assertEquals(1, $result->blogComment->id);
         // レスポンスのメッセージを確認する
-        $this->assertEquals('ブログコメント「いいね！」を削除しました。', $result->message);
+        $this->assertEquals('ブログコメント「1」を削除しました。', $result->message);
     }
 
     /**

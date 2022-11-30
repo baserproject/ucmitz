@@ -52,27 +52,22 @@ class BlogCommentsController extends BcApiController
      */
     public function delete(BlogCommentsServiceInterface $service, $blogCommentId)
     {
-        if ($this->request->is(['post', 'delete'])) {
-            try {
-                $blogComment = $service->get($blogCommentId);
-                if ($service->delete($blogCommentId)) {
-                    $message = __d('baser', 'ブログコメント「{0}」を削除しました。', $blogComment->message);
-                } else {
-                    $this->setResponse($this->response->withStatus(400));
-                    $message = __d('baser', '入力エラーです。内容を修正してください。');
-                }
-            } catch (PersistenceFailedException $e) {
-                $this->setResponse($this->response->withStatus(400));
-                $blogComment = $e->getEntity();
-                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
-            }
-            $this->set([
-                'message' => $message,
-                'blogComment' => $blogComment,
-                'errors' => $blogComment->getErrors()
-            ]);
-            $this->viewBuilder()->setOption('serialize', ['blogComment', 'message', 'errors']);
+        $this->request->allowMethod(['post', 'put']);
+        try {
+            $blogComment = $service->get($blogCommentId);
+            $service->delete($blogCommentId);
+            $message = __d('baser', 'ブログコメント「{0}」を削除しました。', $blogComment->no);
+        } catch (PersistenceFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $blogComment = $e->getEntity();
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
         }
+        $this->set([
+            'message' => $message,
+            'blogComment' => $blogComment,
+            'errors' => $blogComment->getErrors()
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogComment', 'message', 'errors']);
     }
 
     /**
