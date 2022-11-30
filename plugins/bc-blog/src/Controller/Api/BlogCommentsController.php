@@ -61,6 +61,9 @@ class BlogCommentsController extends BcApiController
             $this->setResponse($this->response->withStatus(400));
             $blogComment = $e->getEntity();
             $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (BcException $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
         $this->set([
             'message' => $message,
