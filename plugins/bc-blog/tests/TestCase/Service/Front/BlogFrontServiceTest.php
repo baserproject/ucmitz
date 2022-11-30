@@ -21,6 +21,7 @@ use BcBlog\Service\BlogContentsServiceInterface;
 use BcBlog\Service\BlogPostsServiceInterface;
 use BcBlog\Service\Front\BlogFrontService;
 use BcBlog\Service\Front\BlogFrontServiceInterface;
+use BcBlog\Test\Factory\BlogCategoryFactory;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Factory\BlogTagFactory;
@@ -221,6 +222,15 @@ class BlogFrontServiceTest extends BcTestCase
             'title' => 'blog post title',
             'status' => true
         ])->persist();
+        BlogCategoryFactory::make([
+            'id' => BlogPostFactory::get(1)->get('blog_category_id'),
+            'blog_content_id' => 1,
+            'title' => 'title add',
+            'name' => 'name-add',
+            'rght' => 1,
+            'lft' => 2,
+            'status' => true
+        ])->persist();
         //リクエストバリューを設定
         $request = $this->loginAdmin($this->getRequest(), 1);
         // メソードをコール
@@ -229,9 +239,14 @@ class BlogFrontServiceTest extends BcTestCase
             $BlogContentsService->get(1),
             ['blog', 'test']
         );
+
         //戻り値を確認
+
+        //postの値を確認
         $this->assertEquals($rs['post']['title'], 'blog post title');
+        //blogContentの値を確認
         $this->assertEquals($rs['blogContent']->content->name, 'test');
+        //editLinkの値を確認
         $editLinkExpected = [
             'prefix' => 'Admin',
             'plugin' => 'BcBlog',
@@ -241,9 +256,21 @@ class BlogFrontServiceTest extends BcTestCase
             1
         ];
         $this->assertEquals($rs['editLink'], $editLinkExpected);
+        //commentUseの値を確認
         $this->assertTrue($rs['commentUse']);
+        //singleの値を確認
         $this->assertTrue($rs['single']);
-        $this->assertEquals($rs['crumbs'], ['blog', 'test']);
+        //crumbsの値を確認
+        $crumbsExpected = [
+            'blog',
+            'test',
+            [
+                'name' => 'title add',
+                'url' => '/archives/category/name-add'
+            ]
+        ];
+        $this->assertEquals($rs['crumbs'], $crumbsExpected);
+
 
         //$noが存在しない場合、
         $this->expectException('Cake\Http\Exception\NotFoundException');
@@ -298,7 +325,42 @@ class BlogFrontServiceTest extends BcTestCase
      */
     public function test_getViewVarsForArchivesByDate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // サービスクラス
+        $blogPostsService = $this->getService(BlogPostsServiceInterface::class);
+
+        // データ生成
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/');
+
+        // BlogPost取得
+        $posts = $blogPostsService->getIndex([])->all();
+
+        // 日別
+        $result = $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '2022', '1', '1');
+        $this->assertEquals(true, isset($result['posts']));
+        $this->assertEquals('daily', $result['blogArchiveType']);
+        $this->assertEquals(true, isset($result['year']));
+        $this->assertEquals(true, isset($result['month']));
+        $this->assertEquals(1, $result['day']);
+
+        // 月別
+        $result = $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '2022', '1', '');
+        $this->assertEquals(true, isset($result['posts']));
+        $this->assertEquals('monthly', $result['blogArchiveType']);
+        $this->assertEquals(true, isset($result['year']));
+        $this->assertEquals(1, $result['month']);
+        $this->assertEquals(true, isset($result['day']));
+
+        // 年別
+        $result = $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '2022', '', '');
+        $this->assertEquals(true, isset($result['posts']));
+        $this->assertEquals('yearly', $result['blogArchiveType']);
+        $this->assertEquals(2022, $result['year']);
+        $this->assertEquals(true, isset($result['month']));
+        $this->assertEquals(true, isset($result['day']));
+
+        //日付が存在しない場合、
+        $this->expectException('Cake\Http\Exception\NotFoundException');
+        $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '', '', '1');
     }
 
     /**
