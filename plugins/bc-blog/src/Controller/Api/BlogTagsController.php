@@ -84,6 +84,7 @@ class BlogTagsController extends BcApiController
      * @param BlogTagsService $service
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function batch(BlogTagsServiceInterface $service)
     {
