@@ -84,6 +84,23 @@ class BlogTagsControllerTest extends BcTestCase
     }
 
     /**
+     * test view
+     */
+    public function testView()
+    {
+        // ブログタグのデータを作成する
+        BlogTagFactory::make(['id' => 1, 'name' => 'tag1'])->persist();
+        // 単一ブログタグー取得APIを叩く
+        $this->post('/baser/api/bc-blog/blog_tags/view/1.json?token=' . $this->accessToken);
+        // OKレスポンスを確認する
+        $this->assertResponseOk();
+        // レスポンスのデータを確認する
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals(1, $result->blogTag->id);
+        $this->assertEquals('tag1', $result->blogTag->name);
+    }
+
+    /**
      * test add
      */
     public function testAdd()
