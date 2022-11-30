@@ -274,7 +274,7 @@ class InstallationsService implements InstallationsServiceInterface
         }
         $user = array_merge([
             'name' => '',
-            'real_name_1' => $user['name'],
+            'real_name_1' => preg_replace('/@.+$/', '', $user['email']),
             'email' => '',
             'password_1' => '',
             'password_2' => '',
