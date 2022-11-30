@@ -12,12 +12,10 @@
 namespace BcBlog\Test\TestCase\Service\Admin;
 
 use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\Admin\BlogCommentsAdminService;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Scenario\BlogCommentsServiceScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
-use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * BlogCommentsAdminServiceTest
@@ -30,8 +28,6 @@ class BlogCommentsAdminServiceTest extends BcTestCase
      * Trait
      */
     use ScenarioAwareTrait;
-    use BcContainerTrait;
-    use IntegrationTestTrait;
 
     /**
      * Fixtures
