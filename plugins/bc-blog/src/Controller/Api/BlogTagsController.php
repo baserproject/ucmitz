@@ -67,27 +67,25 @@ class BlogTagsController extends BcApiController
      */
     public function delete(BlogTagsServiceInterface $service, $blogTagId)
     {
-        if ($this->request->is(['post', 'delete'])) {
-            try {
-                $blogTag = $service->get($blogTagId);
-                if ($service->delete($blogTagId)) {
-                    $message = __d('baser', 'ブログタグ「{0}」を削除しました。', $blogTag->name);
-                } else {
-                    $this->setResponse($this->response->withStatus(400));
-                    $message = __d('baser', '入力エラーです。内容を修正してください。');
-                }
-            } catch (PersistenceFailedException $e) {
-                $this->setResponse($this->response->withStatus(400));
-                $blogTag = $e->getEntity();
-                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
-            }
-            $this->set([
-                'message' => $message,
-                'blogTag' => $blogTag,
-                'errors' => $blogTag->getErrors()
-            ]);
-            $this->viewBuilder()->setOption('serialize', ['blogTag', 'message', 'errors']);
+        $this->request->allowMethod(['post', 'put']);
+        try {
+            $blogTag = $service->get($blogTagId);
+            $service->delete($blogTagId);
+            $message = __d('baser', 'ブログタグ「{0}」を削除しました。', $blogTag->name);
+        } catch (PersistenceFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $blogTag = $e->getEntity();
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (BcException $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
+        $this->set([
+            'message' => $message,
+            'blogTag' => $blogTag,
+            'errors' => $blogTag->getErrors()
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogTag', 'message', 'errors']);
     }
 
     /**
