@@ -11,9 +11,16 @@
 
 namespace BcBlog\Test\TestCase\Service\Admin;
 
+use BaserCore\Service\UsersService;
+use BaserCore\Service\UsersServiceInterface;
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
-use BaserCore\Utility\BcContainerTrait;
-use Cake\TestSuite\IntegrationTestTrait;
+use BcBlog\Service\Admin\BlogPostsAdminService;
+use BcBlog\Service\Admin\BlogPostsAdminServiceInterface;
+use BcBlog\Test\Factory\BlogContentFactory;
+use BcBlog\Test\Factory\BlogPostFactory;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * Class BlogContentsAdminServiceTest
@@ -24,8 +31,7 @@ class BlogPostsAdminServiceTest extends BcTestCase
     /**
      * Trait
      */
-    use BcContainerTrait;
-    use IntegrationTestTrait;
+    use ScenarioAwareTrait;
 
     /**
      * Fixtures
@@ -33,8 +39,14 @@ class BlogPostsAdminServiceTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
+        'plugin.BaserCore.Factory/Sites',
+        'plugin.BaserCore.Factory/SiteConfigs',
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/UsersUserGroups',
+        'plugin.BaserCore.Factory/UserGroups',
         'plugin.BaserCore.Factory/Contents',
         'plugin.BcBlog.Factory/BlogPosts',
+        'plugin.BcBlog.Factory/BlogContents',
     ];
 
     /**
@@ -63,7 +75,23 @@ class BlogPostsAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを作成する
+        ContentFactory::make(['id' => 4, 'url' => '/index', 'site_id' => 1, 'status' => true])->persist();
+        BlogContentFactory::make(['id' => 1])->persist();
+        $this->loadFixtureScenario(InitAppScenario::class);
+
+        // 対象メーソドを実行する
+        /** @var BlogPostsAdminService $service */
+        $service = $this->getService(BlogPostsAdminServiceInterface::class);
+        $post = ['id' => 1];
+        $request = $this->loginAdmin($this->getRequest()->withParam('pass.0', 1));
+        $result = $service->getViewVarsForIndex($post, $request);
+
+        // 戻り値の中身を確認する
+        $this->assertEquals($post, $result['posts']);
+        $this->assertEquals(1, $result['blogContent']->id);
+        $this->assertNotEmpty($result['users']);
+        $this->assertEquals('https://localhost/', $result['publishLink']);
     }
 
     /**
@@ -71,7 +99,31 @@ class BlogPostsAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForAdd()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを作成する
+        BlogPostFactory::make(['id' => 1])->persist();
+        BlogContentFactory::make(['id' => 1])->persist();
+        $this->loadFixtureScenario(InitAppScenario::class);
+
+        // 対象メーソドを実行する
+        /** @var BlogPostsAdminService $service */
+        $service = $this->getService(BlogPostsAdminServiceInterface::class);
+        $request = $this->getRequest('/baser/admin')->withParam('pass.0', 1);
+        $post = BlogPostFactory::get(1);
+        /** @var UsersService $userService */
+        $userService = $this->getService(UsersServiceInterface::class);
+        $user = $userService->get(1);
+        $result = $service->getViewVarsForAdd($request, $post, $user);
+
+        // 戻り値の中身を確認する
+        $this->assertEquals($post, $result['post']);
+        $this->assertEquals(1, $result['blogContent']->id);
+        $this->assertArrayHasKey('editor', $result);
+        $this->assertArrayHasKey('editorOptions', $result);
+        $this->assertArrayHasKey('editorEnterBr', $result);
+        $this->assertArrayHasKey('users', $result);
+        $this->assertArrayHasKey('categories', $result);
+        $this->assertArrayHasKey('hasNewCategoryAddablePermission', $result);
+        $this->assertArrayHasKey('hasNewTagAddablePermission', $result);
     }
 
     /**
@@ -79,7 +131,32 @@ class BlogPostsAdminServiceTest extends BcTestCase
      */
     public function test_getViewVarsForEdit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを作成する
+        BlogPostFactory::make(['id' => 1])->persist();
+        BlogContentFactory::make(['id' => 1])->persist();
+        $this->loadFixtureScenario(InitAppScenario::class);
+
+        // 対象メーソドを実行する
+        /** @var BlogPostsAdminService $service */
+        $service = $this->getService(BlogPostsAdminServiceInterface::class);
+        $request = $this->getRequest('/baser/admin')->withParam('pass.0', 1);
+        $post = BlogPostFactory::get(1);
+        /** @var UsersService $userService */
+        $userService = $this->getService(UsersServiceInterface::class);
+        $user = $userService->get(1);
+        $result = $service->getViewVarsForEdit($request, $post, $user);
+
+        // 戻り値の中身を確認する
+        $this->assertEquals($post, $result['post']);
+        $this->assertEquals(1, $result['blogContent']->id);
+        $this->assertArrayHasKey('editor', $result);
+        $this->assertArrayHasKey('editorOptions', $result);
+        $this->assertArrayHasKey('editorEnterBr', $result);
+        $this->assertArrayHasKey('users', $result);
+        $this->assertArrayHasKey('categories', $result);
+        $this->assertArrayHasKey('hasNewCategoryAddablePermission', $result);
+        $this->assertArrayHasKey('hasNewTagAddablePermission', $result);
+        $this->assertArrayHasKey('publishLink', $result);
     }
 
     /**
