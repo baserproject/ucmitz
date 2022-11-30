@@ -54,6 +54,7 @@ class BlogTagsController extends BlogAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function index(BlogTagsServiceInterface $service, $blogContentId = [])
     {
@@ -73,13 +74,16 @@ class BlogTagsController extends BlogAdminAppController
     }
 
     /**
-     * [ADMIN] ブログタグ登録
+     * [ADMIN] ブログタグを登録する
      *
      * ブロブのタグを登録する。
      * 登録に成功した場合、タグの一覧へリダイレクトする。
      *
      * @param BlogTagsService $service
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(BlogTagsServiceInterface $service)
     {
@@ -109,6 +113,9 @@ class BlogTagsController extends BlogAdminAppController
      * @param BlogTagsService $service
      * @param int $id タグID
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function edit(BlogTagsServiceInterface $service, $id)
     {
@@ -140,12 +147,15 @@ class BlogTagsController extends BlogAdminAppController
      * @param BlogTagsService $service
      * @param int $id
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function delete(BlogTagsServiceInterface $service, $id)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $blogTag = $service->get($id);
         try {
+            $blogTag = $service->get($id);
             if ($service->delete($id)) {
                 $this->BcMessage->setSuccess(__d('baser', 'ブログタグ「{0}」を削除しました。', $blogTag->name));
             }

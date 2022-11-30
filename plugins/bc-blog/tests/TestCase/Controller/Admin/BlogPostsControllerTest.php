@@ -17,7 +17,10 @@ use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Controller\Admin\BlogPostsController;
+use BcBlog\Service\BlogPostsServiceInterface;
+use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -35,6 +38,7 @@ class BlogPostsControllerTest extends BcTestCase
      * Trait
      */
     use ScenarioAwareTrait;
+    use BcContainerTrait;
     use IntegrationTestTrait;
 
     /**
@@ -97,7 +101,35 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function testIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        //データを作成
+        $this->loadFixtureScenario(BlogContentScenario::class, 2, 1, null, 'test', '/test');
+        BlogPostFactory::make(['id' => '1', 'blog_content_id' => '2', 'title' => 'blog post'])->persist();
+        BlogPostFactory::make(['id' => '2', 'blog_content_id' => '2', 'title' => 'blog post'])->persist();
+
+        //正常の場合を確認
+        $this->post('/baser/admin/bc-blog/blog_posts/index/2?num=1&page=2');
+        // ステータスを確認
+        $this->assertResponseCode(200);
+
+        //戻り値を確認
+        $vars = $this->_controller->viewBuilder()->getVars();
+        //blogContentが存在するのを確認
+        $this->assertArrayHasKey('blogContent', $vars);
+        //publishLinkを確認
+        $this->assertEquals('https://localhost/test', $vars['publishLink']);
+        //postsが存在するのを確認
+        $this->assertEquals(1, count($vars['posts']));
+        //パラメータクエリを確認
+        $this->assertEquals(1, $this->_controller->getRequest()->getQuery('num'));
+
+        //異常の場合を確認
+        $this->post('/baser/admin/bc-blog/blog_posts/index/2?num=1&page=3');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // リダイレクトを確認
+        $this->assertRedirect(['action' => 'index', 2]);
     }
 
     /**
@@ -247,7 +279,42 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function testPublish()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+
+        // データ生成
+        SiteConfigFactory::make([
+            'name' => 'content_types',
+            'value' => ''
+        ])->persist();
+        $this->loadFixtureScenario(BlogContentScenario::class, 3, 1, null, 'news', '/news');
+        //非公開を設定
+        BlogPostFactory::make([])->unpubish(1,3)->persist();
+
+        // 公開設定コール
+        $this->patch('/baser/admin/bc-blog/blog_posts/publish/3/1');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // メッセージを確認
+        $this->assertMatchesRegularExpression('/ブログ記事「.+」を公開状態にしました。/', $_SESSION["Flash"]["flash"][0]["message"]);
+        // リダイレクトを確認
+        $this->assertRedirect([
+            'plugin' => 'BcBlog',
+            'prefix' => 'Admin',
+            'controller' => 'blog_posts',
+            'action' => 'index/3'
+        ]);
+        // データの変更を確認
+        $blogPost = BlogPostFactory::get(1);
+        $this->assertEquals(true, $blogPost['status']);
+        $this->assertEquals(null, $blogPost['publish_begin']);
+        $this->assertEquals(null, $blogPost['publish_end']);
+
+        // テスト失敗確認
+        // 公開設定コール
+        $this->patch('/baser/admin/bc-blog/blog_posts/publish/3/99');
+        // ステータスを確認
+        $this->assertResponseCode(404);
     }
 
     /**
@@ -256,7 +323,54 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function testCopy()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->enableSecurityToken();
+        $this->enableCsrfToken();
+        //データを作成
+        SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
+        ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
+        BlogPostFactory::make(
+            [
+                'id' => '1',
+                'blog_content_id' => '1',
+                'no' => '1',
+                'name' => 'ホームページをオープンしました',
+                'title' => 'test',
+                'content' => 'content test',
+                'detail' => 'detail test',
+                'blog_category_id' => '1',
+                'user_id' => '1',
+                'status' => '1',
+                'posts_date' => '2015-01-27 12:57:59',
+                'content_draft' => '',
+                'detail_draft' => '',
+                'publish_begin' => null,
+                'publish_end' => null,
+                'exclude_search' => 0,
+                'eye_catch' => 'template1.jpg',
+                'created' => '2015-01-27 12:56:53',
+                'modified' => '2015-01-27 12:57:59'
+            ]
+        )->persist();
+        BlogPostFactory::make(['id' => 2, 'blog_content_id' => null])->persist();
+
+        //実行成功のテスト
+        $this->post('/baser/admin/bc-blog/blog_posts/copy/1/1');
+        // ステータスを確認
+        $this->assertResponseCode(302);
+        // メッセージを確認
+        $this->assertFlashMessage('ブログ記事「test」をコピーしました。');
+        // リダイレクトを確認
+        $this->assertRedirect(['action' => 'index', 1]);
+        // データのコピーを確認
+        $BlogPostsService = $this->getService(BlogPostsServiceInterface::class);
+        $copyBlogPost = $BlogPostsService->getIndex(['title' => 'test_copy'])->first();
+        $this->assertEquals($copyBlogPost->content, 'content test');
+
+        //実行失敗のテスト　BlogPostコンテンツ準備足りないのを利用
+        $this->post('/baser/admin/bc-blog/blog_posts/copy/1/2');
+        $this->assertResponseCode(302);
+        $this->assertFlashMessage('入力エラーです。内容を修正してください。');
+        $this->assertRedirect(['action' => 'index', 1]);
     }
 
 }

@@ -45,8 +45,12 @@ class BlogFrontService implements BlogFrontServiceInterface
 
     /**
      * Constructor
+     *
+     * サービスクラスを初期化する
+     *
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function __construct()
     {
@@ -216,6 +220,7 @@ class BlogFrontService implements BlogFrontServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getViewVarsForArchivesByTag(ResultSet $posts, string $tag, BlogContent $blogContent): array
     {
@@ -267,6 +272,7 @@ class BlogFrontService implements BlogFrontServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getViewVarsForSingle(ServerRequest $request, EntityInterface $blogContent, array $crumbs): array
     {
@@ -326,13 +332,14 @@ class BlogFrontService implements BlogFrontServiceInterface
         // ブログ記事をPOSTデータにより書き換え
         if($controller->getRequest()->getData()) {
             $events = BcUtil::offEvent($this->BlogPostsService->BlogPosts->getEventManager(), 'Model.beforeMarshal');
-            $controller->setRequest($controller->getRequest()->withData('detail', $controller->getRequest()->getData('detail_tmp')));
+            $request = $controller->getRequest();
+            $postArray = $request->getData();
+            if ($request->getQuery('preview') === 'draft') {
+                $postArray['detail'] = $postArray['detail_draft'];
+            }
             $this->BlogPostsService->BlogPosts->patchEntity(
                 $vars['post'],
-                $this->BlogPostsService->BlogPosts->saveTmpFiles(
-                    $controller->getRequest()->getData(),
-                    mt_rand(0, 99999999)
-                )->toArray()
+                $this->BlogPostsService->BlogPosts->saveTmpFiles($postArray, mt_rand(0, 99999999))->toArray()
             );
             BcUtil::onEvent($this->BlogPostsService->BlogPosts->getEventManager(), 'Model.beforeMarshal', $events);
         }
@@ -357,10 +364,13 @@ class BlogFrontService implements BlogFrontServiceInterface
     /**
      * アーカイブページ用のテンプレート名を取得する
      *
+     * ブログコンテンツの設定に依存する
+     *
      * @param BlogContent $blogContent
      * @return string
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getArchivesTemplate(BlogContent $blogContent): string
     {
@@ -368,7 +378,9 @@ class BlogFrontService implements BlogFrontServiceInterface
     }
 
     /**
-     * 詳細ページ用のテンプレート名を取得する
+     * ブログ詳細ページ用のテンプレート名を取得する
+     *
+     * ブログコンテンツの設定に依存する
      *
      * @param BlogContent $blogContent
      * @return string

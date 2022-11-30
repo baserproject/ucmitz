@@ -28,12 +28,13 @@ class MailContentsController extends BcAdminAppController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function initialize(): void
     {
         parent::initialize();
         $this->loadComponent('BaserCore.BcAdminContents', [
-            'entityVarName' => 'blogContent',
+            'entityVarName' => 'mailContent',
             'useForm' => true
         ]);
     }

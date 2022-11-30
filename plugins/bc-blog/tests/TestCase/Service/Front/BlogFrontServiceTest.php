@@ -17,9 +17,15 @@ use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
-use BcBlog\Service\BlogContentsService;
+use BcBlog\Service\BlogContentsServiceInterface;
+use BcBlog\Service\BlogPostsServiceInterface;
 use BcBlog\Service\Front\BlogFrontService;
+use BcBlog\Service\Front\BlogFrontServiceInterface;
+use BcBlog\Test\Factory\BlogCategoryFactory;
 use BcBlog\Test\Factory\BlogContentFactory;
+use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Factory\BlogTagFactory;
+use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -48,6 +54,7 @@ class BlogFrontServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BaserCore.Factory/Contents',
         'plugin.BcBlog.Factory/BlogContents',
+        'plugin.BcBlog.Factory/BlogTags',
     ];
 
     /**
@@ -59,7 +66,7 @@ class BlogFrontServiceTest extends BcTestCase
     {
         $this->setFixtureTruncate();
         parent::setUp();
-        $this->BlogFrontService = new BlogFrontService();
+        $this->BlogFrontService = $this->getService(BlogFrontServiceInterface::class);
     }
 
     /**
@@ -73,6 +80,15 @@ class BlogFrontServiceTest extends BcTestCase
         parent::tearDown();
     }
 
+
+    /**
+     * test __construct
+     */
+    public function test__construct()
+    {
+        $this->assertTrue(isset($this->BlogFrontService->BlogContentsService));
+        $this->assertTrue(isset($this->BlogFrontService->BlogPostsService));
+    }
 
     /**
      * test getViewVarsForIndex
@@ -161,8 +177,170 @@ class BlogFrontServiceTest extends BcTestCase
             'id' => 1,
             'template' => 'template-1'
         ])->persist();
-        $BlogContentsService = new BlogContentsService();
+        $BlogContentsService =  $this->getService(BlogContentsServiceInterface::class);
         $rs = $this->BlogFrontService->getIndexTemplate($BlogContentsService->get(1));
         $this->assertEquals($rs, 'Blog/template-1/index');
+    }
+
+    /**
+     * test getSingleTemplate
+     */
+    public function test_getSingleTemplate()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getArchivesTemplate
+     */
+    public function test_getArchivesTemplate()
+    {
+        // サービスクラス
+        $BlogContentsService = $this->getService(BlogContentsServiceInterface::class);
+        // データ生成
+        BlogContentFactory::make(['id' => 1, 'template' => 'template-1'])->persist();
+        // ブログコンテンツの設定に依存するメソードをコール
+        $rs = $this->BlogFrontService->getArchivesTemplate($BlogContentsService->get(1));
+        //戻り値を確認
+        $this->assertEquals($rs, 'Blog/template-1/archives');
+    }
+
+    /**
+     * test getViewVarsForSingle
+     */
+    public function test_getViewVarsForSingle()
+    {
+        // サービスクラス
+        $BlogContentsService = $this->getService(BlogContentsServiceInterface::class);
+        // データ生成
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/');
+        BlogPostFactory::make([
+            'id' => 1,
+            'blog_content_id' => 1,
+            'no' => 1,
+            'title' => 'blog post title',
+            'status' => true
+        ])->persist();
+        BlogCategoryFactory::make([
+            'id' => BlogPostFactory::get(1)->get('blog_category_id'),
+            'blog_content_id' => 1,
+            'title' => 'title add',
+            'name' => 'name-add',
+            'rght' => 1,
+            'lft' => 2,
+            'status' => true
+        ])->persist();
+        //リクエストバリューを設定
+        $request = $this->loginAdmin($this->getRequest(), 1);
+        // メソードをコール
+        $rs = $this->BlogFrontService->getViewVarsForSingle(
+            $request->withParam('pass', [1]),
+            $BlogContentsService->get(1),
+            ['blog', 'test']
+        );
+
+        //戻り値を確認
+
+        //postの値を確認
+        $this->assertEquals($rs['post']['title'], 'blog post title');
+        //blogContentの値を確認
+        $this->assertEquals($rs['blogContent']->content->name, 'test');
+        //editLinkの値を確認
+        $editLinkExpected = [
+            'prefix' => 'Admin',
+            'plugin' => 'BcBlog',
+            'controller' => 'BlogPosts',
+            'action' => 'edit',
+            1,
+            1
+        ];
+        $this->assertEquals($rs['editLink'], $editLinkExpected);
+        //commentUseの値を確認
+        $this->assertTrue($rs['commentUse']);
+        //singleの値を確認
+        $this->assertTrue($rs['single']);
+        //crumbsの値を確認
+        $crumbsExpected = [
+            'blog',
+            'test',
+            [
+                'name' => 'title add',
+                'url' => '/archives/category/name-add'
+            ]
+        ];
+        $this->assertEquals($rs['crumbs'], $crumbsExpected);
+
+
+        //$noが存在しない場合、
+        $this->expectException('Cake\Http\Exception\NotFoundException');
+        $this->BlogFrontService->getViewVarsForSingle(
+            $this->getRequest(),
+            $BlogContentsService->get(1),
+            ['blog', 'test']
+        );
+    }
+
+    /**
+     * test getViewVarsForArchivesByTag
+     */
+    public function test_getViewVarsForArchivesByTag()
+    {
+        //サービスをコル
+        $blogPostsService = $this->getService(BlogPostsServiceInterface::class);
+        // データ生成
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/');
+        BlogContentFactory::make([
+            'id' => 2,
+            'template' => 'template-2',
+            'list_direction' => 'DESC',
+            'tag_use' => true,
+        ])->persist();
+        BlogTagFactory::make([
+            'id' => 1,
+            'name' => 'Archives By Tag',
+        ])->persist();
+
+        // tag string
+        $tag = 'Archives By Tag';
+
+        // BlogContent
+        $blogContent = BlogContentFactory::get(2);
+
+        //サービスメソッドコール
+        $result = $this->BlogFrontService->getViewVarsForArchivesByTag($blogPostsService->getIndex([])->all(), $tag, $blogContent);
+        //戻る値を確認
+        $this->assertEquals(true, isset($result['posts']));
+        $this->assertEquals('tag', $result['blogArchiveType']);
+        $this->assertEquals(true, isset($result['blogTag']));
+
+        //error　存在しないタグを設定する場合、
+        $tag = 'error Archives By Tag'; // tag string
+        $this->expectException('Cake\Http\Exception\NotFoundException');
+        $this->BlogFrontService->getViewVarsForArchivesByTag($blogPostsService->getIndex([])->all(), $tag, $blogContent);
+    }
+
+    /**
+     * test getViewVarsForArchivesByDate
+     */
+    public function test_getViewVarsForArchivesByDate()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getViewVarsForArchivesByCategory
+     */
+    public function test_getViewVarsForArchivesByCategory()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getViewVarsForArchivesByAuthor
+     */
+    public function test_getViewVarsForArchivesByAuthor()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 }

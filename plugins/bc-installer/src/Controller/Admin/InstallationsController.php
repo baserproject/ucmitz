@@ -20,6 +20,9 @@ use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\Utility\Hash;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class InstallationsController
@@ -167,6 +170,7 @@ class InstallationsController extends BcAdminAppController
     /**
      * Step 4: データベース生成／管理者ユーザー作成
      *
+     * @param InstallationsAdminService $service
      * @return void
      * @checked
      */
@@ -190,7 +194,6 @@ class InstallationsController extends BcAdminAppController
                     // TODO ucmitz メール送信未実装
 //                    $this->_sendCompleteMail(
 //                        $this->getRequest()->getData('admin_email'),
-//                        $this->getRequest()->getData('admin_username'),
 //                        $this->getRequest()->getData('admin_password')
 //                    );
                     $this->redirect(['action' => 'step5']);

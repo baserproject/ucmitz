@@ -44,6 +44,7 @@ class InstallationsAdminService extends InstallationsService implements Installa
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getViewVarsForStep2(): array
     {
@@ -57,6 +58,7 @@ class InstallationsAdminService extends InstallationsService implements Installa
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getViewVarsForStep3(bool $blDBSettingsOK): array
     {
@@ -241,7 +243,6 @@ class InstallationsAdminService extends InstallationsService implements Installa
 
         // 管理ユーザー登録
         $user = [
-            'name' => $request->getData('admin_username'),
             'password_1' => $request->getData('admin_password'),
             'password_2' => $request->getData('admin_confirm_password'),
             'email' => $request->getData('admin_email')

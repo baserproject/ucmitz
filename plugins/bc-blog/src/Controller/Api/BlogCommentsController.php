@@ -25,16 +25,33 @@ class BlogCommentsController extends BcApiController
 {
 
     /**
+     * [API] ブログコメント一覧取得
+     *
+     * @param BlogCommentsServiceInterface $blogCommentsService
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(BlogCommentsServiceInterface $blogCommentsService)
+    {
+        $this->set([
+            'blogComments' => $this->paginate($blogCommentsService->getIndex($this->request->getQueryParams()))
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogComments']);
+    }
+
+    /**
      * ブログコメントのバッチ処理
-     * 
+     *
      * 指定したブログのコメントに対して削除、公開、非公開の処理を一括で行う
-     * 
+     *
      * ### エラー
      * 受け取ったPOSTデータのキー名'batch'が'delete','publish','unpublish'以外の値であれば500エラーを発生させる
      *
      * @param BlogCommentsService $service
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function batch(BlogCommentsServiceInterface $service)
     {
@@ -69,7 +86,7 @@ class BlogCommentsController extends BcApiController
 
     /**
      * [AJAX] ブログコメントを登録する
-     * 
+     *
      * 画像認証を行い認証されればブログのコメントを登録する
      * コメント承認を利用していないブログの場合、公開されているコメント投稿者にアラートを送信する
      *
