@@ -11,13 +11,14 @@
 
 namespace BcBlog\Test\TestCase\Controller\Api;
 
+use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Controller\Api\BlogPostsController;
 use BcBlog\Test\Factory\BlogPostFactory;
 use Cake\Core\Configure;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
-use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class BlogPostsControllerTest
@@ -30,7 +31,7 @@ class BlogPostsControllerTest extends BcTestCase
      * ScenarioAwareTrait
      */
     use ScenarioAwareTrait;
-    use IntegrationTestTrait;
+    use BcContainerTrait;
 
     /**
      * Fixtures
@@ -121,7 +122,30 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function test_edit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データを生成
+        BlogPostFactory::make(['id' => 1])->persist();
+
+        //正常の時を確認
+        //編集データーを生成
+        $data = ['title' => 'blog post edit'];
+        //APIをコル
+        $this->post('/baser/api/bc-blog/blog_posts/edit/1.json?token=' . $this->accessToken, $data);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('blog post edit', $result->blogPost->title);
+        $this->assertEquals('記事「blog post edit」を更新しました。', $result->message);
+
+        //dataは空にする場合を確認
+        //APIをコル
+        $this->post('/baser/api/bc-blog/blog_posts/edit/1.json?token=' . $this->accessToken, []);
+        //ステータスを確認
+        $this->assertResponseCode(400);
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+        $this->assertEquals('タイトルを入力してください。', $result->errors->title->_required);
     }
 
     /**
@@ -129,7 +153,23 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function test_copy()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データを生成
+        BlogPostFactory::make(['id' => 1, 'title' => 'test'])->persist();
+
+        //正常の時を確認
+        //APIをコル
+        $this->post('/baser/api/bc-blog/blog_posts/copy/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('ブログ記事「test」をコピーしました。', $result->message);
+        $this->assertEquals('test_copy', $result->blogPost->title);
+
+        //存在しないBlogPostIDをコビー場合、
+        $this->post('/baser/api/bc-blog/blog_posts/copy/100000.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseCode(404);
     }
 
     /**
@@ -156,4 +196,28 @@ class BlogPostsControllerTest extends BcTestCase
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
+    /**
+     * test delete
+     */
+    public function test_delete()
+    {
+        //データを生成
+        SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
+        BlogPostFactory::make(['id' => 1])->persist();
+
+        //正常の時を確認
+        //APIをコル
+        $this->post('/baser/api/bc-blog/blog_posts/delete/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertMatchesRegularExpression('/ブログ記事「.+」を削除しました。/', $result->message);
+        $this->assertNotNull($result->blogPost->title);
+
+        //存在しないBlogPostIDを削除場合、
+        $this->post('/baser/api/bc-blog/blog_posts/delete/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseCode(404);
+    }
 }
