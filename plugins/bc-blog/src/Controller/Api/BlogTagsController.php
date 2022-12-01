@@ -27,6 +27,22 @@ class BlogTagsController extends BcApiController
 {
 
     /**
+     * [API] ブログタグ一覧取得
+     *
+     * @param BlogTagsServiceInterface $service
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(BlogTagsServiceInterface $service)
+    {
+        $this->set([
+            'blogTags' => $this->paginate($service->getIndex($this->request->getQueryParams()))
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogTags']);
+    }
+
+    /**
      * [ADMIN] ブログタグ登録
      *
      * ブログのタグを登録する
@@ -55,6 +71,35 @@ class BlogTagsController extends BcApiController
             ]);
             $this->viewBuilder()->setOption('serialize', ['message', 'blogTag', 'errors']);
         }
+    }
+
+    /**
+     * [API] ブログタグ編集
+     * @param BlogTagsServiceInterface $service
+     * @param $blogTagId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function edit(BlogTagsServiceInterface $service, $blogTagId)
+    {
+        $this->request->allowMethod(['post', 'put', 'patch']);
+
+        try {
+            $blogTag = $service->update($service->get($blogTagId), $this->request->getData());
+            $message = __d('baser', 'ブログタグ「{0}」を更新しました。', $blogTag->name);
+        } catch (PersistenceFailedException $e) {
+            $blogTag = $e->getEntity();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        }
+        $this->set([
+            'message' => $message,
+            'blogTag' => $blogTag,
+            'errors' => $blogTag->getErrors()
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogTag', 'message', 'errors']);
     }
 
     /**

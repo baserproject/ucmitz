@@ -84,6 +84,28 @@ class BlogTagsControllerTest extends BcTestCase
     }
 
     /**
+     * test index
+     */
+    public function testIndex()
+    {
+        // ５件タグを作成する
+        BlogTagFactory::make([], 5)->persist();
+
+        // クエリはトークンの以外で何も設定しない場合、全てのタグを取得する
+        $this->get('/baser/api/bc-blog/blog_tags/index.json?token=' . $this->accessToken);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        // タグ一覧は全て５件が返す
+        $this->assertCount(5, $result->blogTags);
+
+        // クエリを設定し(limit = 4)、該当の結果が返す
+        $this->get('/baser/api/bc-blog/blog_tags/index.json?limit=4&token=' . $this->accessToken);
+        $result = json_decode((string)$this->_response->getBody());
+        // タグ一覧は４件が返す
+        $this->assertCount(4, $result->blogTags);
+    }
+
+    /**
      * test add
      */
     public function testAdd()
@@ -108,6 +130,35 @@ class BlogTagsControllerTest extends BcTestCase
         $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+    }
+
+    /**
+     * test edit
+     */
+    public function testEdit()
+    {
+        // タグのデータを作成する
+        BlogTagFactory::make(['id' => 1, 'name' => 'tag1'])->persist();
+
+        // 編集が成功のテスト
+        $this->post('/baser/api/bc-blog/blog_tags/edit/1.json?token=' . $this->accessToken, ['name' => 'tag2']);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        // 成功のメッセージを確認する
+        $this->assertEquals('ブログタグ「tag2」を更新しました。', $result->message);
+        // 編集した後のタグデータを確認する
+        $this->assertEquals(1, $result->blogTag->id);
+        $this->assertEquals('tag2', $result->blogTag->name);
+
+        // 編集が失敗のテスト
+        $this->post('/baser/api/bc-blog/blog_tags/edit/1.json?token=' . $this->accessToken, ['name' => '']);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        // 編集が失敗の場合、データが変わらないことを確認する
+        $this->assertEquals('tag2', $result->blogTag->name);
+        // レスポンスのメッセージとエラーメッセージを確認する
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+        $this->assertEquals('ブログタグを入力してください。', $result->errors->name->_empty);
     }
 
     /**
