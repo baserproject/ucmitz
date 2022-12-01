@@ -62,6 +62,9 @@ class BlogPostsController extends BcApiController
      * 指定したブログ記事を編集する。
      * 記事の保存に失敗した場合、PersistenceFailedExceptionかBcExceptionのエラーが発生する。
      *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function edit(BlogPostsServiceInterface $service, $id)
     {
@@ -72,7 +75,7 @@ class BlogPostsController extends BcApiController
             $message = __d('baser', '記事「{0}」を更新しました。', $blogPost->title);
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $blogPost = $e->getEntity();;
+            $blogPost = $e->getEntity();
             $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (BcException $e) {
             $blogPost = $e->getEntity();
