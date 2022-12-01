@@ -62,6 +62,9 @@ class BlogPostsController extends BcApiController
      * 指定したブログ記事を編集する。
      * 記事の保存に失敗した場合、PersistenceFailedExceptionかBcExceptionのエラーが発生する。
      *
+     * @param BlogPostsServiceInterface $service
+     * @param $id
+     *
      * @checked
      * @noTodo
      * @unitTest
