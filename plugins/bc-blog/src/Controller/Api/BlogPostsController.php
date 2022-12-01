@@ -16,6 +16,7 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Error\BcException;
 use BcBlog\Service\BlogPostsServiceInterface;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * BlogPostsController
@@ -101,12 +102,12 @@ class BlogPostsController extends BcApiController
      */
     public function delete(BlogPostsServiceInterface $service, $id)
     {
-        $this->request->allowMethod(['post', 'delete']);
+        $this->request->allowMethod(['post', 'put']);
         try {
             $blogPost = $service->get($id);
             $service->delete($id);
             $message = __d('baser', 'ブログ記事「{0}」を削除しました。', $blogPost->title);
-        } catch (BcException $e) {
+        } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $blogPost = $e->getEntity();
             $message = __d('baser', 'データベース処理中にエラーが発生しました。');
