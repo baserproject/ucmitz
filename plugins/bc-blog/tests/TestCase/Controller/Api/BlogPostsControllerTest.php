@@ -11,6 +11,7 @@
 
 namespace BcBlog\Test\TestCase\Controller\Api;
 
+use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Controller\Api\BlogPostsController;
@@ -162,6 +163,7 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_delete()
     {
         //データを生成
+        SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
         BlogPostFactory::make(['id' => 1])->persist();
 
         //正常の時を確認
