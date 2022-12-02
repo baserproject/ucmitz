@@ -211,34 +211,15 @@ class BlogPostsControllerTest extends BcTestCase
         $this->enableCsrfToken();
 
         // データ生成
+        SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
         $this->loadFixtureScenario(BlogContentScenario::class, 2, 2, null, 'news', '/news');
-        BlogPostFactory::make([
-            'id' => '1',
-            'blog_content_id' => '2',
-            'no' => '1',
-            'name' => 'ホームページをオープンしました',
-            'title' => 'test delete',
-            'content' => 'content test',
-            'detail' => 'detail test',
-            'blog_category_id' => '1',
-            'user_id' => '1',
-            'status' => '1',
-            'posts_date' => '2015-01-27 12:57:59',
-            'content_draft' => '',
-            'detail_draft' => '',
-            'publish_begin' => null,
-            'publish_end' => null,
-            'exclude_search' => 0,
-            'eye_catch' => 'template1.jpg',
-            'created' => '2015-01-27 12:56:53',
-            'modified' => '2015-01-27 12:57:59'
-        ])->persist();
+        BlogPostFactory::make(['id' => 1])->persist();
         // 記事削除コール
         $this->delete('/baser/admin/bc-blog/blog_posts/delete/2/1');
         // ステータスを確認
         $this->assertResponseCode(302);
         // メッセージを確認
-        $this->assertFlashMessage('ブログ記事「test delete」を削除しました。');
+        $this->assertMatchesRegularExpression('/ブログ記事「.+」を削除しました。/', $_SESSION["Flash"]["flash"][0]["message"]);
         // リダイレクトを確認
         $this->assertRedirect(['action' => 'index', 2]);
         // データ削除確認
