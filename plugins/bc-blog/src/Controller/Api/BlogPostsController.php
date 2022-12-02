@@ -41,11 +41,21 @@ class BlogPostsController extends BcApiController
     }
 
     /**
-     * [API] ブログ記事単一データ取得のAPI実装
+     * [API] ブログ記事単一データ取得
+     *
+     * @param BlogPostsServiceInterface $service
+     * @param $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function view()
+    public function view(BlogPostsServiceInterface $service, $id)
     {
-        //todo ブログ記事単一データ取得のAPI実装
+        $this->set([
+            'blogPost' => $service->get($id, $this->request->getQueryParams())
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogPost']);
     }
 
     /**

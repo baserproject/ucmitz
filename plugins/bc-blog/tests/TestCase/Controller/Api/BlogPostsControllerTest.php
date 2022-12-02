@@ -106,7 +106,22 @@ class BlogPostsControllerTest extends BcTestCase
      */
     public function test_view()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを生成
+        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1])->persist();
+        // APIを呼ぶ
+        $this->get('/baser/api/bc-blog/blog_posts/view/1.json?token=' . $this->accessToken);
+        // レスポンスを確認
+        $this->assertResponseOk();
+        // 戻り値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals(1, $result->blogPost->id);
+        $this->assertEquals(1, $result->blogPost->blog_content_id);
+
+        //存在しないBlogPostIDをテスト場合、
+        // APIを呼ぶ
+        $this->get('/baser/api/bc-blog/blog_posts/view/100.json?token=' . $this->accessToken);
+        // レスポンスを確認
+        $this->assertResponseCode(404);
     }
 
     /**
