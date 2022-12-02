@@ -12,6 +12,7 @@
 namespace BcBlog\Test\TestCase\Service\Front;
 
 use BaserCore\Controller\ContentFoldersController;
+use BaserCore\Service\ContentsServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
@@ -26,6 +27,7 @@ use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Factory\BlogTagFactory;
 use BcBlog\Test\Scenario\BlogContentScenario;
+use BcBlog\Test\Scenario\MultiSiteBlogScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -55,6 +57,7 @@ class BlogFrontServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/Contents',
         'plugin.BcBlog.Factory/BlogContents',
         'plugin.BcBlog.Factory/BlogTags',
+        'plugin.BcBlog.Factory/BlogPosts',
     ];
 
     /**
@@ -325,7 +328,42 @@ class BlogFrontServiceTest extends BcTestCase
      */
     public function test_getViewVarsForArchivesByDate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // サービスクラス
+        $blogPostsService = $this->getService(BlogPostsServiceInterface::class);
+
+        // データ生成
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/');
+
+        // BlogPost取得
+        $posts = $blogPostsService->getIndex([])->all();
+
+        // 日別
+        $result = $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '2022', '1', '1');
+        $this->assertEquals(true, isset($result['posts']));
+        $this->assertEquals('daily', $result['blogArchiveType']);
+        $this->assertEquals(true, isset($result['year']));
+        $this->assertEquals(true, isset($result['month']));
+        $this->assertEquals(1, $result['day']);
+
+        // 月別
+        $result = $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '2022', '1', '');
+        $this->assertEquals(true, isset($result['posts']));
+        $this->assertEquals('monthly', $result['blogArchiveType']);
+        $this->assertEquals(true, isset($result['year']));
+        $this->assertEquals(1, $result['month']);
+        $this->assertEquals(true, isset($result['day']));
+
+        // 年別
+        $result = $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '2022', '', '');
+        $this->assertEquals(true, isset($result['posts']));
+        $this->assertEquals('yearly', $result['blogArchiveType']);
+        $this->assertEquals(2022, $result['year']);
+        $this->assertEquals(true, isset($result['month']));
+        $this->assertEquals(true, isset($result['day']));
+
+        //日付が存在しない場合、
+        $this->expectException('Cake\Http\Exception\NotFoundException');
+        $this->BlogFrontService->getViewVarsForArchivesByDate($posts, '', '', '1');
     }
 
     /**
@@ -333,7 +371,48 @@ class BlogFrontServiceTest extends BcTestCase
      */
     public function test_getViewVarsForArchivesByCategory()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // サービスクラス
+        $blogPostsService = $this->getService(BlogPostsServiceInterface::class);
+        $BlogContentsService = $this->getService(BlogContentsServiceInterface::class);
+        $ContentsService = $this->getService(ContentsServiceInterface::class);
+
+        // データ生成
+        $this->loadFixtureScenario(MultiSiteBlogScenario::class);
+        BlogPostFactory::make([
+            'id' => '1',
+            'blog_content_id' => '1'
+        ])->persist();
+
+        //正常の場合を確認
+        $rs = $this->BlogFrontService->getViewVarsForArchivesByCategory(
+            $blogPostsService->getIndex([])->all(),
+            'release',
+            $this->getRequest()->withParam('currentContent', $ContentsService->get(4)),
+            $BlogContentsService->get(6),
+            ['blog', 'test']
+        );
+
+        //戻り値を確認
+
+        //postsが取得できるかどうかのを確認
+        $this->assertEquals($rs['posts']->count(), 1);
+        //blogArchiveTypeの戻り値を確認
+        $this->assertEquals($rs['blogArchiveType'], 'category');
+        //blogCategoryの戻り値を確認
+        $this->assertEquals($rs['blogCategory']->name, 'release');
+        $this->assertEquals($rs['blogCategory']->title, 'プレスリリース');
+        //crumbsの戻り値を確認
+        $this->assertEquals($rs['crumbs'], ['blog', 'test']);
+
+        //異常の場合を確認
+        $this->expectException("Cake\Http\Exception\NotFoundException");
+        $this->BlogFrontService->getViewVarsForArchivesByCategory(
+            $blogPostsService->getIndex([])->all(),
+            'release-test',
+            $this->getRequest()->withParam('currentContent', $ContentsService->get(4)),
+            $BlogContentsService->get(6),
+            ['blog', 'test']
+        );
     }
 
     /**
