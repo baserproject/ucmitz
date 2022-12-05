@@ -11,30 +11,40 @@
 
 namespace BcMail\Controller\Admin;
 
-use BaserCore\Controller\Admin\BcAdminAppController;
+use BaserCore\Error\BcException;
+use BaserCore\Service\ContentsService;
+use BaserCore\Service\ContentsServiceInterface;
+use BaserCore\Utility\BcSiteConfig;
+use BcMail\Service\Admin\MailMessagesAdminService;
+use BcMail\Service\Admin\MailMessagesAdminServiceInterface;
+use BcMail\Service\MailContentsServiceInterface;
+use BcMail\Service\MailMessagesServiceInterface;
 use Cake\Event\EventInterface;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * 受信メールコントローラー
  *
  * @package Mail.Controller
  */
-class MailMessagesController extends BcAdminAppController
+class MailMessagesController extends MailAdminAppController
 {
 
     /**
-     * コンポーネント
-     *
-     * @var array
+     * initialize
+     * @return void
+     * @checked
+     * @noTodo
      */
-    public $components = ['BcAuth', 'Cookie', 'BcAuthConfigure', 'BcContents'];
-
-    /**
-     * メールコンテンツデータ
-     *
-     * @var array
-     */
-    public $mailContent;
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->loadComponent('BaserCore.BcAdminContents', [
+            'entityVarName' => 'mailContent'
+        ]);
+    }
 
     /**
      * beforeFilter
@@ -44,176 +54,105 @@ class MailMessagesController extends BcAdminAppController
     public function beforeFilter(EventInterface $event)
     {
         parent::beforeFilter($event);
-        $content = $this->BcContents->getContent($this->request->param('pass.0'));
-        if (!$content) {
-            $this->notFound();
-        }
-        $this->mailContent = $this->MailContent->read(null, $this->request->param('pass.0'));
-        App::uses('MailMessage', 'BcMail.Model');
-        $this->MailMessage = new MailMessage();
-        $this->MailMessage->setup($this->mailContent['MailContent']['id']);
-        $mailContentId = $this->request->param('pass.0');
-        $content = $this->BcContents->getContent($mailContentId);
-        $this->request->param('Content', $content['Content']);
-    }
-
-    /**
-     * beforeRender
-     *
-     * @return void
-     */
-    public function beforeRender(EventInterface $event): void
-    {
-        parent::beforeRender($event);
-        $this->set('mailContent', $this->mailContent);
+        $mailContentId = $this->request->getParam('pass.0');
+        if (!$mailContentId) throw new BcException(__d('baser', '不正なURLです。'));
+        /* @var ContentsService $contentsService */
+        $contentsService = $this->getService(ContentsServiceInterface::class);
+        $request = $contentsService->setCurrentToRequest(
+            'BcMail.MailContent',
+            $mailContentId,
+            $this->getRequest()
+        );
+        if (!$request) throw new BcException(__d('baser', 'コンテンツデータが見つかりません。'));
+        $this->setRequest($request);
     }
 
     /**
      * [ADMIN] 受信メール一覧
      *
+     * @param MailMessagesAdminService $service
      * @param int $mailContentId
      * @return void
+     * @checked
+     * @noTodo
      */
-    public function admin_index($mailContentId)
+    public function index(MailMessagesAdminServiceInterface $service, int $mailContentId)
     {
-        $default = ['named' => ['num' => $this->siteConfigs['admin_list_num']]];
-        $this->setViewConditions('MailMessage', ['default' => $default]);
-        $this->paginate = [
-            'fields' => [],
-            'order' => 'MailMessage.created DESC',
-            'limit' => $this->passedArgs['num']
-        ];
-        $messages = $this->paginate('MailMessage');
-        $mailFields = $this->MailMessage->mailFields;
-
-        $this->set(compact('messages', 'mailFields'));
-
-        if ($this->RequestHandler->isAjax() || !empty($this->request->getQuery('ajax'))) {
-            $this->render('ajax_index');
-            return;
-        }
-
-        $this->pageTitle = sprintf(
-            __d('baser', '%s｜受信メール一覧'),
-            $this->request->param('Content.title')
-        );
-        $this->setHelp('mail_messages_index');
+        $this->setViewConditions('MailMessage', [
+            'group' => $mailContentId,
+            'default' => [
+                'query' => [
+                    'limit' => BcSiteConfig::get('admin_list_num'),
+                    'sort' => 'created',
+                    'direction' => 'desc',
+                ]]]);
+        $service->setup($mailContentId);
+        $this->set($service->getViewVarsForIndex(
+            $mailContentId,
+            $this->paginate($service->getIndex($this->getRequest()->getQueryParams()))
+        ));
     }
 
     /**
      * [ADMIN] 受信メール詳細
      *
+     * @param MailMessagesAdminService $service
      * @param int $mailContentId
      * @param int $messageId
      * @return void
+     * @checked
+     * @noTodo
      */
-    public function admin_view($mailContentId, $messageId)
+    public function view(
+        MailMessagesAdminServiceInterface $service,
+        int $mailContentId,
+        int $messageId
+    )
     {
-        if (!$mailContentId || !$messageId) {
-            $this->BcMessage->setError(__d('baser', '無効な処理です。'));
-            $this->notFound();
-        }
-        $message = $this->MailMessage->find('first', [
-            'conditions' => ['MailMessage.id' => $messageId],
-            'order' => 'created DESC'
-        ]);
-        $mailFields = $this->MailMessage->mailFields;
-        $this->set(compact('message', 'mailFields'));
-        $this->pageTitle = sprintf(
-            __d('baser', '%s｜受信メール詳細'),
-            $this->request->param('Content.title')
-        );
-    }
-
-    /**
-     * [ADMIN] 受信メール一括削除
-     *
-     * @param int $mailContentId
-     * @param int $messageId
-     * @return bool
-     */
-    protected function _batch_del($ids)
-    {
-        if ($ids) {
-            foreach ($ids as $id) {
-                $this->_del($id);
-            }
-        }
-        return true;
-    }
-
-    /**
-     * [ADMIN] 受信メール削除　(ajax)
-     *
-     * @param int $mailContentId
-     * @param int $messageId
-     * @return void
-     */
-    public function admin_ajax_delete($mailContentId, $messageId)
-    {
-        $this->_checkSubmitToken();
-        if (!$messageId) {
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
-        }
-        if (!$this->_del($messageId)) {
-            exit;
-        }
-
-        exit(true);
-    }
-
-    /**
-     * 受信メール削除　
-     *
-     * @param int $mailContentId
-     * @param int $messageId
-     * @return bool
-     */
-    protected function _del($id = null)
-    {
-        if (!$this->MailMessage->delete($id)) {
-            return false;
-        }
-
-        $message = sprintf(__d('baser', '受信データ NO「%s」 を削除しました。'), $id);
-        $this->MailMessage->saveDbLog($message);
-        return true;
+        $service->setup($mailContentId);
+        $this->set($service->getViewVarsForView($mailContentId, $messageId));
     }
 
     /**
      * [ADMIN] 受信メール削除
      *
+     * @param MailMessagesServiceInterface $service
+     * @param MailContentsServiceInterface $mailContentsService
      * @param int $mailContentId
-     * @param int $messageId
+     * @param int $id
      * @return void
+     * @checked
+     * @noTodo
      */
-    public function admin_delete($mailContentId, $messageId)
+    public function delete(
+        MailMessagesServiceInterface $service,
+        MailContentsServiceInterface $mailContentsService,
+        int $mailContentId,
+        int $id
+    )
     {
-        $this->_checkSubmitToken();
-        if (!$mailContentId || !$messageId) {
-            $this->BcMessage->setError(__d('baser', '無効な処理です。'));
-            $this->notFound();
+        $this->request->allowMethod(['post', 'delete']);
+        $mailContent = $mailContentsService->get($mailContentId);
+        try {
+            $service->setup($mailContentId);
+            if ($service->delete($id)) {
+                $this->BcMessage->setSuccess(__d(
+                    'baser',
+                    '{0} への受信データ NO「{1}」 を削除しました。',
+                    $mailContent->content->title,
+                    $id
+                ));
+            }
+        } catch (\Throwable $e) {
+            $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
         }
-        if (!$this->MailMessage->delete($messageId)) {
-            $this->BcMessage->setError(
-                __d('baser', 'データベース処理中にエラーが発生しました。')
-            );
-        } else {
-            $this->BcMessage->setSuccess(
-                sprintf(
-                    __d('baser', '%s への受信データ NO「%s」 を削除しました。'),
-                    $this->mailContent['Content']['title'],
-                    $messageId
-                )
-            );
-        }
-        $this->redirect(['action' => 'index', $mailContentId]);
+        return $this->redirect(['action' => 'index', $mailContentId]);
     }
 
     /**
      * メールフォームに添付したファイルを開く
      */
-    public function admin_attachment()
+    public function attachment()
     {
         $args = func_get_args();
         unset($args[0]);
