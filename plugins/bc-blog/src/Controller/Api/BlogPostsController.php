@@ -16,6 +16,7 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Error\BcException;
 use BcBlog\Service\BlogPostsServiceInterface;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
@@ -23,6 +24,19 @@ use Cake\ORM\Exception\PersistenceFailedException;
  */
 class BlogPostsController extends BcApiController
 {
+
+    /**
+     * initialize
+     * @return void
+     * @checked
+     * @unitTest
+     * @unitTest
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Authentication->allowUnauthenticated(['view']);
+    }
 
     /**
      * [API] ブログ記事一覧データ取得
@@ -43,6 +57,11 @@ class BlogPostsController extends BcApiController
     /**
      * [API] ブログ記事単一データ取得
      *
+     * クエリーパラーメーター
+     * - status: string 公開ステータス（初期値：publish）
+     *  - `publish` 公開されたページ
+     *  - `` 全て
+     *
      * @param BlogPostsServiceInterface $service
      * @param $id
      *
@@ -52,10 +71,28 @@ class BlogPostsController extends BcApiController
      */
     public function view(BlogPostsServiceInterface $service, $id)
     {
-        $this->set([
-            'blogPost' => $service->get($id, $this->request->getQueryParams())
+        $this->request->allowMethod('get');
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (isset($queryParams['status'])) {
+            if (!$this->Authentication->getIdentity()) throw new ForbiddenException();
+        }
+
+        $queryParams = array_merge($queryParams, [
+            'status' => 'publish'
         ]);
-        $this->viewBuilder()->setOption('serialize', ['blogPost']);
+
+        try {
+            $blogPost = $service->get($id, $queryParams);
+        } catch (BcException $e) {
+            $this->setResponse($this->response->withStatus(401));
+            $blogPost = $e->getEntity();
+        }
+
+        $this->set([
+            'blogPost' => $blogPost,
+            'message' => $blogPost->getErrors()
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['blogPost', 'message']);
     }
 
     /**

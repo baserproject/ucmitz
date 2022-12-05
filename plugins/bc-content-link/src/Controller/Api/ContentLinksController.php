@@ -12,6 +12,7 @@
 namespace BcContentLink\Controller\Api;
 
 use BaserCore\Controller\Api\BcApiController;
+use BaserCore\Error\BcException;
 use BcContentLink\Service\ContentLinksService;
 use BcContentLink\Service\ContentLinksServiceInterface;
 use BaserCore\Annotation\NoTodo;
@@ -27,6 +28,19 @@ use Cake\ORM\Exception\PersistenceFailedException;
  */
 class ContentLinksController extends BcApiController
 {
+
+    /**
+     * initialize
+     * @return void
+     * @checked
+     * @unitTest
+     * @unitTest
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Authentication->allowUnauthenticated(['view']);
+    }
 
     /**
      * コンテンツリンクを登録する（認証要）
@@ -192,17 +206,16 @@ class ContentLinksController extends BcApiController
             'status' => 'publish'
         ]);
 
-        $contentLink = $message = null;
         try {
             $contentLink = $service->get($id, $queryParams);
-        } catch(\Exception $e) {
+        } catch(BcException $e) {
             $this->setResponse($this->response->withStatus(401));
-            $message = $e->getMessage();
+            $contentLink = $e->getEntity();
         }
 
         $this->set([
             'contentLink' => $contentLink,
-            'message' => $message
+            'message' => $contentLink->getErrors()
         ]);
         $this->viewBuilder()->setOption('serialize', ['contentLink', 'message']);
     }

@@ -84,6 +84,15 @@ class BlogPostsControllerTest extends BcTestCase
     }
 
     /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $controller = new BlogPostsController($this->getRequest());
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['view']);
+    }
+
+    /**
      * test index
      */
     public function test_index()
@@ -107,9 +116,9 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_view()
     {
         // データを生成
-        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1])->persist();
+        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'status' => true])->persist();
         // APIを呼ぶ
-        $this->get('/baser/api/bc-blog/blog_posts/view/1.json?token=' . $this->accessToken);
+        $this->get('/baser/api/bc-blog/blog_posts/view/1.json');
         // レスポンスを確認
         $this->assertResponseOk();
         // 戻り値を確認
@@ -122,6 +131,16 @@ class BlogPostsControllerTest extends BcTestCase
         $this->get('/baser/api/bc-blog/blog_posts/view/100.json?token=' . $this->accessToken);
         // レスポンスを確認
         $this->assertResponseCode(404);
+
+        //ログインしていない状態では status パラメーターへへのアクセスを禁止するか確認
+        $this->get('/baser/api/bc-blog/blog_posts/view/1.json?status=publish');
+        // レスポンスを確認
+        $this->assertResponseCode(403);
+
+        //ログインしている状態では status パラメーターへへのアクセできるか確認
+        $this->get('/baser/api/bc-blog/blog_posts/view/1.json?status=publish&token=' . $this->accessToken);
+        // レスポンスを確認
+        $this->assertResponseOk();
     }
 
     /**
