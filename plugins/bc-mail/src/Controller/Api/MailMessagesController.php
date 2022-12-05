@@ -29,6 +29,9 @@ class MailMessagesController extends BcApiController
      *
      * @param MailMessagesService $service
      * @param int $mailContentId
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(MailMessagesServiceInterface $service, int $mailContentId)
     {
