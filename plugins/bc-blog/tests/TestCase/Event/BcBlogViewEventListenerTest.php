@@ -15,11 +15,9 @@ namespace BcBlog\Test\TestCase\Event;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
-use BaserCore\View\BcAdminAppView;
 use BcBlog\Event\BcBlogViewEventListener;
 use BcBlog\Test\Factory\BlogContentFactory;
 use Cake\Core\Configure;
-use Cake\Event\Event;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -81,12 +79,11 @@ class BcBlogViewEventListenerTest extends BcTestCase
         BlogContentFactory::make(['id' => '1'])->persist();
         ContentFactory::make(['id' => 1, 'type' => 'BlogContent', 'entity_id' => 1, 'status' => true ])->persist();
 
-        $view = new BcAdminAppView($this->getRequest());
-        $this->Listener->beforeRender(new Event('beforeRender', $view));
+        $this->Listener->beforeRender();
         $this->assertArrayNotHasKey('BlogContent1', Configure::read('BcApp.adminNavigation.Contents'));
 
         $this->loginAdmin($this->getRequest('/baser/admin'));
-        $this->Listener->beforeRender(new Event('beforeRender', $view));
+        $this->Listener->beforeRender();
         $this->assertArrayHasKey('BlogContent1', Configure::read('BcApp.adminNavigation.Contents'));
     }
 
