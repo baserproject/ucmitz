@@ -153,7 +153,7 @@ class MailMessagesControllerTest extends BcTestCase
         // レスポンスのコードを確認する
         $this->assertResponseOk();
         // レスポンスのメッセージ内容を確認する
-        $this->assertEquals('お問い合わせ(※関連Fixture未完了) への受信データ NO「1」 を追加しました。', $result->message);
+        $this->assertEquals('お問い合わせ(※関連Fixture未完了) への受信データ NO「1」を追加しました。', $result->message);
         // 追加したメールメッセージ内容を確認する
         $this->assertEquals('test message', $result->mailMessage->message);
 
@@ -165,7 +165,6 @@ class MailMessagesControllerTest extends BcTestCase
         $this->assertResponseCode(500);
         // レスポンスのメッセージ内容を確認する
         $this->assertEquals('データベース処理中にエラーが発生しました。Cannot convert value of type `string` to integer', $result->message);
-
     }
 
     /**

@@ -86,7 +86,7 @@ class MailMessagesController extends BcApiController
             $mailMessage = $service->create($mailContent, $this->request->getData());
             $message = __d(
                 'baser',
-                '{0} への受信データ NO「{1}」 を追加しました。',
+                '{0} への受信データ NO「{1}」を追加しました。',
                 $mailContent->content->title,
                 $mailMessage->id
             );
