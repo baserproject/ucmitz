@@ -135,6 +135,7 @@ class MailMessagesController extends BcApiController
     )
     {
         $this->request->allowMethod(['post', 'put']);
+        $mailMessage = $errors = null;
         try {
             $service->setup($mailContentId);
             $mailContent = $mailContentsService->get($mailContentId);
@@ -145,7 +146,6 @@ class MailMessagesController extends BcApiController
                 $mailContent->content->title,
                 $messageId
             );
-            $errors = null;
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $mailMessage = $e->getEntity();
@@ -154,8 +154,6 @@ class MailMessagesController extends BcApiController
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
-            $mailMessage = null;
-            $errors = $e;
         }
         $this->set([
             'message' => $message,
