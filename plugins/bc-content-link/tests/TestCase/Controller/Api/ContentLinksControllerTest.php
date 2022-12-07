@@ -146,10 +146,10 @@ class ContentLinksControllerTest extends BcTestCase
         $this->assertEquals('/test-edit', $result->contentLink->url);
 
         $this->post('/baser/api/bc-content-link/content_links/edit/10.json?token=' . $this->accessToken, $data);
-        $this->assertResponseCode(400);
+        $this->assertResponseCode(500);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
-        $this->assertEquals('Record not found in table "content_links"', $result->errors);
+        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "content_links"', $result->message);
+
 
         $data = [
             'id' => 1,
@@ -160,10 +160,10 @@ class ContentLinksControllerTest extends BcTestCase
             ]
         ];
         $this->post('/baser/api/bc-content-link/content_links/edit/1.json?token=' . $this->accessToken, $data);
-        $this->assertResponseCode(400);
+        $this->assertResponseCode(500);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
-        $this->assertEquals('Cannot convert value of type `string` to integer', $result->errors);
+        $this->assertEquals('データベース処理中にエラーが発生しました。Cannot convert value of type `string` to integer', $result->message);
+
     }
 
     /**
@@ -194,9 +194,9 @@ class ContentLinksControllerTest extends BcTestCase
         $this->assertResponseCode(405);
 
         $this->post('/baser/api/bc-content-link/content_links/delete/10000.json?token=' . $this->accessToken);
-        $this->assertResponseCode(404);
+        $this->assertResponseCode(500);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('Record not found in table "content_links"', $result->message);
+        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "content_links"', $result->message);
     }
 
     /**
@@ -241,7 +241,9 @@ class ContentLinksControllerTest extends BcTestCase
         //非公開ContentLinkIDをテスト場合、
         // APIを呼ぶ
         $this->get('/baser/api/bc-content-link/content_links/view/2.json');
-        $this->assertResponseCode(404);
+        $this->assertResponseCode(500);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "content_links"', $result->message);
 
         //ログインしていない状態では status パラメーターへへのアクセスを禁止するか確認
         $this->get('/baser/api/bc-content-link/content_links/view/1.json?status=publish');

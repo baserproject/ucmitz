@@ -18,6 +18,7 @@ use BaserCore\Error\BcException;
 use BcBlog\Service\BlogPostsServiceInterface;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\Exception\PersistenceFailedException;
+use Throwable;
 
 /**
  * BlogPostsController
@@ -77,22 +78,28 @@ class BlogPostsController extends BcApiController
             if (!$this->Authentication->getIdentity()) throw new ForbiddenException();
         }
 
-        $queryParams = array_merge($queryParams, [
+        $queryParams = array_merge([
             'status' => 'publish'
-        ]);
+        ], $queryParams);
 
+        $blogPost = $message = $errors = null;
         try {
             $blogPost = $service->get($id, $queryParams);
-        } catch (BcException $e) {
-            $this->setResponse($this->response->withStatus(401));
-            $blogPost = $e->getEntity();
+        } catch (PersistenceFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
             'blogPost' => $blogPost,
-            'message' => $blogPost->getErrors()
+            'message' => $message,
+            'errors' => $errors,
         ]);
-        $this->viewBuilder()->setOption('serialize', ['blogPost', 'message']);
+        $this->viewBuilder()->setOption('serialize', ['blogPost', 'message', 'errors']);
     }
 
     /**
@@ -107,18 +114,24 @@ class BlogPostsController extends BcApiController
     public function add(BlogPostsServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
+
+        $blogPost = $errors = null;
         try {
             $blogPost = $service->create($this->request->getData());
             $message = __d('baser', '記事「{0}」を追加しました。', $blogPost->title);
         } catch (PersistenceFailedException $e) {
-            $blogPost = $e->getEntity();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
             $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
+
         $this->set([
             'blogPost' => $blogPost,
             'message' => $message,
-            'errors' => $blogPost->getErrors()
+            'errors' => $errors
         ]);
         $this->viewBuilder()->setOption('serialize', ['message', 'blogPost', 'errors']);
     }
@@ -180,20 +193,24 @@ class BlogPostsController extends BcApiController
     {
         $this->request->allowMethod(['patch', 'post', 'put']);
 
+        $blogPostCopied = $errors = null;
         try {
             $blogPost = $service->get($id);
             $blogPostCopied = $service->copy($id);
             $message = __d('baser', 'ブログ記事「{0}」をコピーしました。', $blogPost->title);
-        } catch (BcException $e) {
+        } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $blogPostCopied = $e->getEntity();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
             'blogPost' => $blogPostCopied,
             'message' => $message,
-            'errors' => $blogPostCopied->getErrors(),
+            'errors' => $errors
         ]);
 
         $this->viewBuilder()->setOption('serialize', ['blogPost', 'message', 'errors']);
@@ -230,20 +247,25 @@ class BlogPostsController extends BcApiController
     public function delete(BlogPostsServiceInterface $service, $id)
     {
         $this->request->allowMethod(['post', 'put']);
+
+        $blogPost = $errors = null;
         try {
             $blogPost = $service->get($id);
             $service->delete($id);
             $message = __d('baser', 'ブログ記事「{0}」を削除しました。', $blogPost->title);
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $blogPost = $e->getEntity();
-            $message = __d('baser', 'データベース処理中にエラーが発生しました。');
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
             'blogPost' => $blogPost,
             'message' => $message,
-            'errors' => $blogPost->getErrors(),
+            'errors' => $errors,
         ]);
 
         $this->viewBuilder()->setOption('serialize', ['blogPost', 'message', 'errors']);
