@@ -15,6 +15,8 @@ use BaserCore\BcPlugin;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
+use BcWidgetArea\ServiceProvider\BcWidgetAreaServiceProvider;
+use Cake\Core\ContainerInterface;
 
 /**
  * Class Plugin
@@ -22,4 +24,15 @@ use BaserCore\Annotation\Checked;
  */
 class Plugin extends BcPlugin
 {
+
+    /**
+     * services
+     * @param ContainerInterface $container
+     * @noTodo
+     * @checked
+     */
+    public function services(ContainerInterface $container): void
+    {
+        $container->addServiceProvider(new BcWidgetAreaServiceProvider());
+    }
 }

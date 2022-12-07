@@ -125,23 +125,6 @@ class BlogController extends BlogFrontAppController
     }
 
     /**
-     * beforeRender
-     *
-     * @return void
-     */
-    public function beforeRender(EventInterface $event): void
-    {
-        parent::beforeRender($event);
-        // TODO ucmitz 未確認
-        // >>>
-//        $this->set('blogContent', $this->blogContent);
-//        if (!empty($this->blogContent['BlogContent']['widget_area'])) {
-//            $this->set('widgetArea', $this->blogContent['BlogContent']['widget_area']);
-//        }
-        // <<<
-    }
-
-    /**
      * [PUBLIC] ブログを一覧表示する
      *
      * @param BlogFrontService $service
@@ -319,44 +302,6 @@ class BlogController extends BlogFrontAppController
             $template = $service->getSingleTemplate($blogContent);
         }
         $this->render($template);
-    }
-
-    /**
-     * ブログカレンダー用のデータを取得する
-     *
-     * @param int $id
-     * @param int $year
-     * @param int $month
-     * @return array
-     */
-    public function get_calendar($id, $year = '', $month = '')
-    {
-        $year = h($year);
-        $month = h($month);
-        $this->BlogContent->recursive = -1;
-        $data['blogContent'] = $this->BlogContent->read(null, $id);
-        $this->BlogPost->recursive = -1;
-        $data['entryDates'] = $this->BlogPost->getEntryDates($id, $year, $month);
-
-        if (!$year) {
-            $year = date('Y');
-        }
-        if (!$month) {
-            $month = date('m');
-        }
-
-        if ($month == 12) {
-            $data['next'] = $this->BlogPost->existsEntry($id, $year + 1, 1);
-        } else {
-            $data['next'] = $this->BlogPost->existsEntry($id, $year, $month + 1);
-        }
-        if ($month == 1) {
-            $data['prev'] = $this->BlogPost->existsEntry($id, $year - 1, 12);
-        } else {
-            $data['prev'] = $this->BlogPost->existsEntry($id, $year, $month - 1);
-        }
-
-        return $data;
     }
 
     /**
