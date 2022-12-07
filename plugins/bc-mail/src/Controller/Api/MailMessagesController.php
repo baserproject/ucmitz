@@ -80,6 +80,7 @@ class MailMessagesController extends BcApiController
      * @param MailMessagesService $service
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function batch(MailMessagesServiceInterface $service, $mailContentId)
     {
