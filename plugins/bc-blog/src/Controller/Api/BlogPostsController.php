@@ -17,6 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Error\BcException;
 use BcBlog\Service\BlogPostsServiceInterface;
 use Cake\ORM\Exception\PersistenceFailedException;
+use Throwable;
 
 /**
  * BlogPostsController
@@ -174,6 +175,7 @@ class BlogPostsController extends BcApiController
     {
         $this->request->allowMethod(['patch', 'post', 'put']);
 
+        $errors = null;
         try {
             $result = $service->unpublish($id);
             if ($result) {
@@ -182,13 +184,17 @@ class BlogPostsController extends BcApiController
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser', 'データベース処理中にエラーが発生しました。');
             }
-        } catch (BcException $e) {
+        } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
-
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
-        $this->set(['message' => $message]);
-        $this->viewBuilder()->setOption('serialize', ['message']);
+
+        $this->set(['message' => $message, 'errors' => $errors]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
     }
 
     /**

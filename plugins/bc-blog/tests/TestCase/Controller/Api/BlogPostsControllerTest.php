@@ -243,7 +243,10 @@ class BlogPostsControllerTest extends BcTestCase
         //APIをコル
         $this->post('/baser/api/bc-blog/blog_posts/unpublish/2.json?token=' . $this->accessToken);
         //ステータスを確認
-        $this->assertResponseCode(404);
+        $this->assertResponseCode(500);
+        // 戻り値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "blog_posts"', $result->message);
     }
 
     /**
