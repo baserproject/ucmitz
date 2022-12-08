@@ -47,6 +47,7 @@ class BlogPostsControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BcBlog.Factory/BlogPosts',
+        'plugin.BaserCore.Factory/Dblogs',
     ];
 
     /**
@@ -302,6 +303,7 @@ class BlogPostsControllerTest extends BcTestCase
 
         //// 正常系のテスト
         // 非公開状態のデータを生成
+        SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
         BlogPostFactory::make([
             'id' => 1,
             'name' => 'blog-post-batch',
