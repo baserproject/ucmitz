@@ -78,7 +78,7 @@ class MailMessagesControllerTest extends BcTestCase
 
         // 受信メール一覧のAPIを叩く
         $this->get("/baser/api/bc-mail/mail_messages/index/$mailContentId.json?token=" . $this->accessToken);
-        // レスポンスのコードを確認する
+        // レスポンスコードを確認する
         $this->assertResponseOk();
         // レスポンスのメールメッセージデータを確認する
         $result = json_decode((string)$this->_response->getBody());

@@ -18,7 +18,6 @@
  * @var array $mailEncodeList
  * @var bool $isWritableEnv
  * @var array $modeList
- * @var array $widgetAreaList
  * @var array $adminThemeList
  * @var array $editorList
  * @checked
@@ -124,27 +123,9 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
         </div>
       </td>
     </tr>
-    <?php /* TODO ucmitz 未実装のためコメントアウト ?>
-    <tr>
-      <th class="col-head bca-form-table__label">
-        <?php echo $this->BcAdminForm->label('widget_area', __d('baser', '標準ウィジェットエリア')) ?>
-      </th>
-      <td class="col-input bca-form-table__input">
-        <?php echo $this->BcAdminForm->control('widget_area', [
-          'type' => 'select',
-          'options' => $widgetAreaList
-        ]) ?>
-        <i class="bca-icon--question-circle bca-help"></i>
-        <div class="bca-helptext">
-          <?php echo sprintf(
-            __d('baser', 'ウィジェットエリアは「%s」より追加できます。'),
-            $this->BcBaser->getLink(__d('baser', 'ウィジェットエリア管理'),
-              ['controller' => 'widget_areas', 'action' => 'index'
-              ])) ?>
-        </div>
-      </td>
-    </tr>
-    */ ?>
+
+    <?php echo $this->BcAdminForm->dispatchAfterForm() ?>
+
   </table>
 </section>
 
@@ -234,7 +215,9 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
           <?php echo $this->BcAdminForm->error('admin_side_banner') ?>
         </td>
       </tr>
-      <?php echo $this->BcAdminForm->dispatchAfterForm() ?>
+
+      <?php echo $this->BcAdminForm->dispatchAfterForm('Admin') ?>
+
     </table>
   </div>
 </section>
@@ -340,6 +323,9 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
           </div>
         </td>
       </tr>
+
+      <?php echo $this->BcAdminForm->dispatchAfterForm('OuterService') ?>
+
     </table>
 
   </div>
@@ -354,7 +340,7 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
             data-bca-target="#formSubSiteSettingBody"
             aria-expanded="false"
             aria-controls="formSubSiteSettingBody">
-      サブサイト設定&nbsp;&nbsp;
+      サイト設定&nbsp;&nbsp;
       <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
     </button>
   </div>
@@ -404,6 +390,9 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
           <?php echo $this->BcAdminForm->error('use_site_lang_setting') ?>
         </td>
       </tr>
+
+      <?php echo $this->BcAdminForm->dispatchAfterForm('Site') ?>
+
     </table>
   </div>
 </section>
@@ -482,6 +471,9 @@ h2 {}
           </div>
         </td>
       </tr>
+
+      <?php echo $this->BcAdminForm->dispatchAfterForm('Editor') ?>
+
     </table>
   </div>
 </section>
@@ -639,7 +631,7 @@ h2 {}
         </td>
       </tr>
 
-      <?php echo $this->BcAdminForm->dispatchAfterForm('option') ?>
+      <?php echo $this->BcAdminForm->dispatchAfterForm('Mail') ?>
 
     </table>
   </div>

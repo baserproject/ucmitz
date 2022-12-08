@@ -12,6 +12,7 @@
 namespace BcBlog\Service\Front;
 
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcSiteConfig;
 use BaserCore\Utility\BcUtil;
 use BcBlog\Model\Entity\BlogContent;
 use BcBlog\Model\Entity\BlogPost;
@@ -83,7 +84,8 @@ class BlogFrontService implements BlogFrontServiceInterface
                 'controller' => 'BlogContents',
                 'action' => 'edit',
                 $blogContent->id
-            ] : null
+            ] : null,
+            'currentWidgetAreaId' => $blogContent->widget_area?? BcSiteConfig::get('widget_area')
         ];
     }
 
@@ -160,7 +162,8 @@ class BlogFrontService implements BlogFrontServiceInterface
             'crumbs' => array_merge($crumbs, $this->getCategoryCrumbs(
                 $request->getAttribute('currentContent')->url,
                 $blogCategory->id
-            ))
+            )),
+            'currentWidgetAreaId' => $blogContent->widget_area?? BcSiteConfig::get('widget_area')
         ];
     }
 
@@ -202,7 +205,7 @@ class BlogFrontService implements BlogFrontServiceInterface
      * @checked
      * @noTodo
      */
-    public function getViewVarsForArchivesByAuthor(ResultSet $posts, string $author): array
+    public function getViewVarsForArchivesByAuthor(ResultSet $posts, string $author, BlogContent $blogContent): array
     {
         $usersTable = TableRegistry::getTableLocator()->get('BaserCore.Users');
         $author = $usersTable->find('available')->where(['Users.name' => $author])->first();
@@ -212,7 +215,8 @@ class BlogFrontService implements BlogFrontServiceInterface
         return [
             'posts' => $posts,
             'blogArchiveType' => 'author',
-            'author' => $author
+            'author' => $author,
+            'currentWidgetAreaId' => $blogContent->widget_area?? BcSiteConfig::get('widget_area')
         ];
     }
 
@@ -235,7 +239,8 @@ class BlogFrontService implements BlogFrontServiceInterface
         return [
             'posts' => $posts,
             'blogArchiveType' => 'tag',
-            'blogTag' => $tag
+            'blogTag' => $tag,
+            'currentWidgetAreaId' => $blogContent->widget_area?? BcSiteConfig::get('widget_area')
         ];
     }
 
@@ -251,7 +256,13 @@ class BlogFrontService implements BlogFrontServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function getViewVarsForArchivesByDate(ResultSet $posts, string $year, string $month, string $day): array
+    public function getViewVarsForArchivesByDate(
+        ResultSet $posts,
+        string $year,
+        string $month,
+        string $day,
+        BlogContent $blogContent
+    ): array
     {
         if ($day && $month && $year) {
             $type = 'daily';
@@ -268,7 +279,8 @@ class BlogFrontService implements BlogFrontServiceInterface
             'blogArchiveType' => $type,
             'year' => $year,
             'month' => $month,
-            'day' => $day
+            'day' => $day,
+            'currentWidgetAreaId' => $blogContent->widget_area?? BcSiteConfig::get('widget_area')
         ];
     }
 
@@ -314,7 +326,8 @@ class BlogFrontService implements BlogFrontServiceInterface
             ] : '',
             'commentUse' => ($isPreview)? false : $blogContent->comment_use,
             'single' => true,
-            'crumbs' => $crumbs
+            'crumbs' => $crumbs,
+            'currentWidgetAreaId' => $blogContent->widget_area?? BcSiteConfig::get('widget_area')
         ];
     }
 
@@ -544,12 +557,12 @@ class BlogFrontService implements BlogFrontServiceInterface
     public function getViewVarsRecentEntriesWidget(int $blogContentId, int $limit = 5)
     {
         $query = $this->BlogPostsService->BlogPosts->find()
-                ->where(array_merge(
-                    ['BlogPosts.blog_content_id' => $blogContentId],
-                    $this->BlogPostsService->BlogPosts->getConditionAllowPublish()
-                ))
-                ->order(['BlogPosts.posted DESC']);
-        if($limit) {
+            ->where(array_merge(
+                ['BlogPosts.blog_content_id' => $blogContentId],
+                $this->BlogPostsService->BlogPosts->getConditionAllowPublish()
+            ))
+            ->order(['BlogPosts.posted DESC']);
+        if ($limit) {
             $query->limit($limit);
         }
         return [
