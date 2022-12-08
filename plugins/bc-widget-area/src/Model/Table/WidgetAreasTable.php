@@ -12,6 +12,9 @@
 namespace BcWidgetArea\Model\Table;
 
 use BaserCore\Model\Table\AppTable;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class WidgetArea
@@ -45,21 +48,6 @@ class WidgetAreasTable extends AppTable
                 'notBlank' => ['rule' => ['notBlank'], 'message' => __d('baser', 'ウィジェットエリア名を入力してください。')],
                 'maxLength' => ['rule' => ['maxLength', 255], 'message' => __d('baser', 'ウィジェットエリア名は255文字以内で入力してください。')]]
         ];
-    }
-
-    /**
-     * コントロールソース取得
-     * @param string $field
-     * @return array
-     */
-    public function getControlSource($field)
-    {
-        $controllSource['id'] = $this->find('list');
-        if (isset($controllSource[$field])) {
-            return $controllSource[$field];
-        } else {
-            return [];
-        }
     }
 
 }
