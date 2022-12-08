@@ -11,15 +11,15 @@
 
 namespace BcMail\Test\TestCase\Controller\Api;
 
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Service\DblogsServiceInterface;
 use BaserCore\Test\Factory\ContentFactory;
-use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
-use BcMail\Test\Factory\MailContentFactory;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
+use BcMail\Test\Factory\MailContentFactory;
 
 class MailMessagesControllerTest extends BcTestCase
 {
@@ -74,7 +74,20 @@ class MailMessagesControllerTest extends BcTestCase
      */
     public function testIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // メールメッセージのデータを作成する
+        $mailMessageTable = TableRegistry::getTableLocator()->get('BcMail.MailMessages');
+        $mailContentId = 1;
+        $mailMessageTable->setup($mailContentId);
+        // mail_message_1テーブルに１件のレコードを追加する
+        $mailMessageTable->save(new Entity(['id' => 2]));
+
+        // 受信メール一覧のAPIを叩く
+        $this->get("/baser/api/bc-mail/mail_messages/index/$mailContentId.json?token=" . $this->accessToken);
+        // レスポンスコードを確認する
+        $this->assertResponseOk();
+        // レスポンスのメールメッセージデータを確認する
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotEmpty($result->mailMessages);
     }
 
     /**
