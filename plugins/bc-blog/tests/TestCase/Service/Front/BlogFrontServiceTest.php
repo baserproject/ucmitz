@@ -29,7 +29,6 @@ use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Factory\BlogTagFactory;
 use BcBlog\Test\Scenario\BlogContentScenario;
 use BcBlog\Test\Scenario\MultiSiteBlogScenario;
-use Cake\Datasource\EntityInterface;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -60,6 +59,7 @@ class BlogFrontServiceTest extends BcTestCase
         'plugin.BcBlog.Factory/BlogContents',
         'plugin.BcBlog.Factory/BlogTags',
         'plugin.BcBlog.Factory/BlogPosts',
+        'plugin.BcBlog.Factory/BlogCategories',
     ];
 
     /**
