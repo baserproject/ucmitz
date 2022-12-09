@@ -439,7 +439,61 @@ class BlogFrontServiceTest extends BcTestCase
      */
     public function test_getCategoryCrumbs()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データ生成
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/');
+        BlogPostFactory::make([
+            'id' => 1,
+            'blog_content_id' => 1,
+            'blog_category_id' => 1,
+            'no' => 1,
+            'title' => 'blog post title',
+            'status' => true
+        ])->persist();
+        BlogCategoryFactory::make([
+            'id' => 1,
+            'blog_content_id' => 1,
+            'title' => 'title add parent',
+            'name' => 'name-add-parent',
+            'rght' => 1,
+            'lft' => 4,
+            'status' => true
+        ])->persist();
+        BlogCategoryFactory::make([
+            'id' => 2,
+            'blog_content_id' => 1,
+            'title' => 'title add child',
+            'name' => 'name-add-child',
+            'rght' => 2,
+            'lft' => 3,
+            'status' => true
+        ])->persist();
+
+        //$isCategoryPage = true & $count > 1
+        $rs = $this->BlogFrontService->getCategoryCrumbs(
+            "test",
+            1
+        );
+        //戻る値を確認
+        $this->assertEquals('title add child', $rs[0]['name']);
+        $this->assertEquals('testarchives/category/name-add-child', $rs[0]['url']);
+
+        //$isCategoryPage = true & $count = 1
+        $rs = $this->BlogFrontService->getCategoryCrumbs(
+            "test",
+            2
+        );
+        //戻る値を確認
+        $this->assertEquals([], $rs);
+
+        //$isCategoryPage = false & $count = 1
+        $rs = $this->BlogFrontService->getCategoryCrumbs(
+            "test",
+            2,
+            false
+        );
+        //戻る値を確認
+        $this->assertEquals('title add child', $rs[0]['name']);
+        $this->assertEquals('testarchives/category/name-add-child', $rs[0]['url']);
     }
 
     /**
