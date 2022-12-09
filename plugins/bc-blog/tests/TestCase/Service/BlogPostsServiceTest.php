@@ -12,6 +12,7 @@
 namespace BcBlog\Test\TestCase\Service;
 
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogPostsService;
 use BcBlog\Service\BlogPostsServiceInterface;
 use BcBlog\Test\Factory\BlogPostFactory;
@@ -23,6 +24,17 @@ use BcBlog\Test\Factory\BlogPostFactory;
  */
 class BlogPostsServiceTest extends BcTestCase
 {
+
+    use BcContainerTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BcBlog.Factory/BlogPosts',
+    ];
 
     /**
      * set up
