@@ -67,8 +67,8 @@ class WidgetAreasControllerTest extends BcTestCase
      */
     public function testIndex()
     {
+        // テストデータを作る
         WidgetAreaFactory::make(['id' => 1, 'name' => 'test', 'widgets' => 'test'])->persist();
-        $dt = WidgetAreaFactory::get(1);
 
         // ウィジェットエリア一覧のAPIを叩く
         $this->get("/baser/api/bc-widget-area/widget_areas/index.json?token=" . $this->accessToken);
