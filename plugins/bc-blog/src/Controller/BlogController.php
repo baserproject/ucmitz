@@ -178,6 +178,8 @@ class BlogController extends BlogFrontAppController
 
     /**
      * [PUBLIC] ブログアーカイブを表示する
+     * 
+     * コンテンツタイプでフィルタリングできる。
      *
      * @param BlogFrontService $service
      * @param BlogContentsService $blogContentsService
