@@ -11,7 +11,6 @@
 
 namespace BcWidgetArea\Test\TestCase\Controller\Api;
 
-use BaserCore\Test\Factory\SiteConfigFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcWidgetArea\Test\Factory\WidgetAreaFactory;
