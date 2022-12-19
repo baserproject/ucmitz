@@ -12,117 +12,71 @@
 namespace BcUploader\Controller\Admin;
 
 use BaserCore\Controller\Admin\BcAdminAppController;
-use BaserCore\Utility\BcUtil;
+use BaserCore\Error\BcException;
+use BaserCore\Utility\BcSiteConfig;
+use BcUploader\Service\Admin\UploaderFilesAdminService;
+use BcUploader\Service\Admin\UploaderFilesAdminServiceInterface;
+use BcUploader\Service\UploaderFilesService;
+use BcUploader\Service\UploaderFilesServiceInterface;
+use Cake\Core\Configure;
 use Cake\Event\EventInterface;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * ファイルアップローダーコントローラー
- *
- * @package         Uploader.Controller
  */
 class UploaderFilesController extends BcAdminAppController
 {
 
     /**
-     * コンポーネント
+     * Before filter
      *
-     * @var        array
-     * @access    public
+     * @param EventInterface $event
+     * @return \Cake\Http\Response|void
+     * @checked
+     * @noTodo
      */
-    public $components = ['BcAuth', 'Cookie', 'BcAuthConfigure', 'RequestHandler'];
-
     public function beforeFilter(EventInterface $event)
     {
-        $this->BcAuth->allow('view_limited_file');
-        $this->_checkEnv();
-        parent::beforeFilter($event);
-    }
-
-    /**
-     * プラグインの環境をチェックする
-     */
-    protected function _checkEnv()
-    {
-        $savePath = WWW_ROOT . 'files' . DS . $this->UploaderFile->actsAs['BcUpload']['saveDir'] . DS;
-        if (!is_dir($savePath . 'limited')) {
-            $Folder = new Folder();
-            $Folder->create($savePath . 'limited', 0777);
-            if (!is_dir($savePath . 'limited')) {
-                $this->BcMessage->setError('現在、アップロードファイルの公開期間の指定ができません。指定できるようにするには、' . $savePath . ' に書き込み権限を与えてください。');
-            }
-            $File = new File($savePath . 'limited' . DS . '.htaccess');
-            $htaccess = "Order allow,deny\nDeny from all";
-            $File->write($htaccess);
-            $File->close();
-            if (!file_exists($savePath . 'limited' . DS . '.htaccess')) {
-                $this->BcMessage->setError('現在、アップロードファイルの公開期間の指定ができません。指定できるようにするには、' . $savePath . 'limited/ に書き込み権限を与えてください。');
-            }
-        }
+        $this->viewBuilder()->setHelpers(['BcUploader.Uploader']);
+        return parent::beforeFilter($event);
     }
 
     /**
      * [ADMIN] ファイル一覧
      *
-     * @param int $id 呼び出し元 識別ID
-     * @param string $filter
-     * @return    void
-     * @access    public
+     * @param UploaderFilesAdminService $service
+     * @return void
+     * @checked
+     * @noTodo
      */
-    public function admin_index($id = '')
+    public function index(UploaderFilesAdminServiceInterface $service)
     {
-
-        if (!isset($this->siteConfigs['admin_list_num'])) {
-            $this->siteConfigs['admin_list_num'] = 10;
-        }
-        $default = ['named' => ['num' => $this->siteConfigs['admin_list_num']]];
-        $this->setViewConditions('UploadFile', ['default' => $default]);
-        $this->set('uploaderConfigs', $this->UploaderConfig->findExpanded());
-        $this->set('installMessage', $this->checkInstall());
-
-        if ($this->RequestHandler->isAjax()) {
-            $settings = $this->UploaderFile->getBehavior('BcUpload')->BcUpload['UploaderFile']->settings;
-            $this->set('listId', $id);
-            $this->set('imageSettings', $settings['UploaderFile']['fields']['name']['imagecopy']);
-        } else {
-            $this->setSearch('uploader_files_index');
-            $this->setTitle(__d('baser', 'アップロードファイル一覧'));
-        }
+        $this->setViewConditions('UploadFile', [
+            'default' => [
+                'query' => [
+                    'num' => BcSiteConfig::get('admin_list_num'),
+                    'uploader_type' => 'all'
+                ]]]);
+        $this->setRequest($this->getRequest()->withParsedBody($this->getRequest()->getQueryParams()));
+        $this->set($service->getViewVarsForIndex());
     }
 
     /**
-     * インストール状態の確認
+     * エディタから呼び出される前提の一覧
      *
-     * @return    string    インストールメッセージ
+     * @param UploaderFilesAdminService $service
+     * @param int $id
+     * @checked
+     * @noTodo
      */
-    protected function checkInstall()
+    public function ajax_index(UploaderFilesAdminServiceInterface $service, int $id)
     {
-
-        // インストール確認
-        $installMessage = '';
-        $viewFilesPath = str_replace(ROOT, '', WWW_ROOT) . 'files';
-        $viewSavePath = $viewFilesPath . DS . $this->UploaderFile->actsAs['BcUpload']['saveDir'];
-        $filesPath = WWW_ROOT . 'files';
-        $savePath = $filesPath . DS . $this->UploaderFile->actsAs['BcUpload']['saveDir'];
-        if (!is_dir($savePath)) {
-            $ret = mkdir($savePath, 0777);
-            if (!$ret) {
-                if (is_writable($filesPath)) {
-                    $installMessage = sprintf(__d('baser', '%sを作成し、書き込み権限を与えてください'), $viewSavePath);
-                } else {
-                    if (!is_dir($filesPath)) {
-                        $installMessage = sprintf(__d('baser', '作成し、%sに書き込み権限を与えてください'), $viewFilesPath);
-                    } else {
-                        $installMessage = sprintf(__d('baser', '%sに書き込み権限を与えてください'), $viewFilesPath);
-                    }
-                }
-            }
-        } else {
-            if (!is_writable($savePath)) {
-                $installMessage = sprintf(__d('baser', '%sに書き込み権限を与えてください'), $viewSavePath);
-            } else {
-            }
-        }
-        return $installMessage;
+        $this->viewBuilder()->disableAutoLayout();
+        $this->set($service->getViewVarsForIndex($id));
     }
 
     /**
@@ -132,185 +86,55 @@ class UploaderFilesController extends BcAdminAppController
      * RequestHandlerコンポーネントが作動しないので明示的に
      * レイアウト、デバッグフラグの設定をする
      *
-     * @param int $id 呼び出し元 識別ID
-     * @param string $filter
-     * @return    void
-     * @access    public
+     * @param UploaderFilesAdminServiceInterface $service
+     * @param int|null $id 呼び出し元 識別ID
+     * @return void
+     * @checked
+     * @noTodo
      */
-    public function admin_ajax_list($id = '')
+    public function ajax_list(UploaderFilesAdminServiceInterface $service, int $id = null)
     {
-
-        Configure::write('debug', 0);
-
-        $default = ['named' => ['num' => $this->siteConfigs['admin_list_num']]];
-        $this->setViewConditions('UploadFile', ['default' => $default, 'type' => 'get']);
-
-        $this->request = $this->request->withData('Filter',  $this->passedArgs);
-        if (empty($this->request->getData('Filter.uploader_type'))) {
-            $this->request = $this->request->withData('Filter.uploader_type',  'all');
-        }
-        if (!empty($this->request->getData('Filter.name'))) {
-            $this->request = $this->request->withData('Filter.name',  rawurldecode($this->request->getData('Filter.name')));
-        }
-
-        // =====================================================================
-        // setViewConditions で type を get に指定した場合、
-        // 自動的に $this->passedArgs['num'] 設定されないので明示的に取得
-        // TODO setViewConditions の仕様を見直す
-        // =====================================================================
-        if ($this->getRequest()->getParam('named.num')) {
-            $this->Session->write('UploaderFilesAdminAjaxList.named.num', $this->getRequest()->getParam('named.num'));
-        }
-        if ($this->Session->read('UploaderFilesAdminAjaxList.named.num')) {
-            $num = $this->Session->read('UploaderFilesAdminAjaxList.named.num');
-        } else {
-            $num = $this->siteConfigs['admin_list_num'];
-        }
-
-        $conditions = $this->_createAdminIndexConditions($this->request->getData('Filter'));
-
-        // 管理ユーザ以外が利用時、ユーザ制限がOnになっていれば一覧に表示しない
-        $uploaderConfig = $this->UploaderConfig->findExpanded();
-        if (isset($uploaderConfig['use_permission']) && $uploaderConfig['use_permission'] && !BcUtil::isAdminUser()) {
-            $user = BcUtil::loginUser();
-            if ($user) $conditions['UploaderFile.user_id'] = $user['id'];
-        }
-
-        $this->paginate = [
-            'conditions' => $conditions,
-            'fields' => [],
-            'order' => 'created DESC',
-            'limit' => $num
-        ];
-
-        $dbDatas = $this->paginate('UploaderFile');
-
-        foreach ($dbDatas as $key => $dbData) {
-            $limited = (!empty($dbData['UploaderFile']['publish_begin']) || !empty($dbData['UploaderFile']['publish_end']));
-            $files = $this->UploaderFile->filesExists($dbData['UploaderFile']['name'], $limited);
-            $dbData = Set::merge($dbData, ['UploaderFile' => $files]);
-            $dbDatas[$key] = $dbData;
-        }
-
-        $this->set('installMessage', $this->checkInstall());
-        $uploaderConfig = $this->UploaderConfig->findExpanded();
-        $this->set('listId', $id);
-        $this->set('files', $dbDatas);
-        if (empty($uploaderConfig['layout_type'])) {
-            $layoutType = 'panel';
-        } else {
-            $layoutType = 'table';
-        }
-        $this->set('layoutType', $uploaderConfig['layout_type']);
-    }
-
-    /**
-     * 一覧の検索条件を生成する
-     *
-     * @param array $data
-     * @return array
-     */
-    protected function _createAdminIndexConditions($data)
-    {
-
-        $conditions = [];
-        if (!empty($data['uploader_category_id'])) {
-            $conditions = ['UploaderFile.uploader_category_id' => $data['uploader_category_id']];
-            $this->request = $this->request->withData('Filter.uploader_category_id',  $data['uploader_category_id']);
-        }
-        if (!empty($data['uploader_type'])) {
-            switch ($data['uploader_type']) {
-                case 'img':
-                    $conditions['or'][] = ['UploaderFile.name LIKE' => '%.png'];
-                    $conditions['or'][] = ['UploaderFile.name LIKE' => '%.jpg'];
-                    $conditions['or'][] = ['UploaderFile.name LIKE' => '%.gif'];
-                    break;
-                case 'etc':
-                    $conditions['and'][] = ['UploaderFile.name NOT LIKE' => '%.png'];
-                    $conditions['and'][] = ['UploaderFile.name NOT LIKE' => '%.jpg'];
-                    $conditions['and'][] = ['UploaderFile.name NOT LIKE' => '%.gif'];
-                    break;
-                case 'all':
-                case '':
-            }
-        }
-        if (!empty($data['name'])) {
-            $conditions['and']['or'][] = ['UploaderFile.name LIKE' => '%' . $data['name'] . '%'];
-            $conditions['and']['or'][] = ['UploaderFile.alt LIKE' => '%' . $data['name'] . '%'];
-        }
-
-        return $conditions;
-    }
-
-    /**
-     * [ADMIN] Ajaxファイルアップロード
-     *
-     * jQueryのAjaxによるファイルアップロードの際、
-     * RequestHandlerコンポーネントが作動しないので明示的に
-     * レイアウト、デバッグフラグの設定をする
-     *
-     * @return 成功時：true　／　失敗時：null
-     */
-    public function admin_ajax_upload()
-    {
-
-        $this->layout = 'ajax';
-        Configure::write('debug', 0);
-
-        if (!$this->request->getData()) {
-            if (BcUtil::isOverPostSize()) {
-                echo null;
-                die;
-            }
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
-        }
-
-        // 2014.08.10 yuse fixed 4777 php.iniに定義されたサイズチェックエラーの場合はエラー(UPLOAD_ERR_INI_SIZE)
-        if ($this->request->getData('UploaderFile.file.error') == 1) {
-            echo null;
-            die;
-        }
-
-        $user = $this->BcAuth->user();
-        if (!empty($user['id'])) {
-            $this->request = $this->request->withData('UploaderFile.user_id',  $user['id']);
-        }
-        $this->request = $this->request->withData('UploaderFile.file.name', str_replace(['/', '&', '?', '=', '#', ':', '%', '+'], '_', h($this->request->getData('UploaderFile.file.name'))));
-        $this->request = $this->request->withData('UploaderFile.name', $this->request->getData('UploaderFile.file'));
-        $this->request = $this->request->withData('UploaderFile.alt', $this->request->getData('UploaderFile.name.name'));
-        $this->UploaderFile->create($this->request->getData());
-
-        if ($this->UploaderFile->save()) {
-            echo true;
-        }
-
-        exit();
+        $this->viewBuilder()->disableAutoLayout();
+        $this->setViewConditions('UploadFile', [
+            'default' => [
+                'query' => [
+                    'num' => BcSiteConfig::get('admin_list_num')
+                ]],
+            'type' => 'get'
+        ]);
+        $this->set(
+            $service->getViewVarsForAjaxList(
+                $this->paginate($service->getIndex($this->getRequest()->getQueryParams())),
+                $id
+            )
+        );
     }
 
     /**
      * [ADMIN] サイズを指定して画像タグを取得する
      *
+     * @param UploaderFilesAdminService $service
      * @param string $name
      * @param string $size
-     * @return    void
-     * @access    public
+     * @checked
+     * @noTodo
      */
-    public function admin_ajax_image($name, $size = 'small')
+    public function ajax_image(
+        UploaderFilesAdminServiceInterface $service,
+        string $name,
+        string $size = 'small')
     {
-
-        $file = $this->UploaderFile->findByName(rawurldecode($name));
-        $this->set('file', $file);
-        $this->set('size', $size);
+        $this->viewBuilder()->disableAutoLayout();
+        $this->set($service->getViewVarsForAjaxImage($name, $size));
     }
 
     /**
      * [ADMIN] 各サイズごとの画像の存在チェックを行う
      *
      * @param string $name
-     * @return    void
-     * @access    public
+     * @return void
      */
-    public function admin_ajax_exists_images($name)
+    public function ajax_exists_images(string $name)
     {
 
         Configure::write('debug', 0);
@@ -324,100 +148,73 @@ class UploaderFilesController extends BcAdminAppController
     /**
      * [ADMIN] 編集処理
      *
-     * @return    mixed
+     * @param UploaderFilesService $service
+     * @param int $id
+     * @return \Cake\Http\Response|void|null
+     * @checked
+     * @noTodo
      */
-    public function admin_edit($id = null)
+    public function edit(UploaderFilesServiceInterface $service, int $id)
     {
-        $this->autoRender = false;
-        if (!$this->request->getData() && $this->request->is('ajax')) {
-            $this->ajaxError(500, __d('baser', '無効な処理です。'));
-        } elseif (!$this->request->is('ajax') && !$id) {
-            $this->notFound();
+        $entity = $service->get($id);
+        if(!$service->isEditable($entity->toArray())) {
+            $this->BcMessage->setWarning(__d('baser', '編集権限がありません。'));
+            return $this->redirect(['action' => 'index']);
         }
-
-        $user = $this->BcAuth->user();
-        $uploaderConfig = $this->UploaderConfig->findExpanded();
-        if ($uploaderConfig['use_permission']) {
-            if ($user['user_group_id'] != 1 && $this->request->getData('UploaderFile.user_id') != $user['id']) {
-                $this->notFound();
+        if ($this->getRequest()->is(['post', 'put'])) {
+            try {
+                $entity = $service->update($entity, $this->getRequest()->getData());
+                $this->BcMessage->setInfo(__d('baser', 'アップロードファイル「{0}」を更新しました。', $entity->name));
+                $this->redirect(['action' => 'index']);
+            } catch (PersistenceFailedException $e) {
+                $entity = $e->getEntity();
+                $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+            } catch (\Throwable $e) {
+                $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。'));
             }
         }
-
-        if (!$this->request->getData()) {
-            $this->request = $this->request->withData('UploadFile', $this->UploaderFile->read(null, $id));
-        } else {
-            $this->UploaderFile->set($this->request->getData());
-            $result = $this->UploaderFile->save();
-            if ($this->request->is('ajax')) {
-                if ($result) {
-                    return true;
-                } else {
-                    return false;
-                }
-            } else {
-                if ($result) {
-                    $this->BcMessage->setInfo(__d('baser', 'ファイルの内容を保存しました。'));
-                    $this->redirect(['action' => 'index']);
-                } else {
-                    $this->BcMessage->setInfo(__d('baser', '保存中にエラーが発生しました。'));
-                }
-            }
-        }
-
-        $this->render('../Elements/admin/uploader_files/form');
+        $this->set([
+            'uploaderFile' => $entity
+        ]);
     }
 
     /**
      * [ADMIN] 削除処理
      *
+     * @param UploaderFilesService $service
+     * @param int $id
      * @return    void
-     * @access    public
+     * @checked
+     * @noTodo
      */
-    public function admin_delete($id)
+    public function delete(UploaderFilesServiceInterface $service, int $id)
     {
-        $this->_checkSubmitToken();
-        if (!$id) {
-            $this->notFound();
-        }
+        $this->request->allowMethod(['post', 'delete']);
 
-        $user = $this->BcAuth->user();
-        $uploaderConfig = $this->UploaderConfig->findExpanded();
-        $uploaderFile = $this->UploaderFile->read(null, $id);
-
-        if (!$uploaderFile) {
-            $this->notFound();
-        }
-
-        if ($uploaderConfig['use_permission']) {
-            if ($user['user_group_id'] != 1 && $uploaderFile['UploaderFile']['user_id'] != $user['id']) {
-                $this->notFound();
+        try {
+            $entity = $service->get($id);
+            if ($service->delete($id)) {
+                $this->BcMessage->setSuccess(__d('baser', 'アップロードファイル「{0}」を削除しました。', $entity->name));
             }
+        } catch (BcException $e) {
+            $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
         }
 
-        $result = $this->UploaderFile->delete($id);
-        if ($this->RequestHandler->isAjax()) {
-            echo $result;
-            exit();
-        } else {
-            if ($result) {
-                $this->BcMessage->setSuccess(sprintf(__d('baser', '%s を削除しました。'), $uploaderFile['UploaderFile']['name']));
-            } else {
-                $this->BcMessage->setError(__d('baser', '削除中にエラーが発生しました。'));
-            }
-            $this->redirect(['action' => 'index']);
-        }
+        return $this->redirect(['action' => 'index']);
     }
 
     /**
      * 検索ボックスを取得する
      *
-     * @param string $listid
+     * @param int|null $listId
+     * @checked
+     * @noTodo
      */
-    public function admin_ajax_get_search_box($listId = "")
+    public function ajax_get_search_box(int $listId = null)
     {
-
+        $this->viewBuilder()->disableAutoLayout();
         $this->set('listId', $listId);
-        $this->render('../Elements/admin/searches/uploader_files_index');
+        $this->render('../element/search/uploader_files_index');
     }
 
     /**

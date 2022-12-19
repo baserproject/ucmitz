@@ -11,12 +11,15 @@
 
  namespace BcUploader\View\Helper;
 
+use BcUploader\Model\Entity\UploaderFile;
+use Cake\Event\Event;
 use Cake\View\Helper;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
+use BaserCore\Annotation\UnitTest;
 
 /**
  * アップローダーヘルパー
- *
- * @package         Uploader.View.Helper
  */
 class UploaderHelper extends Helper
 {
@@ -45,13 +48,10 @@ class UploaderHelper extends Helper
     /**
      * Before Render
      *
-     * @return    void
-     * @access    public
+     * @return void
      */
-    public function beforeRender($viewFile)
+    public function beforeRender(Event $event, $viewFile)
     {
-
-        parent::beforeRender($viewFile);
         $this->savedUrl = '/files/uploads/';
         $this->savePath = WWW_ROOT . 'files' . DS . 'uploads' . DS;
     }
@@ -59,29 +59,23 @@ class UploaderHelper extends Helper
     /**
      * リスト用のimgタグを出力する
      *
-     * @param array $uploaderFile
+     * @param UploaderFile $uploaderFile
      * @param array $options
-     * @return    string    imgタグ
+     * @return string imgタグ
+     * @checked
+     * @noTodo
      */
-    public function file($uploaderFile, $options = [])
+    public function file(UploaderFile $uploaderFile, array $options = [])
     {
-
-        if (isset($uploaderFile['UploaderFile'])) {
-            $uploaderFile = $uploaderFile['UploaderFile'];
-        }
-
-        $imgUrl = $this->getFileUrl($uploaderFile['name']);
-
-        $pathInfo = pathinfo($uploaderFile['name']);
+        $imgUrl = $this->getFileUrl($uploaderFile->name);
+        $pathInfo = pathinfo($uploaderFile->name);
         $ext = $pathInfo['extension'];
-        $_options = ['alt' => $uploaderFile['alt']];
-        $options = Set::merge($_options, $options);
-
+        $_options = ['alt' => $uploaderFile->alt];
+        $options = array_merge($_options, $options);
         if (in_array(strtolower($ext), ['gif', 'jpg', 'png'])) {
             if (isset($options['size'])) {
                 $resizeName = $pathInfo['filename'] . '__' . $options['size'] . '.' . $ext;
-
-                if (!empty($uploaderFile['publish_begin']) || !empty($uploaderFile['publish_end'])) {
+                if (!empty($uploaderFile->publish_begin) || !empty($uploaderFile->publish_end)) {
                     $savePath = $this->savePath . 'limited' . DS . $resizeName;
                 } else {
                     $savePath = $this->savePath . $resizeName;
@@ -118,16 +112,15 @@ class UploaderHelper extends Helper
     /**
      * ダウンロードリンクを表示
      *
-     * @param array $uploaderFile
+     * @param UploaderFile $uploaderFile
      * @param string $linkText
-     * @return    string
+     * @return string
+     * @checked
+     * @noTodo
      */
-    public function download($uploaderFile, $linkText = '≫ ダウンロード')
+    public function download(UploaderFile $uploaderFile, $linkText = '≫ ダウンロード')
     {
-        if (isset($uploaderFile['UploaderFile'])) {
-            $uploaderFile = $uploaderFile['UploaderFile'];
-        }
-        $fileUrl = $this->getFileUrl($uploaderFile['name']);
+        $fileUrl = $this->getFileUrl($uploaderFile->name);
         // HtmlヘルパではスマートURLオフの場合に正常なURLが取得できないので、直接記述
         return '<a href="' . $fileUrl . '" target="_blank">' . $linkText . '</a>';
     }
@@ -179,4 +172,5 @@ class UploaderHelper extends Helper
 
         return $isPublish;
     }
+
 }

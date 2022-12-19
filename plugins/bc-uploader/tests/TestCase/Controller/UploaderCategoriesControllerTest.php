@@ -1,5 +1,5 @@
 <?php
-// TODO : コード確認要
+// TODO ucmitz  : コード確認要
 return;
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
@@ -71,30 +71,6 @@ class UploaderCategoriesControllerTest extends BaserTestCase
      * 削除
      */
     public function testAdmin_delete()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * [ADMIN] 削除処理　(ajax)
-     */
-    public function testAdmin_ajax_delete()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * 一括削除
-     */
-    public function test_batch_del()
-    {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
-    }
-
-    /**
-     * データを削除する
-     */
-    public function test_del()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }

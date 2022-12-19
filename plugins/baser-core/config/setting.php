@@ -106,7 +106,8 @@ return [
             'BcThemeFile',
             'BcUploader',
             'BcWidgetArea',
-            'BcContentLink'
+            'BcContentLink',
+            'BcFavorite'
         ],
         /**
          * パスワード再発行URLの有効時間(min) デフォルト24時間
@@ -204,7 +205,6 @@ return [
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'themes', 'action' => 'index'],
                             'currentRegex' => '/\/themes\/[^\/]+?/s'
                         ],
-//                        'ThemeConfigs' => ['title' => __d('baser', '設定'), 'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'theme_configs', 'action' => 'form']],
                         'ThemeAdd' => [
                             'title' => __d('baser', '新規追加'),
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'themes', 'action' => 'add']
@@ -238,25 +238,10 @@ return [
                             'title' => __d('baser', 'ユーティリティトップ'),
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'utilities', 'action' => 'index']
                         ],
-//                        'EditorTemplates' => [
-//                            'title' => __d('baser', 'エディタテンプレート'),
-//                            'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'editor_templates', 'action' => 'index'],
-//                            'currentRegex' => '/\/editor_templates\/[^\/]+?/s'
-//                        ],
-//                        'WidgetAreas' => [
-//                            'title' => __d('baser', 'ウィジェットエリア'),
-//                            'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'widget_areas', 'action' => 'index'],
-//                            'currentRegex' => '/\/widget_areas\/[^\/]+?\/[0-9]+/s'
-//                        ],
                         'SiteConfigsInfo' => [
                             'title' => __d('baser', '環境情報'),
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'utilities', 'action' => 'info']
                         ],
-//                        'ThemeFiles' => [
-//                            'title' => __d('baser', 'コアテンプレート確認'),
-//                            'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'theme_files', 'action' => 'index', 'core'],
-//                            'currentRegex' => '/\/theme_files\/[^\/]+?/s'
-//                        ],
                         'UtilitiesMaintenance' => [
                             'title' => __d('baser', 'データメンテナンス'),
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'utilities', 'action' => 'maintenance']

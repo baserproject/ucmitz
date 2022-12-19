@@ -1,3 +1,13 @@
+/**
+ * baserCMS :  Based Website Development Project <https://basercms.net>
+ * Copyright (c) NPO baser foundation <https://baserfoundation.org/>
+ *
+ * @copyright     Copyright (c) NPO baser foundation
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       https://basercms.net/license/index.html MIT License
+ */
+
 const gulp = require("gulp");
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
@@ -6,10 +16,10 @@ const plumber = require('gulp-plumber');
 const sass = require('gulp-sass')(require('sass'));
 const postcss = require("gulp-postcss");
 const cssImport = require("postcss-import");
-const JS_DEV_DIR = ['./src/js/'];
-const JS_DIST_DIR = './webroot/js/';
-const CSS_DEV_DIR = './src/css/';
-const CSS_DIST_DIR = './webroot/css/admin/';
+const JS_DEV_DIR = ['./src/**/*.js', './src/**/*.vue'];
+const JS_DIST_DIR = './webroot/';
+const CSS_DEV_DIR = ['./src/**/*.scss', '!./src/css/vendor/**/*.scss'];
+const CSS_DIST_DIR = './webroot/';
 
 gulp.task('css', () => {
 	const plugins = [
@@ -18,7 +28,7 @@ gulp.task('css', () => {
 		})
 	];
 	return gulp
-	.src(`${CSS_DEV_DIR}*`, {
+	.src(CSS_DEV_DIR, {
 	    sourcemaps: true
 	})
 	.pipe(plumber({
@@ -40,8 +50,8 @@ gulp.task('bundle', () => {
 });
 
 gulp.task('watch', function(){
-    gulp.watch(CSS_DEV_DIR + "**/*.scss", gulp.task('css'));
-    gulp.watch(JS_DEV_DIR + "**/*.js", gulp.task('bundle'));
+    gulp.watch(CSS_DEV_DIR, gulp.task('css'));
+    gulp.watch(JS_DEV_DIR, gulp.task('bundle'));
 });
 
 gulp.task('default', gulp.task('watch'));

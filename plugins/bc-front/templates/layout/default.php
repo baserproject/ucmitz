@@ -32,13 +32,13 @@ use BaserCore\View\AppView;
 		'editor'
 	]) ?>
 	<?php $this->BcBaser->js([
-		'jquery-1.11.3.min',
-		'jquery-ui-1.11.4.min',
-		'jquery.bxslider-4.12.min',
-		'jquery.colorbox-1.6.1.min',
-		'i18n/ui.datepicker-ja',
-		'jquery-accessibleMegaMenu',
-		'startup'
+		'vendor/jquery-1.11.3.min',
+		'vendor/jquery-ui-1.11.4.min',
+		'vendor/jquery.bxslider-4.12.min',
+		'vendor/jquery.colorbox-1.6.1.min',
+		'vendor/i18n/ui.datepicker-ja',
+		'vendor/jquery-accessibleMegaMenu',
+		'startup.bundle'
 	]); ?>
 	<?php $this->BcBaser->scripts() ?>
 	<!-- /Elements/google_analytics.php -->

@@ -15,6 +15,7 @@ use Authentication\AuthenticationService;
 use Authentication\AuthenticationServiceInterface;
 use Authentication\AuthenticationServiceProviderInterface;
 use Authentication\Middleware\AuthenticationMiddleware;
+use BaserCore\Command\SetupTestCommand;
 use BaserCore\Event\BcContainerEventListener;
 use BaserCore\Event\BcControllerEventDispatcher;
 use BaserCore\Event\BcModelEventDispatcher;
@@ -25,6 +26,7 @@ use BaserCore\Middleware\BcRedirectSubSiteFilter;
 use BaserCore\Middleware\BcRequestFilterMiddleware;
 use BaserCore\ServiceProvider\BcServiceProvider;
 use BaserCore\Utility\BcUtil;
+use Cake\Console\CommandCollection;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
 use Cake\Core\PluginApplicationInterface;
@@ -36,7 +38,6 @@ use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Cake\Utility\Security;
-use Exception;
 use Psr\Http\Message\ServerRequestInterface;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -178,14 +179,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     {
         $application->addPlugin($plugin);
         $pluginPath = BcUtil::getPluginPath($plugin);
-        if (file_exists($pluginPath . 'config' . DS . 'setting.php')) {
-            // DBに接続できない場合、CakePHPのエラーメッセージが表示されてしまう為、 try を利用
-            // ※ プラグインの setting.php で、DBへの接続処理が書かれている可能性がある為
-            try {
-                Configure::load($plugin . '.setting');
-            } catch (Exception $ex) {
-            }
-        }
         // プラグインイベント登録
         $eventTargets = ['Controller', 'Model', 'View', 'Helper'];
         foreach($eventTargets as $eventTarget) {
@@ -491,6 +484,18 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     public function services(ContainerInterface $container): void
     {
         $container->addServiceProvider(new BcServiceProvider());
+    }
+
+    /**
+     * コマンド定義
+     *
+     * @param CommandCollection $commands
+     * @return CommandCollection
+     */
+    public function console(CommandCollection $commands): CommandCollection
+    {
+        $commands->add('setup test', SetupTestCommand::class);
+        return $commands;
     }
 
 }
