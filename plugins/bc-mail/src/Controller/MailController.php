@@ -77,22 +77,12 @@ class MailController extends MailFrontAppController
             $this->notFound();
         }
         $mailMessagesService = $this->getService(MailMessagesServiceInterface::class);
-        // TODO ucmitz 未実装
+        $mailMessagesService->MailMessages->setup($this->request->getParam('entityId'), $this->getRequest()->getData());
+
         return;
-        $mailMessagesService->MailMessages->setup($this->request->getParam('entityId'));
         $this->dbDatas['mailContent'] = $this->MailMessage->mailContent;
         $this->dbDatas['mailFields'] = $this->MailMessage->mailFields;
         $this->dbDatas['mailConfig'] = $this->MailConfig->find();
-
-        // ページタイトルをセット
-        $this->setTitle($this->request->getParam('Content.title'));
-
-        if (empty($this->contentId)) {
-            // 配列のインデックスが無いためエラーとなるため修正
-            $this->contentId = $this->request->getParam('entityId');
-        }
-
-        $this->subMenuElements = ['default'];
 
         // 2013/03/14 ryuring
         // baserCMS２系より必須要件をPHP5以上とした為、SecurityComponent を標準で設定する方針に変更
@@ -235,33 +225,19 @@ class MailController extends MailFrontAppController
             $this->redirect($this->request->getParam('Content.url') . '/index');
         }
 
-        // 戻る
-        if ($this->getRequest()->getData('mode') === 'Back') {
-            $this->set($service->getViewVarsForConfirm(
+        if($this->getRequest()->getData('mode') === 'Back') {
+            $this->set($service->getViewVarsForIndex(
                 $mailContent,
                 $mailMessagesService->MailMessages->newEntity($this->getRequest()->getData())
             ));
-            $this->render($service->getConfirmTemplate($mailContent));
+            $this->render($service->getIndexTemplate($mailContent));
             return;
-        }
-
-        // データ確認
-        try {
-            $entity = $service->confirm($mailContent, $this->getRequest()->getData());
-        } catch (PersistenceFailedException $e) {
-            $entity = $e->getEntity();
-            $this->BcMessage->setError($e->getMessage());
-        } catch (BcException $e) {
-            $this->BcMessage->setError($e->getMessage());
-            if ($e->getCode() === 500) {
-                return $this->redirect($this->request->getAttribute('currentContent')->url . '/index');
-            }
         }
 
         // メッセージ保存
         try {
             $mailMessagesService->setup($mailContent->id);
-            $entity = $mailMessagesService->create($mailContent, $entity);
+            $entity = $mailMessagesService->create($mailContent, $this->getRequest()->getData());
         } catch (PersistenceFailedException $e) {
             $entity = $e->getEntity();
             $this->BcMessage->setError(__('入力内容を確認し、再度送信してください。'));

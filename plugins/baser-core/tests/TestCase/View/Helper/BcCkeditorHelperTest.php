@@ -14,6 +14,8 @@ namespace BaserCore\Test\TestCase\View\Helper;
 use BaserCore\View\BcAdminAppView;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\View\Helper\BcCkeditorHelper;
+use Cake\Core\Plugin;
+use Cake\Core\PluginCollection;
 
 /**
  * text helper library.
@@ -34,12 +36,14 @@ class BcCkeditorHelperTest extends BcTestCase
         'plugin.BaserCore.Users',
         'plugin.BaserCore.UserGroups',
         'plugin.BaserCore.UsersUserGroups',
+        'plugin.BaserCore.Plugins',
     ];
     /**
      * setUp
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
         $this->BcCkeditor = new BcCkeditorHelper(new BcAdminAppView($this->getRequest('/baser/admin')));
     }
@@ -73,6 +77,9 @@ class BcCkeditorHelperTest extends BcTestCase
     {
         $this->BcCkeditor->getView()->setTheme('BcAdminThird');
         $fieldName = 'Page.test';
+        $request = $this->getRequest('/')->withAttribute('formTokenData', ['test']);
+        $this->BcCkeditor->getView()->setRequest($request);
+        $this->BcCkeditor->BcAdminForm->create();
         $result = $this->BcCkeditor->editor($fieldName, []);
         $tagList = ['/<span class="bca-textarea"/', '/<textarea name="Page\[test\]"/'];
         foreach ($tagList as $requiredTag) {
@@ -131,6 +138,7 @@ class BcCkeditorHelperTest extends BcTestCase
             'editorToolType' => 'simple'
         ]);
         $this->assertIsArray($options['editorToolbar']);
+        (new \BcEditorTemplate\Plugin())->install(['connection' => 'test']);
         $options = $this->BcCkeditor->setEditorToolbar([
             'editorToolbar' => [],
             'editorUseTemplates' => true,

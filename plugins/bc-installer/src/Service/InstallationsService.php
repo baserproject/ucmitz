@@ -157,7 +157,7 @@ class InstallationsService implements InstallationsServiceInterface
     public function constructionDb(array $dbConfig, string $dbDataPattern = '', string $adminTheme = ''): bool
     {
         if (!$dbDataPattern) {
-            $dbDataPattern = Configure::read('BcApp.defaultTheme') . '.default';
+            $dbDataPattern = Configure::read('BcApp.defaultFrontTheme') . '.default';
         }
         if (strpos($dbDataPattern, '.') === false) {
             throw new BcException(__d('baser', 'データパターンの形式が不正です。'));
@@ -560,6 +560,14 @@ class InstallationsService implements InstallationsServiceInterface
         }
         $installCoreData[] = '    \'Datasources.default\' => [';
         foreach($dbConfig as $key => $value) {
+            if($key === 'datasource' || $key === 'dataPattern') continue;
+            $installCoreData[] = '        \'' . $key . '\' => \'' . $value . '\',';
+        }
+        $installCoreData[] = '    ],';
+        $installCoreData[] = '    \'Datasources.test\' => [';
+        foreach($dbConfig as $key => $value) {
+            if($key === 'database') $value = 'test_' . $value;
+            if($key === 'datasource' || $key === 'dataPattern') continue;
             $installCoreData[] = '        \'' . $key . '\' => \'' . $value . '\',';
         }
         $installCoreData[] = '    ]';
@@ -592,6 +600,26 @@ class InstallationsService implements InstallationsServiceInterface
             }
         }
         return $result;
+    }
+
+    /**
+     * JWTキーを作成する
+     *
+     * @return bool
+     * @noTodo
+     * @checked
+     */
+    public function createJwt()
+    {
+        $command = "openssl genrsa -out " . CONFIG . "jwt.key 1024";
+        exec($command, $out, $code);
+        if($code === 0) {
+            $command = "openssl rsa -in " . CONFIG . "jwt.key -outform PEM -pubout -out " . CONFIG . "jwt.pem";
+            exec($command, $out, $code);
+            return ($code === 0);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -695,7 +723,11 @@ class InstallationsService implements InstallationsServiceInterface
      */
     public function sendCompleteMail(array $postData)
     {
-        $this->getMailer('BcInstaller.Admin/Installer')->send('installed', [$postData['admin_email']]);
+        try {
+            $this->getMailer('BcInstaller.Admin/Installer')->send('installed', [$postData['admin_email']]);
+        } catch (\Throwable $e) {
+            throw $e;
+        }
     }
 
 }

@@ -18,6 +18,7 @@ use BaserCore\Error\BcException;
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcUtil;
 use BcMail\Model\Entity\MailContent;
 use BcMail\Model\Entity\MailMessage;
 use BcMail\Model\Table\MailMessagesTable;
@@ -57,9 +58,9 @@ class MailMessagesService implements MailMessagesServiceInterface
      * @checked
      * @noTodo
      */
-    public function setup(int $mailContentId)
+    public function setup(int $mailContentId, $postData = [])
     {
-        $this->MailMessages->setup($mailContentId);
+        $this->MailMessages->setup($mailContentId, $postData);
     }
 
     /**
@@ -128,6 +129,22 @@ class MailMessagesService implements MailMessagesServiceInterface
             }
         }
         return $entity;
+    }
+
+    /**
+     * メールメッセージを編集する
+     *
+     * @param EntityInterface $entity
+     * @param array $postData
+     * @return EntityInterface|null
+     */
+    public function update(EntityInterface $entity, array $postData): ?EntityInterface
+    {
+        if (BcUtil::isOverPostSize()) {
+            throw new BcException(__d('baser', '送信できるデータ量を超えています。合計で {0} 以内のデータを送信してください。', ini_get('post_max_size')));
+        }
+        $entity = $this->MailMessages->patchEntity($entity, $postData);
+        return $this->MailMessages->saveOrFail($entity);
     }
 
     /**
@@ -337,7 +354,7 @@ class MailMessagesService implements MailMessagesServiceInterface
                 $messageArray[$key] = h(base64UrlsafeDecode($value));
             }
         }
-        return $this->MailMessages->newEntity($messageArray);
+        return $this->MailMessages->newEntity($messageArray, ['validate' => false]);
     }
 
     /**

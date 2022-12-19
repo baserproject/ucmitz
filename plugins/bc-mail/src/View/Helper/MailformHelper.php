@@ -55,9 +55,8 @@ class MailformHelper extends BcFreezeHelper
 
         $type = $attributes['type'];
         $options = $attributes['options'];
-        if(!empty($attributes['delimiter'])) $attributes['separator'] = $attributes['delimiter'];
         if(!empty($attributes['text_rows'])) $attributes['rows'] = $attributes['text_rows'];
-        unset($attributes['options'], $attributes['regex'], $attributes['separator'], $attributes['text_rows']);
+        unset($attributes['options'], $attributes['regex'], $attributes['text_rows']);
 
         if ($this->freezed) {
             unset($attributes['type']);
@@ -68,7 +67,6 @@ class MailformHelper extends BcFreezeHelper
 
             case 'text':
             case 'email':
-                unset($attributes['separator']);
                 unset($attributes['rows']);
                 unset($attributes['empty']);
                 $out = $this->text($fieldName, $attributes);
@@ -80,9 +78,6 @@ class MailformHelper extends BcFreezeHelper
                 unset($attributes['maxlength']);
                 unset($attributes['empty']);
                 $attributes['legend'] = false;
-                if (empty($attributes['separator'])) {
-                    $attributes['separator'] = "&nbsp;&nbsp;";
-                }
                 // CakePHPでは、初期値を指定していない場合に、hiddenタグを出力する仕様
                 // 初期値が設定されている、かつ、空の選択肢を選択して送信する場合に、
                 // フィールド自身が送信されないため、validatePost に引っかかってしまう
@@ -96,7 +91,6 @@ class MailformHelper extends BcFreezeHelper
                 unset($attributes['size']);
                 unset($attributes['rows']);
                 unset($attributes['maxlength']);
-                unset($attributes['separator']);
                 if (isset($attributes['empty'])) {
                     if (
                         strtolower($attributes['empty']) === 'false' ||
@@ -118,47 +112,34 @@ class MailformHelper extends BcFreezeHelper
                 unset($attributes['size']);
                 unset($attributes['rows']);
                 unset($attributes['maxlength']);
-                unset($attributes['separator']);
                 unset($attributes['empty']);
                 $out = $this->prefTag($fieldName, null, $attributes, true);
                 break;
 
             case 'autozip':
-                unset($attributes['separator']);
                 unset($attributes['rows']);
                 unset($attributes['empty']);
-                $count = 0;
-                // TODO ucmitz 以下、未検証
-                // >>>
-//                foreach ($options as $option) {
-//                    switch ($count) {
-//                        case 0:
-//                            $address1 = $this->_name([], $option);
-//                            break;
-//                        case 1:
-//                            $address2 = $this->_name([], $option);
-//                            break;
-//                        default:
-//                            break;
-//                    }
-//                    $count++;
-//                }
-                // <<<
-                if (!isset($address1['name'])) {
-                    $address1['name'] = '';
-                    $address2['name'] = '';
-                } elseif (!isset($address2['name'])) {
-                    $address2['name'] = $address1['name'];
+                $address1 = isset($options[key($options)])? $options[key($options)] : '';
+                next($options);
+                $address2 = isset($options[key($options)])? $options[key($options)] : '';
+                if (!$address1) {
+                    $address1 = '';
+                    $address2 = '';
+                } elseif (!$address2) {
+                    $address2 = $address1;
                 }
-                $attributes['onKeyUp'] = "AjaxZip3.zip2addr(this,'','{$address1['name']}','{$address2['name']}')";
-                $out = $this->Html->script('vendor/ajaxzip3.js') . $this->text($fieldName, $attributes);
+                $attributes['onKeyUp'] = "AjaxZip3.zip2addr(this,'','{$address1}','{$address2}')";
+                unset($attributes['type']);
+                $out = $this->BcBaser->js('vendor/ajaxzip3', false) .
+                    $this->text($fieldName, array_merge($attributes, [
+                        'style' => 'width:auto!important'
+                    ]));
                 break;
 
             case 'check':
                 unset($attributes['size']);
                 unset($attributes['rows']);
                 unset($attributes['maxlength']);
-                unset($attributes['separator']);
                 unset($attributes['empty']);
                 $out = $this->checkbox($fieldName, $attributes);
                 break;
@@ -168,19 +149,16 @@ class MailformHelper extends BcFreezeHelper
                 unset($attributes['rows']);
                 unset($attributes['maxlength']);
                 unset($attributes['empty']);
-                if ($this->freezed) {
-                    unset($attributes['separator']);
-                }
                 $attributes['multiple'] = 'checkbox';
                 $attributes['value'] = null;
                 $attributes['empty'] = false;
+                $attributes['templateVars']['tag'] = 'span';
                 $out = $this->select($fieldName, $options, $attributes);
                 break;
             case 'file':
                 unset($attributes['size']);
                 unset($attributes['rows']);
                 unset($attributes['maxlength']);
-                unset($attributes['separator']);
                 unset($attributes['escape']);
                 if (empty($attributes['width'])) {
                     $attributes['width'] = 400;
@@ -209,7 +187,6 @@ class MailformHelper extends BcFreezeHelper
                 unset($attributes['maxlength']);
                 unset($attributes['empty']);
                 $attributes['monthNames'] = false;
-                $attributes['separator'] = '&nbsp;';
                 if (isset($attributes['minYear']) && $attributes['minYear'] === 'today') {
                     $attributes['minYear'] = (int)date('Y');
                 }
@@ -221,7 +198,6 @@ class MailformHelper extends BcFreezeHelper
 
             case 'textarea':
                 $attributes['cols'] = $attributes['size'];
-                unset($attributes['separator']);
                 unset($attributes['empty']);
                 unset($attributes['size']);
                 if ($attributes['maxlength'] === null) {
@@ -231,7 +207,6 @@ class MailformHelper extends BcFreezeHelper
                 break;
 
             case 'tel':
-                unset($attributes['separator']);
                 unset($attributes['rows']);
                 unset($attributes['empty']);
                 $attributes['type'] = 'tel';
@@ -239,14 +214,12 @@ class MailformHelper extends BcFreezeHelper
                 break;
 
             case 'password':
-                unset($attributes['separator']);
                 unset($attributes['rows']);
                 unset($attributes['empty']);
                 $out = $this->password($fieldName, $attributes);
                 break;
 
             case 'hidden':
-                unset($attributes['separator']);
                 unset($attributes['rows']);
                 unset($attributes['empty']);
                 $out = $this->hidden($fieldName, $attributes);
