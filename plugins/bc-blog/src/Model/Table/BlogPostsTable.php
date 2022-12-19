@@ -113,7 +113,7 @@ class BlogPostsTable extends BlogAppTable
     }
 
     /**
-     * デフォルトのルールを設定
+     * デフォルトのバリデーションルールを設定
      *
      * @param Validator $validator
      * @return Validator
