@@ -114,7 +114,7 @@ class WidgetAreasControllerTest extends BcTestCase
             ])
         ];
 
-        // ウィジェットエリア一覧のAPIを呼ぶ
+        // APIを呼ぶ
         $this->post("/baser/api/bc-widget-area/widget_areas/edit/1.json?token=" . $this->accessToken, $data);
         // レスポンスコードを確認する
         $this->assertResponseOk();

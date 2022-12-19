@@ -15,7 +15,6 @@ use BaserCore\Controller\Api\BcApiController;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use BcBlog\Model\Entity\BlogTag;
 use BcWidgetArea\Service\WidgetAreasService;
 use BcWidgetArea\Service\WidgetAreasServiceInterface;
 use Cake\ORM\Exception\PersistenceFailedException;
