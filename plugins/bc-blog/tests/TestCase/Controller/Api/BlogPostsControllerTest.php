@@ -258,7 +258,7 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_publish()
     {
         //データーを生成
-        BlogPostFactory::make([])->unpubish(1, 1)->persist();
+        BlogPostFactory::make([])->unpublish(1, 1)->persist();
 
         //正常の時を確認
         //APIをコル
@@ -328,20 +328,8 @@ class BlogPostsControllerTest extends BcTestCase
         //// 正常系のテスト
         // 非公開状態のデータを生成
         SiteConfigFactory::make(['name' => 'content_types', 'value' => ''])->persist();
-        BlogPostFactory::make([
-            'id' => 1,
-            'name' => 'blog-post-batch',
-            'title' => '一括処理のテスト１',
-            'blog_content_id' => 1,
-            'status' => false,
-        ])->persist();
-        BlogPostFactory::make([
-            'id' => 2,
-            'name' => 'blog-post-batch',
-            'title' => '一括処理のテスト２',
-            'blog_content_id' => 1,
-            'status' => false,
-        ])->persist();
+        BlogPostFactory::make([])->unpublish(1, 1)->persist();
+        BlogPostFactory::make([])->unpublish(2, 1)->persist();
 
         // 公開状態にするAPIを呼ぶ
         $this->post('/baser/api/bc-blog/blog_posts/batch.json?token=' . $this->accessToken, [
@@ -357,9 +345,11 @@ class BlogPostsControllerTest extends BcTestCase
         foreach ($datas as $value) {
             $this->assertTrue($value->status);
         }
+        //IDを指定してタイトルリストを取得
+        $names = $blogPostsService->getTitlesById([1, 2]);
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
-        $this->assertEquals('ブログ記事「一括処理のテスト１」、「一括処理のテスト２」を 公開 しました。', $dblogsData->message);
+        $this->assertEquals('ブログ記事「' . implode('」、「', $names) . '」を 公開 しました。', $dblogsData->message);
         $this->assertEquals(1, $dblogsData->user_id);
         $this->assertEquals('BlogPosts', $dblogsData->controller);
         $this->assertEquals('batch', $dblogsData->action);
@@ -380,7 +370,7 @@ class BlogPostsControllerTest extends BcTestCase
         }
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
-        $this->assertEquals('ブログ記事「一括処理のテスト１」、「一括処理のテスト２」を 非公開に しました。', $dblogsData->message);
+        $this->assertEquals('ブログ記事「' . implode('」、「', $names) . '」を 非公開に しました。', $dblogsData->message);
         $this->assertEquals(1, $dblogsData->user_id);
         $this->assertEquals('BlogPosts', $dblogsData->controller);
         $this->assertEquals('batch', $dblogsData->action);
@@ -399,7 +389,7 @@ class BlogPostsControllerTest extends BcTestCase
         $this->assertEquals(0, $data);
         // dblogsが生成されていること
         $dblogsData = $dblogsService->getDblogs(1)->toArray()[0];
-        $this->assertEquals('ブログ記事「一括処理のテスト１」、「一括処理のテスト２」を 削除 しました。', $dblogsData->message);
+        $this->assertEquals('ブログ記事「' . implode('」、「', $names) . '」を 削除 しました。', $dblogsData->message);
         $this->assertEquals(1, $dblogsData->user_id);
         $this->assertEquals('BlogPosts', $dblogsData->controller);
         $this->assertEquals('batch', $dblogsData->action);
