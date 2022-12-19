@@ -444,14 +444,7 @@ class BlogFrontServiceTest extends BcTestCase
     {
         //データ生成
         $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/');
-        BlogPostFactory::make([
-            'id' => 1,
-            'blog_content_id' => 1,
-            'blog_category_id' => 1,
-            'no' => 1,
-            'title' => 'blog post title',
-            'status' => true
-        ])->persist();
+        BlogPostFactory::make([])->publish(1, 1)->persist();
         BlogCategoryFactory::make([
             'id' => 1,
             'blog_content_id' => 1,
@@ -473,12 +466,12 @@ class BlogFrontServiceTest extends BcTestCase
 
         //$isCategoryPage = true & $count > 1
         $rs = $this->BlogFrontService->getCategoryCrumbs(
-            "test",
+            "https://basercms.net/",
             1
         );
         //戻る値を確認
         $this->assertEquals('title add child', $rs[0]['name']);
-        $this->assertEquals('testarchives/category/name-add-child', $rs[0]['url']);
+        $this->assertEquals('https://basercms.net/archives/category/name-add-child', $rs[0]['url']);
 
         //$isCategoryPage = true & $count = 1
         $rs = $this->BlogFrontService->getCategoryCrumbs(
@@ -490,13 +483,13 @@ class BlogFrontServiceTest extends BcTestCase
 
         //$isCategoryPage = false & $count = 1
         $rs = $this->BlogFrontService->getCategoryCrumbs(
-            "test",
+            "https://basercms.net/",
             2,
             false
         );
         //戻る値を確認
         $this->assertEquals('title add child', $rs[0]['name']);
-        $this->assertEquals('testarchives/category/name-add-child', $rs[0]['url']);
+        $this->assertEquals('https://basercms.net/archives/category/name-add-child', $rs[0]['url']);
     }
 
     /**
