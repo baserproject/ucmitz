@@ -409,7 +409,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @param int $day
      * @return array
      * @checked
-     * @noTodo
+     * @unitTest
      */
     public function createYearMonthDayCondition($conditions, $year, $month, $day)
     {
@@ -497,7 +497,7 @@ class BlogPostsService implements BlogPostsServiceInterface
 
     /**
      * ブログ記事を更新する
-     * 
+     *
      * POSTデータのサイズが設定ファイルで定義されたpost_max_sizeを超えた場合は例外処理される
      *
      * @param EntityInterface|BlogPost $post
