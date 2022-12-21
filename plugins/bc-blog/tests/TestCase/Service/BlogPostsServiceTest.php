@@ -11,6 +11,7 @@
 
 namespace BcBlog\Test\TestCase\Service;
 
+use BaserCore\Test\Factory\UserFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogPostsService;
@@ -33,6 +34,7 @@ class BlogPostsServiceTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
+        'plugin.BaserCore.Factory/Users',
         'plugin.BcBlog.Factory/BlogPosts',
     ];
 
@@ -379,7 +381,43 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testGetIndexByAuthor()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを生成
+        UserFactory::make(['id' => 2, 'name' => 'test author1'])->persist();
+        UserFactory::make(['id' => 3, 'name' => 'test author2'])->persist();
+        UserFactory::make(['id' => 4, 'name' => 'test author3'])->persist();
+        BlogPostFactory::make(['id' => '1', 'blog_content_id' => '1', 'user_id' => 2, 'title' => 'blog post1 by author1'])->persist();
+        BlogPostFactory::make(['id' => '2', 'blog_content_id' => '1', 'user_id' => 2, 'title' => 'blog post2 by author1'])->persist();
+        BlogPostFactory::make(['id' => '3', 'blog_content_id' => '1', 'user_id' => 2, 'title' => 'blog post3 by author1'])->persist();
+        BlogPostFactory::make(['id' => '4', 'blog_content_id' => '1', 'user_id' => 3, 'title' => 'blog post1 by author3'])->persist();
+        BlogPostFactory::make(['id' => '5', 'blog_content_id' => '1', 'user_id' => 3, 'title' => 'blog post2 by author3'])->persist();
+
+        // サービスメソッドを呼ぶ
+        // test author1 の記事を取得、id昇順
+        $result = $this->BlogPostsService->getIndexByAuthor('test author1', [
+            'direction' => 'ASC',
+            'order' => 'id',
+        ]);
+
+        // 戻り値を確認
+        // 指定した　author で記事を取得できているか
+        $this->assertInstanceOf(\Cake\ORM\Query::class, $result);
+        $this->assertEquals(3, $result->count());
+        $blogPosts = $result->all()->toArray();
+        $this->assertEquals('2', $blogPosts[0]->user_id);
+        $this->assertEquals('blog post1 by author1', $blogPosts[0]->title);
+        $this->assertEquals('2', $blogPosts[1]->user_id);
+        $this->assertEquals('blog post2 by author1', $blogPosts[1]->title);
+        $this->assertEquals('2', $blogPosts[2]->user_id);
+        $this->assertEquals('blog post3 by author1', $blogPosts[2]->title);
+
+        // サービスメソッドを呼ぶ
+        // 記事が存在しない
+        $result = $this->BlogPostsService->getIndexByAuthor('test author3', []);
+
+        // 戻り値を確認
+        // 指定した author の記事が存在しない
+        $this->assertInstanceOf(\Cake\ORM\Query::class, $result);
+        $this->assertEquals(0, $result->count());
     }
 
     /**
