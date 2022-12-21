@@ -181,11 +181,11 @@ class BlogPostsServiceTest extends BcTestCase
         BlogPostFactory::make([])->publish(1, 1)->persist();
         BlogPostFactory::make([])->publish(2, 1)->persist();
 
-        BlogTagFactory::make(['id' => 1, 'name' => 'tag1'])->persist();
-        BlogTagFactory::make(['id' => 2, 'name' => 'tag2'])->persist();
+        BlogTagFactory::make(['id' => 3, 'name' => 'tag1'])->persist();
+        BlogTagFactory::make(['id' => 4, 'name' => 'tag2'])->persist();
 
-        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 1])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 2, 'blog_tag_id' => 2])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 3])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 2, 'blog_tag_id' => 4])->persist();
 
         //文字：存在しているタグを確認場合、
         $result = $this->BlogPostsService->createTagCondition([], 'tag1');
