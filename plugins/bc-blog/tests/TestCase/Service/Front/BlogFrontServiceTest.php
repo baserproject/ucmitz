@@ -60,6 +60,7 @@ class BlogFrontServiceTest extends BcTestCase
         'plugin.BcBlog.Factory/BlogContents',
         'plugin.BcBlog.Factory/BlogTags',
         'plugin.BcBlog.Factory/BlogPosts',
+        'plugin.BcBlog.Factory/BlogCategories',
     ];
 
     /**
