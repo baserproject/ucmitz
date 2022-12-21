@@ -11,10 +11,13 @@
 
 namespace BcBlog\Test\TestCase\Service;
 
+use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Service\BlogPostsService;
 use BcBlog\Service\BlogPostsServiceInterface;
+use BcBlog\Test\Factory\BlogCategoryFactory;
+use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 
 /**
@@ -34,6 +37,7 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public $fixtures = [
         'plugin.BcBlog.Factory/BlogPosts',
+        'plugin.BcBlog.Factory/BlogCategories',
     ];
 
     /**
@@ -165,7 +169,69 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testCreateCategoryCondition()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データ　生成
+        ContentFactory::make([
+            'id' => '1',
+            'url' => '/blog/',
+            'name' => 'blog',
+            'plugin' => 'BcBlog',
+            'type' => 'BlogContent',
+            'site_id' => 1,
+            'lft' => 1,
+            'rght' => 2,
+            'entity_id' => 1,
+            'site_root' => false,
+            'status' => true
+        ])->persist();
+        BlogContentFactory::make([
+            'id' => '1',
+            'description' => 'baserCMS inc. [デモ] の最新の情報をお届けします。',
+            'template' => 'default',
+            'list_count' => '10',
+            'list_direction' => 'DESC',
+            'feed_count' => '10',
+            'tag_use' => '1',
+            'comment_use' => '1',
+            'comment_approve' => '0',
+            'widget_area' => '2',
+            'use_content' => '1',
+            'created' => '2015-08-10 18:57:47',
+            'modified' => NULL,
+        ])->persist();
+        BlogPostFactory::make([
+            'id' => '1',
+            'blog_content_id' => 1,
+            'title' => 'blog post',
+            'blog_category_id' => 1
+        ])->persist();
+        BlogCategoryFactory::make([
+            'id' => 1,
+            'blog_content_id' => 1,
+            'no' => 1,
+            'name' => 'release',
+            'title' => 'プレスリリース',
+            'status' => 1,
+            'lft' => 1,
+            'rght' => 2,
+        ])->persist();
+
+        //$blogContentIdがある場合、
+        $result = $this->BlogPostsService->createCategoryCondition([], "release", 1);
+        $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
+
+//        $blogContentIdがない、かつ$contentUrlがある場合、
+//        $result = $this->BlogPostsService->createCategoryCondition([], "release", null, '/abc', true);
+//        $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
+
+        //$blogContentIdがない、かつ$contentUrlがない、かつ$forceがTrue場合、
+        $result = $this->BlogPostsService->createCategoryCondition(
+            [], "release", null, null, true
+        );
+        $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
+
+        //$blogContentIdがない、かつ$contentUrlがない、かつ$forceがFalse場合、
+        $result = $this->BlogPostsService->createCategoryCondition([], "release");
+        $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
     }
 
     /**
