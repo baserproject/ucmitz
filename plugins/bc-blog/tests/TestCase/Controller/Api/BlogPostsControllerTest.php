@@ -255,7 +255,7 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_publish()
     {
         //データーを生成
-        BlogPostFactory::make([])->unpubish(1, 1)->persist();
+        BlogPostFactory::make([])->unpublish(1, 1)->persist();
 
         //正常の時を確認
         //APIをコル

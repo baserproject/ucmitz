@@ -354,6 +354,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createTagCondition($conditions, $tag)
     {
@@ -497,7 +498,7 @@ class BlogPostsService implements BlogPostsServiceInterface
 
     /**
      * ブログ記事を更新する
-     * 
+     *
      * POSTデータのサイズが設定ファイルで定義されたpost_max_sizeを超えた場合は例外処理される
      *
      * @param EntityInterface|BlogPost $post
