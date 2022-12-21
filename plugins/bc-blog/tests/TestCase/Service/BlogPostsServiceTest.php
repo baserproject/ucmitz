@@ -38,6 +38,8 @@ class BlogPostsServiceTest extends BcTestCase
     public $fixtures = [
         'plugin.BcBlog.Factory/BlogPosts',
         'plugin.BcBlog.Factory/BlogCategories',
+        'plugin.BcBlog.Factory/BlogContents',
+        'plugin.BaserCore.Factory/Contents',
     ];
 
     /**
