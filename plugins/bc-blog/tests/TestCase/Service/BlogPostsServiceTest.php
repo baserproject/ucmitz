@@ -320,8 +320,8 @@ class BlogPostsServiceTest extends BcTestCase
      * BlogPostsService::create
      * データ量エラーのテスト
      */
-    public function testCreateExceptionPostMaxSize()
-    {
+//    public function testCreateExceptionPostMaxSize()
+//    {
         // TODO ローカルでは成功するが、GitHubActions上でうまくいかないためコメントアウト（原因不明）
         // データ量を超えていると仮定する
 //        $postMaxSize = ini_get('post_max_size');
@@ -333,7 +333,7 @@ class BlogPostsServiceTest extends BcTestCase
 //        $this->expectExceptionMessage("送信できるデータ量を超えています。合計で " . $postMaxSize . " 以内のデータを送信してください。");
 //        // サービスメソッドを呼ぶ
 //        $this->BlogPostsService->create([]);
-    }
+//    }
 
     /**
      * ブログ記事を更新する
