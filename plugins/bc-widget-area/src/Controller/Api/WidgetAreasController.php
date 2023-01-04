@@ -57,6 +57,7 @@ class WidgetAreasController extends BcApiController
             $widgetArea = $service->create($this->getRequest()->getData());
             $message = __d('baser', '新しいウィジェットエリアを保存しました。');
         } catch (PersistenceFailedException $e) {
+            $widgetArea = $e->getEntity();
             $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', '新しいウィジェットエリアの保存に失敗しました。');
         } catch (\Throwable $e) {
@@ -67,8 +68,9 @@ class WidgetAreasController extends BcApiController
         $this->set([
             'message' => $message,
             'widgetArea' => $widgetArea,
+            'errors' => $widgetArea->getErrors(),
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea', 'errors']);
     }
 
     /**
