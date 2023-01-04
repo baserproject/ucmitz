@@ -1,5 +1,5 @@
 {
-    "name": "baserproject/bc-blog",
+    "name": "baserproject/bc-uploader",
     "description": "BcBlog plugin for baserCMS",
     "homepage": "https://basercms.net",
     "type": "cakephp-plugin",
@@ -7,7 +7,7 @@
     "vendor-dir": "../../vendor",
     "require": {
         "php": ">=8.1",
-        "baserproject/baser-core": "^2.1"
+        "baserproject/baser-core": "^3.1"
     },
     "autoload": {
         "psr-4": {
