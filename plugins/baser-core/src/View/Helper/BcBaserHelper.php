@@ -90,7 +90,7 @@ class BcBaserHelper extends Helper
     protected $_Page = null;
 
     /**
-     * アクセス制限設定モデル
+     * アクセスルールモデル
      *
      * 一度初期化した後に再利用し、処理速度を向上する為にコンストラクタでセットする。
      *
@@ -433,7 +433,7 @@ class BcBaserHelper extends Helper
             && !preg_match('/^#/', $_url)) {
 
             $_url = preg_replace("/^\//", "", $_url);
-            if (preg_match('{^\/' . BcUtil::getAdminPrefix() . '\/}', $_url)) {
+            if (preg_match('{^' . BcUtil::getPrefix(true) . '\/}', $_url)) {
                 $admin = true;
             } else {
                 $admin = false;

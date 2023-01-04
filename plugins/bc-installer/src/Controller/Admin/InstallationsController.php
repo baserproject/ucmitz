@@ -13,6 +13,8 @@ namespace BcInstaller\Controller\Admin;
 
 use BaserCore\Controller\Admin\BcAdminAppController;
 use BaserCore\Error\BcException;
+use BaserCore\Service\SiteConfigsServiceInterface;
+use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use BcInstaller\Service\Admin\InstallationsAdminService;
 use BcInstaller\Service\Admin\InstallationsAdminServiceInterface;
@@ -33,6 +35,11 @@ class InstallationsController extends BcAdminAppController
 {
 
     /**
+     * Trait
+     */
+    use BcContainerTrait;
+
+    /**
      * beforeFilter
      *
      * @return void
@@ -42,6 +49,7 @@ class InstallationsController extends BcAdminAppController
     {
         parent::beforeFilter($event);
         set_time_limit(300);
+        if(!BcUtil::isInstallMode()) $this->notFound();
         // TODO ucmitz 以下、未実装
 //        /* インストール状態判別 */
 //        if (file_exists(APP . 'Config' . DS . 'database.php')) {
@@ -226,6 +234,11 @@ class InstallationsController extends BcAdminAppController
             $service->initFiles($this->getRequest());
             $service->initDb($this->getRequest());
             $service->login($this->getRequest(), $this->getResponse());
+
+            // コントローラーの引数から注入した場合、DB接続でエラーとなるためここで初期化
+            /** @var SiteConfigsServiceInterface $siteConfigsService */
+            $siteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
+            $siteConfigsService->putEnv('INSTALL_MODE', 'false');
 
             BcUtil::clearAllCache();
             if (function_exists('opcache_reset')) opcache_reset();
