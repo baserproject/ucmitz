@@ -268,7 +268,7 @@ class BlogPostsServiceTest extends BcTestCase
         $result = $this->BlogPostsService->createTagCondition([], ['tag1111','tag2']);
         $this->assertEquals(2, $result["BlogPosts.id IN"][0]);
 
-        //配列：存在しているタグを確認場合、
+        //配列：存在していないタグを確認場合、
         $result = $this->BlogPostsService->createTagCondition([], ['tag1111','tag22222']);
         $this->assertNull($result["BlogPosts.id IS"]);
     }
