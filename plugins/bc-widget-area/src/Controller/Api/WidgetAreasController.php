@@ -68,7 +68,7 @@ class WidgetAreasController extends BcApiController
         $this->set([
             'message' => $message,
             'widgetArea' => $widgetArea,
-            'errors' => $widgetArea->getErrors(),
+            'errors' => $widgetArea ? $widgetArea->getErrors() : null
         ]);
         $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea', 'errors']);
     }
