@@ -98,6 +98,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return \Cake\ORM\Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndex(array $queryParams = []): Query
     {
@@ -382,6 +383,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createKeywordCondition($conditions, $keyword)
     {
@@ -409,7 +411,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @param int $day
      * @return array
      * @checked
-     * @noTodo
+     * @unitTest
      */
     public function createYearMonthDayCondition($conditions, $year, $month, $day)
     {
@@ -444,6 +446,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createAuthorCondition($conditions, $author)
     {
@@ -630,6 +633,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(int $id): bool
     {
@@ -711,6 +715,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByAuthor(string $author, array $options = [])
     {

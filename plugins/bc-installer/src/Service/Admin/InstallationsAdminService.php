@@ -321,12 +321,13 @@ class InstallationsAdminService extends InstallationsService implements Installa
      */
     public function initDb(ServerRequest $request): void
     {
-        // データベースのデータを初期設定に更新
-        $this->executeDefaultUpdates();
 
         // コアプラグインインストール
         $dbDataPattern = $request->getSession()->read('Installation.dbDataPattern');
         $this->installCorePlugin($dbDataPattern);
+
+        // データベースのデータを初期設定に更新
+        $this->executeDefaultUpdates();
 
         // テーマの初期データを読み込む
         // TODO ucmitz テーマの初期データ未実装
@@ -342,7 +343,10 @@ class InstallationsAdminService extends InstallationsService implements Installa
 //            }
 //        }
 
-       // SITE_URL更新
+        // アクセスルールの初期データを構築
+        $this->buildPermissions();
+
+        // SITE_URL更新
         $siteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
         $siteConfigsService->putEnv('SITE_URL', BcUtil::siteUrl());
         $siteConfigsService->putEnv('SSL_URL', BcUtil::siteUrl());
