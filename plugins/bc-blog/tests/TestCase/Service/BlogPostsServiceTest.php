@@ -20,7 +20,9 @@ use BcBlog\Service\BlogPostsService;
 use BcBlog\Service\BlogPostsServiceInterface;
 use BcBlog\Test\Factory\BlogCategoryFactory;
 use BcBlog\Test\Factory\BlogContentFactory;
+use BcBlog\Test\Factory\BlogPostBlogTagFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Factory\BlogTagFactory;
 use Cake\Datasource\Exception\RecordNotFoundException;
 
 /**
@@ -48,6 +50,8 @@ class BlogPostsServiceTest extends BcTestCase
         'plugin.BcBlog.Factory/BlogCategories',
         'plugin.BcBlog.Factory/BlogContents',
         'plugin.BaserCore.Factory/Contents',
+        'plugin.BcBlog.Factory/BlogTags',
+        'plugin.BcBlog.Factory/BlogPostsBlogTags',
     ];
 
     /**
@@ -314,7 +318,32 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testCreateTagCondition()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データー生成
+        BlogPostFactory::make([])->publish(1, 1)->persist();
+        BlogPostFactory::make([])->publish(2, 1)->persist();
+
+        BlogTagFactory::make(['id' => 3, 'name' => 'tag1'])->persist();
+        BlogTagFactory::make(['id' => 4, 'name' => 'tag2'])->persist();
+
+        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 3])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 2, 'blog_tag_id' => 4])->persist();
+
+        //文字：存在しているタグを確認場合、
+        $result = $this->BlogPostsService->createTagCondition([], 'tag1');
+        $this->assertEquals(1, $result["BlogPosts.id IN"][0]);
+
+        //配列：存在しているタグを確認場合、
+        $result = $this->BlogPostsService->createTagCondition([], ['tag1','tag2']);
+        $this->assertEquals(1, $result["BlogPosts.id IN"][0]);
+        $this->assertEquals(2, $result['BlogPosts.id IN'][1]);
+
+        //配列：存在しているタグと存在していないタグを確認場合、
+        $result = $this->BlogPostsService->createTagCondition([], ['tag1111','tag2']);
+        $this->assertEquals(2, $result["BlogPosts.id IN"][0]);
+
+        //配列：存在していないタグを確認場合、
+        $result = $this->BlogPostsService->createTagCondition([], ['tag1111','tag22222']);
+        $this->assertNull($result["BlogPosts.id IS"]);
     }
 
     /**
