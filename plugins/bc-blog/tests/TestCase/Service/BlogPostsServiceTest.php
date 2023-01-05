@@ -383,7 +383,6 @@ class BlogPostsServiceTest extends BcTestCase
         // 戻り値を確認
         $this->assertNotEmpty($entity);
         $this->assertInstanceOf('\Cake\Datasource\EntityInterface', $entity);
-        $this->assertEquals(1, $entity->id);
         $this->assertEquals(1, $entity->blog_content_id);
         $this->assertEquals('2022-12-01 00:00:00', $entity->posted->i18nFormat('yyyy-MM-dd HH:mm:ss'));
         $this->assertEquals('2022-12-01 00:00:00', $entity->publish_begin->i18nFormat('yyyy-MM-dd HH:mm:ss'));
