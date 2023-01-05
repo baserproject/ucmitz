@@ -299,17 +299,11 @@ class BlogPostsServiceTest extends BcTestCase
         $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
 
 //        $blogContentIdがない、かつ$contentUrlがある場合、
-//        $result = $this->BlogPostsService->createCategoryCondition([], "release", null, '/abc', true);
-//        $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
-
-        //$blogContentIdがない、かつ$contentUrlがない、かつ$forceがTrue場合、
-        $result = $this->BlogPostsService->createCategoryCondition(
-            [], "release", null, null, true
-        );
+        $result = $this->BlogPostsService->createCategoryCondition([], "release", null, '/abc', true);
         $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
 
-        //$blogContentIdがない、かつ$contentUrlがない、かつ$forceがFalse場合、
-        $result = $this->BlogPostsService->createCategoryCondition([], "release");
+        //$blogContentIdがない、かつ$contentUrlがない、かつ$forceがTrue場合、
+        $result = $this->BlogPostsService->createCategoryCondition([], "release", null, null, true);
         $this->assertEquals($result["BlogPosts.blog_category_id IN"][0], 1);
     }
 
