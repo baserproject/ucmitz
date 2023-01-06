@@ -107,10 +107,10 @@ class BlogPostsServiceTest extends BcTestCase
         SiteFactory::make(['id' => 1, 'name' => 'site name'])->persist();
         BlogContentFactory::make(['id' => 1, 'description' => 'baser blog description', 'tag_use' => true])->persist();
         BlogCategoryFactory::make(['id' => 1, 'blog_content_id' => 1, 'name' => 'category name'])->persist();
-        BlogTagFactory::make(['id' => 1, 'name' => 'tag name1'])->persist();
-        BlogTagFactory::make(['id' => 2, 'name' => 'tag name2'])->persist();
-        BlogPostBlogTagFactory::make(['id' => 1, 'blog_post_id' => 3, 'blog_tag_id' => 1])->persist();
-        BlogPostBlogTagFactory::make(['id' => 2, 'blog_post_id' => 3, 'blog_tag_id' => 2])->persist();
+        BlogTagFactory::make(['id' => 2, 'name' => 'tag name1'])->persist();
+        BlogTagFactory::make(['id' => 3, 'name' => 'tag name2'])->persist();
+        BlogPostBlogTagFactory::make(['id' => 1, 'blog_post_id' => 3, 'blog_tag_id' => 2])->persist();
+        BlogPostBlogTagFactory::make(['id' => 2, 'blog_post_id' => 3, 'blog_tag_id' => 3])->persist();
         BlogPostFactory::make(['id' => 3, 'blog_content_id' => 1, 'blog_category_id' => 1, 'title' => 'blog post title publish', 'status' => true])->persist();
 
         // サービスメソッドを呼ぶ
