@@ -493,10 +493,10 @@ class BlogPostsServiceTest extends BcTestCase
     {
         BlogPostFactory::make(['id' => '1', 'blog_content_id' => '2', 'title' => 'blog post', 'blog_category_id' => '1', 'user_id' => '1'])->persist();
         BlogCategoryFactory::make(['id' => 1, 'name' => 'Blog-Category-name', 'blog_content_id' => 1, 'title' => 'test title 4', 'lft' => 1, 'rght' => 2])->persist();
-        BlogTagFactory::make(['id' => 1, 'name' => 'tag name1'])->persist();
-        BlogTagFactory::make(['id' => 2, 'name' => 'tag name2'])->persist();
-        BlogPostBlogTagFactory::make(['id' => 1, 'blog_post_id' => 1, 'blog_tag_id' => 1])->persist();
-        BlogPostBlogTagFactory::make(['id' => 2, 'blog_post_id' => 1, 'blog_tag_id' => 2])->persist();
+        BlogTagFactory::make(['id' => 2, 'name' => 'tag name1'])->persist();
+        BlogTagFactory::make(['id' => 3, 'name' => 'tag name2'])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 2])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 3])->persist();
         UserFactory::make(['id' => '1', 'name' => 'test 1', 'email' => 'test1@gmail.com', 'real_name_1' => 'admin', 'real_name_2' => 'dvt', 'nickname' => 'James'])->persist();
         UserFactory::make(['id' => '2', 'name' => 'test 2', 'email' => 'test2@gmail.com', 'real_name_1' => 'na', 'real_name_2' => 'a', 'nickname' => 'nyc'])->persist();
 
@@ -528,7 +528,7 @@ class BlogPostsServiceTest extends BcTestCase
         //$field = blog_tag_id　かつ　空配列
         $result = $this->BlogPostsService->getControlSource('blog_tag_id');
         //戻り値を確認
-        $this->assertEquals([1 => 'tag name1', 2 => 'tag name2'], $result);
+        $this->assertEquals([2 => 'tag name1', 3 => 'tag name2'], $result);
     }
 
     /**
