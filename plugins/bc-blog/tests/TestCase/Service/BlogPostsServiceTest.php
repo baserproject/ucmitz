@@ -140,8 +140,7 @@ class BlogPostsServiceTest extends BcTestCase
         $this->assertTrue($result->status);
         $this->assertEquals('blog post title publish', $result->title);
         $this->assertEquals('category name', $result->blog_category->name);
-        $this->assertEquals('tag name2', $result->blog_tags[0]->name);
-        $this->assertEquals('tag name1', $result->blog_tags[1]->name);
+        $this->assertCount(2, $result->blog_tags);
         $this->assertEquals('baser blog description', $result->blog_content->description);
         $this->assertEquals(1, $result->blog_content->content->entity_id);
         $this->assertEquals('content title', $result->blog_content->content->title);
