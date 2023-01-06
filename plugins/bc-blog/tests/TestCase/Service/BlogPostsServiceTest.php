@@ -11,12 +11,15 @@
 
 namespace BcBlog\Test\TestCase\Service;
 
+use BaserCore\Test\Factory\ContentFactory;
+use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Factory\UserFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
-use BaserCore\Utility\BcUtil;
 use BcBlog\Service\BlogPostsService;
 use BcBlog\Service\BlogPostsServiceInterface;
+use BcBlog\Test\Factory\BlogCategoryFactory;
+use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostBlogTagFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Factory\BlogTagFactory;
@@ -45,6 +48,9 @@ class BlogPostsServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BcBlog.Factory/BlogPosts',
         'plugin.BcBlog.Factory/BlogTags',
+        'plugin.BaserCore.Factory/Contents',
+        'plugin.BcBlog.Factory/BlogContents',
+        'plugin.BcBlog.Factory/BlogCategories',
         'plugin.BcBlog.Factory/BlogPostsBlogTags',
     ];
 
@@ -91,7 +97,61 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testGet()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを生成
+        // id 1
+        BlogPostFactory::make(['id' => 1, 'title' => 'blog post title'])->persist();
+        // id 2 公開状態
+        BlogPostFactory::make(['id' => 2, 'title' => 'blog post title publish', 'status' => true])->persist();
+        // id 3 公開状態 Contents Sites BlogContents BlogCategories BlogTags
+        ContentFactory::make(['id' => 1, 'site_id' => 1, 'type' => 'BlogContent', 'entity_id' => 1, 'title' => 'content title'])->persist();
+        SiteFactory::make(['id' => 1, 'name' => 'site name'])->persist();
+        BlogContentFactory::make(['id' => 1, 'description' => 'baser blog description', 'tag_use' => true])->persist();
+        BlogCategoryFactory::make(['id' => 1, 'blog_content_id' => 1, 'name' => 'category name'])->persist();
+        BlogTagFactory::make(['id' => 1, 'name' => 'tag name1'])->persist();
+        BlogTagFactory::make(['id' => 2, 'name' => 'tag name2'])->persist();
+        BlogPostBlogTagFactory::make(['id' => 1, 'blog_post_id' => 3, 'blog_tag_id' => 1])->persist();
+        BlogPostBlogTagFactory::make(['id' => 2, 'blog_post_id' => 3, 'blog_tag_id' => 2])->persist();
+        BlogPostFactory::make(['id' => 3, 'blog_content_id' => 1, 'blog_category_id' => 1, 'title' => 'blog post title publish', 'status' => true])->persist();
+
+        // サービスメソッドを呼ぶ
+        // id 1
+        // option なし
+        $result = $this->BlogPostsService->get(1);
+        // 戻り値を確認
+        $this->assertInstanceOf(\Cake\Datasource\EntityInterface::class, $result);
+        $this->assertEquals(1, $result->id);
+        $this->assertEquals('blog post title', $result->title);
+
+        // サービスメソッドを呼ぶ
+        // id 2
+        // option status publish 公開状態にある
+        $result = $this->BlogPostsService->get(2, ['status' => 'publish']);
+        // 戻り値を確認
+        $this->assertEquals(2, $result->id);
+        $this->assertTrue($result->status);
+        $this->assertEquals('blog post title publish', $result->title);
+
+        // サービスメソッドを呼ぶ
+        // id 3
+        // option status publish 公開状態にある
+        $result = $this->BlogPostsService->get(3, ['status' => 'publish']);
+        // 戻り値を確認
+        $this->assertEquals(3, $result->id);
+        $this->assertTrue($result->status);
+        $this->assertEquals('blog post title publish', $result->title);
+        $this->assertEquals('category name', $result->blog_category->name);
+        $this->assertEquals('tag name1', $result->blog_tags[0]->name);
+        $this->assertEquals('tag name2', $result->blog_tags[1]->name);
+        $this->assertEquals('baser blog description', $result->blog_content->description);
+        $this->assertEquals(1, $result->blog_content->content->entity_id);
+        $this->assertEquals('content title', $result->blog_content->content->title);
+        $this->assertEquals(1, $result->blog_content->content->site->id);
+        $this->assertEquals('site name', $result->blog_content->content->site->name);
+
+        // 存在しない id を指定された場合
+        // 例外を表示
+        $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
+        $this->BlogPostsService->get('10');
     }
 
     /**
