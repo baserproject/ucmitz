@@ -528,7 +528,7 @@ class BlogPostsServiceTest extends BcTestCase
         //$field = blog_tag_id　かつ　空配列
         $result = $this->BlogPostsService->getControlSource('blog_tag_id');
         //戻り値を確認
-        $this->assertEquals([2 => 'tag name1', 3 => 'tag name2'], $result);
+        $this->assertEquals([2 => 'tag name1', 3 => 'tag name2', 1 => '新製品'], $result);
     }
 
     /**
