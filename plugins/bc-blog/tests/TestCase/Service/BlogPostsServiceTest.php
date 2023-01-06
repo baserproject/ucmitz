@@ -109,8 +109,8 @@ class BlogPostsServiceTest extends BcTestCase
         BlogCategoryFactory::make(['id' => 1, 'blog_content_id' => 1, 'name' => 'category name'])->persist();
         BlogTagFactory::make(['id' => 2, 'name' => 'tag name1'])->persist();
         BlogTagFactory::make(['id' => 3, 'name' => 'tag name2'])->persist();
-        BlogPostBlogTagFactory::make(['id' => 1, 'blog_post_id' => 3, 'blog_tag_id' => 2])->persist();
-        BlogPostBlogTagFactory::make(['id' => 2, 'blog_post_id' => 3, 'blog_tag_id' => 3])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 3, 'blog_tag_id' => 2])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 3, 'blog_tag_id' => 3])->persist();
         BlogPostFactory::make(['id' => 3, 'blog_content_id' => 1, 'blog_category_id' => 1, 'title' => 'blog post title publish', 'status' => true])->persist();
 
         // サービスメソッドを呼ぶ
@@ -140,8 +140,8 @@ class BlogPostsServiceTest extends BcTestCase
         $this->assertTrue($result->status);
         $this->assertEquals('blog post title publish', $result->title);
         $this->assertEquals('category name', $result->blog_category->name);
-        $this->assertEquals('tag name1', $result->blog_tags[0]->name);
-        $this->assertEquals('tag name2', $result->blog_tags[1]->name);
+        $this->assertEquals('tag name2', $result->blog_tags[0]->name);
+        $this->assertEquals('tag name1', $result->blog_tags[1]->name);
         $this->assertEquals('baser blog description', $result->blog_content->description);
         $this->assertEquals(1, $result->blog_content->content->entity_id);
         $this->assertEquals('content title', $result->blog_content->content->title);
