@@ -749,6 +749,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByDate(string $year, string $month, string $day, array $options = [])
     {

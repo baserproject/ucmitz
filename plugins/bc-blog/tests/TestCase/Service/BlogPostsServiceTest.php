@@ -638,7 +638,62 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testGetIndexByDate()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを生成
+        UserFactory::make(['id' => 2, 'name' => 'test user1'])->persist();
+        BlogPostFactory::make([
+            'id' => '1',
+            'blog_content_id' => '1',
+            'user_id' => 2,
+            'title' => 'blog post1 user_id2',
+            'status' => true,
+            'posted' => '2022-12-01 00:00:00',
+        ])->persist();
+        BlogPostFactory::make([
+            'id' => '2',
+            'blog_content_id' => '1',
+            'user_id' => 2,
+            'title' => 'blog post2 user_id2',
+            'status' => true,
+            'posted' => '2022-12-01 09:00:00',
+        ])->persist();
+        BlogPostFactory::make([
+            'id' => '3',
+            'blog_content_id' => '1',
+            'user_id' => 2,
+            'title' => 'blog post3 user_id2',
+            'status' => true,
+            'posted' => '2022-12-01 18:00:00',
+        ])->persist();
+
+        // サービスメソッドを呼ぶ
+        $query = $this->BlogPostsService->getIndexByDate('2022', '12', '1', [
+            'status' => 'publish',
+            'blog_content_id' => '1',
+            'direction' => 'asc',
+        ]);
+        // 戻り値を確認
+        $this->assertInstanceOf(\Cake\ORM\Query::class, $query);
+        // データが取得できること
+        $result = $query->all();
+        $blogPosts = $result->toArray();
+        $this->assertCount(3, $blogPosts);
+        $this->assertEquals(1, $blogPosts[0]->blog_content_id);
+        $this->assertEquals(2, $blogPosts[0]->user_id);
+        $this->assertEquals('blog post1 user_id2', $blogPosts[0]->title);
+        $this->assertEquals('2022-12-01 00:00:00', $blogPosts[0]->posted->format('Y-m-d H:i:s'));
+        $this->assertEquals(1, $blogPosts[0]->blog_content_id);
+        $this->assertEquals(2, $blogPosts[0]->user_id);
+        $this->assertEquals('blog post2 user_id2', $blogPosts[1]->title);
+        $this->assertEquals('2022-12-01 09:00:00', $blogPosts[1]->posted->format('Y-m-d H:i:s'));
+        $this->assertEquals(1, $blogPosts[0]->blog_content_id);
+        $this->assertEquals(2, $blogPosts[0]->user_id);
+        $this->assertEquals('blog post3 user_id2', $blogPosts[2]->title);
+        $this->assertEquals('2022-12-01 18:00:00', $blogPosts[2]->posted->format('Y-m-d H:i:s'));
+
+        // 年月日が指定されていない場合は例外とする
+        $this->expectException(\Cake\Http\Exception\NotFoundException::class);
+        // サービスメソッドを呼ぶ
+        $this->BlogPostsService->getIndexByDate('', '', '', []);
     }
 
     /**
