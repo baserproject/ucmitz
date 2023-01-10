@@ -17,6 +17,7 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BcWidgetArea\Service\WidgetAreasService;
 use BcWidgetArea\Service\WidgetAreasServiceInterface;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * Class WidgetAreasController
@@ -29,7 +30,7 @@ class WidgetAreasController extends BcApiController
     /**
      * 一覧取得
      *
-     * @param WidgetAreasService $service
+     * @param WidgetAreasServiceInterface $service
      */
     public function index(WidgetAreasServiceInterface $service)
     {
@@ -42,21 +43,100 @@ class WidgetAreasController extends BcApiController
     /**
      * 新規追加
      *
-     * @param WidgetAreasService $service
+     * @param WidgetAreasServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(WidgetAreasServiceInterface $service)
     {
-        // TODO APIを実装してください
+        $this->request->allowMethod(['post', 'put']);
+        $widgetArea = null;
+        try {
+            $widgetArea = $service->create($this->getRequest()->getData());
+            $message = __d('baser', '新しいウィジェットエリアを保存しました。');
+        } catch (PersistenceFailedException $e) {
+            $widgetArea = $e->getEntity();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '新しいウィジェットエリアの保存に失敗しました。');
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', $e->getMessage());
+        }
+
+        $this->set([
+            'message' => $message,
+            'widgetArea' => $widgetArea,
+            'errors' => $widgetArea ? $widgetArea->getErrors() : null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea', 'errors']);
+    }
+
+    /**
+     * ウィジェットエリア管理 API 編集
+     *
+     * @param WidgetAreasService $service
+     * @param $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function edit(WidgetAreasServiceInterface $service, $id)
+    {
+        $this->request->allowMethod(['post', 'put']);
+
+        $widgetArea = null;
+        try {
+            $widgetArea = $service->update($service->get($id), $this->request->getData());
+            $message = __d('baser', 'ウィジェットエリア「{0}」を更新しました。', $widgetArea->name);
+        } catch (PersistenceFailedException $e) {
+            $widgetArea = $e->getEntity();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', $e->getMessage());
+        }
+
+        $this->set([
+            'message' => $message,
+            'widgetArea' => $widgetArea,
+            'errors' => $widgetArea ? $widgetArea->getErrors() : null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['widgetArea', 'message', 'errors']);
     }
 
     /**
      * 削除
      *
-     * @param WidgetAreasService $service
+     * @param WidgetAreasServiceInterface $service
+     * @param $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function delete(WidgetAreasServiceInterface $service)
+    public function delete(WidgetAreasServiceInterface $service, $id)
     {
-        // TODO APIを実装してください
+        $this->request->allowMethod(['post', 'put', 'delete']);
+
+        $widgetArea = null;
+        try {
+            $widgetArea = $service->get($id);
+            $service->delete($id);
+            $message = __d('baser', 'ウィジェットエリア「{0}」を削除しました。', $widgetArea->name);
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage();
+        }
+
+        $this->set([
+            'message' => $message,
+            'widgetArea' => $widgetArea,
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['widgetArea', 'message']);
     }
 
     /**
@@ -67,7 +147,7 @@ class WidgetAreasController extends BcApiController
      * ### エラー
      * 受け取ったPOSTデータのキー名'batch'が'delete'以外の値であれば500エラーを発生させる
      *
-     * @param WidgetAreasService $service
+     * @param WidgetAreasServiceInterface $service
      * @checked
      * @noTodo
      */
@@ -122,7 +202,7 @@ class WidgetAreasController extends BcApiController
         }
         $this->set([
             'message' => $message,
-            'widgetArea' => $entity? $entity->toArray() : null,
+            'widgetArea' => $entity ? $entity->toArray() : null,
         ]);
         $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea']);
     }
@@ -130,7 +210,7 @@ class WidgetAreasController extends BcApiController
     /**
      * [AJAX] ウィジェット更新
      *
-     * @param WidgetAreasService $service
+     * @param WidgetAreasServiceInterface $service
      * @param int $widgetAreaId
      * @return void
      * @checked
@@ -149,14 +229,14 @@ class WidgetAreasController extends BcApiController
         }
         $this->set([
             'message' => $message,
-            'widgetArea' => $entity? $entity->toArray() : null,
+            'widgetArea' => $entity ? $entity->toArray() : null,
         ]);
         $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea']);
     }
 
     /**
      * 並び順を更新する
-     * @param WidgetAreasService $service
+     * @param WidgetAreasServiceInterface $service
      * @param int $widgetAreaId
      * @return void
      * @checked
@@ -175,7 +255,7 @@ class WidgetAreasController extends BcApiController
         }
         $this->set([
             'message' => $message,
-            'widgetArea' => $entity? $entity->toArray() : null,
+            'widgetArea' => $entity ? $entity->toArray() : null,
         ]);
         $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea']);
     }
@@ -183,7 +263,7 @@ class WidgetAreasController extends BcApiController
     /**
      * [AJAX] ウィジェットを削除
      *
-     * @param WidgetAreasService $service
+     * @param WidgetAreasServiceInterface $service
      * @param int $widgetAreaId
      * @param int $id
      * @return void
@@ -203,9 +283,28 @@ class WidgetAreasController extends BcApiController
         }
         $this->set([
             'message' => $message,
-            'widgetArea' => $entity? $entity->toArray() : null,
+            'widgetArea' => $entity ? $entity->toArray() : null,
         ]);
         $this->viewBuilder()->setOption('serialize', ['message', 'widgetArea']);
     }
 
+    /**
+     * [API] 単一データ取得
+     *
+     * @param WidgetAreasServiceInterface $service
+     * @param $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function view(WidgetAreasServiceInterface $service, $id)
+    {
+        $this->getRequest()->allowMethod(['get']);
+
+        $this->set([
+            'widgetArea' => $service->get($id)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['widgetArea']);
+    }
 }

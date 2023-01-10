@@ -280,27 +280,29 @@ class MailformHelper extends BcFreezeHelper
      * @param array $options
      * @param bool $distinct 同じエラーメッセージをまとめる
      * @return array
+     * @checked
+     * @noTodo
      */
     public function getGroupValidErrors($mailFields, $groupValid, $options = [], $distinct = true)
     {
         $errors = [];
         foreach ($mailFields as $mailField) {
-            if ($mailField['MailField']['group_valid'] !== $groupValid) {
-                continue;
+            if ($mailField->group_valid !== $groupValid) continue;
+            if (!in_array('VALID_GROUP_COMPLATE', explode(',', $mailField->valid_ex))) continue;
+
+            $errorMessage = $this->error($mailField->field_name, null, $options);
+            if ($errorMessage && (!$distinct || !array_search($errorMessage, $errors))) {
+                $errors[$mailField->field_name] = $errorMessage;
             }
-            if (!in_array('VALID_GROUP_COMPLATE', explode(',', $mailField['MailField']['valid_ex']))) {
-                continue;
-            }
-            if (!empty($this->validationErrors['MailMessage'][$mailField['MailField']['field_name']])) {
-                foreach ($this->validationErrors['MailMessage'][$mailField['MailField']['field_name']] as $key => $error) {
-                    if ($error === true) {
-                        unset($this->validationErrors['MailMessage'][$mailField['MailField']['field_name']][$key]);
+
+            $context = $this->_getContext();
+            if ($context->hasError($mailField->field_name)) {
+                foreach ($context->error($mailField->field_name) as $key => $error) {
+                    if ($error !== true) {
+                        $entity = $context->entity();
+                        $entity->setError($mailField->field_name, [], true);
                     }
                 }
-            }
-            $errorMessage = $this->error("MailMessage." . $mailField['MailField']['field_name'], null, $options);
-            if ($errorMessage && (!$distinct || !array_search($errorMessage, $errors))) {
-                $errors[$mailField['MailField']['field_name']] = $errorMessage;
             }
         }
         return $errors;
@@ -308,25 +310,29 @@ class MailformHelper extends BcFreezeHelper
 
     /**
      * メールフィールドのグループの最後か判定する
+     *
+     * - 次のフィールドがないもの
+     * - 次のフィールドがある、次のフィールドとグループが違うもの
+     *
      * @param ResultSet $mailFields
      * @param array $currentMailField
      * @return bool
      */
     public function isGroupLastField($mailFields, $currentMailField)
     {
-        if (empty($currentMailField->group_field)) {
-            return false;
+        if (empty($currentMailField->group_field)) return false;
+        $mailFields = clone $mailFields;
+        foreach ($mailFields as $mailField) {
+            if ($currentMailField === $mailField) break;
         }
-        foreach ($mailFields as $key => $mailField) {
-            if ($currentMailField === $mailField) {
-                break;
-            }
+
+        $mailFields->next();
+        if(!$mailFields->valid()) return true;
+        $nextField = $mailFields->current();
+        if(!$nextField->group_field || $currentMailField->group_field !== $nextField->group_field) {
+            return true;
         }
-        // TODO ucmitz 未実装
-        // 次のレコードの取得方法がわからない
-//        if($nextField && (!$nextField->group_field || $currentMailField->group_field !== $nextField->_group_field)) {
-//            return true;
-//        }
+
         return false;
     }
 

@@ -98,6 +98,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return \Cake\ORM\Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndex(array $queryParams = []): Query
     {
@@ -354,6 +355,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createTagCondition($conditions, $tag)
     {
@@ -382,6 +384,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createKeywordCondition($conditions, $keyword)
     {
@@ -409,7 +412,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @param int $day
      * @return array
      * @checked
-     * @noTodo
+     * @unitTest
      */
     public function createYearMonthDayCondition($conditions, $year, $month, $day)
     {
@@ -444,6 +447,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createAuthorCondition($conditions, $author)
     {
@@ -477,14 +481,21 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function create(array $postData)
     {
         if (BcUtil::isOverPostSize()) {
             throw new BcException(__d(
                 'baser',
-                '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。',
+                '送信できるデータ量を超えています。合計で {0} 以内のデータを送信してください。',
                 ini_get('post_max_size')
+            ));
+        }
+        if (!isset($postData['blog_content_id']) || empty($postData['blog_content_id'])) {
+            throw new BcException(__d(
+                'baser',
+                'blog_content_id を指定してください。',
             ));
         }
         $postData['no'] = $this->BlogPosts->getMax('no', ['blog_content_id' => $postData['blog_content_id']]) + 1;
@@ -497,7 +508,7 @@ class BlogPostsService implements BlogPostsServiceInterface
 
     /**
      * ブログ記事を更新する
-     * 
+     *
      * POSTデータのサイズが設定ファイルで定義されたpost_max_sizeを超えた場合は例外処理される
      *
      * @param EntityInterface|BlogPost $post
@@ -623,6 +634,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(int $id): bool
     {
@@ -704,6 +716,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByAuthor(string $author, array $options = [])
     {

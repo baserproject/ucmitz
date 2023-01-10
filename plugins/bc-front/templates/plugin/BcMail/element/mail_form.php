@@ -12,6 +12,10 @@
 /**
  * メールフォーム
  *
+ * $this->Mailform->create() にて、valueSources オプションで、context を明示的に指定する。
+ * ファイルフィールドの確認画面にて、$_POST からの配列のデータを取得し Warning となってしまうため。
+ * BcFileUploader により、エンティティは変換されるが、$_POST は変換されない。
+ *
  * @var \BcMail\View\MailFrontAppView $this
  * @var bool $freezed 確認画面かどうか
  * @var array $mailContent メールコンテンツデータ
@@ -27,9 +31,9 @@ $this->BcBaser->js('BcMail.form-submit', true, ['defer'])
 
 
 <?php if (!$freezed): ?>
-	<?php echo $this->Mailform->create($mailMessage, ['url' => $this->BcBaser->getContentsUrl(null, false, null, false) . 'confirm', 'type' => 'file']) ?>
+	<?php echo $this->Mailform->create($mailMessage, ['url' => $this->BcBaser->getContentsUrl(null, false, null, false) . 'confirm', 'type' => 'file', 'valueSources' => ['context']]) ?>
 <?php else: ?>
-	<?php echo $this->Mailform->create($mailMessage, ['url' => $this->BcBaser->getContentsUrl(null, false, null, false)  . 'submit']) ?>
+	<?php echo $this->Mailform->create($mailMessage, ['url' => $this->BcBaser->getContentsUrl(null, false, null, false)  . 'submit', 'valueSources' => ['context']]) ?>
 <?php endif; ?>
 
 <?php $this->Mailform->unlockField('mode') ?>
@@ -38,19 +42,6 @@ $this->BcBaser->js('BcMail.form-submit', true, ['defer'])
 <table class="bs-mail-form-body">
 	<?php $this->BcBaser->element('mail_input', ['blockStart' => 1]) ?>
 </table>
-
-<?php if ($mailContent->auth_captcha): ?>
-	<?php if (!$freezed): ?>
-		<div class="bs-mail-form-auth-captcha">
-			<div><?php $this->Mailform->authCaptcha('auth_captcha') ?></div>
-			<div><?php echo __('画像の文字を入力してください') ?></div>
-			<?php echo $this->Mailform->error('auth_captcha', __('入力された文字が間違っています。入力をやり直してください。')) ?>
-		</div>
-	<?php else: ?>
-		<?php echo $this->Mailform->hidden('auth_captcha') ?>
-		<?php echo $this->Mailform->hidden('captcha_id') ?>
-	<?php endif ?>
-<?php endif ?>
 
 <div class="bs-mail-form-submit">
 	<?php if ($freezed): ?>

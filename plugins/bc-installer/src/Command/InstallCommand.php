@@ -123,6 +123,9 @@ class InstallCommand extends Command
             $io->err(__d('baser', 'baserCMSのインストールに失敗しました。ログファイルを確認してください。'));
         }
 
+        $siteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
+        $siteConfigsService->putEnv('INSTALL_MODE', 'false');
+
         BcUtil::clearAllCache();
         $io->out(__d('baser', 'baserCMSのインストールが完了しました。'));
     }
@@ -171,8 +174,9 @@ class InstallCommand extends Command
         // Init db
         $service->createDefaultFiles();
         $service->deployEditorTemplateImage();
-        $service->executeDefaultUpdates();
         $service->installCorePlugin($args->getOption('data'));
+        $service->executeDefaultUpdates();
+        $service->buildPermissions();
         $siteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
         $siteConfigsService->putEnv('SITE_URL', $siteUrl);
         $siteConfigsService->putEnv('SSL_URL', $siteUrl);

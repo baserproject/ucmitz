@@ -62,10 +62,17 @@ class BlogPostFactory extends CakephpBaseFactory
         });
     }
 
-    public function unpubish($id, $blogContentId)
+    public function unpublish($id, $blogContentId)
     {
         return $this->setField('id', $id)
             ->setField('blog_content_id', $blogContentId)
             ->setField('status', false);
+    }
+
+    public function publish($id, $blogContentId)
+    {
+        return $this->setField('id', $id)
+            ->setField('blog_content_id', $blogContentId)
+            ->setField('status', true);
     }
 }
