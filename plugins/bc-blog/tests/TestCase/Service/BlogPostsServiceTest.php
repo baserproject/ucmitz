@@ -393,7 +393,6 @@ class BlogPostsServiceTest extends BcTestCase
     {
         //データ生成
         BlogPostFactory::make([])->publish(1, 1)->persist();
-        UserFactory::make(['id' => 1])->persist();
 
         // サービスメソッドを呼ぶ
         $result = $this->BlogPostsService->getNew(2, 1);
