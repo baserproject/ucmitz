@@ -6,10 +6,17 @@
  * into source code version control.
  */
 
+use BaserCore\Error\BcExceptionRenderer;
 use Cake\Cache\Engine\FileEngine;
 use Cake\Log\Engine\FileLog;
 
 return [
+    'App' => [
+        /**
+         * アップロードファイルをオブジェクトとして取り扱うかどうか
+         */
+        'uploadedFilesAsObjects' => false,
+    ],
     /*
      * Debug Level:
      *
@@ -62,6 +69,7 @@ return [
              */
             'url' => env('DATABASE_URL', null),
             'log' => filter_var(env('SQL_LOG', false), FILTER_VALIDATE_BOOLEAN),
+            'timezone' => 'Asia/Tokyo',
         ],
 
         /*
@@ -75,6 +83,7 @@ return [
             'database' => '',
             //'schema' => 'myapp',
             'url' => env('DATABASE_TEST_URL', null),
+            'timezone' => 'Asia/Tokyo',
         ],
     ],
 
@@ -96,7 +105,8 @@ return [
         ],
     ],
     'Error' => [
-        'errorLevel' => E_ALL & ~E_USER_DEPRECATED
+        'errorLevel' => E_ALL & ~E_USER_DEPRECATED,
+        'exceptionRenderer' => BcExceptionRenderer::class,
     ],
 
     /*
