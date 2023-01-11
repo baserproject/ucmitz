@@ -616,6 +616,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface|false
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function unpublish(int $id)
     {
