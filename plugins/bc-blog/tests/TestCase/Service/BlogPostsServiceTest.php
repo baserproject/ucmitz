@@ -495,7 +495,17 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testPublish()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを生成
+        BlogPostFactory::make([])->unpublish(1, 1)->persist();
+
+        // サービスメソッドを呼ぶ
+        $entity = $this->BlogPostsService->publish(1);
+
+        // 公開状態になっており、公開期間指定は初期化されていること
+        $this->assertInstanceOf(\Cake\Datasource\EntityInterface::class, $entity);
+        $this->assertTrue($entity->status);
+        $this->assertNull($entity->publish_begin);
+        $this->assertNull($entity->publish_end);
     }
 
     /**
