@@ -663,6 +663,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getTitlesById(array $ids): array
     {
