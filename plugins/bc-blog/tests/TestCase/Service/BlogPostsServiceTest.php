@@ -20,7 +20,9 @@ use BcBlog\Service\BlogPostsServiceInterface;
 use BcBlog\Test\Factory\BlogPostBlogTagFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Factory\BlogTagFactory;
+use BcBlog\Test\Scenario\MultiSiteBlogScenario;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * BlogPostsServiceTest
@@ -31,6 +33,7 @@ class BlogPostsServiceTest extends BcTestCase
 {
 
     use BcContainerTrait;
+    use ScenarioAwareTrait;
 
     /**
      * Fixtures
@@ -579,7 +582,20 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testGetIndexByCategory()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // データを生成
+        $this->loadFixtureScenario(MultiSiteBlogScenario::class);
+        BlogPostFactory::make(['title' => 'title 1', 'blog_category_id' => 1])->persist();
+        BlogPostFactory::make(['title' => 'title 2', 'blog_category_id' => 1])->persist();
+        BlogPostFactory::make(['title' => 'title 3', 'blog_category_id' => 3])->persist();
+        // サービスメソッドを呼ぶ
+        $result = $this->BlogPostsService->getIndexByCategory('release', ['force' => true]);
+        // 戻り値を確認
+        // 指定した　カテゴリ で記事を取得できているか
+        $this->assertInstanceOf(\Cake\ORM\Query::class, $result);
+        $this->assertEquals('2', $result->count());
+        $blogPosts = $result->toArray();
+        $this->assertEquals('title 1', $blogPosts[0]->title);
+        $this->assertEquals('title 2', $blogPosts[1]->title);
     }
 
     /**
