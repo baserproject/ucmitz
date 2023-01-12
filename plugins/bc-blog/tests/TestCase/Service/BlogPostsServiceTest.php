@@ -584,11 +584,16 @@ class BlogPostsServiceTest extends BcTestCase
     {
         // データを生成
         $this->loadFixtureScenario(MultiSiteBlogScenario::class);
-        BlogPostFactory::make(['title' => 'title 1', 'blog_category_id' => 1])->persist();
-        BlogPostFactory::make(['title' => 'title 2', 'blog_category_id' => 1])->persist();
-        BlogPostFactory::make(['title' => 'title 3', 'blog_category_id' => 3])->persist();
+        BlogPostFactory::make(['id' => 1, 'title' => 'title 1', 'blog_category_id' => 1])->persist();
+        BlogPostFactory::make(['id' => 2, 'title' => 'title 2', 'blog_category_id' => 1])->persist();
+        BlogPostFactory::make(['id' => 3, 'title' => 'title 3', 'blog_category_id' => 3])->persist();
         // サービスメソッドを呼ぶ
-        $result = $this->BlogPostsService->getIndexByCategory('release', ['force' => true]);
+        // カテゴリreleaseの記事を取得、id昇順
+        $result = $this->BlogPostsService->getIndexByCategory('release', [
+            'force' => true,
+            'direction' => 'ASC',
+            'order' => 'id'
+        ]);
         // 戻り値を確認
         // 指定した　カテゴリ で記事を取得できているか
         $this->assertInstanceOf(\Cake\ORM\Query::class, $result);
