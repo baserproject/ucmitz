@@ -41,6 +41,18 @@ class WidgetAreasController extends BcApiController
     }
 
     /**
+     * リストデータ取得
+     *
+     * @param WidgetAreasServiceInterface $service
+     */
+    public function list(WidgetAreasServiceInterface $service){
+        $this->set([
+            'widgetAreas' => $service->getList()
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['widgetAreas']);
+    }
+
+    /**
      * 新規追加
      *
      * @param WidgetAreasServiceInterface $service
