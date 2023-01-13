@@ -31,6 +31,10 @@ class WidgetAreasController extends BcApiController
      * 一覧取得
      *
      * @param WidgetAreasServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(WidgetAreasServiceInterface $service)
     {
@@ -44,6 +48,10 @@ class WidgetAreasController extends BcApiController
      * リストデータ取得
      *
      * @param WidgetAreasServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function list(WidgetAreasServiceInterface $service){
         $this->set([
