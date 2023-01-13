@@ -732,6 +732,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByTag(string $tag, array $options = [])
     {
