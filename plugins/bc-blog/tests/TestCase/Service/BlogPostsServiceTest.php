@@ -491,14 +491,13 @@ class BlogPostsServiceTest extends BcTestCase
      */
     public function testGetControlSource()
     {
-        BlogPostFactory::make(['id' => '1', 'blog_content_id' => '2', 'title' => 'blog post', 'blog_category_id' => '1', 'user_id' => '1'])->persist();
-        BlogCategoryFactory::make(['id' => 1, 'name' => 'Blog-Category-name', 'blog_content_id' => 1, 'title' => 'test title 4', 'lft' => 1, 'rght' => 2])->persist();
+        BlogCategoryFactory::make(['id' => 1, 'blog_content_id' => 1, 'title' => 'test title 4'])->persist();
         BlogTagFactory::make(['id' => 2, 'name' => 'tag name1'])->persist();
         BlogTagFactory::make(['id' => 3, 'name' => 'tag name2'])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 2])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 3])->persist();
-        UserFactory::make(['id' => '1', 'name' => 'test 1', 'email' => 'test1@gmail.com', 'real_name_1' => 'admin', 'real_name_2' => 'dvt', 'nickname' => 'James'])->persist();
-        UserFactory::make(['id' => '2', 'name' => 'test 2', 'email' => 'test2@gmail.com', 'real_name_1' => 'na', 'real_name_2' => 'a', 'nickname' => 'nyc'])->persist();
+        BlogPostBlogTagFactory::make(['blog_tag_id' => 2])->persist();
+        BlogPostBlogTagFactory::make(['blog_tag_id' => 3])->persist();
+        UserFactory::make(['id' => '1', 'name' => 'test 1', 'nickname' => 'James'])->persist();
+        UserFactory::make(['id' => '2', 'nickname' => 'nyc'])->persist();
 
         //$field = blog_category_id　かつ　blogContentId = 1
         $result = $this->BlogPostsService->getControlSource('blog_category_id', ['blogContentId' => 1]);
