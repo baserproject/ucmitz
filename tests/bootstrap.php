@@ -91,4 +91,5 @@ session_id('cli');
     ['plugin' => 'BcMail'],
     ['plugin' => 'BcWidgetArea'],
     ['plugin' => 'BcThemeConfig'],
+    ['plugin' => 'BcThemeFile'],
 ]);
