@@ -312,6 +312,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createCategoryCondition(
         array  $conditions,
@@ -324,7 +325,8 @@ class BlogPostsService implements BlogPostsServiceInterface
         if ($blogContentId) {
             $categoryConditions['BlogCategories.blog_content_id'] = $blogContentId;
         } elseif ($contentUrl) {
-            $categoryConditions['BlogCategories.blog_content_id'] = $this->BlogPosts->BlogContents->Contents->field('entity_id', ['Contents.url' => $contentUrl]);
+            $entityIdData = $this->BlogPosts->BlogContents->Contents->find('all', ['Contents.url' => $contentUrl])->first();
+            $categoryConditions['BlogCategories.blog_content_id'] = $entityIdData->entity_id;
         } elseif (!$force) {
             trigger_error(__d('baser', 'blog_content_id を指定してください。'), E_USER_WARNING);
         }
@@ -464,6 +466,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getNew(int $blogContentId, int $userId)
     {
@@ -767,6 +770,10 @@ class BlogPostsService implements BlogPostsServiceInterface
      *
      * @param BlogPost $post ブログ記事
      * @return BlogPost|EntityInterface
+     *
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function getPrevPost(BlogPost $post)
     {
@@ -800,6 +807,9 @@ class BlogPostsService implements BlogPostsServiceInterface
      *
      * @param BlogPost $post ブログ記事
      * @return BlogPost|EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getNextPost(BlogPost $post)
     {
@@ -834,6 +844,9 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @param BlogPost $post
      * @param array $options
      * @return array|Query
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function getRelatedPosts(BlogPost $post, $options = [])
     {
