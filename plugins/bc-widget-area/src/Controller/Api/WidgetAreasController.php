@@ -187,6 +187,7 @@ class WidgetAreasController extends BcApiController
      * @return void
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update_title(WidgetAreasServiceInterface $service, int $widgetAreaId)
     {
