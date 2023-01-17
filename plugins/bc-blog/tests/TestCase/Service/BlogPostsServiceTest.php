@@ -817,19 +817,22 @@ class BlogPostsServiceTest extends BcTestCase
         //データ生成
         BlogPostFactory::make([
             'id' => 1,
-            'blog_content_id' => 3,
             'title' => 'post title 1'
         ])->persist();
         BlogPostFactory::make([
             'id' => 2,
-            'blog_content_id' => 3,
             'title' => 'post title 2'
         ])->persist();
 
         $result = $this->BlogPostsService->getTitlesById([1, 2]);
         //戻り値を確認
-        $this->assertEquals("post title 1", $result[1]);
-        $this->assertEquals("post title 2", $result[2]);
+        $this->assertEquals(
+            [
+                1 => 'post title 1',
+                2 => 'post title 2'
+            ],
+            $result
+        );
 
         //存在しないIDを確認する場合、
         $result = $this->BlogPostsService->getTitlesById([3]);
