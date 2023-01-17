@@ -777,9 +777,7 @@ class BlogPostsServiceTest extends BcTestCase
 
         // サービスメソッドを呼ぶ
         $entity = $this->BlogPostsService->publish(1);
-
-        // 公開状態になっており、公開期間指定は初期化されていること
-        $this->assertInstanceOf(\Cake\Datasource\EntityInterface::class, $entity);
+        //戻る値を確認
         $this->assertTrue($entity->status);
         $this->assertNull($entity->publish_begin);
         $this->assertNull($entity->publish_end);
