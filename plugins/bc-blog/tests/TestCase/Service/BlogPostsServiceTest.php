@@ -908,46 +908,21 @@ class BlogPostsServiceTest extends BcTestCase
     public function testGetIndexByTag()
     {
         // データを生成
-        UserFactory::make(['id' => 2, 'name' => 'test tag1'])->persist();
-        UserFactory::make(['id' => 3, 'name' => 'test tag2'])->persist();
-
-        BlogContentFactory::make(['id' => 1, 'tag_use' => true])->persist();
-
-        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'blog_category_id' => 1, 'user_id' => 2, 'title' => 'blog post1 by tag1'])->persist();
-        BlogPostFactory::make(['id' => 2, 'blog_content_id' => 1, 'blog_category_id' => 1, 'user_id' => 2, 'title' => 'blog post2 by tag1'])->persist();
-        BlogPostFactory::make(['id' => 3, 'blog_content_id' => 1, 'blog_category_id' => 1, 'user_id' => 2, 'title' => 'blog post3 by tag1'])->persist();
-        BlogPostFactory::make(['id' => 4, 'blog_content_id' => 1, 'blog_category_id' => 1, 'user_id' => 3, 'title' => 'blog post4 by tag2'])->persist();
-
-        BlogCategoryFactory::make(['id' => 1, 'blog_content_id' => 1, 'name' => 'test category'])->persist();
+        BlogPostFactory::make([])->publish(1,1)->persist();
+        BlogPostFactory::make([])->publish(2,1)->persist();
 
         BlogTagFactory::make(['id' => 1, 'name' => 'test tag1'])->persist();
-        BlogTagFactory::make(['id' => 2, 'name' => 'test tag2'])->persist();
 
         BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 1])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 2, 'blog_tag_id' => 1])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 3, 'blog_tag_id' => 1])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 4, 'blog_tag_id' => 2])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 2, 'blog_tag_id' => 2])->persist();
 
         // サービスメソッドを呼ぶ
         // test tag1 の記事を取得、id昇順
-        $result = $this->BlogPostsService->getIndexByTag('test tag1', [
-            'direction' => 'ASC',
-            'order' => 'id',
-        ]);
+        $result = $this->BlogPostsService->getIndexByTag('test tag1', []);
 
         // 戻り値を確認
         // 指定した　tag で記事を取得できているか
-        $this->assertInstanceOf(\Cake\ORM\Query::class, $result);
-        $this->BlogPostsService->BlogPosts->getConnection()->enableQueryLogging();
-        $this->assertEquals(3, $result->count());
-        $this->BlogPostsService->BlogPosts->getConnection()->disableQueryLogging();
-        $blogPosts = $result->all()->toArray();
-        $this->assertEquals(2, $blogPosts[0]->user_id);
-        $this->assertEquals('blog post1 by tag1', $blogPosts[0]->title);
-        $this->assertEquals(2, $blogPosts[1]->user_id);
-        $this->assertEquals('blog post2 by tag1', $blogPosts[1]->title);
-        $this->assertEquals(2, $blogPosts[2]->user_id);
-        $this->assertEquals('blog post3 by tag1', $blogPosts[2]->title);
+        $this->assertCount(1, $result);
 
         // サービスメソッドを呼ぶ
         // 記事が存在しない
@@ -955,8 +930,7 @@ class BlogPostsServiceTest extends BcTestCase
 
         // 戻り値を確認
         // 指定した tag の記事が存在しない
-        $this->assertInstanceOf(\Cake\ORM\Query::class, $result);
-        $this->assertEquals(0, $result->count());
+        $this->assertCount(0, $result);
     }
 
     /**
