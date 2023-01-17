@@ -260,7 +260,7 @@ return [
          */
         'editors' => [
             'none' => __d('baser', 'なし'),
-            'BcCkeditor' => 'CKEditor'
+            'BaserCore.BcCkeditor' => 'CKEditor'
         ],
         /**
          * アップデートキー
@@ -406,6 +406,7 @@ return [
         ],
         'defaultAllows' => [
             '/baser/admin',
+            '/baser/admin/baser-core/users/login',
             '/baser/admin/baser-core/dashboard/*',
             '/baser/admin/baser-core/dblogs/*',
             '/baser/admin/baser-core/users/logout',

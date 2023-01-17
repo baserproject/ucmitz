@@ -27,6 +27,9 @@ use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Database\Driver\Mysql;
+use Cake\Database\Driver\Postgres;
+use Cake\Database\Driver\Sqlite;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
@@ -511,6 +514,27 @@ class UserActionsSchema extends BcSchema
     }
 
     /**
+     * Test getDatasourceName
+     * @param $value
+     * @param $expected
+     * @dataProvider getDatasourceNameDataProvider
+     */
+    public function test_getDatasourceName($value, $expected)
+    {
+        $this->assertEquals($this->BcDatabaseService->getDatasourceName($value), $expected);
+    }
+
+    public function getDatasourceNameDataProvider()
+    {
+        return [
+            ['postgres', Postgres::class],
+            ['mysql', Mysql::class],
+            ['sqlite', Sqlite::class],
+            ['customDataSource', 'customDataSource'],
+        ];
+    }
+
+    /**
      * Test writeSchema
      */
     public function test_writeSchema()
@@ -522,5 +546,61 @@ class UserActionsSchema extends BcSchema
         $this->assertFileExists($expectedFile);
         $file = new File($expectedFile);
         $file->delete();
+    }
+
+    /**
+     * Test connectDb
+     */
+    public function test_connectDb()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test getDataSource
+     */
+    public function test_getDataSource()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test deleteTables
+     */
+    public function test_deleteTables()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test checkDbConnection
+     */
+    public function test_checkDbConnection()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test testConnectDb
+     */
+    public function test_testConnectDb()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test constructionTable
+     */
+    public function test_constructionTable()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * Test migrate
+     */
+    public function test_migrate()
+    {
+        $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 }
