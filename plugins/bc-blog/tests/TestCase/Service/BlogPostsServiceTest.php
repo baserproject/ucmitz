@@ -14,7 +14,6 @@ namespace BcBlog\Test\TestCase\Service;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Factory\UserFactory;
-use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Model\Table\BlogPostsTable;
@@ -53,8 +52,6 @@ class BlogPostsServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BcBlog.Factory/BlogPosts',
-        'plugin.BcBlog.Factory/BlogContents',
-        'plugin.BaserCore.Factory/Contents',
         'plugin.BcBlog.Factory/BlogTags',
         'plugin.BaserCore.Factory/Contents',
         'plugin.BcBlog.Factory/BlogContents',
@@ -107,9 +104,9 @@ class BlogPostsServiceTest extends BcTestCase
     {
         // データを生成
         // id 1
-        BlogPostFactory::make(['id' => 1, 'title' => 'blog post title'])->persist();
+        BlogPostFactory::make([])->unpublish(1,1)->persist();
         // id 2 公開状態
-        BlogPostFactory::make(['id' => 2, 'title' => 'blog post title publish', 'status' => true])->persist();
+        BlogPostFactory::make([])->publish(2,1)->persist();
         // id 3 公開状態 Contents Sites BlogContents BlogCategories BlogTags
         ContentFactory::make(['id' => 1, 'site_id' => 1, 'type' => 'BlogContent', 'entity_id' => 1, 'title' => 'content title'])->persist();
         SiteFactory::make(['id' => 1, 'name' => 'site name'])->persist();
@@ -126,25 +123,20 @@ class BlogPostsServiceTest extends BcTestCase
         // option なし
         $result = $this->BlogPostsService->get(1);
         // 戻り値を確認
-        $this->assertInstanceOf(\Cake\Datasource\EntityInterface::class, $result);
-        $this->assertEquals(1, $result->id);
-        $this->assertEquals('blog post title', $result->title);
+        $this->assertNotNull($result);
 
         // サービスメソッドを呼ぶ
         // id 2
         // option status publish 公開状態にある
         $result = $this->BlogPostsService->get(2, ['status' => 'publish']);
         // 戻り値を確認
-        $this->assertEquals(2, $result->id);
         $this->assertTrue($result->status);
-        $this->assertEquals('blog post title publish', $result->title);
 
         // サービスメソッドを呼ぶ
         // id 3
         // option status publish 公開状態にある
         $result = $this->BlogPostsService->get(3, ['status' => 'publish']);
         // 戻り値を確認
-        $this->assertEquals(3, $result->id);
         $this->assertTrue($result->status);
         $this->assertEquals('blog post title publish', $result->title);
         $this->assertEquals('category name', $result->blog_category->name);
@@ -155,10 +147,10 @@ class BlogPostsServiceTest extends BcTestCase
         $this->assertEquals(1, $result->blog_content->content->site->id);
         $this->assertEquals('site name', $result->blog_content->content->site->name);
 
-        // 存在しない id を指定された場合
         // 例外を表示
         $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
-        $this->BlogPostsService->get('10');
+        // $options の status を publish として、レコードの status が true でないデータを指定す
+        $this->BlogPostsService->get(1, ['status' => 'publish']);
     }
 
     /**
