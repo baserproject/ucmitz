@@ -29,11 +29,13 @@ use BaserCore\Utility\BcUtil;
 use Cake\Console\CommandCollection;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
+use Cake\Core\Exception\MissingPluginException;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Event\EventManager;
 use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Http\ServerRequestFactory;
+use Cake\Log\Log;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
@@ -89,6 +91,17 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         $_ENV['IS_CONSOLE'] = (substr(php_sapi_name(), 0, 3) === 'cli');
 
         /**
+         * dotenv 設定
+         */
+        if (!env('APP_NAME') && file_exists(CONFIG . '.env')) {
+            $dotenv = new \josegonzalez\Dotenv\Loader([CONFIG . '.env']);
+            $dotenv->parse()
+                ->putenv()
+                ->toEnv()
+                ->toServer();
+        }
+
+        /**
          * インストール状態による初期化設定
          * インストールされている場合は、TMP フォルダの設定を行い、
          * されていない場合は、インストールプラグインをロードする。
@@ -110,6 +123,15 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
          * baserCMSの各種設定は、ここで上書きできる事を想定
          */
         if (file_exists(CONFIG . 'setting.php')) Configure::load('setting', 'baser');
+
+        /**
+         * ログ設定
+         * ユニットテストの際、複数回設定するとエラーになるため
+         * 設定済かチェックを実施
+         */
+        if(!Log::getConfig('update')) {
+            Log::setConfig(Configure::consume('Log'));
+        }
 
         /**
          * プラグインロード
@@ -159,10 +181,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         } else {
             $template = Configure::read('BcApp.defaultFrontTheme');
         }
-        Configure::write('App.paths.templates', array_merge(
-            [ROOT . DS . 'plugins' . DS . $template . DS . 'templates' . DS],
-            Configure::read('App.paths.templates')
-        ));
+        Configure::write('App.paths.templates', array_merge([
+            ROOT . DS . 'plugins' . DS . $template . DS . 'templates' . DS,
+            ROOT . DS . 'vendor' . DS . 'baserproject' . DS . $template . DS . 'templates' . DS
+        ], Configure::read('App.paths.templates')));
     }
 
     /**
@@ -177,7 +199,13 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      */
     function loadPlugin(PluginApplicationInterface $application, $plugin, $priority)
     {
-        $application->addPlugin($plugin);
+        try {
+            $application->addPlugin($plugin);
+        } catch (MissingPluginException $e) {
+            $this->log($e->getMessage());
+            return false;
+        }
+
         $pluginPath = BcUtil::getPluginPath($plugin);
         // プラグインイベント登録
         $eventTargets = ['Controller', 'Model', 'View', 'Helper'];
@@ -280,6 +308,12 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                 } else {
                     return $service;
                 }
+
+                // ログインセッションを持っている場合もログイン状態とみなす
+                $service->loadAuthenticator('Authentication.Session', [
+                    'sessionKey' => $authSetting['sessionKey'],
+                ]);
+
                 $service->loadAuthenticator('Authentication.Jwt', [
                     'secretKey' => $secretKey,
                     'algorithm' => 'RS256',
@@ -314,14 +348,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
                         'finder' => 'available'
                     ],
                 ]);
-                // ログインの際のみ、管理画面へのログイン状態を維持するためセッションの設定を追加
-                // TODO ログインURLの判定方法を検討必要
-                // Api用の認証設定をAdminと分けて loginAction と リクエストのURLで判定させる
-                if($request->getParam('controller') === 'Users' && $request->getParam('action') === 'login') {
-                    $service->loadAuthenticator('Authentication.Session', [
-                        'sessionKey' => $authSetting['sessionKey'],
-                    ]);
-                }
                 break;
 
             default:
