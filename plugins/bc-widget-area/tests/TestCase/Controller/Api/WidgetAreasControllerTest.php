@@ -79,6 +79,22 @@ class WidgetAreasControllerTest extends BcTestCase
         $this->assertNotEmpty($result->widgetAreas);
     }
 
+    public function testList()
+    {
+        // テストデータを作る
+        WidgetAreaFactory::make(['id' => 1, 'name' => 'test name 1', 'widgets' => 'test widgets 1'])->persist();
+        WidgetAreaFactory::make(['id' => 2, 'name' => 'test name 2', 'widgets' => 'test widgets 2'])->persist();
+
+        // ウィジェットエリア一覧のAPIを呼ぶ
+        $this->get("/baser/api/bc-widget-area/widget_areas/list.json?token=" . $this->accessToken);
+        // レスポンスコードを確認する
+        $this->assertResponseOk();
+        // レスポンスのウィジェットエリアリストデータを確認する
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('test name 1', $result->widgetAreas->{1});
+        $this->assertEquals('test name 2', $result->widgetAreas->{2});
+    }
+
     /**
      * [API] 新規追加
      */
@@ -226,7 +242,32 @@ class WidgetAreasControllerTest extends BcTestCase
      */
     public function testUpdate_title()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // テストデータを生成
+        WidgetAreaFactory::make([
+            'id' => 1,
+            'name' => 'test',
+            'widgets' => serialize([
+                [
+                    1 => 'test 1',
+                    2 => 'test 2'
+                ]
+            ])
+        ])->persist();
+        //編集データーを準備
+        $data = [
+            'name' => 'updated'
+        ];
+
+        // APIを呼ぶ
+        $this->post("/baser/api/bc-widget-area/widget_areas/update_title/1.json?token=" . $this->accessToken, $data);
+        // レスポンスコードを確認する
+        $this->assertResponseOk();
+        // 戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        //メッセージを確認
+        $this->assertEquals('ウィジェットエリア「updated」を更新しました。', $result->message);
+        //ウィジェットエリア名を更新できるか確認すること
+        $this->assertEquals('updated', $result->widgetArea->name);
     }
 
     /**

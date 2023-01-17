@@ -35,6 +35,7 @@ use Cake\Event\EventManager;
 use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Http\ServerRequestFactory;
+use Cake\Log\Log;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
@@ -90,6 +91,17 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         $_ENV['IS_CONSOLE'] = (substr(php_sapi_name(), 0, 3) === 'cli');
 
         /**
+         * dotenv 設定
+         */
+        if (!env('APP_NAME') && file_exists(CONFIG . '.env')) {
+            $dotenv = new \josegonzalez\Dotenv\Loader([CONFIG . '.env']);
+            $dotenv->parse()
+                ->putenv()
+                ->toEnv()
+                ->toServer();
+        }
+
+        /**
          * インストール状態による初期化設定
          * インストールされている場合は、TMP フォルダの設定を行い、
          * されていない場合は、インストールプラグインをロードする。
@@ -111,6 +123,15 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
          * baserCMSの各種設定は、ここで上書きできる事を想定
          */
         if (file_exists(CONFIG . 'setting.php')) Configure::load('setting', 'baser');
+
+        /**
+         * ログ設定
+         * ユニットテストの際、複数回設定するとエラーになるため
+         * 設定済かチェックを実施
+         */
+        if(!Log::getConfig('update')) {
+            Log::setConfig(Configure::consume('Log'));
+        }
 
         /**
          * プラグインロード
@@ -160,10 +181,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         } else {
             $template = Configure::read('BcApp.defaultFrontTheme');
         }
-        Configure::write('App.paths.templates', array_merge(
-            [ROOT . DS . 'plugins' . DS . $template . DS . 'templates' . DS],
-            Configure::read('App.paths.templates')
-        ));
+        Configure::write('App.paths.templates', array_merge([
+            ROOT . DS . 'plugins' . DS . $template . DS . 'templates' . DS,
+            ROOT . DS . 'vendor' . DS . 'baserproject' . DS . $template . DS . 'templates' . DS
+        ], Configure::read('App.paths.templates')));
     }
 
     /**
