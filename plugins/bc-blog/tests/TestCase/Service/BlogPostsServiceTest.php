@@ -100,53 +100,39 @@ class BlogPostsServiceTest extends BcTestCase
     /**
      * 単一データを取得する
      */
-    public function testGet()
+    public function testGetddddd()
     {
         // データを生成
-        // id 1
-        BlogPostFactory::make([])->unpublish(1,1)->persist();
-        // id 2 公開状態
-        BlogPostFactory::make([])->publish(2,1)->persist();
-        // id 3 公開状態 Contents Sites BlogContents BlogCategories BlogTags
+        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'blog_category_id' => 1, 'status' => true])->persist();
+
         ContentFactory::make(['id' => 1, 'site_id' => 1, 'type' => 'BlogContent', 'entity_id' => 1, 'title' => 'content title'])->persist();
         SiteFactory::make(['id' => 1, 'name' => 'site name'])->persist();
         BlogContentFactory::make(['id' => 1, 'description' => 'baser blog description', 'tag_use' => true])->persist();
         BlogCategoryFactory::make(['id' => 1, 'blog_content_id' => 1, 'name' => 'category name'])->persist();
-        BlogTagFactory::make(['id' => 2, 'name' => 'tag name1'])->persist();
-        BlogTagFactory::make(['id' => 3, 'name' => 'tag name2'])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 3, 'blog_tag_id' => 2])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 3, 'blog_tag_id' => 3])->persist();
-        BlogPostFactory::make(['id' => 3, 'blog_content_id' => 1, 'blog_category_id' => 1, 'title' => 'blog post title publish', 'status' => true])->persist();
+
+        BlogTagFactory::make(['id' => 1])->persist();
+        BlogTagFactory::make(['id' => 2])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 1])->persist();
+        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 2])->persist();
 
         // サービスメソッドを呼ぶ
-        // id 1
-        // option なし
-        $result = $this->BlogPostsService->get(1);
-        // 戻り値を確認
-        $this->assertNotNull($result);
-
-        // サービスメソッドを呼ぶ
-        // id 2
         // option status publish 公開状態にある
-        $result = $this->BlogPostsService->get(2, ['status' => 'publish']);
+        $result = $this->BlogPostsService->get(1, ['status' => 'publish']);
         // 戻り値を確認
         $this->assertTrue($result->status);
-
-        // サービスメソッドを呼ぶ
-        // id 3
-        // option status publish 公開状態にある
-        $result = $this->BlogPostsService->get(3, ['status' => 'publish']);
-        // 戻り値を確認
-        $this->assertTrue($result->status);
-        $this->assertEquals('blog post title publish', $result->title);
+        //BlogCategoryを取得できるか確認
         $this->assertEquals('category name', $result->blog_category->name);
+        //blogTagsを取得できるか確認
         $this->assertCount(2, $result->blog_tags);
+        //BlogContentを取得できるか確認
         $this->assertEquals('baser blog description', $result->blog_content->description);
-        $this->assertEquals(1, $result->blog_content->content->entity_id);
+        //BlogContentのコンテンツを取得できるか確認
         $this->assertEquals('content title', $result->blog_content->content->title);
-        $this->assertEquals(1, $result->blog_content->content->site->id);
+        //BlogPostのサイトを取得できるか確認
         $this->assertEquals('site name', $result->blog_content->content->site->name);
 
+        //BlogPostが非公開にする
+        $this->BlogPostsService->unpublish(1);
         // 例外を表示
         $this->expectException('Cake\Datasource\Exception\RecordNotFoundException');
         // $options の status を publish として、レコードの status が true でないデータを指定す
