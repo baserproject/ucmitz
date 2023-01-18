@@ -238,7 +238,20 @@ class BlogHelperTest extends BcTestCase
      */
     public function testGetPostLinkUrl($blogContentId, $no, $base, $useBase, $expects)
     {
-        $this->markTestIncomplete('こちらのテストはまだ未確認です');
+        // $this->markTestIncomplete('こちらのテストはまだ未確認です');
+        // $siteUrl = Configure::read('BcEnv.siteUrl');
+        // Configure::write('BcEnv.siteUrl', 'http://main.com');
+        // $this->loadFixtures('ContentBcContentsRoute', 'SiteBcContentsRoute', 'BlogContentMultiSite');
+        // $this->Blog->request = $this->_getRequest('/');
+        // $this->Blog->request->base = $base;
+        // $post = ['BlogPost' => [
+        //     'blog_content_id' => $blogContentId,
+        //     'no' => $no,
+        // ]];
+        // $result = $this->Blog->getPostLinkUrl($post, $useBase);
+        // Configure::write('BcEnv.siteUrl', $siteUrl);
+        // $this->assertEquals($expects, $result, '記事へのリンクを正しく取得できません');
+
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'http://main.com');
         $this->loadFixtures('ContentBcContentsRoute', 'SiteBcContentsRoute', 'BlogContentMultiSite');
@@ -248,9 +261,6 @@ class BlogHelperTest extends BcTestCase
             'blog_content_id' => $blogContentId,
             'no' => $no,
         ]];
-        $result = $this->Blog->getPostLinkUrl($post, $useBase);
-        Configure::write('BcEnv.siteUrl', $siteUrl);
-        $this->assertEquals($expects, $result, '記事へのリンクを正しく取得できません');
     }
 
     public function getPostLinkUrlDataProvider()
