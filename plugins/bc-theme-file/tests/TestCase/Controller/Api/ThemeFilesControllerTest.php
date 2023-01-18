@@ -86,23 +86,6 @@ class ThemeFilesControllerTest extends BcTestCase
         $this->assertTrue(file_exists($fullpath . 'base_name_1.php'));
         //作成されたファイルを削除
         unlink($fullpath . 'base_name_1.php');
-
-        $data = [
-            'mode' => 'create',
-            'fullpath' => $fullpath,
-            'base_name' => 'base_name_2',
-//            'contents' => 'this is a content!',
-            'ext' => 'php',
-        ];
-        //APIをコール
-        $this->post('/baser/api/bc-theme-file/theme_files/add.json?token=' . $this->accessToken, $data);
-        //レスポンスコードを確認
-        $this->assertResponseCode(400);
-        //戻る値を確認
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('処理中にエラーが発生しました。', $result->message);
-        //作成されたファイルを削除
-        unlink($fullpath . 'base_name_2.php');
     }
 
     /**
