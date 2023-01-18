@@ -103,7 +103,7 @@ class BlogPostsServiceTest extends BcTestCase
     public function testGet()
     {
         // データを生成
-        BlogPostFactory::make(['id' =>  1, 'blog_content_id' => 1, 'blog_category_id' => 1, 'title' => 'blog post title publish', 'status' => true])->persist();
+        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'blog_category_id' => 1, 'title' => 'blog post title publish', 'status' => true])->persist();
 
         ContentFactory::make(['id' => 1, 'site_id' => 1, 'type' => 'BlogContent', 'entity_id' => 1, 'title' => 'content title'])->persist();
         SiteFactory::make(['id' => 1, 'name' => 'site name'])->persist();
