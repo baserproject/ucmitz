@@ -103,17 +103,17 @@ class BlogPostsServiceTest extends BcTestCase
     public function testGet()
     {
         // データを生成
-        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'blog_category_id' => 1, 'status' => true])->persist();
+        BlogPostFactory::make(['id' =>  1, 'blog_content_id' => 1, 'blog_category_id' => 1, 'title' => 'blog post title publish', 'status' => true])->persist();
 
         ContentFactory::make(['id' => 1, 'site_id' => 1, 'type' => 'BlogContent', 'entity_id' => 1, 'title' => 'content title'])->persist();
         SiteFactory::make(['id' => 1, 'name' => 'site name'])->persist();
         BlogContentFactory::make(['id' => 1, 'description' => 'baser blog description', 'tag_use' => true])->persist();
         BlogCategoryFactory::make(['id' => 1, 'blog_content_id' => 1, 'name' => 'category name'])->persist();
 
-        BlogTagFactory::make(['id' => 1])->persist();
-        BlogTagFactory::make(['id' => 2])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 1])->persist();
-        BlogPostBlogTagFactory::make(['blog_post_id' => 1, 'blog_tag_id' => 2])->persist();
+        BlogTagFactory::make(['id' => 1, 'name' => 'tag name1'])->persist();
+        BlogTagFactory::make(['id' => 2, 'name' => 'tag name2'])->persist();
+        BlogPostBlogTagFactory::make(['id' => 1, 'blog_post_id' => 1, 'blog_tag_id' => 1])->persist();
+        BlogPostBlogTagFactory::make(['id' => 2, 'blog_post_id' => 1, 'blog_tag_id' => 2])->persist();
 
         // サービスメソッドを呼ぶ
         // option status publish 公開状態にある
