@@ -15,6 +15,7 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
+use BaserCore\Error\BcFormFailedException;
 use BcThemeFile\Service\ThemeFilesServiceInterface;
 
 /**
@@ -57,10 +58,36 @@ class ThemeFilesController extends BcApiController
      * [API] テーマファイル ファイルコピー
      *
      * @param ThemeFilesServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function copy(ThemeFilesServiceInterface $service)
     {
-        //todo テーマファイルAPI ファイルコピー #1773
+        $this->request->allowMethod(['post', 'put']);
+        try {
+            $args = $this->getRequest()->getData();
+            if ($service->copy($args['fullpath'])) {
+                $message = __d('baser', 'ファイル「{0}」をコピーしました。', $args['path']);
+            } else {
+                $message = __d('baser', 'ファイル「{0}」のコピーに失敗しました。上位フォルダのアクセス権限を見直してください。', $args['path']);
+            }
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'message' => $message,
+            'entity' => $entity ?? null,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'entity', 'errors']);
     }
 
     /**
