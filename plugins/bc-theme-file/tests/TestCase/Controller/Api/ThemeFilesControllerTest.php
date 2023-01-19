@@ -13,6 +13,7 @@ namespace BcThemeFile\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Filesystem\File;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class ThemeFilesControllerTest extends BcTestCase
@@ -81,7 +82,39 @@ class ThemeFilesControllerTest extends BcTestCase
      */
     public function test_delete()
     {
-        $this->markTestIncomplete('このテストは未実装です。');
+        //テストファイルを作成
+        $fullpath = BASER_PLUGINS . 'BcThemeSample' . '/templates/layout/';
+        new File($fullpath . 'base_name_1.php', true);
+        //POSTデータを生成
+        $data = [
+            'fullpath' => $fullpath . 'base_name_1.php',
+            'path' => 'base_name_1.php',
+        ];
+        //APIをコール
+        $this->post('/baser/api/bc-theme-file/theme_files/delete.json?token=' . $this->accessToken, $data);
+        //レスポンスコードを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('ファイル「base_name_1.php」を削除しました。', $result->message);
+        //実際にファイルが削除されいてるか確認すること
+        $this->assertFalse(file_exists($fullpath . 'base_name_1.php'));
+
+        //もう一度APIをコールする場合、エラーを出る
+        $this->post('/baser/api/bc-theme-file/theme_files/delete.json?token=' . $this->accessToken, $data);
+        //レスポンスコードを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('ファイル「base_name_1.php」の削除に失敗しました。', $result->message);
+
+        //POSTデータが空の場合、エラーを出る
+        $this->post('/baser/api/bc-theme-file/theme_files/delete.json?token=' . $this->accessToken, []);
+        //レスポンスコードを確認
+        $this->assertResponseCode(400);
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('処理中にエラーが発生しました。', $result->message);
     }
 
     /**
