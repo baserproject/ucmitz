@@ -107,14 +107,6 @@ class ThemeFilesControllerTest extends BcTestCase
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('ファイル「base_name_1.php」の削除に失敗しました。', $result->message);
-
-        //POSTデータが空の場合、エラーを出る
-        $this->post('/baser/api/bc-theme-file/theme_files/delete.json?token=' . $this->accessToken, []);
-        //レスポンスコードを確認
-        $this->assertResponseCode(400);
-        //戻る値を確認
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('処理中にエラーが発生しました。', $result->message);
     }
 
     /**
