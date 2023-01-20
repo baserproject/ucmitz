@@ -15,10 +15,14 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
+use BaserCore\Error\BcFormFailedException;
+use BaserCore\View\Helper\BcBaserHelper;
+use BcThemeFile\Service\Admin\ThemeFilesAdminServiceInterface;
 use BcThemeFile\Service\ThemeFilesServiceInterface;
 
 /**
  * テーマファイルコントローラー
+ * @property BcBaserHelper $BcBaser
  */
 class ThemeFilesController extends BcApiController
 {
@@ -87,10 +91,32 @@ class ThemeFilesController extends BcApiController
      * [API] テーマファイル 画像を表示
      *
      * @param ThemeFilesServiceInterface $service
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function img(ThemeFilesServiceInterface $service)
     {
-        //todo テーマファイルAPI 画像を表示 #1776
+        $this->request->allowMethod(['get']);
+
+        try {
+            $args = $this->getRequest()->getQueryParams();
+            $img = $service->getImg($args);
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'img' => $img ?? null,
+            'message' => $message ?? null,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['img', 'message', 'errors']);
     }
 
     /**

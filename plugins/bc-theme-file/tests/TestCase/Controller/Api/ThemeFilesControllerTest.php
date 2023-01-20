@@ -13,6 +13,7 @@ namespace BcThemeFile\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use Cake\Filesystem\File;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 class ThemeFilesControllerTest extends BcTestCase
@@ -113,7 +114,26 @@ class ThemeFilesControllerTest extends BcTestCase
      */
     public function test_img()
     {
-        $this->markTestIncomplete('このテストは未実装です。');
+        //テストファイルを作成
+        $fullpath = BASER_PLUGINS . 'BcThemeSample' . '/templates/layout/';
+        new File($fullpath . 'base_name_1.png', true);
+        //POSTデータを生成
+        $data = [
+            'fullpath' => $fullpath . 'base_name_1.png',
+            'type' => 'img',
+            'path' => $fullpath,
+            'token' => $this->accessToken
+        ];
+        $query = http_build_query($data);
+        //APIをコール
+        $this->get('/baser/api/bc-theme-file/theme_files/img.json?' . $query);
+        //レスポンスコードを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->img);
+        //生成されたテストファイルを削除
+        unlink($fullpath . 'base_name_1.png');
     }
 
     /**
