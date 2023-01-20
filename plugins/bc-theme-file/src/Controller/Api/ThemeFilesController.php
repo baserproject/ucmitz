@@ -15,6 +15,8 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
+use BaserCore\Error\BcFormFailedException;
+use BcThemeFile\Service\Admin\ThemeFilesAdminServiceInterface;
 use BcThemeFile\Service\ThemeFilesServiceInterface;
 
 /**
@@ -76,11 +78,31 @@ class ThemeFilesController extends BcApiController
     /**
      * [API] テーマファイル ファイルを表示
      *
-     * @param ThemeFilesServiceInterface $service
+     * @param ThemeFilesAdminServiceInterface $service
      */
-    public function view(ThemeFilesServiceInterface $service)
+    public function view(ThemeFilesAdminServiceInterface $service)
     {
-        //todo テーマファイルAPI ファイルを表示 #1775
+        $this->request->allowMethod(['get']);
+        try {
+            $args = $this->getRequest()->getQueryParams();
+            $entity = $service->get($args['fullpath']);
+            $form = $service->getForm($entity->toArray());
+            $themeFile = $service->getViewVarsForView($entity, $form, $args);
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'themeFile' => $themeFile ?? null,
+            'message' => $message ?? null,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['themeFile', 'message', 'errors']);
     }
 
     /**
