@@ -79,6 +79,10 @@ class ThemeFilesController extends BcApiController
      * [API] テーマファイル ファイルを表示
      *
      * @param ThemeFilesAdminServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function view(ThemeFilesAdminServiceInterface $service)
     {
