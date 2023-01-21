@@ -568,7 +568,7 @@ class BcValidationTest extends BcTestCase
         $t = [
             'アい' => false,
             'ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろゎわゐゑをんゔゕゖ' => true,
-            ' 　' => true,
+            ' 　ー' => true,
             'ヾカタカナ' => false,
             'English' => false,
             '漢字' => false,

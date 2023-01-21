@@ -506,7 +506,7 @@ class BcValidation extends Validation
      * 全角カタカナチェック
      *
      * @param mixed $value 対象となる値
-     * @param string $additionalAllow 追加で許可する文字（初期値: 半角スペース・全角スペース）
+     * @param string $addAllow 追加で許可する文字（初期値: 半角スペース・全角スペース）
      * @return bool
      * @checked
      * @noTodo
@@ -534,7 +534,7 @@ class BcValidation extends Validation
      * 全角ひらがなチェック
      *
      * @param mixed $value 対象となる値
-     * @param string $addAllow 追加で許可する文字（初期値: 半角スペース・全角スペース）
+     * @param string $addAllow 追加で許可する文字（初期値: 半角スペース・全角スペース・長音）
      * @return bool
      * @checked
      * @noTodo
@@ -544,10 +544,10 @@ class BcValidation extends Validation
      * 'rule' => ['checkHiragana', '']
      *
      */
-    public static function checkHiragana($value, $addAllow = '\s　') : bool
+    public static function checkHiragana($value, $addAllow = '\s　ー') : bool
     {
         if (!is_string($addAllow)) {
-            $addAllow = '\s　';
+            $addAllow = '\s　ー';
         }
 
         if ($value === '') {
