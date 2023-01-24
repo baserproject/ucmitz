@@ -370,7 +370,7 @@ class BlogHelper extends Helper
         }
         $sitesService = $this->getService(SitesServiceInterface::class);
         $site = $sitesService->findByUrl($this->currentContent->url);
-        $contentUrl = $this->BcBaser->getContentsUrl($this->currentContent->url, !$this->isSameSiteBlogContent($post->blog_content_id), !empty($site->useSubDomain), false);
+        $contentUrl = $this->BcBaser->getContentsUrl($this->currentContent->url, !$this->isSameSiteBlogContent($post->blog_content_id), !empty($site->use_subdomain), false);
         $url = $contentUrl . 'archives/' . $post->no;
         if ($base) {
             return $this->Url->build($url);
