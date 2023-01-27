@@ -569,7 +569,17 @@ class UserActionsSchema extends BcSchema
      */
     public function test_deleteTables()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        // 対象メソッドを呼ぶ
+        $result = $this->BcDatabaseService->deleteTables();
+        $this->assertTrue($result, 'テーブル削除が成功していること');
+
+        $db = $this->BcDatabaseService->getDataSource();
+        $tables = $db->getSchemaCollection()->listTables();
+        $this->assertCount(0, $tables, '全てのテーブルが削除されていること');
+
+        // tearDown でテーブルを truncate しており、テーブルが存在しないというエラーが出てしまうので、
+        // ここでは fixtureStrategy を使わない設定にしておく
+        $this->fixtureStrategy = null;
     }
 
     /**
