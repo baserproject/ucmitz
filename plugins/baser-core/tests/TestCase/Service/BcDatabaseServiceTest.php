@@ -35,6 +35,7 @@ use Cake\ORM\TableRegistry;
 use Cake\TestSuite\IntegrationTestTrait;
 use Cake\Filesystem\File;
 use Cake\Utility\Inflector;
+use Migrations\Migrations;
 
 /**
  * BcDatabaseServiceTest
@@ -578,8 +579,25 @@ class UserActionsSchema extends BcSchema
         $this->assertCount(0, $tables, '全てのテーブルが削除されていること');
 
         // tearDown でテーブルを truncate しており、テーブルが存在しないというエラーが出てしまうので、
-        // ここでは fixtureStrategy を使わない設定にしておく
-        $this->fixtureStrategy = null;
+        // テーブルを再作成しておく
+        $migrations = new Migrations();
+        $plugins = [
+            'BaserCore',
+            'BcBlog',
+            'BcSearchIndex',
+            'BcContentLink',
+            'BcMail',
+            'BcWidgetArea',
+            'BcThemeConfig',
+            'BcThemeFile',
+        ];
+        foreach ($plugins as $plugin) {
+            $migrate = $migrations->migrate([
+                'connection' => 'test',
+                'plugin' => $plugin,
+            ]);
+            $this->assertTrue($migrate);
+        }
     }
 
     /**
