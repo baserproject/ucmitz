@@ -100,7 +100,7 @@ class BlogPostsServiceTest extends BcTestCase
     /**
      * 単一データを取得する
      */
-    public function testGetddddd()
+    public function testGet()
     {
         // データを生成
         BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'blog_category_id' => 1, 'status' => true])->persist();
