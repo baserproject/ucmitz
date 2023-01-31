@@ -565,6 +565,14 @@ class UserActionsSchema extends BcSchema
         $config = $this->getPrivateProperty($conn, "_config");
         $this->assertEquals('test_basercms', $config['database'], 'データソースが取得できること');
 
+        $conn = $this->BcDatabaseService->getDataSource('test');
+        $config = $this->getPrivateProperty($conn, "_config");
+        $this->assertEquals('test_basercms', $config['database'], 'データソースが取得できること');
+
+        $conn = $this->BcDatabaseService->getDataSource('test_debug_kit');
+        $config = $this->getPrivateProperty($conn, "_config");
+        $this->assertEquals('/var/www/html/tmp/debug_kit.sqlite', $config['database'], 'データソースが取得できること');
+
         // 指定されたデータソースが存在しない場合はエラー
         $this->expectException('\Cake\Datasource\Exception\MissingDatasourceConfigException');
         $conn = $this->BcDatabaseService->getDataSource('test_config');
