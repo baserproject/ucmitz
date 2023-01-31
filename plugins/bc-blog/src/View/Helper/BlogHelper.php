@@ -361,6 +361,7 @@ class BlogHelper extends Helper
      * @return string ブログ記事のURL
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getPostLinkUrl($post, $base = true)
     {
