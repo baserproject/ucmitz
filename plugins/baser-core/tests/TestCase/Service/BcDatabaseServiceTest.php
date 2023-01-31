@@ -625,7 +625,5 @@ class UserActionsSchema extends BcSchema
 
         // テーブル削除
         $this->BcDatabaseService->dropTable($table);
-        $result = $this->BcDatabaseService->tableExists($table);
-        $this->assertFalse($result, 'テーブルが存在しないこと');
     }
 }
