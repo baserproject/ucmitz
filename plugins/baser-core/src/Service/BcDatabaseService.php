@@ -1090,6 +1090,8 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      *
      * @param array $config
      * @return Connection
+     * @checked
+     * @noTodo
      * @unitTest
      */
     public function connectDb(array $config, $name = 'default')
