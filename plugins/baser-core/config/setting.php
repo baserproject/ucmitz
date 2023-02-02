@@ -151,6 +151,11 @@ return [
             'session.use_trans_sid' => 0,
             'session.gc_divisor' => 1,
             'session.gc_probability' => 1,
+            /**
+             * クッキーの有効期限（秒）
+             * デフォルト：1年間
+             */
+            'session.cookie_lifetime' => 60 * 60 * 24 * 365
         ]
     ],
 
@@ -558,7 +563,7 @@ return [
      */
     'BcEncode' => [
         // 文字コードの検出順
-        'detectOrder' => 'UTF-8, ASCII, JIS',
+        'detectOrder' => ['UTF-8', 'ASCII', 'JIS', 'SJIS-win', 'EUC-JP'],
         'mail' => [
             'UTF-8' => 'UTF-8',
             'ISO-2022-JP' => 'ISO-2022-JP'
