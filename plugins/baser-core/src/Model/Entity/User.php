@@ -13,6 +13,7 @@ namespace BaserCore\Model\Entity;
 
 use Authentication\PasswordHasher\DefaultPasswordHasher;
 use Cake\Core\Configure;
+use Cake\Datasource\EntityInterface;
 use Cake\I18n\Time as TimeAlias;
 use Cake\ORM\Entity as EntityAlias;
 use BaserCore\Annotation\UnitTest;
@@ -30,6 +31,7 @@ use Cake\Utility\Hash;
  * @property string $real_name_2
  * @property string $email
  * @property string $nickname
+ * @property bool $status
  * @property TimeAlias $created
  * @property TimeAlias $modified
  */
@@ -88,6 +90,74 @@ class User extends EntityAlias
         }
         $userGroupId = Hash::extract($this->user_groups, '{n}.id');
         return in_array(Configure::read('BcApp.adminGroupId'), $userGroupId);
+    }
+
+    /**
+     * スーパーユーザーかどうか判定する
+     *
+     * @return bool
+     */
+    public function isSuper(): bool
+    {
+        return (Configure::read('BcApp.superUserId') === $this->id);
+    }
+
+    /**
+     * システム管理グループにユーザーを追加可能かどうか判定する
+     *
+     * 利用可能条件
+     * - 自身がスーパーユーザーで対象がスーパーユーザーでない場合
+     * - 自身がシステム管理ユーザーで対象がシステム管理ユーザーでない場合
+     */
+    public function isAddableToAdminGroup(): bool
+    {
+        return $this->isSuper();
+    }
+
+    /**
+     * 対象ユーザーに対して代理ログイン可能かどうか判定する
+     *
+     * 利用可能条件
+     * - 自身がスーパーユーザーで対象がスーパーユーザーでない場合
+     * - 自身がシステム管理ユーザーで対象がシステム管理ユーザーでない場合
+     * @param EntityInterface|User $targetUser
+     * @return bool
+     */
+    public function isEnableLoginAgent(EntityInterface $targetUser): bool
+    {
+        return (($this->isSuper() && !$targetUser->isSuper()) ||
+            ($this->isAdmin() && !$targetUser->isAdmin()));
+    }
+
+    /**
+     * 対象ユーザーに対して削除可能かどうか判定する
+     *
+     * 利用可能条件
+     * - 自身がスーパーユーザーで対象がスーパーユーザーでない場合
+     * - 自身がシステム管理ユーザーで対象がシステム管理ユーザーでない場合
+     * @param EntityInterface|User $targetUser
+     * @return bool
+     */
+    public function isDeletableUser(EntityInterface $targetUser): bool
+    {
+        return (($this->isSuper() && !$targetUser->isSuper()) ||
+            ($this->isAdmin() && !$targetUser->isAdmin()));
+    }
+
+    /**
+     * 対象ユーザーに対して編集可能かどうか判定する
+     *
+     * 利用可能条件
+     * - 自身がスーパーユーザーで対象がスーパーユーザーでない場合
+     * - 自身がシステム管理ユーザーで対象がシステム管理ユーザーでない場合
+     * @param EntityInterface|User $targetUser
+     * @return bool
+     */
+    public function isEditableUser(EntityInterface $targetUser): bool
+    {
+        return ($this->isSuper() ||
+            ($this->id === $targetUser->id) ||
+            ($this->isAdmin() && !$targetUser->isAdmin()));
     }
 
     /**
