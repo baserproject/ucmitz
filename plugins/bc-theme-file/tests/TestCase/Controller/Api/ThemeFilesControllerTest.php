@@ -167,7 +167,8 @@ class ThemeFilesControllerTest extends BcTestCase
         new File($fullpath . 'base_name_1.php', true);
         //POSTデータを生成
         $data = [
-            'fullpath' => $fullpath . 'base_name_1.php',
+            'theme' => 'BcThemeSample',
+            'type' => 'layout',
             'path' => 'base_name_1.php',
         ];
         //APIをコール

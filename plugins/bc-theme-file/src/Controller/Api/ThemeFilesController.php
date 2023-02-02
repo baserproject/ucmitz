@@ -116,7 +116,9 @@ class ThemeFilesController extends ThemeFileAppController
     {
         $this->request->allowMethod(['post', 'put']);
         try {
-            $args = $this->getRequest()->getData();
+            $args = $this->parseArgs(
+                $this->convertApiDataToArgs($this->getRequest()->getData())
+            );
             if ($service->copy($args['fullpath'])) {
                 $message = __d('baser', 'ファイル「{0}」をコピーしました。', $args['path']);
             } else {
