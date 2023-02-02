@@ -137,7 +137,9 @@ class ThemeFilesController extends ThemeFileAppController
     {
         $this->request->allowMethod(['get']);
         try {
-            $args = $this->getRequest()->getQueryParams();
+            $args = $this->parseArgs(
+                $this->convertApiDataToArgs($this->getRequest()->getQueryParams())
+            );
             $entity = $service->get($args['fullpath']);
             $form = $service->getForm($entity->toArray());
             $themeFile = $service->getViewVarsForView($entity, $form, $args);

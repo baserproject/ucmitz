@@ -178,16 +178,11 @@ class ThemeFilesControllerTest extends BcTestCase
      */
     public function test_view()
     {
-        //テストファイルを作成
-        $fullpath = BASER_PLUGINS . 'BcThemeSample' . '/templates/layout/';
-        new File($fullpath . 'base_name_1.php', true);
         //POSTデータを生成
         $data = [
-            'fullpath' => $fullpath . 'base_name_1.php',
             'theme' => 'BcThemeSample',
-            'plugin' => 'BcThemeSample',
             'type' => 'layout',
-            'path' => '/templates/layout/',
+            'path' => 'default.php',
             'token' => $this->accessToken
         ];
         $query = http_build_query($data);
@@ -198,8 +193,8 @@ class ThemeFilesControllerTest extends BcTestCase
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         $this->assertNotNull($result->themeFile);
-        //生成されたテストファイルを削除
-        unlink($fullpath . 'base_name_1.php');
+        $this->assertEquals('BcThemeSample｜レイアウトテンプレート表示', $result->themeFile->pageTitle);
+
     }
 
     /**
