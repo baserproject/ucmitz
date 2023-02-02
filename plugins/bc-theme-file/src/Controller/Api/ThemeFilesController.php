@@ -17,6 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Error\BcFormFailedException;
 use BaserCore\View\Helper\BcBaserHelper;
 use BcThemeFile\Service\Admin\ThemeFilesAdminServiceInterface;
+use BcThemeFile\Controller\ThemeFileAppController;
 use BcThemeFile\Service\ThemeFilesServiceInterface;
 
 /**
@@ -148,7 +149,9 @@ class ThemeFilesController extends ThemeFileAppController
         $this->request->allowMethod(['get']);
 
         try {
-            $args = $this->getRequest()->getQueryParams();
+            $args = $this->parseArgs(
+                $this->convertApiDataToArgs($this->getRequest()->getQueryParams())
+            );
             $img = $service->getImg($args);
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
