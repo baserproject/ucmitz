@@ -159,8 +159,9 @@ class ThemeFilesControllerTest extends BcTestCase
         new File($fullpath . 'base_name_1.php', true);
         //POSTデータを生成
         $data = [
-            'fullpath' => $fullpath . 'base_name_1.php',
-            'path' => 'base_name_1.php',
+            'theme' => 'BcThemeSample',
+            'type' => 'layout',
+            'path' => 'base_name_1.php'
         ];
         //APIをコール
         $this->post('/baser/api/bc-theme-file/theme_files/delete.json?token=' . $this->accessToken, $data);
