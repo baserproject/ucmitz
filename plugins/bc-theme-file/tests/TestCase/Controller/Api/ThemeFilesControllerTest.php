@@ -194,6 +194,26 @@ class ThemeFilesControllerTest extends BcTestCase
      */
     public function test_img_thumb()
     {
-        $this->markTestIncomplete('このテストは未実装です。');
+        //テスト画像を作成
+        $fullpath = BASER_PLUGINS . 'BcThemeSample' . '/webroot/img/';
+        new File($fullpath . 'base_name_1.png', true);
+
+        //POSTデータを生成
+        $data = [
+            'theme' => 'BcThemeSample',
+            'type' => 'img',
+            'path' => 'base_name_1.png',
+            'token' => $this->accessToken
+        ];
+        $query = http_build_query($data);
+        //APIをコール
+        $this->get('/baser/api/bc-theme-file/theme_files/img_thumb.json?' . $query);
+        //レスポンスコードを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->imgThumb);
+        //生成されたテストファイルを削除
+        unlink($fullpath . 'base_name_1.png');
     }
 }

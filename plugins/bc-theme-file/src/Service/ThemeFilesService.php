@@ -19,8 +19,10 @@ use BaserCore\Error\BcFormFailedException;
 use BaserCore\Utility\BcUtil;
 use BcThemeFile\Form\ThemeFileForm;
 use BcThemeFile\Model\Entity\ThemeFile;
+use BcThemeFile\Utility\BcThemeFileUtil;
 use Cake\Core\Plugin;
 use Cake\Filesystem\Folder;
+use Cake\Http\Exception\NotFoundException;
 
 /**
  * ThemeFilesService
@@ -229,4 +231,26 @@ class ThemeFilesService implements ThemeFilesServiceInterface
         }
     }
 
+    /**
+     * テーマ内の画像のサムネイルイメージのデータを取得する
+     *
+     * @param array $args
+     * @return array
+     */
+    public function getImgThumb(array $args)
+    {
+        $contents = ['jpeg' => 'jpeg', 'jpg' => 'jpeg', 'gif' => 'gif', 'png' => 'png'];
+        $pathInfo = pathinfo($args['fullpath']);
+
+        if (!BcThemeFileUtil::getTemplateTypeName($args['type']) || !isset($contents[strtolower($pathInfo['extension'])]) || !file_exists($args['fullpath'])) {
+            throw new NotFoundException();
+        }
+
+        return [
+            'type' => $args['type'],
+            'path' => $args['path'],
+            'extension' => $contents[$pathInfo['extension']],
+            'fullpath' => $args['fullpath'],
+        ];
+    }
 }
