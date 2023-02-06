@@ -113,7 +113,7 @@ class ThemeFilesController extends BcApiController
         $this->request->allowMethod(['post', 'put']);
         try {
             $data = $this->getRequest()->getData();
-            $data['fullpath'] = $this->getFullpath($data['theme'], $data['type'], $data['path']);
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['type'], $data['path']);
             if ($service->copy($data['fullpath'])) {
                 $message = __d('baser', 'ファイル「{0}」をコピーしました。', $data['path']);
             } else {
