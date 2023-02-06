@@ -104,13 +104,12 @@ class ThemeFilesController extends BcApiController
     {
         $this->request->allowMethod(['post', 'put']);
         try {
-            $args = $this->parseArgs(
-                $this->convertApiDataToArgs($this->getRequest()->getData())
-            );
-            if ($service->delete($args['fullpath'])) {
-                $message = __d('baser', 'ファイル「{0}」を削除しました。', $args['path']);
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $this->getFullpath($data['theme'], $data['type'], $data['path']);
+            if ($service->delete($data['fullpath'])) {
+                $message = __d('baser', 'ファイル「{0}」を削除しました。', $data['path']);
             } else {
-                $message = __d('baser', 'ファイル「{0}」の削除に失敗しました。', $args['path']);
+                $message = __d('baser', 'ファイル「{0}」の削除に失敗しました。', $data['path']);
             }
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
