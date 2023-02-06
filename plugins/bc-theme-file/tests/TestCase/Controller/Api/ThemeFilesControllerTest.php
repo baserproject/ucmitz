@@ -195,7 +195,7 @@ class ThemeFilesControllerTest extends BcTestCase
     public function test_img_thumb()
     {
         //テスト画像を作成
-        $fullpath = BASER_PLUGINS . 'BcThemeSample' . '/webroot/img/';
+        $fullpath = BASER_PLUGINS . 'BcThemeSample' . '/templates/img/';
         new File($fullpath . 'base_name_1.png', true);
 
         //POSTデータを生成
