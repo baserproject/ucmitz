@@ -14,17 +14,19 @@ namespace BcThemeFile\Controller\Api;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
+use BaserCore\Controller\Api\BcApiController;
 use BaserCore\Error\BcFormFailedException;
 use BaserCore\View\Helper\BcBaserHelper;
 use BcThemeFile\Service\Admin\ThemeFilesAdminServiceInterface;
 use BcThemeFile\Controller\ThemeFileAppController;
 use BcThemeFile\Service\ThemeFilesServiceInterface;
+use Cake\Core\Plugin;
 
 /**
  * テーマファイルコントローラー
  * @property BcBaserHelper $BcBaser
  */
-class ThemeFilesController extends ThemeFileAppController
+class ThemeFilesController extends BcApiController
 {
 
     /**
@@ -70,13 +72,9 @@ class ThemeFilesController extends ThemeFileAppController
     {
         $this->request->allowMethod(['post', 'put']);
         try {
-            $postData = $this->getRequest()->getData();
-            $themeFileForm = $service->update(
-                array_merge(
-                    $this->parseArgs($this->convertApiDataToArgs($postData)),
-                    $postData
-                )
-            );
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $this->getFullpath($data['theme'], $data['type'], $data['path']);
+            $themeFileForm = $service->update($data);
             $entity = $service->get($themeFileForm->getData('fullpath'));
             $message = __d('baser', 'ファイル「{0}」を更新しました。', $entity->name);
         } catch (BcFormFailedException $e) {
@@ -178,5 +176,10 @@ class ThemeFilesController extends ThemeFileAppController
     public function img_thumb(ThemeFilesServiceInterface $service)
     {
         //todo テーマファイルAPI 画像のサムネイルを表示 #1777
+    }
+
+    public function getFullpath(string $theme, string $type, string $path)
+    {
+        return Plugin::templatePath($theme) . $type . DS . $path;
     }
 }
