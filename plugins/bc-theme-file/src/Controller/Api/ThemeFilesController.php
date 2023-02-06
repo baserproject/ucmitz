@@ -114,13 +114,12 @@ class ThemeFilesController extends BcApiController
     {
         $this->request->allowMethod(['post', 'put']);
         try {
-            $args = $this->parseArgs(
-                $this->convertApiDataToArgs($this->getRequest()->getData())
-            );
-            if ($service->copy($args['fullpath'])) {
-                $message = __d('baser', 'ファイル「{0}」をコピーしました。', $args['path']);
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $this->getFullpath($data['theme'], $data['type'], $data['path']);
+            if ($service->copy($data['fullpath'])) {
+                $message = __d('baser', 'ファイル「{0}」をコピーしました。', $data['path']);
             } else {
-                $message = __d('baser', 'ファイル「{0}」のコピーに失敗しました。上位フォルダのアクセス権限を見直してください。', $args['path']);
+                $message = __d('baser', 'ファイル「{0}」のコピーに失敗しました。上位フォルダのアクセス権限を見直してください。', $data['path']);
             }
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
