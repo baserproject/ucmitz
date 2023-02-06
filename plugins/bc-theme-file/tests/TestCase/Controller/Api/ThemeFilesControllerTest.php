@@ -183,6 +183,7 @@ class ThemeFilesControllerTest extends BcTestCase
             'theme' => 'BcThemeSample',
             'type' => 'layout',
             'path' => 'default.php',
+            'plugin' => '',
             'token' => $this->accessToken
         ];
         $query = http_build_query($data);
