@@ -161,7 +161,7 @@ class ThemeFilesController extends BcApiController
         $this->request->allowMethod(['get']);
         try {
             $data = $this->getRequest()->getQueryParams();
-            $data['fullpath'] = $this->getFullpath($data['theme'], $data['type'], $data['path']);
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['type'], $data['path']);
             $entity = $service->get($data['fullpath']);
             $form = $service->getForm($entity->toArray());
             $themeFile = $service->getViewVarsForView($entity, $form, $data);
