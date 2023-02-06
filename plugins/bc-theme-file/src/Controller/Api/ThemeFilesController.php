@@ -104,7 +104,7 @@ class ThemeFilesController extends BcApiController
         $this->request->allowMethod(['post', 'put']);
         try {
             $data = $this->getRequest()->getData();
-            $data['fullpath'] = $this->getFullpath($data['theme'], $data['type'], $data['path']);
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['type'], $data['path']);
             if ($service->delete($data['fullpath'])) {
                 $message = __d('baser', 'ファイル「{0}」を削除しました。', $data['path']);
             } else {
