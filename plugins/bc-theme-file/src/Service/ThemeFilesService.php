@@ -236,7 +236,7 @@ class ThemeFilesService implements ThemeFilesServiceInterface
      * テーマ内のイメージデータを取得する
      *
      * @param $args
-     * @return false|string
+     * @return false|array
      */
     public function getImg($args)
     {

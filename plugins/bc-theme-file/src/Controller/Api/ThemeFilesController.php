@@ -147,10 +147,9 @@ class ThemeFilesController extends BcApiController
         $this->request->allowMethod(['get']);
 
         try {
-            $args = $this->parseArgs(
-                $this->convertApiDataToArgs($this->getRequest()->getQueryParams())
-            );
-            $img = $service->getImg($args);
+            $data = $this->getRequest()->getQueryParams();
+            $data['fullpath'] = $this->getFullpath($data['theme'], $data['type'], $data['path']);
+            $img = $service->getImg($data);
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getForm()->getErrors();
