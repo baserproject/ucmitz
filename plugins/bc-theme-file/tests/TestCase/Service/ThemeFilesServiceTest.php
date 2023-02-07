@@ -12,6 +12,7 @@
 namespace BcThemeFile\Test\TestCase\Service;
 
 use BaserCore\TestSuite\BcTestCase;
+use BcThemeFile\Service\ThemeFilesService;
 
 /**
  * ThemeFilesServiceTest
@@ -19,12 +20,16 @@ use BaserCore\TestSuite\BcTestCase;
 class ThemeFilesServiceTest extends BcTestCase
 {
 
+    public $ThemeFileService = null;
+
     /**
      * set up
      */
     public function setUp(): void
     {
+        $this->setFixtureTruncate();
         parent::setUp();
+        $this->ThemeFileService = new ThemeFilesService();
     }
 
     /**
@@ -35,4 +40,33 @@ class ThemeFilesServiceTest extends BcTestCase
         parent::tearDown();
     }
 
+    /**
+     * test getFullpath
+     */
+    public function test_getFullpath()
+    {
+        //typeが$assetsではない場合、
+        $themePath = $this->ThemeFileService->getFullpath('BcThemeSample', 'layout', 'default.php');
+        $this->assertEquals('/var/www/html/plugins/BcThemeSample/templates/layout/default.php', $themePath);
+
+        //typeがimgの場合、
+        $themePath = $this->ThemeFileService->getFullpath('BcFront', 'img', 'logo.png');
+        $this->assertEquals('/var/www/html/plugins/bc-front/webroot/img/logo.png', $themePath);
+    }
+
+    /**
+     * test getImg
+     */
+    public function test_getImg()
+    {
+        $data = [
+            'theme' => 'BcFront',
+            'type' => 'img',
+            'path' => 'logo.png',
+            'fullpath' => '/var/www/html/plugins/bc-front/webroot/img/logo.png'
+        ];
+
+        $img = $this->ThemeFileService->getImg($data);
+        $this->assertNotNull($img);
+    }
 }

@@ -236,7 +236,11 @@ class ThemeFilesService implements ThemeFilesServiceInterface
      * テーマ内のイメージデータを取得する
      *
      * @param $args
-     * @return false|array
+     * @return false|string
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getImg($args)
     {
@@ -252,17 +256,33 @@ class ThemeFilesService implements ThemeFilesServiceInterface
             throw new NotFoundException();
         }
 
-        return [
-            'type' => $args['type'],
-            'path' => $args['path'],
-            'filesize' => $file->size(),
-            'extension' => $contents[$pathinfo['extension']],
-            'fullpath' => $args['fullpath']
-        ];
+        return $file->read();
     }
+
+    /**
+     * fullpathを作成
+     * @param string $theme
+     * @param string $type
+     * @param string $path
+     * @return string
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
     public function getFullpath(string $theme, string $type, string $path)
     {
-        return Plugin::templatePath($theme) . $type . DS . $path;
+        $assets = [
+            'css',
+            'js',
+            'img'
+        ];
+        if (in_array($type, $assets)) {
+            $viewPath = Plugin::path($theme) . 'webroot' . DS . $type . DS . $path;
+        } else {
+            $viewPath = Plugin::templatePath($theme) . $type . DS . $path;
+        }
+        return $viewPath;
     }
 
 }

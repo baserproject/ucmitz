@@ -214,7 +214,7 @@ class ThemeFilesController extends BcApiController
         }
 
         $this->set([
-            'img' => $img ?? null,
+            'img' => base64_encode($img) ?? null,
             'message' => $message ?? null,
             'errors' => $errors ?? null
         ]);
