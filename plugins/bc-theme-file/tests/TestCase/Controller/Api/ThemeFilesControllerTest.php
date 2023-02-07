@@ -238,9 +238,7 @@ class ThemeFilesControllerTest extends BcTestCase
         $this->assertResponseSuccess();
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertNotNull($result->themeFile);
-        $this->assertEquals('BcThemeSample｜レイアウトテンプレート表示', $result->themeFile->pageTitle);
-
+        $this->assertNotNull($result->entity->contents);
     }
 
     /**
