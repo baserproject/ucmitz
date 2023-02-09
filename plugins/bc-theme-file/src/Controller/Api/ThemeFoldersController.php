@@ -189,7 +189,29 @@ class ThemeFoldersController extends BcApiController
      */
     public function delete(ThemeFoldersServiceInterface $service)
     {
-        //todo テーマフォルダAPI テーマフォルダ削除
+        $this->request->allowMethod(['post', 'put']);
+        try {
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['type'], $data['path']);
+            if ($service->delete($data['fullpath'])) {
+                $message = __d('baser', 'フォルダ「{0}」を削除しました。', $data['path']);
+            } else {
+                $message = __d('baser', 'フォルダ「{0}」の削除に失敗しました。', $data['path']);
+            }
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'message' => $message,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
     }
 
     /**

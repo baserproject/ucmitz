@@ -122,10 +122,9 @@ class ThemeFilesController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'entity' => $entity ?? null,
             'errors' => $errors ?? null
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'entity', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
     }
 
     /**
