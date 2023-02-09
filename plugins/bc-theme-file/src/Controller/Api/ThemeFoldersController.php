@@ -186,6 +186,10 @@ class ThemeFoldersController extends BcApiController
      *
      * @param ThemeFoldersServiceInterface $service
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function delete(ThemeFoldersServiceInterface $service)
     {
