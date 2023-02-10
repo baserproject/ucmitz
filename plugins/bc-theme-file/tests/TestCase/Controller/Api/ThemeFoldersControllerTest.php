@@ -166,6 +166,7 @@ class ThemeFoldersControllerTest extends BcTestCase
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('フォルダ「delete_folder」を削除しました。', $result->message);
+        $this->assertNotNull($result->themeFolder);
         //実際にフォルダが削除されいてるか確認すること
         $this->assertFalse(file_exists($fullpath . 'delete_folder'));
 
