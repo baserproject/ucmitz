@@ -259,7 +259,7 @@ class ThemeFilesControllerTest extends BcTestCase
     }
 
     /**
-     * [API] テーマフォルダAPI テーマフォルダアップロード
+     * [API] テーマフォルダAPI テーマファイルアップロード
      */
     public function test_upload()
     {
