@@ -17,10 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
 use BaserCore\Error\BcFormFailedException;
 use BaserCore\View\Helper\BcBaserHelper;
-use BcThemeFile\Service\Admin\ThemeFilesAdminServiceInterface;
-use BcThemeFile\Controller\ThemeFileAppController;
 use BcThemeFile\Service\ThemeFilesServiceInterface;
-use Cake\Core\Plugin;
 
 /**
  * テーマファイルコントローラー
@@ -228,7 +225,7 @@ class ThemeFilesController extends BcApiController
         try {
             $data = $this->getRequest()->getQueryParams();
             $data['fullpath'] = $service->getFullpath($data['theme'], $data['type'], $data['path']);
-            $img = $service->getImg($data);
+            $imgDetail = $service->getImg($data);
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getForm()->getErrors();
@@ -239,7 +236,7 @@ class ThemeFilesController extends BcApiController
         }
 
         $this->set([
-            'img' => base64_encode($img) ?? null,
+            'img' => base64_encode($imgDetail['img']) ?? null,
             'message' => $message ?? null,
             'errors' => $errors ?? null
         ]);

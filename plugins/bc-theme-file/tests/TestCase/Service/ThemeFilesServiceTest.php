@@ -41,20 +41,6 @@ class ThemeFilesServiceTest extends BcTestCase
     }
 
     /**
-     * test getFullpath
-     */
-    public function test_getFullpath()
-    {
-        //typeが$assetsではない場合、
-        $themePath = $this->ThemeFileService->getFullpath('BcThemeSample', 'layout', 'default.php');
-        $this->assertEquals('/var/www/html/plugins/BcThemeSample/templates/layout/default.php', $themePath);
-
-        //typeがimgの場合、
-        $themePath = $this->ThemeFileService->getFullpath('BcFront', 'img', 'logo.png');
-        $this->assertEquals('/var/www/html/plugins/bc-front/webroot/img/logo.png', $themePath);
-    }
-
-    /**
      * test getImg
      */
     public function test_getImg()

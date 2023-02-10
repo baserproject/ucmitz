@@ -236,7 +236,7 @@ class ThemeFilesService extends BcThemeFileService implements ThemeFilesServiceI
      * テーマ内のイメージデータを取得する
      *
      * @param $args
-     * @return false|string
+     * @return array
      *
      * @checked
      * @noTodo
@@ -256,33 +256,12 @@ class ThemeFilesService extends BcThemeFileService implements ThemeFilesServiceI
             throw new NotFoundException();
         }
 
-        return $file->read();
-    }
-
-    /**
-     * fullpathを作成
-     * @param string $theme
-     * @param string $type
-     * @param string $path
-     * @return string
-     *
-     * @checked
-     * @noTodo
-     * @unitTest
-     */
-    public function getFullpath(string $theme, string $type, string $path)
-    {
-        $assets = [
-            'css',
-            'js',
-            'img'
+        return [
+            'img' => $file->read(),
+            'content' => $file->size(),
+            'size' => $file->size(),
+            'type' => $contents[$pathinfo['extension']]
         ];
-        if (in_array($type, $assets)) {
-            $viewPath = Plugin::path($theme) . 'webroot' . DS . $type . DS . $path;
-        } else {
-            $viewPath = Plugin::templatePath($theme) . $type . DS . $path;
-        }
-        return $viewPath;
     }
 
 }
