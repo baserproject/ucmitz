@@ -30,7 +30,7 @@ use Cake\Http\Exception\NotFoundException;
  *
  * @property ThemeFileForm $ThemeFileForm
  */
-class ThemeFilesService implements ThemeFilesServiceInterface
+class ThemeFilesService extends BcThemeFileService implements ThemeFilesServiceInterface
 {
 
     /**
