@@ -229,7 +229,7 @@ class ThemeFilesController extends BcApiController
     }
 
     /**
-     * テーマフォルダAPI テーマフォルダアップロード
+     * テーマフォルダAPI テーマファイルアップロード
      *
      * @param ThemeFilesServiceInterface $service
      * @return void
