@@ -258,7 +258,6 @@ class ThemeFilesService extends BcThemeFileService implements ThemeFilesServiceI
 
         return [
             'img' => $file->read(),
-            'content' => $file->size(),
             'size' => $file->size(),
             'type' => $contents[$pathinfo['extension']]
         ];
