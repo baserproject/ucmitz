@@ -21,6 +21,7 @@ use BcThemeFile\Form\ThemeFileForm;
 use BcThemeFile\Model\Entity\ThemeFile;
 use BcThemeFile\Utility\BcThemeFileUtil;
 use Cake\Core\Plugin;
+use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\Http\Exception\NotFoundException;
 
@@ -230,6 +231,38 @@ class ThemeFilesService extends BcThemeFileService implements ThemeFilesServiceI
             return false;
         }
     }
+
+    /**
+     * テーマ内のイメージデータを取得する
+     *
+     * @param $args
+     * @return array
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getImg($args)
+    {
+        $contents = ['jpg' => 'jpeg', 'gif' => 'gif', 'png' => 'png'];
+        $pathinfo = pathinfo($args['fullpath']);
+
+        if (!BcThemeFileUtil::getTemplateTypeName($args['type']) || !isset($contents[$pathinfo['extension']]) || !file_exists($args['fullpath'])) {
+            throw new NotFoundException();
+        }
+
+        $file = new File($args['fullpath']);
+        if (!$file->open('r')) {
+            throw new NotFoundException();
+        }
+
+        return [
+            'img' => $file->read(),
+            'size' => $file->size(),
+            'type' => $contents[$pathinfo['extension']]
+        ];
+    }
+
 
     /**
      * テーマ内の画像のサムネイルイメージのデータを取得する
