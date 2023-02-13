@@ -17,6 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Error\BcException;
 use BaserCore\Error\BcFormFailedException;
 use BaserCore\Utility\BcUtil;
+use BaserCore\Vendor\Imageresizer;
 use BcThemeFile\Form\ThemeFileForm;
 use BcThemeFile\Model\Entity\ThemeFile;
 use BcThemeFile\Utility\BcThemeFileUtil;
@@ -268,22 +269,29 @@ class ThemeFilesService extends BcThemeFileService implements ThemeFilesServiceI
      * テーマ内の画像のサムネイルイメージのデータを取得する
      *
      * @param array $args
+     * @param int $width
+     * @param int $height
      * @return array
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function getImgThumb(array $args)
+    public function getImgThumb(array $args, int $width, int $height)
     {
         $contents = ['jpeg' => 'jpeg', 'jpg' => 'jpeg', 'gif' => 'gif', 'png' => 'png'];
-        $pathInfo = pathinfo($args['fullpath']);
+        $pathinfo = pathinfo($args['fullpath']);
 
-        if (!BcThemeFileUtil::getTemplateTypeName($args['type']) || !isset($contents[strtolower($pathInfo['extension'])]) || !file_exists($args['fullpath'])) {
+        if (!BcThemeFileUtil::getTemplateTypeName($args['type']) || !isset($contents[strtolower($pathinfo['extension'])]) || !file_exists($args['fullpath'])) {
             throw new NotFoundException();
         }
 
+        $Imageresizer = new Imageresizer();
+        ob_start();
+        $Imageresizer->resize($args['fullpath'], null, $width, $height);
         return [
-            'type' => $args['type'],
-            'path' => $args['path'],
-            'extension' => $contents[$pathInfo['extension']],
-            'fullpath' => $args['fullpath'],
+            'imgThumb' => ob_get_clean(),
+            'extension' => $contents[strtolower($pathinfo['extension'])]
         ];
     }
 

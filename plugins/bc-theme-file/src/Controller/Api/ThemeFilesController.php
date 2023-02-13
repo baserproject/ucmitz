@@ -256,7 +256,7 @@ class ThemeFilesController extends BcApiController
         try {
             $data = $this->getRequest()->getQueryParams();
             $data['fullpath'] = $service->getFullpath($data['theme'], $data['type'], $data['path']);
-            $imgThumb = $service->getImgThumb($data);
+            $imgDetail = $service->getImgThumb($data, $data['width'], $data['height']);
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getForm()->getErrors();
@@ -267,7 +267,7 @@ class ThemeFilesController extends BcApiController
         }
 
         $this->set([
-            'imgThumb' => $imgThumb ?? null,
+            'imgThumb' => base64_encode($imgDetail['imgThumb']),
             'message' => $message ?? null,
             'errors' => $errors ?? null
         ]);
@@ -275,7 +275,7 @@ class ThemeFilesController extends BcApiController
     }
 
     /**
-     * テーマフォルダAPI テーマファイルアップロード
+     * テーマファイルアAPI テーマファイルアップロード
      *
      * @param ThemeFilesServiceInterface $service
      * @return void

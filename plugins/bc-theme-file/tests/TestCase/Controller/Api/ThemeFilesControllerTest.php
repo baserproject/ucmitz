@@ -269,15 +269,13 @@ class ThemeFilesControllerTest extends BcTestCase
      */
     public function test_img_thumb()
     {
-        //テスト画像を作成
-        $fullpath = BASER_PLUGINS . 'BcThemeSample' . '/templates/img/';
-        new File($fullpath . 'base_name_1.png', true);
-
         //POSTデータを生成
         $data = [
-            'theme' => 'BcThemeSample',
+            'theme' => 'BcFront',
             'type' => 'img',
-            'path' => 'base_name_1.png',
+            'path' => 'logo.png',
+            'width' => 100,
+            'height' => 100,
             'token' => $this->accessToken
         ];
         $query = http_build_query($data);
@@ -287,13 +285,11 @@ class ThemeFilesControllerTest extends BcTestCase
         $this->assertResponseSuccess();
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertNotNull($result->imgThumb);
-        //生成されたテストファイルを削除
-        unlink($fullpath . 'base_name_1.png');
+        $this->assertNotNull(base64_decode($result->imgThumb));
     }
 
     /**
-     * [API] テーマフォルダAPI テーマファイルアップロード
+     * [API] テーマファイルAPI テーマファイルアップロード
      */
     public function test_upload()
     {
