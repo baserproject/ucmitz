@@ -13,6 +13,8 @@ namespace BcMail\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
+use BcMail\Service\MailMessagesServiceInterface;
 use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -24,7 +26,7 @@ class MailFieldsControllerTest extends BcTestCase
      */
     use ScenarioAwareTrait;
     use IntegrationTestTrait;
-
+    use BcContainerTrait;
     /**
      * Fixtures
      *
@@ -94,9 +96,12 @@ class MailFieldsControllerTest extends BcTestCase
      */
     public function testAdd()
     {
+        $MailMessagesService = $this->getService(MailMessagesServiceInterface::class);
+        //テストデータベースを生成
+        $MailMessagesService->createTable(10);
         //データを生成
         $data = [
-            'mail_content_id' => 1,
+            'mail_content_id' => 10,
             'field_name' => 'name_add_1',
             'type' => 'text',
             'name' => '性',
@@ -128,6 +133,10 @@ class MailFieldsControllerTest extends BcTestCase
         // 戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         $this->assertNotNull($result->mailField);
+        $this->assertEquals($result->message, '新規メールフィールド「性」を追加しました。');
+
+        //テストデータベースを削除
+        $MailMessagesService->dropTable(10);
     }
 
     /**
