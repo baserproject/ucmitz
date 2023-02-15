@@ -13,7 +13,6 @@ namespace BcMail\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
-use BcMail\Test\Factory\MailFieldsFactory;
 use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -95,7 +94,40 @@ class MailFieldsControllerTest extends BcTestCase
      */
     public function testAdd()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データを生成
+        $data = [
+            'mail_content_id' => 1,
+            'field_name' => 'name_add_1',
+            'type' => 'text',
+            'name' => '性',
+            'head' => 'お名前',
+            'valid' => 0,
+            'not_empty' => 0,
+            'valid_ex' => null,
+            'attention'=>null,
+            'before_attachment'=>null,
+            'after_attachment'=>null,
+            'description'=>null,
+            'source' => '',
+            'size' => null,
+            'text_rows' => null,
+            'maxlength' => 255,
+            'group_field' => null,
+            'group_valid' => null,
+            'options' => null,
+            'class' => null,
+            'default_value' => null,
+            'auto_convert' => null,
+            'use_field' => 1,
+            'no_send' => 0,
+        ];
+        //APIを呼ぶ
+        $this->post("/baser/api/bc-mail/mail_fields/add.json?token=" . $this->accessToken, $data);
+        // レスポンスコードを確認する
+        $this->assertResponseOk();
+        // 戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->mailField);
     }
 
     /**
