@@ -129,7 +129,7 @@ class MailFieldsControllerTest extends BcTestCase
         // 戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         $this->assertNotNull($result->mailField);
-        $this->assertEquals($result->message, 'メールフィールド「name_edited」を削除しました。');
+        $this->assertEquals($result->message, 'メールフィールド「性」を削除しました。');
     }
 
     /**
