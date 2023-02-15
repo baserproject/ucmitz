@@ -17,6 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
 use BcMail\Service\MailFieldsService;
 use BcMail\Service\MailFieldsServiceInterface;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * メールフィールドコントローラー
@@ -158,11 +159,38 @@ class MailFieldsController extends BcApiController
      * [API] メールフィールド API 削除
      *
      * @param MailFieldsServiceInterface $service
+     * @param int $id
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function delete(MailFieldsServiceInterface $service)
+    public function delete(MailFieldsServiceInterface $service, int $id)
     {
-        //todo メールフィールド API 削除
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        try {
+            $mailField = $service->get($id);
+            if ($service->delete($id)) {
+                $message = __d('baser', 'メールフィールド「{0}」を削除しました。', $mailField->name);
+            } else {
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
+            }
+        } catch (PersistenceFailedException $e) {
+            $mailField = $e->getEntity();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。' . $e->getMessage());
+        }
+
+        $this->set([
+            'message' => $message,
+            'mailField' => $mailField,
+            'errors' => $mailField->getErrors(),
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailField', 'message', 'errors']);
     }
 
     /**
