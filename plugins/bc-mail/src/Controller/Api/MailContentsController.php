@@ -89,11 +89,40 @@ class MailContentsController extends BcApiController
 
     /**
      * メールコンテンツAPI 削除
+     * @param MailContentsServiceInterface $service
+     * @param int$id
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function delete()
+    public function delete(MailContentsServiceInterface $service, int $id)
     {
-        //todo メールコンテンツAPI 削除
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        try {
+            $mailContent = $service->get($id);
+            if ($service->delete($id)) {
+                $message = __d('baser', 'メールフォーム「{0}」を削除しました。', $mailContent->content->title);
+            } else {
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
+            }
+        } catch (PersistenceFailedException $e) {
+            $mailContent = $e->getEntity();
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。' . $e->getMessage());
+        }
+
+        $this->set([
+            'message' => $message,
+            'mailContent' => $mailContent,
+            'content' => $mailContent->content,
+            'errors' => $mailContent->getErrors(),
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailContent', 'content', 'message', 'errors']);
     }
 
     /**
