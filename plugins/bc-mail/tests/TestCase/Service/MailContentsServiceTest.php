@@ -14,6 +14,8 @@ namespace BcMail\Test\TestCase\Service;
 use BaserCore\TestSuite\BcTestCase;
 use BcMail\Service\MailContentsService;
 use BcMail\Service\MailContentsServiceInterface;
+use BcMail\Test\Scenario\MailContentsScenario;
+use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
  * MailContentsServiceTest
@@ -22,6 +24,21 @@ use BcMail\Service\MailContentsServiceInterface;
  */
 class MailContentsServiceTest extends BcTestCase
 {
+
+    /**
+     * ScenarioAwareTrait
+     */
+    use ScenarioAwareTrait;
+
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = [
+        'plugin.BaserCore.Factory/Contents',
+        'plugin.BcMail.Factory/MailContents',
+    ];
 
     /**
      * set up
@@ -47,6 +64,22 @@ class MailContentsServiceTest extends BcTestCase
     public function test__construct()
     {
         $this->assertEquals('mail_contents', $this->MailContentsService->MailContents->getTable());
+    }
+
+
+    /**
+     * 一覧データ取得
+     */
+    public function test_getIndex()
+    {
+        //データを生成
+        $this->loadFixtureScenario(MailContentsScenario::class);
+        //一覧データ取得サービスをコル
+        $rs = $this->MailContentsService->getIndex([])->toArray();
+        //戻る値を確認
+        $this->assertCount(2, $rs);
+        $this->assertEquals($rs[0]->description, 'description test');
+        $this->assertEquals($rs[0]->content->title, 'お問い合わせ');
     }
 
     /**

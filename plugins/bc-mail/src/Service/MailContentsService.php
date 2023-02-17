@@ -162,9 +162,23 @@ class MailContentsService implements MailContentsServiceInterface
         ]]);
     }
 
-    public function getIndex()
+    /**
+     * 一覧データ取得
+     * @param array $queryParams
+     * @return \Cake\ORM\Query
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getIndex(array $queryParams = [])
     {
-
+        $options = array_merge([
+            'limit' => null
+        ], $queryParams);
+        $query = $this->MailContents->find()->contain('Contents');
+        if (!is_null($options['limit'])) $query->limit($options['limit']);
+        return $query;
     }
 
     public function getList()
