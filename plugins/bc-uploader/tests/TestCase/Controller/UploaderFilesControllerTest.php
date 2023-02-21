@@ -90,7 +90,7 @@ class UploaderFilesControllerTest extends BcTestCase
         $this->loadFixtureScenario(UploaderFilesScenario::class);
 
         //APIを呼ぶ
-        $this->post("/baser/api/bc-mail/uploader_files/index.json?token=" . $this->accessToken);
+        $this->post("/baser/api/bc-uploader/uploader_files/index.json?token=" . $this->accessToken);
         // レスポンスコードを確認する
         $this->assertResponseOk();
         // 戻る値を確認
