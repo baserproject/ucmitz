@@ -13,6 +13,7 @@ namespace BcUploader\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BcUploader\Test\Factory\UploaderFileFactory;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
 
@@ -99,11 +100,23 @@ class UploaderFilesControllerTest extends BcTestCase
 
     /**
      * test edit
-     * @return void
      */
     public function test_edit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データを生成
+        UploaderFileFactory::make(['id' => 1, 'name' => '2_2.jpg', 'atl' => '2_2.jpg', 'user_id' => 1])->persist();
+        $data = UploaderFileFactory::get(1);
+        $data->alt = 'test edit';
+        //APIを呼ぶ
+        $this->post("/baser/api/bc-uploader/uploader_files/edit/1.json?token=" . $this->accessToken, $data->toArray());
+        // レスポンスコードを確認する
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        //メッセージを確認
+        $this->assertEquals($result->message, 'アップロードファイル「2_2.jpg」を更新しました。');
+        //値が変更されるか確認
+        $this->assertEquals($result->uploaderFile->alt, 'test edit');
     }
 
     /**
