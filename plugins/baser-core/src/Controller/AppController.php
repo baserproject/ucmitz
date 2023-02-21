@@ -20,6 +20,7 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\Note;
 use BaserCore\Service\AppServiceInterface;
+use BaserCore\Service\PermissionsServiceInterface;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcSiteConfig;
 use BaserCore\Utility\BcUtil;
@@ -30,9 +31,11 @@ use Cake\Core\Configure;
 use Cake\Event\EventInterface;
 use Cake\Event\EventManagerInterface;
 use Cake\Http\Exception\BadRequestException;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
+use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 
 /**
@@ -115,7 +118,6 @@ class AppController extends BaseController
     {
         parent::initialize();
         $this->loadComponent('BaserCore.BcMessage');
-        $this->loadComponent('Paginator');
         $this->loadComponent('Security', [
             'blackHoleCallback' => '_blackHoleCallback',
             'validatePost' => true,
@@ -156,9 +158,34 @@ class AppController extends BaseController
             return;
         }
 
+        if(!$this->checkPermission()) {
+            if ($this->getRequest()->getParam('prefix') === 'Api') {
+                throw new ForbiddenException(__d('baser', '指定されたAPIエンドポイントへのアクセスは許可されていません。'));
+            } else {
+                $this->BcMessage->setError(__d('baser', '指定されたページへのアクセスは許可されていません。'));
+                $this->redirect(Configure::read('BcPrefixAuth.Admin.loginRedirect'));
+            }
+        }
+
         if ($this->request->is('ajax') || BcUtil::loginUser()) {
             $this->setResponse($this->getResponse()->withDisabledCache());
         }
+    }
+
+    /**
+     * アクセスルールの権限を確認する
+     *
+     * 現在アクセスしているURLについて権限があるかどうかを確認する。
+     *
+     * @return bool
+     */
+    private function checkPermission()
+    {
+        $user = BcUtil::loginUser();
+        if(!$user) return true;
+        /* @var PermissionsServiceInterface $permission */
+        $permission = $this->getService(PermissionsServiceInterface::class);
+        return $permission->check($this->getRequest()->getPath(), Hash::extract($user->toArray()['user_groups'], '{n}.id'));
     }
 
     /**
@@ -242,12 +269,13 @@ class AppController extends BaseController
                 continue;
             }
             $inenc = mb_detect_encoding((string)$value);
-            if ($value && $inenc !== $outenc) {
-                // 半角カナは一旦全角に変換する
-                $value = mb_convert_kana($value, 'KV', $inenc);
-                $value = mb_convert_encoding($value, $outenc, $inenc);
-                $data[$key] = $value;
-            }
+            if(!$inenc) continue;
+            if(!in_array($inenc, Configure::read('BcEncode.detectOrder'))) continue;
+            if ($inenc === $outenc) continue;
+            // 半角カナは一旦全角に変換する
+            $value = mb_convert_kana($value, 'KV', $inenc);
+            $value = mb_convert_encoding($value, $outenc, $inenc);
+            $data[$key] = $value;
         }
         return $data;
     }

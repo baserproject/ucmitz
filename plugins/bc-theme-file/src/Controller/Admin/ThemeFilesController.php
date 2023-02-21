@@ -31,6 +31,9 @@ use Cake\Filesystem\Folder;
 use Cake\Http\Response;
 use Cake\Http\ServerRequest;
 use Cake\Utility\Inflector;
+use BaserCore\Annotation\UnitTest;
+use BaserCore\Annotation\NoTodo;
+use BaserCore\Annotation\Checked;
 
 /**
  * Class ThemeFilesController
@@ -150,7 +153,7 @@ class ThemeFilesController extends BcAdminAppController
                 $entity = $service->get($form->getData('fullpath'));
                 $this->BcMessage->setInfo(sprintf(__d('baser', 'ファイル %s を作成しました。'), $entity->name));
                 $this->redirect(array_merge(
-                    ['action' => 'edit', $args['theme'], $args['type']],
+                    ['action' => 'edit', $args['theme'], $args['plugin'], $args['type']],
                     explode('/', $args['path']),
                     [$entity->name]
                 ));
@@ -226,7 +229,7 @@ class ThemeFilesController extends BcAdminAppController
         }
 
         $this->redirect(array_merge(
-            ['action' => 'index', $args['theme'], $args['type']],
+            ['action' => 'index', $args['theme'], $args['plugin'], $args['type']],
             explode('/', dirname($args['path']))
         ));
     }
@@ -253,7 +256,7 @@ class ThemeFilesController extends BcAdminAppController
         }
 
         $this->redirect(array_merge(
-            ['action' => 'index', $args['theme'], $args['type']],
+            ['action' => 'index', $args['theme'], $args['plugin'], $args['type']],
             explode('/', dirname($args['path']))
         ));
     }
@@ -297,7 +300,7 @@ class ThemeFilesController extends BcAdminAppController
         }
 
         $this->redirect(array_merge(
-            ['action' => 'index', $args['theme'], $args['type']],
+            ['action' => 'index', $args['theme'], $args['plugin'], $args['type']],
             explode('/', dirname($args['path']))
         ));
     }
@@ -323,7 +326,7 @@ class ThemeFilesController extends BcAdminAppController
         }
 
         $this->redirect(array_merge(
-            ['action' => 'index', $args['theme'], $args['type']],
+            ['action' => 'index', $args['theme'], $args['plugin'], $args['type']],
             explode('/', dirname($args['path']))
         ));
     }
@@ -348,7 +351,7 @@ class ThemeFilesController extends BcAdminAppController
         } catch (\Throwable $e) {
             $this->BcMessage->setError(__d('baser', 'アップロードに失敗しました。' . $e->getMessage()));
         }
-        $this->redirect(array_merge(['action' => 'index', $args['theme'], $args['type']], explode('/', $args['path'])));
+        $this->redirect(array_merge(['action' => 'index', $args['theme'], $args['plugin'], $args['type']], explode('/', $args['path'])));
     }
 
     /**
@@ -373,7 +376,7 @@ class ThemeFilesController extends BcAdminAppController
                 $entity = $service->get($form->getData('fullpath'));
                 $this->BcMessage->setInfo('フォルダ「' . $entity->name . '」を作成しました。');
                 return $this->redirect(array_merge(
-                    ['action' => 'index', $args['theme'], $args['type']],
+                    ['action' => 'index', $args['theme'], $args['plugin'], $args['type']],
                     explode('/', dirname($args['path']))
                 ));
             } catch (BcFormFailedException $e) {
@@ -410,7 +413,7 @@ class ThemeFilesController extends BcAdminAppController
                 $entity = $service->get($form->getData('fullpath'));
                 $this->BcMessage->setInfo('フォルダ名を ' . $entity->name . ' に変更しました。');
                 return $this->redirect(array_merge(
-                    ['action' => 'index', $args['theme'], $args['type']],
+                    ['action' => 'index', $args['theme'], $args['plugin'], $args['type']],
                     explode('/', dirname($args['path']))
                 ));
             } catch (BcFormFailedException $e) {
@@ -529,7 +532,11 @@ class ThemeFilesController extends BcAdminAppController
     {
         $this->disableAutoRender();
         $args = $this->parseArgs(func_get_args());
-        return $this->getResponse()->withStringBody($service->getImg($args));
+
+        $imgDetail = $service->getImg($args);
+        header("Content-Length: " . $imgDetail['size']);
+        header("Content-type: image/" . $imgDetail['type']);
+        return $this->getResponse()->withStringBody($imgDetail['img']);
     }
 
     /**
@@ -555,7 +562,9 @@ class ThemeFilesController extends BcAdminAppController
         if ($height == 0) $height = 100;
 
         $args = $this->parseArgs($args);
-        return $this->getResponse()->withStringBody($service->getImgThumb($args, $width, $height));
+        $imgDetail = $service->getImgThumb($args, $width, $height);
+        header("Content-type: image/" . $imgDetail['extension']);
+        return $this->getResponse()->withStringBody($imgDetail['imgThumb']);
     }
 
     /**
@@ -586,7 +595,7 @@ class ThemeFilesController extends BcAdminAppController
             $args[0] instanceof ThemeFoldersAdminServiceInterface ||
             $args[0] instanceof ThemeFilesServiceInterface ||
             $args[0] instanceof ThemeFoldersServiceInterface
-            ) {
+        ) {
             unset($args[0]);
             $args = array_merge($args);
         }
@@ -627,9 +636,9 @@ class ThemeFilesController extends BcAdminAppController
         if ($data['plugin']) {
             if (in_array($data['type'], $assets)) {
                 $data['assets'] = true;
-                $viewPath = BcUtil::getExistsWebrootDir($data['plugin'], '', 'front');
+                $viewPath = BcUtil::getExistsWebrootDir($data['theme'], $data['plugin'], '', 'front');
             } else {
-                $viewPath = BcUtil::getExistsTemplateDir($data['plugin'], '', 'front');
+                $viewPath = BcUtil::getExistsTemplateDir($data['theme'], $data['plugin'], '', 'front');
             }
             if(!$viewPath) {
                 if (in_array($data['type'], $assets)) {

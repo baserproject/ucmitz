@@ -29,11 +29,15 @@ use BaserCore\Utility\BcUtil;
 use Cake\Console\CommandCollection;
 use Cake\Core\Configure;
 use Cake\Core\ContainerInterface;
+use Cake\Core\Exception\MissingPluginException;
 use Cake\Core\PluginApplicationInterface;
 use Cake\Event\EventManager;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Cake\Http\ServerRequestFactory;
+use Cake\Log\Log;
+use Cake\ORM\TableRegistry;
 use Cake\Routing\RouteBuilder;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
@@ -78,7 +82,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
          * インストールされてない場合のテストをできるようにするため、Configure の設定を優先する
          */
         $hasInstall = file_exists(CONFIG . 'install.php');
-        if(is_null(Configure::read('BcRequest.isInstalled'))) {
+        if (is_null(Configure::read('BcRequest.isInstalled'))) {
             Configure::write('BcRequest.isInstalled', $hasInstall);
         }
 
@@ -93,7 +97,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
          * インストールされている場合は、TMP フォルダの設定を行い、
          * されていない場合は、インストールプラグインをロードする。
          */
-        if(BcUtil::isInstalled()) {
+        if (BcUtil::isInstalled()) {
             BcUtil::checkTmpFolders();
         } else {
             $application->addPlugin('BcInstaller');
@@ -106,18 +110,34 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         parent::bootstrap($application);
 
         /**
+         * 文字コードの検出順を指定
+         */
+        if (function_exists('mb_detect_order')) {
+            mb_detect_order(implode(',', Configure::read('BcEncode.detectOrder')));
+        }
+
+        /**
          * 設定ファイル読み込み
          * baserCMSの各種設定は、ここで上書きできる事を想定
          */
         if (file_exists(CONFIG . 'setting.php')) Configure::load('setting', 'baser');
 
         /**
+         * ログ設定
+         * ユニットテストの際、複数回設定するとエラーになるため
+         * 設定済かチェックを実施
+         */
+        if (!Log::getConfig('update')) {
+            Log::setConfig(Configure::consume('Log'));
+        }
+
+        /**
          * プラグインロード
          */
+        if (BcUtil::isTest()) $application->addPlugin('CakephpFixtureFactories');
         $application->addPlugin('Authentication');
         $application->addPlugin('Migrations');
-        $application->addPlugin(Inflector::camelize(Configure::read('BcApp.defaultAdminTheme'), '-'));
-        $application->addPlugin(Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-'));
+        $this->addTheme($application);
         if (!filter_var(env('USE_DEBUG_KIT', true), FILTER_VALIDATE_BOOLEAN)) {
             // 明示的に指定がない場合、DebugKitは重すぎるのでデバッグモードでも利用しない
             \Cake\Core\Plugin::getCollection()->remove('DebugKit');
@@ -147,6 +167,25 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     }
 
     /**
+     * テーマを追加する
+     *
+     * @param PluginApplicationInterface $application
+     * @noTodo
+     * @checked
+     */
+    public function addTheme(PluginApplicationInterface $application)
+    {
+        $application->addPlugin(Inflector::camelize(Configure::read('BcApp.defaultAdminTheme'), '-'));
+        $application->addPlugin(Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-'));
+        if (!BcUtil::isInstalled()) return;
+        $sitesTable = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $sites = $sitesTable->find()->where(['Sites.status' => true]);
+        foreach($sites as $site) {
+            if ($site->theme) $application->addPlugin($site->theme);
+        }
+    }
+
+    /**
      * デフォルトテンプレートを設定する
      * @checked
      * @unitTest
@@ -154,15 +193,15 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      */
     public function setupDefaultTemplatesPath()
     {
-        if(BcUtil::isAdminSystem()) {
+        if (BcUtil::isAdminSystem()) {
             $template = Configure::read('BcApp.defaultAdminTheme');
         } else {
             $template = Configure::read('BcApp.defaultFrontTheme');
         }
-        Configure::write('App.paths.templates', array_merge(
-            [ROOT . DS . 'plugins' . DS . $template . DS . 'templates' . DS],
-            Configure::read('App.paths.templates')
-        ));
+        Configure::write('App.paths.templates', array_merge([
+            ROOT . DS . 'plugins' . DS . $template . DS . 'templates' . DS,
+            ROOT . DS . 'vendor' . DS . 'baserproject' . DS . $template . DS . 'templates' . DS
+        ], Configure::read('App.paths.templates')));
     }
 
     /**
@@ -177,7 +216,13 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      */
     function loadPlugin(PluginApplicationInterface $application, $plugin, $priority)
     {
-        $application->addPlugin($plugin);
+        try {
+            $application->addPlugin($plugin);
+        } catch (MissingPluginException $e) {
+            $this->log($e->getMessage());
+            return false;
+        }
+
         $pluginPath = BcUtil::getPluginPath($plugin);
         // プラグインイベント登録
         $eventTargets = ['Controller', 'Model', 'View', 'Helper'];
@@ -232,7 +277,8 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         foreach($queue->getValue($middlewareQueue) as $middleware) {
             if ($middleware instanceof CsrfProtectionMiddleware) {
                 $middleware->skipCheckCallback(function($request) {
-                    if ($request->getParam('prefix') === 'Api') {
+                    $authSetting = Configure::read('BcPrefixAuth.' . $request->getParam('prefix'));
+                    if (!empty($authSetting['type']) && $authSetting['type'] === 'Jwt') {
                         return true;
                     }
                     return false;
@@ -246,6 +292,9 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     /**
      * 認証サービスプロバイダ生成
      *
+     * - インストール前の場合は、設定なしで、Session のみ読み込む
+     *   （インストールの動作テストを複数回行う場合にセッションが残ってしまい内部的なエラーを吐いてしまうため）
+     *
      * @param \Psr\Http\Message\ServerRequestInterface $request Request
      * @return \Authentication\AuthenticationServiceInterface
      * @checked
@@ -257,12 +306,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         $service = new AuthenticationService();
         $prefix = $request->getParam('prefix');
         $authSetting = Configure::read('BcPrefixAuth.' . $prefix);
-        if(!$authSetting && $prefix === 'Api') {
-            $authSetting = Configure::read('BcPrefixAuth.Admin');
-        }
+
         if (!$authSetting || !BcUtil::isInstalled()) {
             $service->loadAuthenticator('Authentication.Form');
-            if(!empty($authSetting['sessionKey'])) {
+            if (!empty($authSetting['sessionKey'])) {
                 $service->loadAuthenticator('Authentication.Session', [
                     'sessionKey' => $authSetting['sessionKey'],
                 ]);
@@ -270,91 +317,145 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             return $service;
         }
 
-        switch($prefix) {
-
-            case 'Api':
-                if (Configure::read('Jwt.algorithm') === 'HS256') {
-                    $secretKey = Security::getSalt();
-                } elseif (Configure::read('Jwt.algorithm') === 'RS256') {
-                    $secretKey = file_get_contents(Configure::read('Jwt.publicKeyPath'));
+        switch($authSetting['type']) {
+            case 'Session':
+                $this->setupSessionAuth($service, $authSetting);
+                break;
+            case 'Jwt':
+                if ($this->isEnabledCoreApi($prefix)) {
+                    $this->setupJwtAuth($service, $authSetting);
+                    if($prefix === 'Api') {
+                        // セッションを持っている場合もログイン状態とみなす
+                        $service->loadAuthenticator('Authentication.Session', [
+                            'sessionKey' => $authSetting['sessionKey'],
+                        ]);
+                    }
                 } else {
-                    return $service;
-                }
-                $service->loadAuthenticator('Authentication.Jwt', [
-                    'secretKey' => $secretKey,
-                    'algorithm' => 'RS256',
-                    'returnPayload' => false,
-                    'resolver' => [
-                        'className' => 'Authentication.Orm',
-                        'userModel' => $authSetting['userModel'],
-                    ],
-                ]);
-                $service->loadIdentifier('Authentication.JwtSubject', [
-                    'resolver' => [
-                        'className' => 'Authentication.Orm',
-                        'userModel' => $authSetting['userModel'],
-                        'finder' => 'available'
-                    ],
-                ]);
-                $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
-                    'fields' => [
-                        'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
-                        'password' => $authSetting['password']
-                    ],
-                ]);
-                $service->loadIdentifier('Authentication.Password', [
-                    'returnPayload' => false,
-                    'fields' => [
-                        'username' => $authSetting['username'],
-                        'password' => $authSetting['password']
-                    ],
-                    'resolver' => [
-                        'className' => 'Authentication.Orm',
-                        'userModel' => $authSetting['userModel'],
-                        'finder' => 'available'
-                    ],
-                ]);
-                // ログインの際のみ、管理画面へのログイン状態を維持するためセッションの設定を追加
-                // TODO ログインURLの判定方法を検討必要
-                // Api用の認証設定をAdminと分けて loginAction と リクエストのURLで判定させる
-                if($request->getParam('controller') === 'Users' && $request->getParam('action') === 'login') {
-                    $service->loadAuthenticator('Authentication.Session', [
-                        'sessionKey' => $authSetting['sessionKey'],
-                    ]);
+                    throw new ForbiddenException(__d('baser', 'Web APIは許可されていません。'));
                 }
                 break;
-
             default:
-
-                $service->setConfig([
-                    'unauthenticatedRedirect' => Router::url($authSetting['loginAction'], true),
-                    'queryParam' => 'redirect',
-                ]);
-                $service->loadAuthenticator('Authentication.Session', [
-                    'sessionKey' => $authSetting['sessionKey'],
-                ]);
-                $service->loadAuthenticator('Authentication.' . $authSetting['type'], [
-                    'fields' => [
-                        'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
-                        'password' => $authSetting['password']
-                    ],
-                    'loginUrl' => Router::url($authSetting['loginAction']),
-                ]);
-                $service->loadIdentifier('Authentication.Password', [
-                    'fields' => [
-                        'username' => $authSetting['username'],
-                        'password' => $authSetting['password']
-                    ],
-                    'resolver' => [
-                        'className' => 'Authentication.Orm',
-                        'userModel' => $authSetting['userModel'],
-                        'finder' => 'available'
-                    ],
-                ]);
+                $this->setupSessionAuth($service, $authSetting);
                 break;
-
         }
 
+        return $service;
+    }
+
+    /**
+     * APIが利用できるか確認する
+     *
+     * @param string $prefix
+     * @return bool
+     */
+    public function isEnabledCoreApi(string $prefix): bool
+    {
+        if (!filter_var(env('USE_CORE_API', false), FILTER_VALIDATE_BOOLEAN)) {
+            if ($prefix === 'Api') {
+                if (BcUtil::loginUser()) {
+                    $siteDomain = BcUtil::getCurrentDomain();
+                    if (empty($_SERVER['HTTP_REFERER'])) {
+                        return false;
+                    }
+                    $refererDomain = BcUtil::getDomain($_SERVER['HTTP_REFERER']);
+                    if (!preg_match('/^' . preg_quote($siteDomain, '/') . '/', $refererDomain)) {
+                        return false;
+                    }
+                    return true;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * セッション認証のセットアップ
+     *
+     * @param AuthenticationService $service
+     * @param array $authSetting
+     * @return AuthenticationService
+     */
+    public function setupSessionAuth(AuthenticationService $service, array $authSetting)
+    {
+        $service->setConfig([
+            'unauthenticatedRedirect' => Router::url($authSetting['loginAction'], true),
+            'queryParam' => 'redirect',
+        ]);
+        $service->loadAuthenticator('Authentication.Session', [
+            'sessionKey' => $authSetting['sessionKey'],
+        ]);
+        $service->loadAuthenticator('Authentication.Form', [
+            'fields' => [
+                'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
+                'password' => $authSetting['password']
+            ],
+            'loginUrl' => Router::url($authSetting['loginAction']),
+        ]);
+        $service->loadIdentifier('Authentication.Password', [
+            'fields' => [
+                'username' => $authSetting['username'],
+                'password' => $authSetting['password']
+            ],
+            'resolver' => [
+                'className' => 'Authentication.Orm',
+                'userModel' => $authSetting['userModel'],
+                'finder' => 'available'
+            ],
+        ]);
+        return $service;
+    }
+
+    /**
+     * JWT 認証のセットアップ
+     *
+     * @param AuthenticationService $service
+     * @param array $authSetting
+     * @return AuthenticationService
+     */
+    public function setupJwtAuth(AuthenticationService $service, array $authSetting)
+    {
+        if (Configure::read('Jwt.algorithm') === 'HS256') {
+            $secretKey = Security::getSalt();
+        } elseif (Configure::read('Jwt.algorithm') === 'RS256') {
+            $secretKey = file_get_contents(Configure::read('Jwt.publicKeyPath'));
+        } else {
+            return $service;
+        }
+
+        $service->loadAuthenticator('Authentication.Jwt', [
+            'secretKey' => $secretKey,
+            'algorithm' => 'RS256',
+            'returnPayload' => false,
+            'resolver' => [
+                'className' => 'Authentication.Orm',
+                'userModel' => $authSetting['userModel'],
+            ],
+        ]);
+        $service->loadIdentifier('Authentication.JwtSubject', [
+            'resolver' => [
+                'className' => 'Authentication.Orm',
+                'userModel' => $authSetting['userModel'],
+                'finder' => 'available'
+            ],
+        ]);
+        $service->loadAuthenticator('Authentication.Form', [
+            'fields' => [
+                'username' => is_array($authSetting['username'])? $authSetting['username'][0] : $authSetting['username'],
+                'password' => $authSetting['password']
+            ],
+        ]);
+        $service->loadIdentifier('Authentication.Password', [
+            'returnPayload' => false,
+            'fields' => [
+                'username' => $authSetting['username'],
+                'password' => $authSetting['password']
+            ],
+            'resolver' => [
+                'className' => 'Authentication.Orm',
+                'userModel' => $authSetting['userModel'],
+                'finder' => 'available'
+            ],
+        ]);
         return $service;
     }
 
@@ -389,7 +490,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     {
 
         // migrations コマンドの場合は実行しない
-        if(BcUtil::isMigrations()) {
+        if (BcUtil::isMigrations()) {
             parent::routes($routes);
             return;
         }
@@ -401,10 +502,10 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
         }
 
         $request = Router::getRequest();
-        if(!$request) {
+        if (!$request) {
             $request = ServerRequestFactory::fromGlobals();
         }
-        if(!BcUtil::isConsole() && !preg_match('/^\/debug-kit\//', $request->getPath())) {
+        if (!BcUtil::isConsole() && !preg_match('/^\/debug-kit\//', $request->getPath())) {
             // ユニットテストでは実行しない
             $property = new ReflectionProperty(get_class($routes), '_collection');
             $property->setAccessible(true);
@@ -451,7 +552,7 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
          */
         $routes->prefix(
             'Api',
-            ['path' => '/' . Configure::read('BcApp.baserCorePrefix') . '/api'],
+            ['path' => '/' . Configure::read('BcApp.baserCorePrefix') . '/', Configure::read('BcApp.apiPrefix')],
             function(RouteBuilder $routes) {
                 $routes->plugin(
                     'BaserCore',

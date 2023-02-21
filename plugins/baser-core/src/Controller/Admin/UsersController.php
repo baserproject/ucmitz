@@ -23,6 +23,7 @@ use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\Http\Response;
+use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\Routing\Router;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -62,8 +63,21 @@ class UsersController extends BcAdminAppController
     public function login(UsersAdminServiceInterface $service)
     {
         $this->set($service->getViewVarsForLogin($this->getRequest()));
-        if ($this->Authentication->getResult()->isValid()) {
-            $this->redirect(Router::url(Configure::read('BcPrefixAuth.Admin.loginRedirect')));
+        if ($this->request->is('post')) {
+            $result = $this->Authentication->getResult();
+            if ($result->isValid()) {
+                $target = $this->Authentication->getLoginRedirect() ?? Router::url(Configure::read('BcPrefixAuth.Admin.loginRedirect'));
+                $user = $result->getData();
+                $service->removeLoginKey($user->id);
+                if ($this->request->is('ssl') && $this->request->getData('saved')) {
+                    // 自動ログイン保存
+                    $this->response = $service->setCookieAutoLoginKey($this->response, $user->id);
+                }
+                $this->BcMessage->setInfo(__d('baser', 'ようこそ、' . $user->getDisplayName() . 'さん。'));
+                return $this->redirect($target);
+            } else {
+                $this->BcMessage->setError(__d('baser', 'Eメール、または、パスワードが間違っています。'));
+            }
         }
     }
 
@@ -230,8 +244,11 @@ class UsersController extends BcAdminAppController
                 }
                 $this->BcMessage->setSuccess(__d('baser', 'ユーザー「{0}」を更新しました。', $user->getDisplayName()));
                 return $this->redirect(['action' => 'edit', $user->id]);
-            } catch (\Exception $e) {
+            } catch (PersistenceFailedException $e) {
+                $user = $e->getEntity();
                 $this->BcMessage->setError(__d('baser', '入力エラーです。内容を修正してください。'));
+            } catch (\Throwable $e) {
+                $this->BcMessage->setError(__d('baser', 'データベース処理中にエラーが発生しました。') . $e->getMessage());
             }
         }
         $this->set($service->getViewVarsForEdit($user));

@@ -19,6 +19,8 @@ use BaserCore\Error\BcException;
 use BaserCore\Model\Entity\SiteConfig;
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\BcDatabaseServiceInterface;
+use BaserCore\Service\PermissionGroupsService;
+use BaserCore\Service\PermissionGroupsServiceInterface;
 use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\Service\SitesServiceInterface;
 use BaserCore\Service\ThemesServiceInterface;
@@ -364,7 +366,7 @@ class InstallationsService implements InstallationsServiceInterface
         $version = BcUtil::getVersion();
         $pluginsTable = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
         $priority = intval($pluginsTable->getMax('priority')) + 1;
-        $corePlugins = Configure::read('BcApp.corePlugins');
+        $corePlugins = Configure::read('BcApp.defaultInstallCorePlugins');
         $result = true;
         foreach($corePlugins as $corePlugin) {
             $plugin = $pluginsTable->getPluginConfig($corePlugin);
@@ -393,7 +395,7 @@ class InstallationsService implements InstallationsServiceInterface
     public function installCorePlugin(string $dbDataPattern): bool
     {
         $result = true;
-        $corePlugins = Configure::read('BcApp.corePlugins');
+        $corePlugins = Configure::read('BcApp.defaultInstallCorePlugins');
         foreach($corePlugins as $corePlugin) {
             if (!$this->installPlugin($corePlugin, $dbDataPattern)) {
                 $this->log(sprintf(__d('baser', 'コアプラグイン %s のインストールに失敗しました。'), $corePlugin));
@@ -418,6 +420,9 @@ class InstallationsService implements InstallationsServiceInterface
         /* @var BcPlugin $plugin */
         $plugin = Plugin::isLoaded($name);
         if(!$plugin) $plugin = Plugin::getCollection()->create($name);
+
+        // InstallationsService::buildPermissions() で別途アクセスルールを一括で作成するため
+        // ここでは、アクセスルールは作らない（permission オプションを利用しない）
         return $plugin->install();
 
         $paths = App::path('Plugin');
@@ -702,14 +707,23 @@ class InstallationsService implements InstallationsServiceInterface
         // コア
         $patterns = $themesService->getDefaultDataPatterns();
         // 外部テーマ
-        $Folder = new Folder(BASER_THEMES);
-        $files = $Folder->read(true, true, false);
-        foreach($files[0] as $theme) {
-            $configPath = BASER_PLUGINS . $theme . DS . 'config.php';
-            if (!file_exists($configPath)) continue;
-            $config = include $configPath;
-            if (!isset($config['type']) || $config['type'] !== 'theme') continue;
-            $patterns = array_merge($patterns, $themesService->getDefaultDataPatterns($theme));
+        $paths = [
+            BASER_THEMES,
+            ROOT . DS . 'vendor' . DS . 'baserproject' . DS
+        ];
+        foreacH($paths as $path) {
+            $Folder = new Folder($path);
+            $files = $Folder->read(true, true, true);
+            foreach($files[0] as $dir) {
+                $theme = basename($dir);
+                $configPath = $dir . DS . 'config.php';
+
+                if (!file_exists($configPath)) continue;
+                $config = include $configPath;
+
+                if (!isset($config['type']) || $config['type'] !== 'Theme') continue;
+                $patterns = array_merge($patterns, $themesService->getDefaultDataPatterns($theme));
+            }
         }
         return $patterns;
     }
@@ -728,6 +742,16 @@ class InstallationsService implements InstallationsServiceInterface
         } catch (\Throwable $e) {
             throw $e;
         }
+    }
+
+    /**
+     * アクセスルールを構築する
+     */
+    public function buildPermissions()
+    {
+        /** @var PermissionGroupsService $permissionGroupsService */
+        $permissionGroupsService = $this->getService(PermissionGroupsServiceInterface::class);
+        $permissionGroupsService->buildAll();
     }
 
 }

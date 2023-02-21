@@ -121,6 +121,9 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @param string $type
      * @param array $options
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function addColumn(
         string $tableName,
@@ -146,6 +149,9 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @param string $tableName
      * @param string $columnName
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function removeColumn(string $tableName, string $columnName)
     {
@@ -206,6 +212,9 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      *
      * @param string $tableName
      * @return bool
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function tableExists(string $tableName): bool
     {
@@ -638,7 +647,7 @@ class BcDatabaseService implements BcDatabaseServiceInterface
 
         $records = [];
         while(($record = BcUtil::fgetcsvReg($fp, 10240)) !== false) {
-            if ($appEncoding != $encoding) {
+            if ($encoding && $appEncoding != $encoding) {
                 mb_convert_variables($appEncoding, $encoding, $record);
             }
             $values = [];
@@ -1061,8 +1070,11 @@ class BcDatabaseService implements BcDatabaseServiceInterface
     /**
      * datasource名を取得
      *
-     * @param string datasource name.postgre.mysql.etc.
+     * @param string $datasource datasource name.postgre.mysql.etc.
      * @return string
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getDatasourceName($datasource = null)
     {
@@ -1086,6 +1098,10 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * データベースに接続する
      *
      * @param array $config
+     * @return Connection
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function connectDb(array $config, $name = 'default')
     {
@@ -1093,6 +1109,8 @@ class BcDatabaseService implements BcDatabaseServiceInterface
             $config['driver'] = $this->getDatasourceName($config['datasource']);
         }
         if (empty($config['driver'])) return ConnectionManager::get($name);
+        // 接続情報を再構成する場合は、情報を削除してから設定する
+        ConnectionManager::drop($name);
         ConnectionManager::setConfig($name, [
             'className' => Connection::class,
             'driver' => $config['driver'],
@@ -1117,6 +1135,9 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @param string $configKeyName
      * @param array $dbConfig
      * @return Connection
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getDataSource($dbConfigKeyName = 'default', $dbConfig = null)
     {
@@ -1142,6 +1163,9 @@ class BcDatabaseService implements BcDatabaseServiceInterface
      * @param string $dbConfigKeyName
      * @param array $dbConfig
      * @return boolean
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function deleteTables($dbConfigKeyName = 'default', $dbConfig = null)
     {

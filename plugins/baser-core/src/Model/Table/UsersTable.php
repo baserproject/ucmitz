@@ -12,10 +12,12 @@
 namespace BaserCore\Model\Table;
 
 use ArrayObject;
+use BaserCore\Utility\BcUtil;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\Event\Event;
 use Cake\ORM\TableRegistry;
+use Cake\Routing\Router;
 use Cake\Validation\Validator;
 use BaserCore\Model\Entity\User;
 use BaserCore\View\BcAdminAppView;
@@ -162,6 +164,7 @@ class UsersTable extends Table
             ->allowEmptyString('id', null, 'create');
         $validator
             ->scalar('name')
+            ->allowEmptyString('name')
             ->maxLength('name', 255, __d('baser', 'アカウント名は255文字以内で入力してください。'))
             ->add('name', [
                 'nameUnique' => [
@@ -345,6 +348,9 @@ class UsersTable extends Table
 
     /**
      * 利用可能なユーザーを取得する
+     *
+     * プレフィックスが Api の場合は、Admin に対しての許可があるかどうかで判定する
+     *
      * @param Query $query
      * @return Query
      * @checked
@@ -353,7 +359,14 @@ class UsersTable extends Table
      */
     public function findAvailable(Query $query)
     {
-        return $query->where(['status' => true])->contain('UserGroups');
+        $prefix = Router::getRequest()->getParam('prefix');
+        return $query->where([
+                'Users.status' => true
+            ])
+            ->matching('UserGroups', function($q) use ($prefix) {
+                if($prefix === 'Api') $prefix = 'Admin';
+                return $q->where(['UserGroups.auth_prefix LIKE' => '%' . $prefix . '%']);
+            })->contain(['UserGroups']);
     }
 
 }

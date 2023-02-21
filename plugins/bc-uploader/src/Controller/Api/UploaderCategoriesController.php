@@ -15,14 +15,68 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
-use BcUploader\Service\UploadCategoriesService;
-use BcUploader\Service\UploadCategoriesServiceInterface;
+use BcUploader\Service\UploaderCategoriesServiceInterface;
 
 /**
  * アップロードカテゴリコントローラー
  */
 class UploaderCategoriesController extends BcApiController
 {
+
+    /**
+     * 一覧取得API
+     *
+     * @param UploaderCategoriesServiceInterface $service
+     * @return void
+     */
+    public function index(UploaderCategoriesServiceInterface $service)
+    {
+        //todo 一覧取得API
+    }
+
+    /**
+     * 新規追加API
+     *
+     * @param UploaderCategoriesServiceInterface $service
+     * @return void
+     */
+    public function add(UploaderCategoriesServiceInterface $service)
+    {
+        //todo 新規追加API
+    }
+
+    /**
+     * 編集API
+     *
+     * @param UploaderCategoriesServiceInterface $service
+     * @return void
+     */
+    public function edit(UploaderCategoriesServiceInterface $service)
+    {
+        //todo 編集API
+    }
+
+    /**
+     * 削除API
+     *
+     * @param UploaderCategoriesServiceInterface $service
+     * @return void
+     */
+    public function delete(UploaderCategoriesServiceInterface $service)
+    {
+        //todo 削除API
+    }
+
+    /**
+     * コピーAPI
+     *
+     * @param UploaderCategoriesServiceInterface $service
+     * @return void
+     */
+    public function copy(UploaderCategoriesServiceInterface $service)
+    {
+        //todo コピーAPI
+    }
 
     /**
      * アップロードカテゴリのバッチ処理
@@ -32,11 +86,11 @@ class UploaderCategoriesController extends BcApiController
      * ### エラー
      * 受け取ったPOSTデータのキー名 'batch' が 'delete' 以外の値であれば500エラーを発生させる
      *
-     * @param UploadCategoriesService $service
+     * @param UploaderCategoriesServiceInterface $service
      * @checked
      * @noTodo
      */
-    public function batch(UploadCategoriesServiceInterface $service)
+    public function batch(UploaderCategoriesServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put']);
         $allowMethod = [

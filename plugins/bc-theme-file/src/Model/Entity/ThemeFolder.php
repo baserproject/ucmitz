@@ -57,7 +57,7 @@ class ThemeFolder extends \Cake\ORM\Entity
         } else {
             $properties['parent'] = dirname($properties['fullpath']) . DS;
         }
-           $properties['fullpath'] = preg_replace('/\/$/', '', $properties['fullpath']);
+        $properties['fullpath'] = preg_replace('/\/$/', '', $properties['fullpath']);
         parent::__construct($properties, $options);
     }
 
@@ -68,6 +68,7 @@ class ThemeFolder extends \Cake\ORM\Entity
      */
     protected function _getName()
     {
+        if($this->fullpath . '/' === $this->parent) return '';
         return str_replace($this->parent, '', $this->fullpath);
     }
 

@@ -17,6 +17,7 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Service\PagesService;
 use BaserCore\Service\PagesServiceInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\Exception\PersistenceFailedException;
 
@@ -37,7 +38,7 @@ class PagesController extends BcApiController
     public function initialize(): void
     {
         parent::initialize();
-        $this->Authentication->allowUnauthenticated(['view']);
+        $this->Authentication->allowUnauthenticated(['view', 'index']);
     }
 
     /**
@@ -50,8 +51,17 @@ class PagesController extends BcApiController
     public function index(PagesServiceInterface $service)
     {
         $this->request->allowMethod('get');
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (isset($queryParams['status'])) {
+            if (!$this->Authentication->getIdentity()) throw new ForbiddenException();
+        }
+
+        $queryParams = array_merge([
+            'status' => 'publish'
+        ], $queryParams);
+
         $this->set([
-            'pages' => $this->paginate($service->getIndex())
+            'pages' => $this->paginate($service->getIndex($queryParams))
         ]);
         $this->viewBuilder()->setOption('serialize', ['pages']);
     }
@@ -74,8 +84,8 @@ class PagesController extends BcApiController
     {
         $this->request->allowMethod('get');
         $queryParams = $this->getRequest()->getQueryParams();
-        if(isset($queryParams['status'])) {
-            if(!$this->Authentication->getIdentity()) throw new ForbiddenException();
+        if (isset($queryParams['status'])) {
+            if (!$this->Authentication->getIdentity()) throw new ForbiddenException();
         }
 
         $queryParams = array_merge([
@@ -85,16 +95,20 @@ class PagesController extends BcApiController
         $page = $message = null;
         try {
             $page = $service->get($id, $queryParams);
-        } catch(\Exception $e) {
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = $e->getMessage();
+        } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(401));
             $message = $e->getMessage();
         }
 
         $this->set([
             'page' => $page,
+            'content' => ($page)? $page->content : null,
             'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['page', 'message']);
+        $this->viewBuilder()->setOption('serialize', ['page', 'content', 'message']);
     }
 
     /**
@@ -151,9 +165,10 @@ class PagesController extends BcApiController
         }
         $this->set([
             'message' => $message,
-            'page' => $page
+            'page' => $page,
+            'content' => $page->content
         ]);
-        $this->viewBuilder()->setOption('serialize', ['page', 'message']);
+        $this->viewBuilder()->setOption('serialize', ['page', 'content', 'message']);
     }
 
     /**
@@ -181,7 +196,7 @@ class PagesController extends BcApiController
             'content' => $page->content,
             'errors' => $page->getErrors(),
         ]);
-        $this->viewBuilder()->setOption('serialize', ['page', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['page', 'content', 'message', 'errors']);
     }
 
     /**

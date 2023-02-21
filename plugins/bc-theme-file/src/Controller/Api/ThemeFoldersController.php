@@ -15,6 +15,7 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
+use BaserCore\Error\BcFormFailedException;
 use BcThemeFile\Service\ThemeFoldersService;
 use BcThemeFile\Service\ThemeFoldersServiceInterface;
 
@@ -36,7 +37,7 @@ class ThemeFoldersController extends BcApiController
      * @checked
      * @noTodo
      */
-    public function batch(ThemeFOldersServiceInterface $service)
+    public function batch(ThemeFoldersServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put']);
         $allowMethod = [
@@ -50,7 +51,7 @@ class ThemeFoldersController extends BcApiController
         }
         $targets = $this->getRequest()->getData('batch_targets');
         try {
-            if(is_dir($targets[0])) {
+            if (is_dir($targets[0])) {
                 $fullpath = $targets[0];
             } else {
                 $fullpath = dirname($targets[0]);
@@ -69,6 +70,235 @@ class ThemeFoldersController extends BcApiController
         }
         $this->set(['message' => $message]);
         $this->viewBuilder()->setOption('serialize', ['message']);
+    }
+
+    /**
+     * テーマフォルダAPI 一覧取得
+     *
+     * @param ThemeFoldersServiceInterface $service
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(ThemeFoldersServiceInterface $service)
+    {
+        $this->request->allowMethod(['get']);
+
+        try {
+            $data = $this->getRequest()->getQueryParams();
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
+            $themeFiles = $service->getIndex($data);
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'themeFiles' => $themeFiles ?? null,
+            'message' => $message ?? null,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['themeFiles', 'message', 'errors']);
+    }
+
+    /**
+     * テーマフォルダAPI テーマフォルダ新規追加
+     *
+     * @param ThemeFoldersServiceInterface $service
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function add(ThemeFoldersServiceInterface $service)
+    {
+        $this->request->allowMethod(['post', 'put']);
+
+        try {
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
+            $form = $service->create($data);
+            $themeFolder = $service->get($form->getData('fullpath'));
+            $message = __d('baser', 'フォルダ「{0}」を作成しました。', $themeFolder->name);
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'message' => $message,
+            'themeFolder' => $themeFolder ?? null,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'themeFolder', 'errors']);
+    }
+
+    /**
+     * テーマフォルダAPI テーマフォルダ編集
+     *
+     * @param ThemeFoldersServiceInterface $service
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function edit(ThemeFoldersServiceInterface $service)
+    {
+        $this->request->allowMethod(['post', 'put']);
+
+        try {
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
+            $form = $service->update($data);
+            $themeFolder = $service->get($form->getData('fullpath'));
+            $message = __d('baser', 'フォルダ名を「{0}」に変更しました。', $themeFolder->name);
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'message' => $message,
+            'themeFolder' => $themeFolder ?? null,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'themeFolder', 'errors']);
+    }
+
+    /**
+     * テーマフォルダAPI テーマフォルダ削除
+     *
+     * @param ThemeFoldersServiceInterface $service
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function delete(ThemeFoldersServiceInterface $service)
+    {
+        $this->request->allowMethod(['post', 'put']);
+        try {
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
+            $themeFolder = $service->get($data['fullpath']);
+            if ($service->delete($data['fullpath'])) {
+                $message = __d('baser', 'フォルダ「{0}」を削除しました。', $data['path']);
+            } else {
+                $message = __d('baser', 'フォルダ「{0}」の削除に失敗しました。', $data['path']);
+            }
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'themeFolder' => $themeFolder ?? null,
+            'message' => $message,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['themeFolder', 'message', 'errors']);
+    }
+
+    /**
+     * テーマフォルダAPI テーマフォルダコピー
+     *
+     * @param ThemeFoldersServiceInterface $service
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function copy(ThemeFoldersServiceInterface $service)
+    {
+        $this->request->allowMethod(['post', 'put']);
+
+        try {
+            $data = $this->getRequest()->getData();
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
+            $entity = $service->copy($data['fullpath']);
+            if ($entity) {
+                $message = __d('baser', 'フォルダ「{0}」をコピーしました。', $data['path']);
+            } else {
+                $message = __d('baser', 'フォルダ「{0}」のコピーに失敗しました。上位フォルダのアクセス権限を見直してください。。', $data['path']);
+            }
+        } catch (BcFormFailedException $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $errors = $e->getForm()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'themeFolder' => $entity ?? null,
+            'message' => $message,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['themeFolder', 'message', 'errors']);
+    }
+
+    /**
+     * テーマフォルダAPI 現在のテーマにテーマフォルダをコピー
+     *
+     * @param ThemeFoldersServiceInterface $service
+     * @return void
+     */
+    public function copy_to_theme(ThemeFoldersServiceInterface $service)
+    {
+        //todo テーマフォルダAPI 現在のテーマにテーマフォルダをコピー
+    }
+
+    /**
+     * テーマフォルダAPI フォルダを表示
+     *
+     * @param ThemeFoldersServiceInterface $service
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function view(ThemeFoldersServiceInterface $service)
+    {
+        $this->request->allowMethod(['get']);
+        try {
+            $data = $this->getRequest()->getQueryParams();
+            $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
+            $entity = $service->get($data['fullpath']);
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'entity' => $entity ?? null,
+            'message' => $message ?? null,
+            'errors' => $errors ?? null
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['entity', 'message', 'errors']);
     }
 
 }

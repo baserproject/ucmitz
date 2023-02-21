@@ -23,7 +23,21 @@ use BaserCore\Annotation\Note;
 use BaserCore\Utility\BcUtil;
 use Cake\Cache\Cache;
 use Cake\Core\Configure;
+use Cake\Datasource\ConnectionManager;
 use Cake\Validation\Validator;
+
+/**
+ * DB設定読み込み
+ * ユニットテストの際は、test/bootstrap.php にて実行
+ */
+if(!BcUtil::isTest()) {
+    ConnectionManager::drop('default');
+    ConnectionManager::drop('test');
+    if (file_exists(CONFIG . 'install.php')) {
+        Configure::load('install');
+        ConnectionManager::setConfig(Configure::consume('Datasources'));
+    }
+}
 
 /**
  * キャッシュ設定
@@ -52,18 +66,11 @@ require __DIR__ . DS . 'paths.php';
 // <<<
 
 /**
- * 文字コードの検出順を指定
- */
-if (function_exists('mb_detect_order')) {
-    mb_detect_order(Configure::read('BcEncode.detectOrder'));
-}
-
-/**
  * fullBaseUrl
  * コンソールの場合、CakePHP の ShellDispatcher において、
  * http://localhost で設定されるため https に書き換える
  */
-if(BcUtil::isConsole()) {
+if (BcUtil::isConsole()) {
     Configure::write('App.fullBaseUrl', 'https://localhost');
 }
 

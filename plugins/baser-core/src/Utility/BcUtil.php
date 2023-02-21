@@ -357,11 +357,11 @@ class BcUtil
      * @noTodo
      * @unitTest
      */
-    public static function getEnablePlugins()
+    public static function getEnablePlugins($force = false)
     {
-        if (!BcUtil::isInstalled()) return [];
+        if (!BcUtil::isInstalled() && !$force) return [];
         $enablePlugins = [];
-        if (!Configure::read('debug')) {
+        if (!Configure::read('debug') && !$force) {
             $enablePlugins = Cache::read('enable_plugins', '_bc_env_');
         }
         if (!$enablePlugins) {
@@ -449,7 +449,7 @@ class BcUtil
 
     /**
      * モデルキャッシュを削除する
-     * 
+     *
      * @checked
      * @noTodo
      */
@@ -599,17 +599,15 @@ class BcUtil
     {
         if (!$theme) $theme = Configure::read('BcApp.defaultFrontTheme');
         if (!$pattern) $pattern = 'default';
+        $base = Plugin::path($theme);
         $paths = [
-            BASER_THEMES . $theme . DS . 'config' . DS . 'data' . DS . $pattern,
-            BASER_THEMES . $theme . DS . 'config' . DS . 'data' . DS . 'default',
-            BASER_THEMES . Inflector::dasherize($theme) . DS . 'config' . DS . 'data' . DS . $pattern,
-            BASER_THEMES . Inflector::dasherize($theme) . DS . 'config' . DS . 'data' . DS . 'default',
+            $base . 'config' . DS . 'data' . DS . $pattern,
+            $base . $theme . DS . 'config' . DS . 'data' . DS . 'default',
         ];
         foreach($paths as $path) {
             if (is_dir($path)) return $path;
         }
         return false;
-
     }
 
     /**
@@ -678,6 +676,16 @@ class BcUtil
     public static function isConsole()
     {
         return (bool)$_ENV['IS_CONSOLE'];
+    }
+
+    /**
+     * ユニットテストかどうか
+     *
+     * @return bool
+     */
+    public static function isTest()
+    {
+        return (!empty($_SERVER['argv'][0]) && $_SERVER['argv'][0] === 'vendor/bin/phpunit');
     }
 
     /**
@@ -757,7 +765,13 @@ class BcUtil
                     continue;
                 }
                 $config = include $appConfigPath;
-                if (!empty($config['type']) && in_array($config['type'], $themeTypes)) {
+                if (!empty($config['type'])) {
+                    if(!is_array($config['type'])) $config['type'] = [$config['type']];
+                    $isTheme = false;
+                    foreach($config['type'] as $type) {
+                        if(in_array($type, $themeTypes)) $isTheme = true;
+                    }
+                    if(!$isTheme) continue;
                     $name = Inflector::camelize(Inflector::underscore($name));
                     $themes[$name] = $name;
                 }
@@ -781,7 +795,8 @@ class BcUtil
             if (!file_exists(BcUtil::getPluginPath($theme) . 'config.php')) continue;
             $config = include BcUtil::getPluginPath($theme) . 'config.php';
             if ($config === false) continue;
-            if ($config['type'] !== 'Theme') unset($themes[$key]);
+            if(!is_array($config['type'])) $config['type'] = [$config['type']];
+            if (!in_array('Theme', $config['type'])) unset($themes[$key]);
         }
         return $themes;
     }
@@ -799,7 +814,8 @@ class BcUtil
         $themes = self::getAllThemeList();
         foreach($themes as $key => $theme) {
             $config = include BcUtil::getPluginPath($theme) . 'config.php';
-            if ($config['type'] !== 'AdminTheme') unset($themes[$key]);
+            if(!is_array($config['type'])) $config['type'] = [$config['type']];
+            if (!in_array('AdminTheme', $config['type'])) unset($themes[$key]);
         }
         return $themes;
     }
@@ -1596,10 +1612,14 @@ class BcUtil
      * @param string $type
      * @return false|string
      */
-    public static function getExistsTemplateDir(string $plugin, string $path, string $type = '')
+    public static function getExistsTemplateDir(string $theme, string $plugin, string $path, string $type = '')
     {
-        $frontTheme = BcUtil::getCurrentTheme();
-        $adminTheme = BcUtil::getCurrentAdminTheme();
+        if(!$theme) {
+            $frontTheme = BcUtil::getCurrentTheme();
+            $adminTheme = BcUtil::getCurrentAdminTheme();
+        } else {
+            $frontTheme = $adminTheme = $theme;
+        }
         if ($plugin === 'BaserCore') {
             if ($type === 'front') {
                 $templatePaths = [Plugin::templatePath($frontTheme) . $path];
@@ -1646,10 +1666,14 @@ class BcUtil
      * @param string $type
      * @return false|string
      */
-    public static function getExistsWebrootDir(string $plugin, string $path, string $type = '')
+    public static function getExistsWebrootDir(string $theme, string $plugin, string $path, string $type = '')
     {
-        $frontTheme = BcUtil::getCurrentTheme();
-        $adminTheme = BcUtil::getCurrentAdminTheme();
+        if(!$theme) {
+            $frontTheme = BcUtil::getCurrentTheme();
+            $adminTheme = BcUtil::getCurrentAdminTheme();
+        } else {
+            $frontTheme = $adminTheme = $theme;
+        }
         if ($plugin === 'BaserCore') {
             if ($type === 'front') {
                 $templatePaths = [Plugin::path($frontTheme) . 'webroot' . DS . $path];
@@ -1665,19 +1689,19 @@ class BcUtil
             if ($type === 'front') {
                 $templatePaths = [
                     Plugin::path($frontTheme) . 'webroot' . DS . Inflector::underscore($plugin) . DS . $path,
-                    Plugin::path($plugin) . 'webroot' . DS . $path
                 ];
             } elseif ($type === 'admin') {
                 $templatePaths = [
                     Plugin::path($adminTheme) . 'webroot' . DS . Inflector::underscore($plugin) . DS . $path,
-                    Plugin::path($plugin) . 'webroot' . DS . $path
                 ];
             } else {
                 $templatePaths = [
                     Plugin::path($frontTheme) . 'webroot' . DS . Inflector::underscore($plugin) . DS . $path,
                     Plugin::path($adminTheme) . 'webroot' . DS . Inflector::underscore($plugin) . DS . $path,
-                    Plugin::path($plugin) . 'webroot' . DS . $path
                 ];
+            }
+            if(!$theme) {
+                $templatePaths[] = Plugin::path($plugin) . 'webroot' . DS . $path;
             }
         }
         foreach($templatePaths as $templatePath) {

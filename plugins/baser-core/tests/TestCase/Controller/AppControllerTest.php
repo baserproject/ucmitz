@@ -85,7 +85,6 @@ class AppControllerTest extends BcTestCase
     {
         $this->assertNotEmpty($this->AppController->BcMessage);
         $this->assertNotEmpty($this->AppController->Security);
-        $this->assertNotEmpty($this->AppController->Paginator);
         $this->assertEquals('_blackHoleCallback', $this->AppController->Security->getConfig('blackHoleCallback'));
         $this->assertTrue($this->AppController->Security->getConfig('validatePost'));
         $this->assertFalse($this->AppController->Security->getConfig('requireSecure'));
@@ -129,6 +128,19 @@ class AppControllerTest extends BcTestCase
 //        $this->assertEquals('BcAdminThird', $this->AppController->viewBuilder()->getTheme());
     }
 
+//    /**
+//     * test beforeFilter
+//     */
+//    public function testBeforeFilter()
+//    {
+//        $this->loginAdmin($this->BcAdminApp->getRequest());
+//        $this->BcAdminApp->beforeFilter(new Event('beforeFilter'));
+//        $this->assertFalse(isset($_SESSION['Flash']['flash'][0]['message']));
+//        $this->loginAdmin($this->BcAdminApp->getRequest(), 2);
+//        $this->BcAdminApp->beforeFilter(new Event('beforeFilter'));
+//        $this->assertEquals('指定されたページへのアクセスは許可されていません。', $_SESSION['Flash']['flash'][0]['message']);
+//    }
+
     /**
      * test beforeRender
      */
@@ -161,7 +173,7 @@ class AppControllerTest extends BcTestCase
     public function test_blackHoleCallback()
     {
         $this->enableCsrfToken();
-        $logPath = ROOT . DS . 'logs' . DS . 'cli-error.log';
+        $logPath = ROOT . 'logs' . DS . 'cli-error.log';
         @unlink($logPath);
         $this->post('/', [
             'name' => 'Test_test_Man'
@@ -218,7 +230,7 @@ class AppControllerTest extends BcTestCase
     {
         $data = [
             'test' => [
-                'test' => mb_convert_encoding('あいうえお', 'SJIS-win')
+                'test' => mb_convert_encoding('あいうえお', 'EUC-JP')
             ]
         ];
         $result = $this->execPrivateMethod($this->AppController, '_autoConvertEncodingByArray', [$data, 'UTF-8']);
@@ -232,7 +244,7 @@ class AppControllerTest extends BcTestCase
     {
         $data = [
             'test' => [
-                'test' => mb_convert_encoding('あいうえお', 'SJIS-win')
+                'test' => mb_convert_encoding('あいうえお', 'EUC-JP')
             ]
         ];
         $this->AppController->setRequest($this->AppController->getRequest()->withParsedBody($data));

@@ -21,7 +21,9 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Service\UsersServiceInterface;
 use BaserCore\Utility\BcApiUtil;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcUtil;
 use Cake\Event\EventInterface;
+use Cake\Http\Exception\ForbiddenException;
 
 /**
  * Class BcApiController
@@ -78,23 +80,23 @@ class BcApiController extends AppController
     {
         parent::beforeFilter($event);
 
-        if(in_array($this->getRequest()->getParam('action'), $this->Authentication->getUnauthenticatedActions())) {
+        if (in_array($this->getRequest()->getParam('action'), $this->Authentication->getUnauthenticatedActions())) {
             return;
         }
 
         // ユーザーの有効チェック
         $user = $this->Authentication->getResult()->getData();
         $usersService = $this->getService(UsersServiceInterface::class);
-        if($user && !$usersService->isAvailable($user->id)){
+        if ($user && !$usersService->isAvailable($user->id)) {
             $this->setResponse($this->response->withStatus(401));
             return;
         }
 
         // トークンタイプチェック
         $auth = $this->Authentication->getAuthenticationService()->getAuthenticationProvider();
-        if($auth instanceof JwtAuthenticator){
+        if ($auth instanceof JwtAuthenticator) {
             $payload = $auth->getPayload();
-            if($payload->token_type !== 'access_token' && $this->getRequest()->getParam('action') !== 'refresh_token') {
+            if ($payload->token_type !== 'access_token' && $this->getRequest()->getParam('action') !== 'refresh_token') {
                 $this->setResponse($this->response->withStatus(401));
             }
         }

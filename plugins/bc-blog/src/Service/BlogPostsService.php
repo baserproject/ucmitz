@@ -73,6 +73,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function get(int $id, array $options = [])
     {
@@ -98,6 +99,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return \Cake\ORM\Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndex(array $queryParams = []): Query
     {
@@ -188,6 +190,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return \Cake\ORM\Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     protected function createIndexConditions(Query $query, array $params)
     {
@@ -283,7 +286,7 @@ class BlogPostsService implements BlogPostsServiceInterface
             );
         }
         // NO
-        if ($params['no']) {
+        if (isset($params['no']) && $params['no']) {
             if (!$params['blog_content_id'] && !$params['contentUrl'] && !$params['force']) {
                 trigger_error(__d('baser', 'blog_content_id を指定してください。'), E_USER_WARNING);
             }
@@ -310,6 +313,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createCategoryCondition(
         array  $conditions,
@@ -322,7 +326,8 @@ class BlogPostsService implements BlogPostsServiceInterface
         if ($blogContentId) {
             $categoryConditions['BlogCategories.blog_content_id'] = $blogContentId;
         } elseif ($contentUrl) {
-            $categoryConditions['BlogCategories.blog_content_id'] = $this->BlogPosts->BlogContents->Contents->field('entity_id', ['Contents.url' => $contentUrl]);
+            $entityIdData = $this->BlogPosts->BlogContents->Contents->find('all', ['Contents.url' => $contentUrl])->first();
+            $categoryConditions['BlogCategories.blog_content_id'] = $entityIdData->entity_id;
         } elseif (!$force) {
             trigger_error(__d('baser', 'blog_content_id を指定してください。'), E_USER_WARNING);
         }
@@ -354,6 +359,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createTagCondition($conditions, $tag)
     {
@@ -382,6 +388,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createKeywordCondition($conditions, $keyword)
     {
@@ -409,7 +416,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @param int $day
      * @return array
      * @checked
-     * @noTodo
+     * @unitTest
      */
     public function createYearMonthDayCondition($conditions, $year, $month, $day)
     {
@@ -444,6 +451,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function createAuthorCondition($conditions, $author)
     {
@@ -459,6 +467,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getNew(int $blogContentId, int $userId)
     {
@@ -477,14 +486,21 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function create(array $postData)
     {
         if (BcUtil::isOverPostSize()) {
             throw new BcException(__d(
                 'baser',
-                '送信できるデータ量を超えています。合計で %s 以内のデータを送信してください。',
+                '送信できるデータ量を超えています。合計で {0} 以内のデータを送信してください。',
                 ini_get('post_max_size')
+            ));
+        }
+        if (!isset($postData['blog_content_id']) || empty($postData['blog_content_id'])) {
+            throw new BcException(__d(
+                'baser',
+                'blog_content_id を指定してください。',
             ));
         }
         $postData['no'] = $this->BlogPosts->getMax('no', ['blog_content_id' => $postData['blog_content_id']]) + 1;
@@ -497,7 +513,7 @@ class BlogPostsService implements BlogPostsServiceInterface
 
     /**
      * ブログ記事を更新する
-     * 
+     *
      * POSTデータのサイズが設定ファイルで定義されたpost_max_sizeを超えた場合は例外処理される
      *
      * @param EntityInterface|BlogPost $post
@@ -505,6 +521,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function update(EntityInterface $post, array $postData)
     {
@@ -546,6 +563,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array|false
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getControlSource(string $field, array $options = [])
     {
@@ -585,6 +603,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface|false
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function publish(int $id)
     {
@@ -605,6 +624,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return EntityInterface|false
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function unpublish(int $id)
     {
@@ -623,6 +643,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return bool
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function delete(int $id): bool
     {
@@ -651,6 +672,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return array
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getTitlesById(array $ids): array
     {
@@ -689,6 +711,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByCategory($category, array $options = [])
     {
@@ -704,6 +727,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByAuthor(string $author, array $options = [])
     {
@@ -719,6 +743,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByTag(string $tag, array $options = [])
     {
@@ -736,6 +761,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @return Query
      * @checked
      * @noTodo
+     * @unitTest
      */
     public function getIndexByDate(string $year, string $month, string $day, array $options = [])
     {
@@ -753,6 +779,10 @@ class BlogPostsService implements BlogPostsServiceInterface
      *
      * @param BlogPost $post ブログ記事
      * @return BlogPost|EntityInterface
+     *
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function getPrevPost(BlogPost $post)
     {
@@ -786,6 +816,9 @@ class BlogPostsService implements BlogPostsServiceInterface
      *
      * @param BlogPost $post ブログ記事
      * @return BlogPost|EntityInterface
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function getNextPost(BlogPost $post)
     {
@@ -820,6 +853,9 @@ class BlogPostsService implements BlogPostsServiceInterface
      * @param BlogPost $post
      * @param array $options
      * @return array|Query
+     * @noTodo
+     * @checked
+     * @unitTest
      */
     public function getRelatedPosts(BlogPost $post, $options = [])
     {

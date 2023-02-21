@@ -50,51 +50,34 @@ class BcAdminAppController extends BcAppController
     public function initialize(): void
     {
         parent::initialize();
-
-        if(!BcUtil::isInstalled()) return;
-
+        if (!BcUtil::isInstalled()) return;
         $this->loadComponent('Authentication.Authentication', [
             'logoutRedirect' => Router::url(Configure::read('BcPrefixAuth.Admin.loginAction'), true),
         ]);
-
         if (Configure::read('BcApp.adminSsl') && !BcUtil::isConsole()) $this->Security->requireSecure();
-
-        // TODO ucmitz 未移行のためコメントアウト
-        // >>>
-//        $this->loadComponent('BaserCore.BcManager');
-        // <<<
-
-        /** @var UsersService $usersService */
-        $usersService = $this->getService(UsersServiceInterface::class);
-        $this->response = $usersService->checkAutoLogin($this->request, $this->response);
-
-        // ログインユーザ再読込
-        if (!$usersService->reload($this->request)) {
-            $this->redirect($this->Authentication->logout());
-        }
     }
 
     /**
      * Before Filter
      * @param EventInterface $event
-     * @return Response|void
-     * @checked
-     * @noTodo
-     * @unitTest
+     * @return Response|void|null
      */
     public function beforeFilter(EventInterface $event)
     {
-        parent::beforeFilter($event);
-
-        if(!BcUtil::isInstalled()) return;
-
-        $user = BcUtil::loginUser();
-        /* @var PermissionsServiceInterface $permission */
-        $permission = $this->getService(PermissionsServiceInterface::class);
-        if ($user && !$permission->check($this->getRequest()->getPath(), Hash::extract($user->toArray()['user_groups'], '{n}.id'))) {
-            $this->BcMessage->setError(__d('baser', '指定されたページへのアクセスは許可されていません。'));
-            $this->redirect(Router::url(Configure::read('BcPrefixAuth.Admin.loginRedirect')));
+        if (!BcUtil::isInstalled()) return;
+        /** @var UsersService $usersService */
+        $usersService = $this->getService(UsersServiceInterface::class);
+        $result = $usersService->checkAutoLogin($this->request, $this->response);
+        if ($result) {
+            $this->setResponse($usersService->setCookieAutoLoginKey($this->getResponse(), $result->id));
+            return $this->redirect($this->getRequest()->getPath());
         }
+
+        // ログインユーザ再読込
+        if (!$usersService->reload($this->request)) {
+            return $this->redirect($this->Authentication->logout());
+        }
+        return parent::beforeFilter($event);
     }
 
     /**
