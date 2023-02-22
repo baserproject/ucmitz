@@ -325,7 +325,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
             ]];
         $this->post("/baser/api/baser-core/contents/add_alias.json?token=" . $this->accessToken, $data);
         $this->assertResponseOk();
-        $this->assertNotEmpty(json_decode($this->_response->getBody())->content);
+        $this->assertNotEmpty(json_decode($this->_response->getBody())->alias);
         $this->assertEquals("テストエイリアス を作成しました。", json_decode($this->_response->getBody())->message);
     }
 
@@ -365,7 +365,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     {
         // postDataがない場合
         $this->patch("/baser/api/baser-core/contents/move.json?token=" . $this->accessToken);
-        $this->assertEquals('データ保存中にエラーが発生しました。Record not found in table "contents" with primary key [NULL]', json_decode($this->_response->getBody())->message);
+        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "contents" with primary key [NULL]', json_decode($this->_response->getBody())->message);
         // サービス1をサービス2の後ろに移動する場合
         $title = 'サービス１';
         $originEntity = $this->ContentsService->getIndex(['title' => $title])->first();
