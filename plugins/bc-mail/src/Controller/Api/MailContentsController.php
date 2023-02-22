@@ -26,6 +26,42 @@ class MailContentsController extends BcApiController
 {
 
     /**
+     * メールコンテンツAPI 一覧取得
+     * @return void
+     */
+    public function index()
+    {
+        //todo メールコンテンツAPI 一覧取得
+    }
+
+    /**
+     * メールコンテンツAPI 単一データ取得
+     * @param MailContentsServiceInterface $service
+     * @param int $id
+     * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function view(MailContentsServiceInterface $service, int $id)
+    {
+        $this->set([
+            'mailContent' => $service->get($id)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailContent']);
+    }
+
+    /**
+     * メールコンテンツAPI リスト取得
+     * @return void
+     */
+    public function list()
+    {
+        //todo メールコンテンツAPI リスト取得
+    }
+
+    /**
      * メールフォーム登録
      *
      * @checked
@@ -49,6 +85,24 @@ class MailContentsController extends BcApiController
             'errors' => $entity->getErrors()
         ]);
         $this->viewBuilder()->setOption('serialize', ['message', 'blogContent', 'content', 'errors']);
+    }
+
+    /**
+     * メールコンテンツAPI 編集
+     * @return void
+     */
+    public function edit()
+    {
+        //todo メールコンテンツAPI 編集
+    }
+
+    /**
+     * メールコンテンツAPI 削除
+     * @return void
+     */
+    public function delete()
+    {
+        //todo メールコンテンツAPI 削除
     }
 
     /**
