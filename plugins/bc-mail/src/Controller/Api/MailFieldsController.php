@@ -17,6 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
 use BcMail\Service\MailFieldsService;
 use BcMail\Service\MailFieldsServiceInterface;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * メールフィールドコントローラー
@@ -102,33 +103,56 @@ class MailFieldsController extends BcApiController
      * [API] メールフィールド API 一覧取得
      *
      * @param MailFieldsServiceInterface $service
-     * @return void
+     * @param int $mailContentId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function index(MailFieldsServiceInterface $service)
+    public function index(MailFieldsServiceInterface $service, int $mailContentId)
     {
-        //todo メールフィールド API 一覧取得
+        $this->set([
+            'mailFields' => $service->getIndex($mailContentId, $this->request->getQueryParams())
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailFields']);
     }
 
     /**
      * [API] メールフィールド API 単一データ取得
      *
      * @param MailFieldsServiceInterface $service
+     * @param int $id
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function view(MailFieldsServiceInterface $service)
+    public function view(MailFieldsServiceInterface $service, int $id)
     {
-        //todo メールフィールド API 単一データ取得
+        $this->set([
+            'mailField' => $service->get($id)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailField']);
     }
 
     /**
      * [API] メールフィールド API リスト取得
      *
      * @param MailFieldsServiceInterface $service
+     * @param int $mailContentId
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function list(MailFieldsServiceInterface $service)
+    public function list(MailFieldsServiceInterface $service, int $mailContentId)
     {
-        //todo メールフィールド API リスト取得
+        $this->set([
+            'mailFields' => $service->getList($mailContentId)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailFields']);
     }
 
     /**
@@ -136,10 +160,36 @@ class MailFieldsController extends BcApiController
      *
      * @param MailFieldsServiceInterface $service
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(MailFieldsServiceInterface $service)
     {
-        //todo メールフィールド API 新規追加
+        $this->request->allowMethod(['post', 'put']);
+        try {
+            $mailField = $service->create($this->request->getData());
+            $message = __d('baser', '新規メールフィールド「{0}」を追加しました。', $mailField->name);
+        } catch (PersistenceFailedException $e) {
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser', "入力エラーです。内容を修正してください。");
+            $this->setResponse($this->response->withStatus(400));
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(400));
+            $message = __d('baser', '処理中にエラーが発生しました。');
+        }
+
+        $this->set([
+            'mailField' => $mailField ?? null,
+            'message' => $message,
+            'errors' => $errors ?? null,
+        ]);
+        $this->viewBuilder()->setOption('serialize', [
+            'mailField',
+            'message',
+            'errors'
+        ]);
     }
 
 
