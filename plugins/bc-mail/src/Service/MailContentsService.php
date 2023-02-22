@@ -133,7 +133,7 @@ class MailContentsService implements MailContentsServiceInterface
      */
     public function delete(int $id): bool
     {
-        $entity = $this->get($id);
+        $entity = $this->get($id, ['contain' => []]);
         /** @var MailMessagesService $mailMessagesService */
         $mailMessagesService = $this->getService(MailMessagesServiceInterface::class);
         $this->MailContents->getConnection()->begin();
@@ -155,12 +155,15 @@ class MailContentsService implements MailContentsServiceInterface
      * @checked
      * @noTodo
      */
-    public function get(int $id)
+    public function get(int $id, array $options = [])
     {
-        return $this->MailContents->get($id, ['contain' => [
-            'Contents' => ['Sites'],
-            'MailFields'
-        ]]);
+        $options = array_merge_recursive([
+            'contain' => [
+                'Contents' => ['Sites'],
+                'MailFields'
+            ]
+        ], $options);
+        return $this->MailContents->get($id, ['contain' => $options['contain']]);
     }
 
     /**
