@@ -19,6 +19,7 @@ use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use BcMail\Model\Table\MailContentsTable;
 use Cake\Datasource\EntityInterface;
+use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -171,11 +172,22 @@ class MailContentsService implements MailContentsServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function getIndex(array $queryParams = [])
+    public function getIndex(array $queryParams = []): Query
     {
         $options = array_merge([
-            'limit' => null
+            'num' => null,
+            'limit' => null,
+            'direction' => 'DESC',    // 並び方向
+            'order' => 'posted',    // 並び順対象のフィールド
+            'sort' => null,
+            'id' => null,
+            'no' => null
         ], $queryParams);
+
+        if (!empty($options['num'])) $options['limit'] = $options['num'];
+        if (!empty($options['sort'])) $options['order'] = $options['sort'];
+        unset($options['num'], $options['sort']);
+
         $query = $this->MailContents->find()->contain('Contents');
         if (!is_null($options['limit'])) $query->limit($options['limit']);
         return $query;
