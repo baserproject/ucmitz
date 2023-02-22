@@ -200,7 +200,13 @@ class UsersService implements UsersServiceInterface
      */
     public function getList(array $queryParams = []): array
     {
-        return $this->Users->getUserList();
+        $options = array_merge([
+            'status' => null
+        ], $queryParams);
+
+        $conditions = [];
+        if(!is_null($options['status'])) $conditions['status'] = $options['status'];
+        return $this->Users->getUserList($conditions);
     }
 
     /**
@@ -364,8 +370,6 @@ class UsersService implements UsersServiceInterface
         if ($user === null) return false;
 
         $authentication->persistIdentity($request, $response, $user);
-        // キーのリフレッシュ
-        $this->LoginStores->refresh('Admin', $user->id);
         return $user;
     }
 
@@ -442,7 +446,9 @@ class UsersService implements UsersServiceInterface
         $session = $request->getSession();
         $sessionKey = Configure::read('BcPrefixAuth.' . $prefix . '.sessionKey');
         try {
-            $user = $this->Users->find('available')->where(['id' => $sessionUser->id])->first();
+            $user = $this->Users->find('available')->where([
+                'Users.id' => $sessionUser->id
+            ])->first();
             if($user) {
                 $session->write($sessionKey, $user);
                 return true;
@@ -469,7 +475,9 @@ class UsersService implements UsersServiceInterface
      */
     public function isAvailable(int $id): bool
     {
-        return (bool) $this->Users->find('available')->where(['id' => $id])->count();
+        return (bool) $this->Users->find('available')->where([
+            'Users.id' => $id
+        ])->count();
     }
 
 }
