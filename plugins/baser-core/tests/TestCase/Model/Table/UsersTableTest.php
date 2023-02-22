@@ -50,12 +50,8 @@ class UsersTableTest extends BcTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $config = $this->getTableLocator()->exists('Users')? [] : ['className' => 'BaserCore\Model\Table\UsersTable'];
-        $this->Users = $this->getTableLocator()->get('Users', $config);
-
-        $config = $this->getTableLocator()->exists('LoginStores')?
-            [] : ['className' => 'BaserCore\Model\Table\LoginStoresTable'];
-        $this->LoginStores = $this->getTableLocator()->get('LoginStores', $config);
+        $this->Users = $this->getTableLocator()->get('BaserCore.Users');
+        $this->LoginStores = $this->getTableLocator()->get('BaserCore.LoginStores');
     }
 
     /**
@@ -221,10 +217,11 @@ class UsersTableTest extends BcTestCase
      */
     public function test_findAvailable()
     {
+        $this->getRequest('/baser/admin');
         $entity = $this->Users->findAvailable($this->Users->find())->first();
         $this->assertTrue(isset($entity->user_groups));
         $this->assertTrue($entity->status);
-        $this->assertNull($this->Users->findAvailable($this->Users->find()->where(['id' => 3]))->first());
+        $this->assertNull($this->Users->findAvailable($this->Users->find()->where(['Users.id' => 3]))->first());
     }
 
 }
