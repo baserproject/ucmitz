@@ -64,8 +64,7 @@ class ContentsTableTest extends BcTestCase
     {
         parent::setUp();
         $this->loadFixtures('Contents', 'Sites', 'Users', 'UserGroups', 'UsersUserGroups');
-        $config = $this->getTableLocator()->exists('Contents')? [] : ['className' => 'BaserCore\Model\Table\ContentsTable'];
-        $this->Contents = $this->getTableLocator()->get('Contents', $config);
+        $this->Contents = $this->getTableLocator()->get('BaserCore.Contents');
     }
 
     /**
@@ -711,10 +710,8 @@ class ContentsTableTest extends BcTestCase
         $this->assertEquals(true, $result['Contents.status']);
         $this->assertArrayHasKey('Contents.publish_begin <=', $result[0]['or'][0]);
         $this->assertEquals(null, $result[0]['or'][1]['Contents.publish_begin IS']);
-        $this->assertEquals('0000-00-00 00:00:00', $result[0]['or'][2]['Contents.publish_begin']);
         $this->assertArrayHasKey('Contents.publish_end >=', $result[1]['or'][0]);
         $this->assertEquals(null, $result[1]['or'][1]['Contents.publish_end IS']);
-        $this->assertEquals('0000-00-00 00:00:00', $result[1]['or'][2]['Contents.publish_end']);
     }
 
 

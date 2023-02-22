@@ -103,33 +103,56 @@ class MailFieldsController extends BcApiController
      * [API] メールフィールド API 一覧取得
      *
      * @param MailFieldsServiceInterface $service
-     * @return void
+     * @param int $mailContentId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function index(MailFieldsServiceInterface $service)
+    public function index(MailFieldsServiceInterface $service, int $mailContentId)
     {
-        //todo メールフィールド API 一覧取得
+        $this->set([
+            'mailFields' => $service->getIndex($mailContentId, $this->request->getQueryParams())
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailFields']);
     }
 
     /**
      * [API] メールフィールド API 単一データ取得
      *
      * @param MailFieldsServiceInterface $service
+     * @param int $id
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function view(MailFieldsServiceInterface $service)
+    public function view(MailFieldsServiceInterface $service, int $id)
     {
-        //todo メールフィールド API 単一データ取得
+        $this->set([
+            'mailField' => $service->get($id)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailField']);
     }
 
     /**
      * [API] メールフィールド API リスト取得
      *
      * @param MailFieldsServiceInterface $service
+     * @param int $mailContentId
      * @return void
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function list(MailFieldsServiceInterface $service)
+    public function list(MailFieldsServiceInterface $service, int $mailContentId)
     {
-        //todo メールフィールド API リスト取得
+        $this->set([
+            'mailFields' => $service->getList($mailContentId)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['mailFields']);
     }
 
     /**
