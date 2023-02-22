@@ -17,6 +17,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
 use BcMail\Service\MailContentsService;
 use BcMail\Service\MailContentsServiceInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
@@ -109,6 +110,7 @@ class MailContentsController extends BcApiController
     public function delete(MailContentsServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
+        $mailContent = null;
         try {
             $mailContent = $service->get($id);
             if ($service->delete($id)) {
@@ -116,22 +118,20 @@ class MailContentsController extends BcApiController
             } else {
                 $message = __d('baser', 'データベース処理中にエラーが発生しました。');
             }
-        } catch (PersistenceFailedException $e) {
-            $mailContent = $e->getEntity();
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', '処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
-            'message' => $message,
             'mailContent' => $mailContent,
-            'content' => $mailContent->content,
-            'errors' => $mailContent->getErrors(),
+            'content' => $mailContent ?? $mailContent->content,
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['mailContent', 'content', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['mailContent', 'content', 'message']);
     }
 
     /**
