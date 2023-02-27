@@ -15,6 +15,7 @@ use BaserCore\Error\BcException;
 use BaserCore\Model\Entity\Plugin;
 use BaserCore\Model\Table\PluginsTable;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcUpdateLog;
 use BaserCore\Utility\BcZip;
 use Cake\Cache\Cache;
 use Cake\Http\Client;
@@ -180,28 +181,82 @@ class PluginsService implements PluginsServiceInterface
             $names = [$name];
         }
 
-        $result = true;
+        TableRegistry::getTableLocator()->clear();
+        BcUtil::clearAllCache();
         $pluginCollection = CakePlugin::getCollection();
+        $plugins = [];
+
+        // マイグレーション実行
         foreach($names as $name) {
             if($name !== 'BaserCore') {
                 $entity = $this->Plugins->getPluginConfig($name);
                 if(!$entity->registered) continue;
             }
+            $targetVersion = BcUtil::getVersion($name);
+            BcUpdateLog::set(__d('baser', '{0} プラグイン {1} へのアップデートを開始します。', $name, $targetVersion));
             $plugin = $pluginCollection->create($name);
-            if (!method_exists($plugin, 'update')) {
-                throw new Exception(__d('baser', 'プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してください。'));
-            } else {
-                if(!$plugin->update($options)) {
-                    $result = false;
+            $migrate = false;
+            if (method_exists($plugin, 'migrate')) {
+                $plugin->migrate($options);
+                $migrate = true;
+            }
+            $plugins[$name] = [
+                'instance' => $plugin,
+                'migrate' => $migrate,
+                'version' => $targetVersion
+            ];
+        }
+
+        // アップデートスクリプト実行
+        try {
+            foreach($plugins as $plugin) {
+                if (method_exists($plugin['instance'], 'execUpdater')) {
+                    $plugin['instance']->execUpdater();
                 }
             }
+        } catch (\Throwable $e) {
+            foreach($plugins as $plugin) {
+                if($plugin['migrate']) {
+                    $plugin['instance']->migrations->rollback($options);
+                }
+            }
+            BcUpdateLog::set(__d('baser', 'アップデート処理が途中で失敗しました。'));
+            BcUpdateLog::set($e->getMessage());
+            BcUtil::clearAllCache();
+            BcUpdateLog::save();
+            return false;
         }
+
+        // バージョン番号更新
+        try {
+            $pluginsTable = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
+            foreach($plugins as $name => $plugin) {
+                $pluginsTable->update($name, $plugin['version']);
+                BcUpdateLog::set(__d('baser', '{0} プラグイン {1} へのアップデートが完了しました。', $name, $plugin['version']));
+            }
+        } catch (\Throwable $e) {
+            foreach($plugins as $plugin) {
+                if($plugin['migrate']) {
+                    $plugin['instance']->migrations->rollback($options);
+                }
+            }
+            BcUpdateLog::set(__d('baser', 'アップデート処理が途中で失敗しました。'));
+            BcUpdateLog::set($e->getMessage());
+            BcUtil::clearAllCache();
+            BcUpdateLog::save();
+            return false;
+        }
+
+        $plugin['instance']->createAssetsSymlink();
+
+        BcUtil::clearAllCache();
+        BcUpdateLog::save();
 
         if ($name === 'BaserCore') {
             $this->attachAllFromIds($ids);
         }
 
-        return $result;
+        return true;
     }
 
     /**
