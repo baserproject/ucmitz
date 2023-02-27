@@ -75,10 +75,10 @@ class ContentsController extends BcApiController
         }
 
         $this->set([
-            'trash' => $trash,
+            'content' => $trash,
             'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['trash', 'message']);
+        $this->viewBuilder()->setOption('serialize', ['content', 'message']);
     }
 
     /**
@@ -176,7 +176,6 @@ class ContentsController extends BcApiController
     public function trash_empty(ContentsServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $trash = $errors = null;
         try {
             $trash = $service->getTrashIndex($this->request->getQueryParams())->order(['plugin', 'type']);
 
@@ -196,20 +195,17 @@ class ContentsController extends BcApiController
                 'data' => $result
             ]);
 
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
-            'trash' => $trash,
-            'message' => $message,
-            'errors' => $errors
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['trash', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
     /**
@@ -459,11 +455,11 @@ class ContentsController extends BcApiController
         }
 
         $this->set([
-            'alias' => $alias,
+            'content' => $alias,
             'message' => $message,
             'errors' => $errors
         ]);
-        $this->viewBuilder()->setOption('serialize', ['alias', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['content', 'message', 'errors']);
     }
 
     /**
