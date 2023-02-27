@@ -161,6 +161,9 @@ class UploaderFilesControllerTest extends BcTestCase
      */
     public function test_delete()
     {
+        $pathImg = WWW_ROOT . DS . 'files' . DS . 'uploads' . DS;
+        //テストファイルを作成
+        new File($pathImg . '2_2.jpg', true);
         //データを生成
         UploaderFileFactory::make(['id' => 1, 'name' => '2_2.jpg', 'atl' => '2_2.jpg', 'user_id' => 1])->persist();
         //APIを呼ぶ
@@ -171,5 +174,7 @@ class UploaderFilesControllerTest extends BcTestCase
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals($result->message, 'アップロードファイル「2_2.jpg」を削除しました。');
         $this->assertEquals($result->uploadFile->name, '2_2.jpg');
+        //ファイルが削除できるか確認
+        $this->assertFalse(file_exists($pathImg . '2_2.jpg'));
     }
 }
