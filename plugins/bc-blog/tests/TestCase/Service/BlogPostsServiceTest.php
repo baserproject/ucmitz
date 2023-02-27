@@ -26,6 +26,7 @@ use BcBlog\Test\Factory\BlogPostFactory;
 use BcBlog\Test\Factory\BlogTagFactory;
 use BcBlog\Test\Scenario\MultiSiteBlogScenario;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\ORM\TableRegistry;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\I18n\FrozenTime;
 
@@ -54,6 +55,7 @@ class BlogPostsServiceTest extends BcTestCase
         'plugin.BcBlog.Factory/BlogPosts',
         'plugin.BcBlog.Factory/BlogTags',
         'plugin.BaserCore.Factory/Contents',
+        'plugin.BaserCore.Factory/ContentFolders',
         'plugin.BcBlog.Factory/BlogContents',
         'plugin.BcBlog.Factory/BlogCategories',
         'plugin.BcBlog.Factory/BlogPostsBlogTags',
@@ -386,17 +388,17 @@ class BlogPostsServiceTest extends BcTestCase
     {
         $result = $this->BlogPostsService->createKeywordCondition([], "hello");
         //戻り値を確認
-        $this->assertEquals("%hello%", $result['and'][0]['or'][0]['BlogPosts.name LIKE']);
+        $this->assertEquals("%hello%", $result['and'][0]['or'][0]['BlogPosts.title LIKE']);
         $this->assertEquals("%hello%", $result['and'][0]['or'][1]['BlogPosts.content LIKE']);
         $this->assertEquals("%hello%", $result['and'][0]['or'][2]['BlogPosts.detail LIKE']);
 
         //スペースを含むテストデータ
         $result = $this->BlogPostsService->createKeywordCondition([], "hello world");
         //戻り値を確認
-        $this->assertEquals("%hello%", $result['and'][0]['or'][0]['BlogPosts.name LIKE']);
+        $this->assertEquals("%hello%", $result['and'][0]['or'][0]['BlogPosts.title LIKE']);
         $this->assertEquals("%hello%", $result['and'][0]['or'][1]['BlogPosts.content LIKE']);
         $this->assertEquals("%hello%", $result['and'][0]['or'][2]['BlogPosts.detail LIKE']);
-        $this->assertEquals("%world%", $result['and'][1]['or'][0]['BlogPosts.name LIKE']);
+        $this->assertEquals("%world%", $result['and'][1]['or'][0]['BlogPosts.title LIKE']);
         $this->assertEquals("%world%", $result['and'][1]['or'][1]['BlogPosts.content LIKE']);
         $this->assertEquals("%world%", $result['and'][1]['or'][2]['BlogPosts.detail LIKE']);
     }
@@ -514,7 +516,7 @@ class BlogPostsServiceTest extends BcTestCase
                 false,
                 $blogPost->find('all'),
                 ['contentUrl' => '/test'],
-                $blogPost->find('all')->where(['Contents.url' => '/test'])
+                $blogPost->find('all')->contain(['BlogContents' => ['Contents']])->where(['Contents.url' => '/test'])
             ],
             //$params カテゴリID
             [
@@ -555,7 +557,7 @@ class BlogPostsServiceTest extends BcTestCase
                 ['no' => 1, 'force' => true],
                 $blogPost->find('all')->where(['BlogPosts.no' => 1])
             ],
-            //$params キーワード
+            // $params キーワード
             [
                 false,
                 $blogPost->find('all'),
@@ -564,7 +566,7 @@ class BlogPostsServiceTest extends BcTestCase
                     'and' => [
                         0 => [
                             'or' => [
-                                ['BlogPosts.name LIKE' => '%test%'],
+                                ['BlogPosts.title LIKE' => '%test%'],
                                 ['BlogPosts.content LIKE' => '%test%'],
                                 ['BlogPosts.detail LIKE' => '%test%']
                             ]

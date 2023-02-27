@@ -15,6 +15,8 @@ namespace BcBlog\Test\TestCase\View\Helper;
 use App\View\AppView;
 use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Factory\SiteFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
+use BaserCore\Test\Scenario\RootContentScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Service\BlogPostsService;
 use BcBlog\Service\BlogPostsServiceInterface;
@@ -26,7 +28,6 @@ use BcBlog\Test\Scenario\MultiSiteBlogPostScenario;
 use BcBlog\Test\Scenario\MultiSiteBlogScenario;
 use BcBlog\View\Helper\BlogHelper;
 use Cake\Core\Configure;
-use Cake\View\View;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -51,6 +52,9 @@ class BlogHelperTest extends BcTestCase
         'plugin.BaserCore.Factory/Sites',
         'plugin.BaserCore.Factory/Contents',
         'plugin.BaserCore.Factory/ContentFolders',
+        'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/UserGroups',
+        'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BcBlog.Factory/BlogContents',
         'plugin.BcBlog.Factory/BlogCategories',
         'plugin.BcBlog.Factory/BlogPosts',
@@ -109,25 +113,25 @@ class BlogHelperTest extends BcTestCase
     public function testSetContent($blogContentId, $viewVars, $expected)
     {
         $this->markTestIncomplete('こちらのテストはまだ未確認です');
-        if ($viewVars) {
-            $View = new View();
-            $View->viewVars = ['blogContent' => [
-                'BlogContent' => [
-                    'id' => 3,
-                    'name' => 'test',
-                ]
-            ]];
-            $View->request = $this->_getRequest('/');
-            $View->request->params['Content']['type'] = 'BlogContent';
-            $this->Blog = new BlogHelper($View);
-        }
-        $this->Blog->blogContent = null;
-        $this->Blog->setContent($blogContentId);
-        $result = null;
-        if (!empty($this->Blog->blogContent['id'])) {
-            $result = $this->Blog->blogContent['id'];
-        }
-        $this->assertEquals($result, $expected, 'ブログコンテンツデータを正しくセットできません');
+//        if ($viewVars) {
+//            $View = new View();
+//            $View->viewVars = ['blogContent' => [
+//                'BlogContent' => [
+//                    'id' => 3,
+//                    'name' => 'test',
+//                ]
+//            ]];
+//            $View->request = $this->_getRequest('/');
+//            $View->request->params['Content']['type'] = 'BlogContent';
+//            $this->Blog = new BlogHelper($View);
+//        }
+//        $this->Blog->blogContent = null;
+//        $this->Blog->setContent($blogContentId);
+//        $result = null;
+//        if (!empty($this->Blog->blogContent['id'])) {
+//            $result = $this->Blog->blogContent['id'];
+//        }
+//        $this->assertEquals($result, $expected, 'ブログコンテンツデータを正しくセットできません');
     }
 
     public function setContentDataProvider()
@@ -716,6 +720,8 @@ class BlogHelperTest extends BcTestCase
      */
     public function testGetEyeCatch()
     {
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(RootContentScenario::class, 2, 1, null, '', '/');
         // テストデータを作る
         BlogPostFactory::make([
             'id' => 1,
@@ -728,6 +734,9 @@ class BlogHelperTest extends BcTestCase
             'name' => 'test name',
             'blog_category_id' => 1,
         ])->persist();
+
+
+        $this->getRequest();
         $post = BlogPostFactory::get(1);
 
         // $optionはデフォルト値のテスト
