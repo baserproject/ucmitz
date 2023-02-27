@@ -121,7 +121,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         $this->get('/baser/api/baser-core/contents/view_trash/16.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('削除済みフォルダー(親)', $result->trash->title);
+        $this->assertEquals('削除済みフォルダー(親)', $result->content->title);
     }
 
     /**
@@ -325,7 +325,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
             ]];
         $this->post("/baser/api/baser-core/contents/add_alias.json?token=" . $this->accessToken, $data);
         $this->assertResponseOk();
-        $this->assertNotEmpty(json_decode($this->_response->getBody())->alias);
+        $this->assertNotEmpty(json_decode($this->_response->getBody())->content);
         $this->assertEquals("テストエイリアス を作成しました。", json_decode($this->_response->getBody())->message);
     }
 

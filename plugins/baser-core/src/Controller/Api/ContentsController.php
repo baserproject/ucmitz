@@ -421,7 +421,7 @@ class ContentsController extends BcApiController
             $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
-            'name' => $newContent->name,
+            'name' => $newContent?->name,
             'url' => $url,
             'message' => $message,
             'errors' => $errors,
