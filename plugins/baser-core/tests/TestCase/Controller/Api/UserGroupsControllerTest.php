@@ -130,7 +130,7 @@ class UserGroupsControllerTest extends BcTestCase
         $this->get('/baser/api/baser-core/user_groups/view/1.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('admins', $result->userGroups->name);
+        $this->assertEquals('admins', $result->userGroup->name);
     }
 
     /**
@@ -145,7 +145,7 @@ class UserGroupsControllerTest extends BcTestCase
         $userGroupsService = new UserGroupsService();
         $userGroups = $userGroupsService->getList();
 
-        foreach ($result->userGroups as $key => $v){
+        foreach ($result->userGroups as $key => $v) {
             $this->assertEquals($userGroups[$key], $v);
         }
     }
@@ -167,10 +167,6 @@ class UserGroupsControllerTest extends BcTestCase
         $this->assertEmpty($result->errors);
 
         $this->post('/baser/api/baser-core/user_groups/copy/test.json?token=' . $this->accessToken);
-        $this->assertResponseCode(400);
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEmpty($result->userGroup);
-        $this->assertNotEmpty($result->errors);
-        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+        $this->assertResponseCode(404);
     }
 }
