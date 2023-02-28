@@ -140,7 +140,7 @@ class BlogPostsControllerTest extends BcTestCase
         $this->assertResponseCode(404);
         // 戻り値を確認
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('Record not found in table "blog_posts"', $result->message);
+        $this->assertEquals('データが見つかりません。', $result->message);
 
         //ログインしていない状態では status パラメーターへへのアクセスを禁止するか確認
         $this->get('/baser/api/bc-blog/blog_posts/view/1.json?status=publish');

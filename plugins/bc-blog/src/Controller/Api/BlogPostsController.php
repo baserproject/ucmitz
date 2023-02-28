@@ -83,23 +83,22 @@ class BlogPostsController extends BcApiController
             'status' => 'publish'
         ], $queryParams);
 
-        $blogPost = $message = $errors = null;
+        $blogPost = $message = null;
         try {
             $blogPost = $service->get($id, $queryParams);
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
-            $message = $e->getMessage();
-        } catch (Throwable $e) {
-            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データが見つかりません。');
+        } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
         }
 
         $this->set([
             'blogPost' => $blogPost,
-            'message' => $message,
-            'errors' => $errors,
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['blogPost', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['blogPost', 'message']);
     }
 
     /**
@@ -122,7 +121,7 @@ class BlogPostsController extends BcApiController
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -152,28 +151,23 @@ class BlogPostsController extends BcApiController
     public function edit(BlogPostsServiceInterface $service, $id)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
-
+        $blogPost = $errors = null;
         try {
             $blogPost = $service->update($service->get($id), $this->request->getData());
             $message = __d('baser', '記事「{0}」を更新しました。', $blogPost->title);
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $blogPost = $e->getEntity();
+            $errors = $e->getEntity()->getErrors();
             $message = __d('baser', '入力エラーです。内容を修正してください。');
-        } catch (BcException $e) {
-            $blogPost = $e->getEntity();
-            $this->setResponse($this->response->withStatus(400));
-            if ($e->getCode() === "23000") {
-                $message = __d('baser', '同時更新エラーです。しばらく経ってから保存してください。');
-            } else {
-                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
-            }
+        } catch (Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
             'message' => $message,
             'blogPost' => $blogPost,
-            'errors' => $blogPost->getErrors(),
+            'errors' => $errors
         ]);
 
         $this->viewBuilder()->setOption('serialize', ['blogPost', 'message', 'errors']);
@@ -201,7 +195,7 @@ class BlogPostsController extends BcApiController
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -242,7 +236,7 @@ class BlogPostsController extends BcApiController
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -278,7 +272,7 @@ class BlogPostsController extends BcApiController
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -312,7 +306,7 @@ class BlogPostsController extends BcApiController
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -355,6 +349,7 @@ class BlogPostsController extends BcApiController
             return;
         }
         $targets = $this->getRequest()->getData('batch_targets');
+        $errors = null;
         try {
             $names = $service->getTitlesById($targets);
             $service->batch($method, $targets);
@@ -366,13 +361,14 @@ class BlogPostsController extends BcApiController
             $message = __d('baser', '一括処理が完了しました。');
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
-        $this->set(['message' => $message]);
-        $this->viewBuilder()->setOption('serialize', ['message']);
+        $this->set(['message' => $message, 'errors' => $errors]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
     }
 
 }
