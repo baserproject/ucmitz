@@ -260,6 +260,37 @@ class PluginsService implements PluginsServiceInterface
     }
 
     /**
+     * BaserCoreをアップデートする
+     *
+     * @param string $currentVersion
+     * @param string $targetVersion
+     * @param string $connection
+     */
+    public function updateCore(string $currentVersion, string $targetVersion, $connection = 'default')
+    {
+        // Composer 実行
+	    $command = ROOT . DS . 'bin' . DS . 'cake composer ' . $targetVersion;
+	    exec($command, $out, $code);
+	    if($code !== 0) throw new BcException(__d('baser', 'プログラムファイルのアップデートに失敗しました。'));
+
+        // マイグレーション、アップデートスクリプト実行、バージョン番号更新
+        // マイグレーションファイルがプログラムに反映されないと実行できないため、別プロセスとして実行する
+	    $command = ROOT . DS . 'bin' . DS . 'cake update --connection ' . $connection;
+	    $out = $code = null;
+	    exec($command, $out, $code);
+	    if($code !== 0) {
+	        // 失敗した場合は元のバージョンに戻す
+            $command = ROOT . DS . 'bin' . DS . 'cake composer ' . $currentVersion;
+            exec($command, $out, $code);
+            if($code !== 0) {
+                throw new BcException(__d('baser', 'アップデートスクリプトの処理が失敗したので、プログラムファイルを元に戻そうとしましたが失敗しました。'));
+            } else {
+                throw new BcException(__d('baser', 'アップデートスクリプトの処理が失敗したので、プログラムファイルを元に戻しました。'));
+            }
+	    }
+    }
+
+    /**
      * プラグインを全て無効化する
      *
      * @return array 無効化したIDのリスト
@@ -633,6 +664,25 @@ class PluginsService implements PluginsServiceInterface
         unlink(TMP . $name);
         BcUtil::changePluginNameSpace($dstName);
         return $dstName;
+    }
+
+    /**
+     * 取得可能なコアのバージョンを取得
+     *
+     * @return string
+     */
+    public function getAvailableCoreVersion()
+    {
+        $releaseUrl = Configure::read('BcApp.coreReleaseUrl');
+        $http = new Client();
+        $response = $http->get($releaseUrl);
+        $xml = Xml::build($response->getStringBody());
+        if(isset($xml->channel->item[0]->guid)) {
+            if(preg_match('/baserproject\/baser-core ([0-9.]+)$/', $xml->channel->item[0]->guid, $matches)) {
+                return $matches[1];
+            }
+        }
+        return '';
     }
 
 }

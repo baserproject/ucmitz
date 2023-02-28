@@ -1,0 +1,167 @@
+<?php
+/**
+ * baserCMS :  Based Website Development Project <https://basercms.net>
+ * Copyright (c) NPO baser foundation <https://baserfoundation.org/>
+ *
+ * @copyright     Copyright (c) NPO baser foundation
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       https://basercms.net/license/index.html MIT License
+ */
+
+namespace BaserCore\Utility;
+
+use Exception;
+
+/**
+ * BcComposer
+ */
+class BcComposer {
+
+    /**
+     * cd コマンド
+     *
+     * @var string
+     */
+    public static $cd;
+
+    /**
+     * Composer Dir
+     *
+     * @var string
+     */
+    public static $composerDir;
+
+    /**
+     * export コマンド
+     *
+     * @var string
+     */
+    public static $export;
+
+    /**
+     * php パス
+     *
+     * @var string
+     */
+    public static $php;
+
+    /**
+     * Setup
+     *
+     * @param string $php
+     * @throws Exception
+     */
+    public static function setup(string $php = '')
+    {
+        self::checkEnv();
+        self::$cd = "cd " . ROOT . DS . ';';
+        self::$composerDir = ROOT . DS . 'composer' . DS;
+        self::$export = "export HOME=" . self::$composerDir . ";";
+        self::$php = $php;
+    }
+
+    /**
+     * 環境チェック
+     *
+     * @throws Exception
+     */
+    public static function checkEnv()
+    {
+        $error = [];
+        if (!is_writable(ROOT . DS . 'composer')) {
+            $error[] = '/composer に書き込み権限がありません。書き込み権限を与えてください。';
+        }
+        if (!is_writable(ROOT . DS . 'vendor')) {
+            $error[] = '/vendor に書き込み権限がありません。書き込み権限を与えてください。';
+        }
+        if (!is_writable(ROOT . DS . 'config')) {
+            $error[] = '/config に書き込み権限がありません。書き込み権限を与えてください。';
+        }
+        if (!is_writable(ROOT . DS . 'tmp')) {
+            $error[] = '/tmp に書き込み権限がありません。書き込み権限を与えてください。';
+        }
+        if (!is_writable(ROOT . DS . 'logs')) {
+            $error = '/logs に書き込み権限がありません。書き込み権限を与えてください。';
+        }
+        if($error) {
+            throw new Exception(implode('\n', $error));
+        }
+    }
+
+    /**
+     * Composer のインストール
+     *
+     * @return array
+     */
+    public static function installComposer()
+    {
+        $command = self::$cd . ' ' . self::$export . ' curl -sS https://getcomposer.org/installer';
+        if(self::$php) $command .= ' | ' . self::$php;
+        exec($command, $out, $code);
+        return [
+            'out' => $out,
+            'code' => $code
+        ];
+    }
+
+    /**
+     * composer require 実行
+     *
+     * @param string $package
+     * @param string $version
+     * @return array
+     */
+    public static function require(string $package, string $version)
+    {
+        return self::execCommand("require baserproject/{$package}:{$version} --with-all-dependencies 2>&1");
+    }
+
+    /**
+     * composer install 実行
+     *
+     * @return array
+     */
+    public static function install()
+    {
+        return self::execCommand('install');
+    }
+
+    /**
+     * composer self-update 実行
+     *
+     * @return array
+     */
+    public static function selfUpdate()
+    {
+        return self::execCommand('self-update');
+    }
+
+    /**
+     * コマンド実行
+     *
+     * @param string $command
+     * @return array
+     */
+    public static function execCommand(string $command)
+    {
+        $command = self::createCommand($command);
+        exec($command, $out, $code);
+        return [
+            'out' => $out,
+            'code' => $code
+        ];
+    }
+
+    /**
+     * コマンド作成
+     *
+     * @param string $command
+     * @return string
+     */
+    public static function createCommand(string $command)
+    {
+        return  self::$cd . ' ' . self::$export . ' ' . self::$php . ' ' . self::$composerDir . 'composer.phar ' . $command;
+    }
+
+}

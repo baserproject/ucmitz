@@ -238,17 +238,17 @@ return [
          * コアプラグイン
          */
         'corePlugins' => [
-            'BcSearchIndex',
             'BcBlog',
-            'BcMail',
+            'BcContentLink',
+            'BcCustomContent',
             'BcEditorTemplate',
+            'BcFavorite',
+            'BcMail',
+            'BcSearchIndex',
             'BcThemeConfig',
             'BcThemeFile',
             'BcUploader',
             'BcWidgetArea',
-            'BcContentLink',
-            'BcFavorite',
-            'BcCustomContent'
         ],
         'defaultInstallCorePlugins' => [
             'BcSearchIndex',
@@ -257,6 +257,12 @@ return [
             'BcThemeConfig',
             'BcWidgetArea',
         ],
+
+        /**
+         * コアのリリース情報を取得するためのURL
+         */
+        'coreReleaseUrl' => 'https://packagist.org/feeds/package.baserproject/baser-core.rss',
+
         /**
          * パスワード再発行URLの有効時間(min) デフォルト24時間
          */
