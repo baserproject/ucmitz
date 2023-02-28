@@ -17,7 +17,6 @@ use Cake\Core\Configure;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
-use Cake\Core\Plugin;
 use Cake\Event\Event;
 use Cake\View\View;
 
@@ -43,14 +42,14 @@ class BcBlogViewEventListener extends \BaserCore\Event\BcViewEventListener
      */
     public function beforeRender(Event $event)
     {
-        if(BcUtil::isAdminSystem()) {
+        if (BcUtil::isAdminSystem()) {
             $this->setAdminMenu();
         } else {
             // BlogHelper が読み込まれていない場合、
             // ウィジェットでブログ以外でも利用する可能性があるので読み込む
             /** @var View $view */
             $view = $event->getSubject();
-            if(!$view->helpers()->has('Blog')) {
+            if (!$view->helpers()->has('Blog')) {
                 $view->loadHelper('BcBlog.Blog');
             }
         }
