@@ -154,17 +154,17 @@ class PluginsService implements PluginsServiceInterface
     /**
      * プラグインをアップデートする
      *
-     * @param string $name プラグイン名
+     * @param string $pluginName プラグイン名
      * @param string $connection コネクション名
      * @return bool
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function update($name, $connection = 'default'): ?bool
+    public function update($pluginName, $connection = 'default'): ?bool
     {
         $options = ['connection' => $connection];
-        BcUtil::includePluginClass($name);
+        BcUtil::includePluginClass($pluginName);
 
         if (function_exists('ini_set')) {
             ini_set('max_execution_time', 0);
@@ -174,11 +174,11 @@ class PluginsService implements PluginsServiceInterface
             unlink(LOGS . 'update.log');
         }
 
-        if ($name === 'BaserCore') {
+        if ($pluginName === 'BaserCore') {
             $names = array_merge(['BaserCore'], Configure::read('BcApp.corePlugins'));
             $ids = $this->detachAll();
         } else {
-            $names = [$name];
+            $names = [$pluginName];
         }
 
         TableRegistry::getTableLocator()->clear();
@@ -252,7 +252,7 @@ class PluginsService implements PluginsServiceInterface
         BcUtil::clearAllCache();
         BcUpdateLog::save();
 
-        if ($name === 'BaserCore') {
+        if ($pluginName === 'BaserCore') {
             $this->attachAllFromIds($ids);
         }
 
