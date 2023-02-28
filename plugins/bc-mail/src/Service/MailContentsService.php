@@ -184,7 +184,8 @@ class MailContentsService implements MailContentsServiceInterface
             'order' => 'posted',    // 並び順対象のフィールド
             'sort' => null,
             'id' => null,
-            'no' => null
+            'no' => null,
+            'status' => null
         ], $queryParams);
 
         if (!empty($options['num'])) $options['limit'] = $options['num'];
