@@ -58,7 +58,7 @@ class BcComposer {
         self::$cd = "cd " . ROOT . DS . ';';
         self::$composerDir = ROOT . DS . 'composer' . DS;
         self::$export = "export HOME=" . self::$composerDir . ";";
-        self::$php = $php;
+        self::$php = ($php)?: 'php';
         try {
             self::checkComposer();
         } catch (\Throwable $e) {

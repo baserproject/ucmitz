@@ -22,6 +22,16 @@ use Cake\Filesystem\Folder;
 class BcComposerTest extends BcTestCase
 {
 
+    public function test_installComposer()
+    {
+        BcComposer::$composerDir = ROOT . DS . 'composer' . DS;
+        BcComposer::$export = "export HOME=" . BcComposer::$composerDir . ";";
+        BcComposer::$php = '/usr/local/bin/php';
+        $result = BcComposer::installComposer();
+        $this->assertEquals(0, $result['code']);
+        $this->assertFileExists(BcComposer::$composerDir . 'composer.phar');
+    }
+
     /**
      * test setVersion
      */
