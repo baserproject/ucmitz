@@ -292,12 +292,6 @@ return [
             'none' => __d('baser', 'なし'),
             'BaserCore.BcCkeditor' => 'CKEditor'
         ],
-        /**
-         * アップデートキー
-         * アップデート時のURLに使用する
-         * 例）https://localhost/update
-         */
-        'updateKey' => env('UPDATE_KEY', 'update'),
 
         /**
          * 予約語

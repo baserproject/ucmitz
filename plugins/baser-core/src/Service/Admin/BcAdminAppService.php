@@ -45,6 +45,7 @@ class BcAdminAppService implements BcAdminAppServiceInterface
             'permissionMethodList' => $this->getService(PermissionsServiceInterface::class)->getMethodList(),
             'permissionAuthList' => $this->getService(PermissionsServiceInterface::class)->getAuthList(),
             'useAdminSideBanner' => $this->getService(SiteConfigsServiceInterface::class)->getValue('admin_side_banner'),
+            'useUpdateNotice' => (bool) $this->getService(SiteConfigsServiceInterface::class)->getValue('use_update_notice'),
             'releaseCoreVersion' => $this->getService(PluginsServiceInterface::class)->getAvailableCoreVersion(),
         ];
     }

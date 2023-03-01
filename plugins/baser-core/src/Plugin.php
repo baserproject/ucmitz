@@ -241,11 +241,9 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
     {
         $middlewareQueue
-            // Authorization (AuthComponent to Authorization)
             ->add(new AuthenticationMiddleware($this))
             ->add(new BcAdminMiddleware())
             ->add(new BcFrontMiddleware())
-//            ->add(new BcUpdateFilterMiddleware())
             ->add(new BcRequestFilterMiddleware())
             ->add(new BcRedirectSubSiteFilter());
 
@@ -447,9 +445,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
      * /
      * /install
      *
-     * ### アップデーター
-     * /{update-key}
-     *
      * ### コンテンツルーティング
      * /*
      *
@@ -496,17 +491,6 @@ class Plugin extends BcPlugin implements AuthenticationServiceProviderInterface
             $property->setAccessible(true);
             $property->setValue($collection, []);
         }
-
-        /**
-         * アップデーター
-         * /config/setting.php にて URLを変更することができる
-         */
-        $routes->connect('/' . Configure::read('BcApp.updateKey'), [
-            'prefix' => 'Admin',
-            'plugin' => 'BaserCore',
-            'controller' => 'Plugins',
-            'action' => 'update'
-        ]);
 
         /**
          * コンテンツルーティング

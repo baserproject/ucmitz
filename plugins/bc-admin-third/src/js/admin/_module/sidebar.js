@@ -56,11 +56,15 @@ window.addEventListener('DOMContentLoaded', function () {
 				contentList: contentList,
 				isSystemSettingPage: isSystemSettingPage,
 				systemList: systemList,
-				availableVersions: null
+				availableVersions: null,
+				useUpdateNotice: data.useUpdateNotice
 			},
             mounted() {
+                if(!this.useUpdateNotice) return;
                 $.get($.bcUtil.apiBaseUrl + 'baser-core/plugins/get_Available_core_version_info.json', function (response){
-                    app.availableVersions = response.availableCoreVersionInfo.versions.length;
+                    if(response.availableCoreVersionInfo !== undefined) {
+                        app.availableVersions = response.availableCoreVersionInfo.versions.length;
+                    }
                 });
             },
 			methods: {
