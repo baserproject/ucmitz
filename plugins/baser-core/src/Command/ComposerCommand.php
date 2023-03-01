@@ -52,12 +52,20 @@ class ComposerCommand extends Command
      */
     public function execute(Arguments $args, ConsoleIo $io)
     {
-        BcComposer::setup($args->getOption('php'));
+        try {
+            BcComposer::setup($args->getOption('php'));
+        } catch (\Throwable $e) {
+            $message = __d('baser', 'Composer によるアップデートが失敗しました。');
+            $this->log($message, LogLevel::ERROR, 'update');
+            $this->log($e->getMessage(), LogLevel::ERROR, 'update');
+            $io->out($message);
+            exit(1);
+        }
         $result = BcComposer::require('baser-core', $args->getArgument('version'));
         if($result['code'] === 0) {
             $io->out(__d('baser', 'Composer によるアップデートが完了しました。'));
         } else {
-            $message = __d('baser', 'Composer によるアップデートが失敗しました。');
+            $message = __d('baser', 'Composer によるアップデートが失敗しました。update ログを確認してください。');
             $this->log($message, LogLevel::ERROR, 'update');
             $this->log(implode("\n", $result['out']), LogLevel::ERROR, 'update');
             $io->out($message);

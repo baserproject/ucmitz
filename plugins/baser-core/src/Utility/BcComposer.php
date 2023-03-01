@@ -59,6 +59,27 @@ class BcComposer {
         self::$composerDir = ROOT . DS . 'composer' . DS;
         self::$export = "export HOME=" . self::$composerDir . ";";
         self::$php = $php;
+        try {
+            self::checkComposer();
+        } catch (\Throwable $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Composer がインストールされているかチェックする
+     *
+     * @throws Exception
+     */
+    public static function checkComposer()
+    {
+        if(!file_exists(self::$composerDir . 'composer.phar')) {
+            $result = self::installComposer();
+            if(!file_exists(self::$composerDir . 'composer.phar')) {
+                throw new Exception(__d('baser', 'composer がインストールできません。{0}', implode("\n", $result['out'])));
+            }
+            self::selfUpdate();
+        }
     }
 
     /**
@@ -70,19 +91,19 @@ class BcComposer {
     {
         $error = [];
         if (!is_writable(ROOT . DS . 'composer')) {
-            $error[] = '/composer に書き込み権限がありません。書き込み権限を与えてください。';
+            $error[] = __d('baser', '/composer に書き込み権限がありません。書き込み権限を与えてください。');
         }
         if (!is_writable(ROOT . DS . 'vendor')) {
-            $error[] = '/vendor に書き込み権限がありません。書き込み権限を与えてください。';
+            $error[] = __d('baser', '/vendor に書き込み権限がありません。書き込み権限を与えてください。');
         }
         if (!is_writable(ROOT . DS . 'config')) {
-            $error[] = '/config に書き込み権限がありません。書き込み権限を与えてください。';
+            $error[] = __d('baser', '/config に書き込み権限がありません。書き込み権限を与えてください。');
         }
         if (!is_writable(ROOT . DS . 'tmp')) {
-            $error[] = '/tmp に書き込み権限がありません。書き込み権限を与えてください。';
+            $error[] = __d('baser', '/tmp に書き込み権限がありません。書き込み権限を与えてください。');
         }
         if (!is_writable(ROOT . DS . 'logs')) {
-            $error = '/logs に書き込み権限がありません。書き込み権限を与えてください。';
+            $error = __d('baser', '/logs に書き込み権限がありません。書き込み権限を与えてください。');
         }
         if($error) {
             throw new Exception(implode('\n', $error));
@@ -96,7 +117,7 @@ class BcComposer {
      */
     public static function installComposer()
     {
-        $command = self::$cd . ' ' . self::$export . ' curl -sS https://getcomposer.org/installer';
+        $command = 'cd ' . self::$composerDir . '; ' . self::$export . ' curl -sS https://getcomposer.org/installer';
         if(self::$php) $command .= ' | ' . self::$php;
         exec($command, $out, $code);
         return [
