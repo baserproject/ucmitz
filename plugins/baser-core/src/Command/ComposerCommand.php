@@ -36,6 +36,10 @@ class ComposerCommand extends Command
             'default' => '',
             'required' => true
         ]);
+        $parser->addOption('php', [
+            'help' => __d('baser', 'データベース接続名'),
+            'default' => 'php'
+        ]);
         return $parser;
     }
 
@@ -48,7 +52,7 @@ class ComposerCommand extends Command
      */
     public function execute(Arguments $args, ConsoleIo $io)
     {
-        BcComposer::setup();
+        BcComposer::setup($args->getOption('php'));
         $result = BcComposer::require('baser-core', $args->getArgument('version'));
         if($result['code'] === 0) {
             $io->out(__d('baser', 'Composer によるアップデートが完了しました。'));

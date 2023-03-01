@@ -25,6 +25,7 @@ use BaserCore\View\BcAdminAppView;
  * @var int $programVerPoint
  * @var string $log
  * @var bool $requireUpdate
+ * @var string $php
  */
 $this->BcAdmin->setTitle(sprintf(__d('baser', '%s｜データベースアップデート'), ($plugin->name === 'BaserCore')? 'baserCMSコア' : $plugin->title . 'プラグイン'));
 $this->BcBaser->i18nScript([
@@ -113,6 +114,16 @@ $this->BcBaser->js('admin/plugins/update.bundle', false);
     <?php echo $this->BcAdminForm->control('update', ['type' => 'hidden', 'value' => true]) ?>
     <?php echo $this->BcAdminForm->control('currentVersion', ['type' => 'hidden', 'value' => $programVersion]) ?>
     <?php echo $this->BcAdminForm->control('targetVersion', ['type' => 'hidden', 'value' => $availableVersion]) ?>
+    <p>
+      <?php echo __d('baser', 'PHP CLI の実行パス') ?>
+      <?php echo $this->BcAdminForm->control('php', [
+        'type' => 'text',
+        'value' => $php,
+        'size' => 40
+      ]) ?>
+      <br>
+      <small class="php-notice"><?php echo __d('baser', 'PHPのパスが取得できないためアップデートを実行できません。確認の上、手動で入力してください。') ?></small>
+    </p>
     <div class="bca-actions">
       <?php echo $this->BcAdminForm->submit(__d('baser', 'アップデート実行'), [
         'class' => 'button bca-btn bca-actions__item',
@@ -120,7 +131,7 @@ $this->BcBaser->js('admin/plugins/update.bundle', false);
         'data-bca-btn-width' => 'lg',
         'data-bca-btn-type' => 'save',
         'id' => 'BtnUpdate',
-        'div' => false
+        'div' => false,
       ]) ?>
     </div>
     <?php echo $this->BcAdminForm->end() ?>

@@ -87,8 +87,16 @@ class PluginsAdminService extends PluginsService implements PluginsAdminServiceI
                 $dbVersion,
                 $availableVersion,
                 $scriptNum
-            )
+            ),
+            'php' => $this->whichPhp()
         ];
+    }
+
+    public function whichPhp()
+    {
+        exec('which php', $out, $code);
+        if ($code === 0) return $out[0];
+        return '';
     }
 
     /**
@@ -105,19 +113,19 @@ class PluginsAdminService extends PluginsService implements PluginsAdminServiceI
         $programVerPoint = BcUtil::verpoint($programVersion);
         $dbVerPoint = BcUtil::verpoint($dbVersion);
         $availableVerPoint = true;
-        if($availableVersion) {
+        if ($availableVersion) {
             $availableVerPoint = BcUtil::verpoint($dbVersion);
         }
         if ($programVerPoint === false || $dbVerPoint === false || $availableVerPoint === false) {
             return false;
         }
-        if($availableVerPoint !== true) {
+        if ($availableVerPoint !== true) {
             if ($availableVersion !== $programVersion) return true;
         }
         if ($programVersion !== $dbVersion || $scriptNum) {
             return true;
         } else {
-            return  false;
+            return false;
         }
     }
 

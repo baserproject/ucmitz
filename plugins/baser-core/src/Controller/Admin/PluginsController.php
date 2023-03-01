@@ -122,6 +122,7 @@ class PluginsController extends BcAdminAppController
                 $service->updateCore(
                     $request->getData('currentVersion'),
                     $request->getData('targetVersion'),
+                    $request->getData('php'),
                     $request->getData('connection') ?? 'default'
                 );
                 $this->BcMessage->setInfo(__d('baser', '全てのアップデート処理が完了しました。 {0} にログを出力しています。', LOGS . 'update.log'));

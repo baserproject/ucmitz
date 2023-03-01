@@ -267,10 +267,10 @@ class PluginsService implements PluginsServiceInterface
      * @param string $targetVersion
      * @param string $connection
      */
-    public function updateCore(string $currentVersion, string $targetVersion, $connection = 'default')
+    public function updateCore(string $currentVersion, string $targetVersion, string $php, $connection = 'default')
     {
         // Composer 実行
-        $command = ROOT . DS . 'bin' . DS . 'cake composer ' . $targetVersion;
+        $command = ROOT . DS . 'bin' . DS . 'cake composer ' . $targetVersion . ' --php ' . $php;
         exec($command, $out, $code);
         if ($code !== 0) throw new BcException(__d('baser', 'プログラムファイルのアップデートに失敗しました。ログを確認してください。'));
 
