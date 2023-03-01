@@ -19,6 +19,7 @@ use BaserCore\Error\BcFormFailedException;
 use BaserCore\Utility\BcUtil;
 use BcThemeFile\Service\ThemeFoldersService;
 use BcThemeFile\Service\ThemeFoldersServiceInterface;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * テーマフォルダコントローラー
@@ -51,6 +52,7 @@ class ThemeFoldersController extends BcApiController
             return;
         }
         $targets = $this->getRequest()->getData('batch_targets');
+        $errors = null;
         try {
             if (is_dir($targets[0])) {
                 $fullpath = $targets[0];
@@ -65,12 +67,16 @@ class ThemeFoldersController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (\Throwable $e) {
+        } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
-        $this->set(['message' => $message]);
-        $this->viewBuilder()->setOption('serialize', ['message']);
+        $this->set(['message' => $message, 'errors' => $errors]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
     }
 
     /**
@@ -93,11 +99,11 @@ class ThemeFoldersController extends BcApiController
             $themeFiles = $service->getIndex($data);
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getForm()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '処理中にエラーが発生しました。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -130,11 +136,11 @@ class ThemeFoldersController extends BcApiController
             $message = __d('baser', 'フォルダ「{0}」を作成しました。', $themeFolder->name);
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getForm()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '処理中にエラーが発生しました。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -167,11 +173,11 @@ class ThemeFoldersController extends BcApiController
             $message = __d('baser', 'フォルダ名を「{0}」に変更しました。', $themeFolder->name);
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getForm()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '処理中にエラーが発生しました。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -206,11 +212,11 @@ class ThemeFoldersController extends BcApiController
             }
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getForm()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '処理中にエラーが発生しました。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -246,11 +252,11 @@ class ThemeFoldersController extends BcApiController
             }
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getForm()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '処理中にエラーが発生しました。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -288,11 +294,11 @@ class ThemeFoldersController extends BcApiController
             );
         } catch (BcFormFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getForm()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。' . $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '処理中にエラーが発生しました。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -320,7 +326,7 @@ class ThemeFoldersController extends BcApiController
             $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
             $entity = $service->get($data['fullpath']);
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', '処理中にエラーが発生しました。');
         }
 
