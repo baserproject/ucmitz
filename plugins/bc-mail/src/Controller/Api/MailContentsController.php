@@ -47,10 +47,22 @@ class MailContentsController extends BcApiController
      */
     public function view(MailContentsServiceInterface $service, int $id)
     {
+        $this->request->allowMethod(['get']);
+        $mailContent = $message = null;
+        try {
+            $mailContent = $service->get($id);
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
         $this->set([
-            'mailContent' => $service->get($id)
+            'mailContent' => $mailContent,
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['mailContent']);
+        $this->viewBuilder()->setOption('serialize', ['mailContent', 'message']);
     }
 
     /**
@@ -78,6 +90,9 @@ class MailContentsController extends BcApiController
             $entity = $e->getEntity();
             $message = __d('baser', "入力エラーです。内容を修正してください。");
             $this->setResponse($this->response->withStatus(400));
+        } catch (\Throwable $e) {
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
             'mailContent' => $entity,
@@ -183,6 +198,9 @@ class MailContentsController extends BcApiController
             $this->setResponse($this->response->withStatus(500));
             $errors = $e->getEntity();
             $message = __d('baser', 'コピーに失敗しました。データが不整合となっている可能性があります。');
+        } catch (\Throwable $e) {
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
             'message' => $message,
