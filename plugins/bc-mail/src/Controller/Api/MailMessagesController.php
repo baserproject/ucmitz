@@ -18,6 +18,7 @@ use BaserCore\Controller\Api\BcApiController;
 use BcMail\Service\MailContentsServiceInterface;
 use BcMail\Service\MailMessagesService;
 use BcMail\Service\MailMessagesServiceInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
@@ -37,11 +38,24 @@ class MailMessagesController extends BcApiController
      */
     public function index(MailMessagesServiceInterface $service, int $mailContentId)
     {
-        $service->setup($mailContentId);
+        $this->request->allowMethod(['get']);
+        $mailMessages = $message = null;
+        try {
+            $service->setup($mailContentId);
+            $mailMessages = $this->paginate($service->getIndex($this->request->getQueryParams()));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
+
         $this->set([
-            'mailMessages' => $this->paginate($service->getIndex($this->request->getQueryParams()))
+            'mailMessages' => $mailMessages,
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['mailMessages']);
+        $this->viewBuilder()->setOption('serialize', ['mailMessages', 'message' => $message]);
     }
 
     /**
@@ -56,11 +70,24 @@ class MailMessagesController extends BcApiController
      */
     public function view(MailMessagesServiceInterface $service, int $mailContentId, int $messageId)
     {
-        $service->setup($mailContentId);
+        $this->request->allowMethod(['get']);
+        $mailMessage = $message = null;
+        try {
+            $service->setup($mailContentId);
+            $mailMessage = $service->get($messageId);
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
+
         $this->set([
-            'mailMessage' => $service->get($messageId)
+            'mailMessage' => $mailMessage,
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['mailMessage']);
+        $this->viewBuilder()->setOption('serialize', ['mailMessage', 'message' => $message]);
     }
 
     /**
@@ -228,6 +255,7 @@ class MailMessagesController extends BcApiController
             return;
         }
         $targets = $this->getRequest()->getData('batch_targets');
+        $errors = null;
         try {
             $service->setup($mailContentId);
             $service->batch($method, $targets);
@@ -237,12 +265,16 @@ class MailMessagesController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (\Throwable $e) {
+        } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', $e->getMessage());
+            $message = __d('baser', '入力エラーです。内容を修正してください。');
+            $errors = $e->getEntity()->getErrors();
+        } catch (\Throwable $e) {
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
-        $this->set(['message' => $message]);
-        $this->viewBuilder()->setOption('serialize', ['message']);
+        $this->set(['message' => $message, 'errors' => $errors]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors' => $errors]);
     }
 
     /**
