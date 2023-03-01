@@ -16,6 +16,7 @@ use BaserCore\Utility\BcContainerTrait;
 use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
+use Psr\Log\LogLevel;
 
 /**
  * UpdateCommand
@@ -57,7 +58,9 @@ class UpdateCommand extends Command
         if($pluginsService->update('BaserCore', $connection)) {
             $io->out(__d('baser', 'Migration と アップデーターによるアップデートが完了しました。'));
         } else {
-            $io->out(__d('baser', 'Migration と アップデーターによるアップデートが失敗しました。'));
+            $message = __d('baser', 'Migration と アップデーターによるアップデートが失敗しました。');
+            $this->log($message, LogLevel::ERROR, 'update');
+            $io->out($message);
             exit(1);
         }
     }

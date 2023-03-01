@@ -15,6 +15,7 @@ use BaserCore\Utility\BcComposer;
 use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
+use Psr\Log\LogLevel;
 
 /**
  * ComposerCommand
@@ -52,7 +53,10 @@ class ComposerCommand extends Command
         if($result['code'] === 0) {
             $io->out(__d('baser', 'Composer によるアップデートが完了しました。'));
         } else {
-            $io->out(__d('baser', 'Composer によるアップデートが失敗しました。'));
+            $message = __d('baser', 'Composer によるアップデートが失敗しました。');
+            $this->log($message, LogLevel::ERROR, 'update');
+            $this->log(implode("\n", $result['out']), LogLevel::ERROR, 'update');
+            $io->out($message);
             exit(1);
         }
     }

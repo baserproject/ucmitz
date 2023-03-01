@@ -133,6 +133,11 @@ class PluginsController extends BcAdminAppController
             }
         } catch (\Throwable $e) {
             $this->BcMessage->setError($e->getMessage());
+            if($plugin->name === 'BaserCore') {
+                return $this->redirect(['action' => 'update']);
+            } else {
+                return $this->redirect(['action' => 'update', $name]);
+            }
         }
 	}
 
