@@ -240,9 +240,9 @@ class ContentLinksControllerTest extends BcTestCase
         //非公開ContentLinkIDをテスト場合、
         // APIを呼ぶ
         $this->get('/baser/api/bc-content-link/content_links/view/2.json');
-        $this->assertResponseCode(500);
+        $this->assertResponseCode(404);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "content_links"', $result->message);
+        $this->assertEquals('データが見つかりません。', $result->message);
 
         //ログインしていない状態では status パラメーターへへのアクセスを禁止するか確認
         $this->get('/baser/api/bc-content-link/content_links/view/1.json?status=publish');
