@@ -10,7 +10,7 @@ name: Test
 on:
   push:
     tags-ignore:
-    　- '**'
+      - '**'
     branches:
       - '**'
       - '!master'
