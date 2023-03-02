@@ -131,7 +131,7 @@ class WidgetAreasControllerTest extends BcTestCase
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         //メッセージを確認
-        $this->assertEquals('新しいウィジェットエリアの保存に失敗しました。', $result->message);
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
     }
 
     /**
