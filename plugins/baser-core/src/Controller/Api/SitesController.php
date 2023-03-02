@@ -140,25 +140,23 @@ class SitesController extends BcApiController
     public function delete(SitesServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $site = $errors = null;
+        $site = null;
         try {
             $site = $service->get($id);
             $service->delete($id);
             $message = __d('baser', 'サイト: {0} を削除しました。', $site->name);
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
             'message' => $message,
-            'site' => $site,
-            'errors' => $errors
+            'site' => $site
         ]);
-        $this->viewBuilder()->setOption('serialize', ['site', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['site', 'message']);
     }
 
     /**
