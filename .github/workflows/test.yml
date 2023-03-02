@@ -7,7 +7,14 @@
 
 name: Test
 
-on: [ push, pull_request ]
+on:
+  push:
+    tags-ignore:
+      - '**'
+    branches:
+      - '**'
+      - '!master'
+  pull_request:
 
 jobs:
   test:
@@ -22,7 +29,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Run compose
         run: |
