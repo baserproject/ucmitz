@@ -142,15 +142,14 @@ class UserGroupsController extends BcApiController
     public function delete(UserGroupsServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $userGroup = $errors = null;
+        $userGroup = null;
         try {
             $userGroup = $service->get($id);
             $service->delete($id);
             $message = __d('baser', 'ユーザー: {0} を削除しました。', $userGroup->name);
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -158,10 +157,9 @@ class UserGroupsController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'userGroup' => $userGroup,
-            'errors' => $errors
+            'userGroup' => $userGroup
         ]);
-        $this->viewBuilder()->setOption('serialize', ['userGroup', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['userGroup', 'message']);
     }
 
     /**
@@ -191,7 +189,7 @@ class UserGroupsController extends BcApiController
     {
         $this->request->allowMethod(['patch', 'post', 'put']);
 
-        $userGroup = $errors = null;
+        $userGroup = null;
         try {
             $userGroup = $service->get($id);
             $rs = $this->UserGroups->copy($id);
@@ -202,10 +200,9 @@ class UserGroupsController extends BcApiController
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser', 'データベース処理中にエラーが発生しました。');
             }
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -213,10 +210,9 @@ class UserGroupsController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'userGroup' => $userGroup,
-            'errors' => $errors,
+            'userGroup' => $userGroup
         ]);
 
-        $this->viewBuilder()->setOption('serialize', ['message', 'userGroup', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'userGroup']);
     }
 }

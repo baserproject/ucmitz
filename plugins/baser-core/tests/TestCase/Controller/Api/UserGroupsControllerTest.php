@@ -164,7 +164,6 @@ class UserGroupsControllerTest extends BcTestCase
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('ユーザーグループ「admins」をコピーしました。', $result->message);
         $this->assertEquals('admins_copy', $result->userGroup->name);
-        $this->assertEmpty($result->errors);
 
         $this->post('/baser/api/baser-core/user_groups/copy/test.json?token=' . $this->accessToken);
         $this->assertResponseCode(404);
