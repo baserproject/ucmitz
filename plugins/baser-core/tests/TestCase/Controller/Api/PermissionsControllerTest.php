@@ -225,9 +225,9 @@ class PermissionsControllerTest extends BcTestCase
         $this->assertEquals('システム管理', $result->permission->name);
 
         $this->post('/baser/api/baser-core/permissions/copy/2222.json?token=' . $this->accessToken);
-        $this->assertResponseCode(500);
+        $this->assertResponseCode(404);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "permissions"', $result->message);
+        $this->assertEquals('データが見つかりません。', $result->message);
     }
 
 
