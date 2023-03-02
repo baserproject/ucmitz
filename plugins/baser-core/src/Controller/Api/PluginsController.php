@@ -96,10 +96,6 @@ class PluginsController extends BcApiController
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser', 'プラグインに問題がある為インストールを完了できません。プラグインの開発者に確認してください。');
             }
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -198,10 +194,6 @@ class PluginsController extends BcApiController
             $plugin = $service->getByName($name);
             $service->resetDb($name, $this->request->getData('connection'));
             $message = sprintf(__d('baser', '%s プラグインのデータを初期化しました。'), $plugin->title);
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -255,9 +247,10 @@ class PluginsController extends BcApiController
     public function add(PluginsServiceInterface $service)
     {
         $this->request->allowMethod(['post']);
-        $errors = null;
+        $plugin = $errors = null;
         try {
             $name = $service->add($this->getRequest()->getUploadedFiles());
+            $plugin = $service->getByName($name);
             $message = sprintf(__d('baser', '新規プラグイン「%s」を追加しました。'), $name);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
@@ -268,6 +261,7 @@ class PluginsController extends BcApiController
             $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
+            'plugin' => $plugin,
             'message' => $message,
             'errors' => $errors
         ]);
