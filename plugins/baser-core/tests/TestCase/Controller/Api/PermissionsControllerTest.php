@@ -191,9 +191,9 @@ class PermissionsControllerTest extends BcTestCase
         $this->assertEquals('アクセスルール「test delete」を削除しました。', $result->message);
 
         $this->post("/baser/api/baser-core/permissions/delete/2222.json?token=" . $this->accessToken);
-        $this->assertResponseCode(500);
+        $this->assertResponseCode(404);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('データベース処理中にエラーが発生しました。Record not found in table "permissions"', $result->message);
+        $this->assertEquals('データが見つかりません。', $result->message);
     }
 
     /**
