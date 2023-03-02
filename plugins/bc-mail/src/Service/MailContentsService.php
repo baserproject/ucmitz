@@ -185,16 +185,20 @@ class MailContentsService implements MailContentsServiceInterface
             'sort' => null,
             'id' => null,
             'no' => null,
-            'status' => null
         ], $queryParams);
 
         if (!empty($options['num'])) $options['limit'] = $options['num'];
         if (!empty($options['sort'])) $options['order'] = $options['sort'];
         unset($options['num'], $options['sort']);
 
+        $conditions = [];
+        if ($options['status'] === 'publish') {
+            $conditions = $this->MailContents->getConditionAllowPublish();
+        }
+
         $query = $this->MailContents->find()->contain('Contents');
         if (!is_null($options['limit'])) $query->limit($options['limit']);
-        return $query;
+        return $query->where($conditions);
     }
 
     /**

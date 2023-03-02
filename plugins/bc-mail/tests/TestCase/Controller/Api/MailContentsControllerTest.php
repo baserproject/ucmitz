@@ -17,7 +17,6 @@ use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BcMail\Test\Scenario\MailContentsScenario;
 use BcMail\Service\MailContentsServiceInterface;
-use BcMail\Test\Scenario\MailContentsScenario;
 use BcMail\Test\Factory\MailContentFactory;
 use Cake\TestSuite\IntegrationTestTrait;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
