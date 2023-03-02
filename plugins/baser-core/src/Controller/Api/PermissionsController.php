@@ -119,10 +119,9 @@ class PermissionsController extends BcApiController
             $permission = $service->get($permissionId);
             $service->delete($permissionId);
             $message = __d('baser', 'アクセスルール「{0}」を削除しました。', $permission->name);
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -147,7 +146,7 @@ class PermissionsController extends BcApiController
     public function copy(PermissionsServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['patch', 'post', 'put']);
-        $permission = null;
+        $permission = $errors = null;
         try {
             $permission = $service->copy($id);
             if ($permission) {
@@ -168,9 +167,10 @@ class PermissionsController extends BcApiController
         $this->set([
             'message' => $message,
             'permission' => $permission,
+            'errors' => $errors
         ]);
 
-        $this->viewBuilder()->setOption('serialize', ['message', 'permission']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'permission', 'errors']);
     }
 
     /**
