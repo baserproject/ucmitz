@@ -119,6 +119,9 @@ class UploaderFilesController extends BcApiController
      *
      * @param UploaderFilesServiceInterface $service
      * @param int $id
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function delete(UploaderFilesServiceInterface $service, int $id)
     {
