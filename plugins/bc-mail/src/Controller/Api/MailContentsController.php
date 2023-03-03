@@ -123,6 +123,9 @@ class MailContentsController extends BcApiController
             $entity = $e->getEntity();
             $message = __d('baser', "入力エラーです。内容を修正してください。");
             $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', '処理中にエラーが発生しました。');
@@ -184,7 +187,7 @@ class MailContentsController extends BcApiController
     public function copy(MailContentsServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
-        $errors = null;
+        $entity = null;
         try {
             $entity = $service->copy($this->request->getData());
             if (!$entity) {
@@ -194,10 +197,9 @@ class MailContentsController extends BcApiController
                 $message = __d('baser', 'メールフォームのコピー「{0}」を追加しました。', $entity->content->title);
             }
 
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(500));
-            $errors = $e->getEntity();
-            $message = __d('baser', 'コピーに失敗しました。データが不整合となっている可能性があります。');
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -205,10 +207,9 @@ class MailContentsController extends BcApiController
         $this->set([
             'message' => $message,
             'mailContent' => $entity,
-            'content' => $entity->content,
-            'errors' => $errors,
+            'content' => $entity?->content
         ]);
-        $this->viewBuilder()->setOption('serialize', ['mailContent', 'content', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['mailContent', 'content', 'message']);
     }
 
 }
