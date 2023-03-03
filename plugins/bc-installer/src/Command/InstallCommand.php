@@ -158,7 +158,7 @@ class InstallCommand extends Command
         $service->constructionDb($dbConfig, $args->getOption('data'));
 
         // Init admin
-        $service->setAdminEmail($args->getArgument('adminemail'));
+        $service->setAdminEmailAndVersion($args->getArgument('adminemail'));
         $service->setSiteName($args->getOption('sitename'));
         $salt = $service->setSecuritySalt();
         $service->addDefaultUser([
@@ -174,7 +174,6 @@ class InstallCommand extends Command
         // Init db
         $service->createDefaultFiles();
         $service->deployEditorTemplateImage();
-        $service->installCorePlugin($args->getOption('data'));
         $service->executeDefaultUpdates();
         $service->buildPermissions();
         $siteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
