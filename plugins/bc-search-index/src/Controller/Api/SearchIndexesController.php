@@ -105,7 +105,6 @@ class SearchIndexesController extends BcApiController
             $this->viewBuilder()->setOption('serialize', []);
             return;
         }
-        $errors = null;
         try {
             $service->batch($method, $this->getRequest()->getData('batch_targets'));
             $this->BcMessage->setSuccess(
@@ -114,16 +113,12 @@ class SearchIndexesController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
-        $this->set(['message' => $message, 'errors' => $errors]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
+        $this->set(['message' => $message]);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
     /***
@@ -145,10 +140,6 @@ class SearchIndexesController extends BcApiController
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser', '検索インデックスの再構築に失敗しました。');
             }
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -214,7 +205,7 @@ class SearchIndexesController extends BcApiController
     {
         $this->request->allowMethod(['post', 'delete']);
 
-        $searchIndex = $errors = null;
+        $searchIndex = null;
 
         try {
             $searchIndex = $searchIndexesService->get($id);
@@ -234,10 +225,9 @@ class SearchIndexesController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'searchIndex' => $searchIndex,
-            'errors' => $errors
+            'searchIndex' => $searchIndex
         ]);
-        $this->viewBuilder()->setOption('serialize', ['searchIndex', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['searchIndex', 'message']);
     }
 
 }
