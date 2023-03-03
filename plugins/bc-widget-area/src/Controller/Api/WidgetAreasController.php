@@ -117,6 +117,9 @@ class WidgetAreasController extends BcApiController
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -189,7 +192,6 @@ class WidgetAreasController extends BcApiController
             return;
         }
         $targets = $this->getRequest()->getData('batch_targets');
-        $errors = null;
         try {
             $names = $service->getTitlesById($targets);
             $service->batch($method, $targets);
@@ -199,16 +201,12 @@ class WidgetAreasController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
-        $this->set(['message' => $message, 'errors' => $errors]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'errors' => $errors]);
+        $this->set(['message' => $message]);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
     /**
@@ -231,6 +229,9 @@ class WidgetAreasController extends BcApiController
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -264,6 +265,9 @@ class WidgetAreasController extends BcApiController
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -292,10 +296,9 @@ class WidgetAreasController extends BcApiController
             $entity = $service->updateSort($widgetAreaId, $this->getRequest()->getData());
             $message = __d('baser', 'ウィジェットエリア「{0}」の並び順を更新しました。', $entity->name);
             $this->BcMessage->setSuccess($message, true, false);
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
