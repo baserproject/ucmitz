@@ -157,7 +157,7 @@ class MailContentsService implements MailContentsServiceInterface
      */
     public function get(int $id, array $options = [])
     {
-        $options = array_merge_recursive([
+        $options = array_merge([
             'contain' => [
                 'Contents' => ['Sites'],
                 'MailFields'
@@ -167,38 +167,27 @@ class MailContentsService implements MailContentsServiceInterface
     }
 
     /**
-     * 一覧データ取得
-     * @param array $queryParams
-     * @return \Cake\ORM\Query
+     * メールコンテンツ一覧を取得する
      *
+     * @return Query
      * @checked
      * @noTodo
-     * @unitTest
      */
     public function getIndex(array $queryParams = []): Query
     {
-        $options = array_merge([
-            'num' => null,
-            'limit' => null,
-            'direction' => 'DESC',    // 並び方向
-            'order' => 'posted',    // 並び順対象のフィールド
-            'sort' => null,
-            'id' => null,
-            'no' => null,
-        ], $queryParams);
+        $query = $this->MailContents->find()->order([
+            'MailContents.id'
+        ]);
 
-        if (!empty($options['num'])) $options['limit'] = $options['num'];
-        if (!empty($options['sort'])) $options['order'] = $options['sort'];
-        unset($options['num'], $options['sort']);
-
-        $conditions = [];
-        if ($options['status'] === 'publish') {
-            $conditions = $this->MailContents->getConditionAllowPublish();
+        if (!empty($queryParams['limit'])) {
+            $query->limit($queryParams['limit']);
         }
 
-        $query = $this->MailContents->find()->contain('Contents');
-        if (!is_null($options['limit'])) $query->limit($options['limit']);
-        return $query->where($conditions);
+        if (!empty($queryParams['description'])) {
+            $query->where(['description LIKE' => '%' . $queryParams['description'] . '%']);
+        }
+
+        return $query;
     }
 
     /**
