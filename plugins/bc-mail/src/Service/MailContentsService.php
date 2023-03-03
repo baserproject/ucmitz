@@ -19,6 +19,7 @@ use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Utility\BcUtil;
 use BcMail\Model\Table\MailContentsTable;
 use Cake\Datasource\EntityInterface;
+use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -156,7 +157,7 @@ class MailContentsService implements MailContentsServiceInterface
      */
     public function get(int $id, array $options = [])
     {
-        $options = array_merge_recursive([
+        $options = array_merge([
             'contain' => [
                 'Contents' => ['Sites'],
                 'MailFields'
@@ -165,14 +166,44 @@ class MailContentsService implements MailContentsServiceInterface
         return $this->MailContents->get($id, ['contain' => $options['contain']]);
     }
 
-    public function getIndex()
+    /**
+     * メールコンテンツ一覧を取得する
+     *
+     * @return Query
+     * @checked
+     * @noTodo
+     */
+    public function getIndex(array $queryParams = []): Query
     {
+        $query = $this->MailContents->find()->order([
+            'MailContents.id'
+        ]);
 
+        if (!empty($queryParams['limit'])) {
+            $query->limit($queryParams['limit']);
+        }
+
+        if (!empty($queryParams['description'])) {
+            $query->where(['description LIKE' => '%' . $queryParams['description'] . '%']);
+        }
+
+        return $query;
     }
 
+    /**
+     * リストデータ取得
+     * @return array
+     *
+     * @checked
+     * @noTodo
+     * @checked
+     */
     public function getList()
     {
-
+        return $this->MailContents->find('list', [
+            'keyField' => 'id',
+            'valueField' => 'content.title'
+        ])->contain(['Contents'])->toArray();
     }
 
     /**
