@@ -83,7 +83,7 @@ class PluginsController extends BcApiController
     public function install(PluginsServiceInterface $service, $name)
     {
         $this->request->allowMethod(['post', 'put']);
-        $plugin = $errors = null;
+        $plugin = null;
         try {
             $plugin = $service->getByName($name);
             if ($service->install(
@@ -106,10 +106,9 @@ class PluginsController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'plugin' => $plugin,
-            'errors' => $errors
+            'plugin' => $plugin
         ]);
-        $this->viewBuilder()->setOption('serialize', ['plugin', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['plugin', 'message']);
     }
 
     /**
@@ -132,7 +131,7 @@ class PluginsController extends BcApiController
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser', 'プラグインの無効化に失敗しました。');
             }
-        } catch (NotFoundException $e) {
+        } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
@@ -166,7 +165,7 @@ class PluginsController extends BcApiController
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser', 'プラグインの有効化に失敗しました。');
             }
-        } catch (NotFoundException $e) {
+        } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
@@ -192,12 +191,12 @@ class PluginsController extends BcApiController
     public function reset_db(PluginsServiceInterface $service, $name)
     {
         $this->request->allowMethod(['put']);
-        $plugin = $errors = null;
+        $plugin = null;
         try {
             $plugin = $service->getByName($name);
             $service->resetDb($name, $this->request->getData('connection'));
             $message = sprintf(__d('baser', '%s プラグインのデータを初期化しました。'), $plugin->title);
-        } catch (NotFoundException $e) {
+        } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
@@ -206,10 +205,9 @@ class PluginsController extends BcApiController
         }
         $this->set([
             'message' => $message,
-            'plugin' => $plugin,
-            'errors' => $errors
+            'plugin' => $plugin
         ]);
-        $this->viewBuilder()->setOption('serialize', ['plugin', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['plugin', 'message']);
     }
 
     /**
@@ -229,7 +227,7 @@ class PluginsController extends BcApiController
             $plugin = $service->getByName($name);
             $service->uninstall($name, $this->request->getData('connection'));
             $message = sprintf(__d('baser', 'プラグイン「%s」を削除しました。'), $name);
-        } catch (NotFoundException $e) {
+        } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
@@ -285,7 +283,7 @@ class PluginsController extends BcApiController
     public function update_sort(PluginsServiceInterface $service)
     {
         $this->request->allowMethod(['post']);
-        $plugin = $errors = null;
+        $plugin = null;
         try {
             $plugin = $service->get($this->request->getData('id'));
             if (!$service->changePriority($plugin->id, $this->request->getData('offset'))) {
@@ -294,10 +292,6 @@ class PluginsController extends BcApiController
             } else {
                 $message = sprintf(__d('baser', 'プラグイン「%s」の並び替えを更新しました。'), $plugin->name);
             }
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -305,10 +299,9 @@ class PluginsController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'plugin' => $plugin,
-            'errors' => $errors
+            'plugin' => $plugin
         ]);
-        $this->viewBuilder()->setOption('serialize', ['plugin', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['plugin', 'message']);
     }
 
     /**
@@ -356,10 +349,6 @@ class PluginsController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
