@@ -118,6 +118,9 @@ class FavoritesController extends BcApiController
             $this->setResponse($this->response->withStatus(400));
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -146,10 +149,9 @@ class FavoritesController extends BcApiController
             if ($service->delete($id)) {
                 $message = __d('baser', 'お気に入り: {0} を削除しました。', $favorite->name);
             }
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -170,7 +172,7 @@ class FavoritesController extends BcApiController
     public function change_sort(FavoritesServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put']);
-        $result = $errors = $message = null;
+        $result = $message = null;
         try {
             $user = BcUtil::loginUser();
             $result = $service->changeSort(
@@ -179,10 +181,6 @@ class FavoritesController extends BcApiController
                 ['Favorites.user_id' => $user->id]
             );
             if ($result) BcUtil::clearAllCache();
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -190,10 +188,9 @@ class FavoritesController extends BcApiController
 
         $this->set([
             'result' => $result,
-            'message' => $message,
-            'errors' => $errors
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['result', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['result', 'message']);
     }
 
     /**
@@ -203,26 +200,21 @@ class FavoritesController extends BcApiController
      */
     public function save_favorite_box($open = '')
     {
-        $message = $errors = null;
+        $message = null;
         try {
             if ($open === '1' || $open === '') {
                 $this->request->getSession()->write('Baser.favorite_box_opened', $open);
             } else {
                 $this->setResponse($this->response->withStatus(400));
             }
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
         $this->set([
-            'message' => $message,
-            'errors' => $errors
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
     /**
@@ -232,24 +224,20 @@ class FavoritesController extends BcApiController
      */
     public function get_favorite_box_opened()
     {
-        $result = $errors = $message = null;
+        $result = $message = null;
         try {
             $result = $this->request->getSession()->read('Baser.favorite_box_opened');
             $this->set([
                 'result' => $result
             ]);
-        } catch (RecordNotFoundException $e) {
-            $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
             'result' => $result,
-            'message' => $message,
-            'errors' => $errors
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['result', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['result', 'message']);
     }
 }
