@@ -106,6 +106,7 @@ class BlogPostsAdminService extends BlogPostsService implements BlogPostsAdminSe
                 Hash::extract($user->user_groups, '{n}.id'),
                 $blogContent->id
             ),
+            'fullUrl' => $this->getUrl($blogContent->content, $post, true),
             'hasNewTagAddablePermission' => $this->BlogPosts->BlogTags->hasNewTagAddablePermission(
                 Hash::extract($user->user_groups, '{n}.id'),
                 $blogContent->id
