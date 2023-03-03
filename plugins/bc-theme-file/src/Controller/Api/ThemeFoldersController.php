@@ -67,10 +67,6 @@ class ThemeFoldersController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -97,10 +93,6 @@ class ThemeFoldersController extends BcApiController
             $data = $this->getRequest()->getQueryParams();
             $data['fullpath'] = $service->getFullpath($data['theme'], $data['plugin'], $data['type'], $data['path']);
             $themeFiles = $service->getIndex($data);
-        } catch (BcFormFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -108,10 +100,9 @@ class ThemeFoldersController extends BcApiController
 
         $this->set([
             'themeFiles' => $themeFiles ?? null,
-            'message' => $message ?? null,
-            'errors' => $errors ?? null
+            'message' => $message ?? null
         ]);
-        $this->viewBuilder()->setOption('serialize', ['themeFiles', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['themeFiles', 'message']);
     }
 
     /**
@@ -210,10 +201,6 @@ class ThemeFoldersController extends BcApiController
             } else {
                 $message = __d('baser', 'フォルダ「{0}」の削除に失敗しました。', $data['path']);
             }
-        } catch (BcFormFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -221,10 +208,9 @@ class ThemeFoldersController extends BcApiController
 
         $this->set([
             'themeFolder' => $themeFolder ?? null,
-            'message' => $message,
-            'errors' => $errors ?? null
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['themeFolder', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['themeFolder', 'message']);
     }
 
     /**
@@ -250,10 +236,6 @@ class ThemeFoldersController extends BcApiController
             } else {
                 $message = __d('baser', 'フォルダ「{0}」のコピーに失敗しました。上位フォルダのアクセス権限を見直してください。。', $data['path']);
             }
-        } catch (BcFormFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -261,10 +243,9 @@ class ThemeFoldersController extends BcApiController
 
         $this->set([
             'themeFolder' => $entity ?? null,
-            'message' => $message,
-            'errors' => $errors ?? null
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['themeFolder', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['themeFolder', 'message']);
     }
 
     /**
@@ -292,20 +273,15 @@ class ThemeFoldersController extends BcApiController
                 $currentTheme,
                 $targetPath
             );
-        } catch (BcFormFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-            $errors = $e->getEntity()->getErrors();
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
-            'message' => $message,
-            'errors' => $errors ?? null
+            'message' => $message
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
     /**
@@ -332,10 +308,9 @@ class ThemeFoldersController extends BcApiController
 
         $this->set([
             'entity' => $entity ?? null,
-            'message' => $message ?? null,
-            'errors' => $errors ?? null
+            'message' => $message ?? null
         ]);
-        $this->viewBuilder()->setOption('serialize', ['entity', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['entity', 'message']);
     }
 
 }
