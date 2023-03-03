@@ -53,7 +53,6 @@ class MailFieldsController extends BcApiController
             return;
         }
         $targets = $this->getRequest()->getData('batch_targets');
-        $errors = null;
         try {
             $names = $service->getTitlesById($targets);
             $service->batch($method, $targets);
@@ -63,16 +62,12 @@ class MailFieldsController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
-        $this->set(['message' => $message, 'errors' => $errors]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
+        $this->set(['message' => $message]);
+        $this->viewBuilder()->setOption('serialize', ['message']);
     }
 
 
@@ -91,7 +86,7 @@ class MailFieldsController extends BcApiController
         $conditions = [
             'mail_content_id' => $mailContentId,
         ];
-        $entity = $errors = null;
+        $entity = null;
         try {
             $entity = $service->get($this->request->getData('id'));
             if (!$service->changeSort($this->request->getData('id'), $this->request->getData('offset'), $conditions)) {
@@ -100,10 +95,6 @@ class MailFieldsController extends BcApiController
             } else {
                 $message = sprintf(__d('baser', 'メールフィールド「%s」の並び替えを更新しました。'), $entity->name);
             }
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
@@ -111,10 +102,9 @@ class MailFieldsController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'permission' => $entity,
-            'errors' => $errors
+            'mailFields' => $entity
         ]);
-        $this->viewBuilder()->setOption('serialize', ['plugin', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['mailFields', 'message', 'errors']);
     }
 
     /**
@@ -219,8 +209,8 @@ class MailFieldsController extends BcApiController
             $message = __d('baser', "入力エラーです。内容を修正してください。");
             $this->setResponse($this->response->withStatus(400));
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '処理中にエラーが発生しました。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
@@ -249,22 +239,26 @@ class MailFieldsController extends BcApiController
     public function edit(MailFieldsServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
+        $mailField = $errors = null;
         try {
             $mailField = $service->update($service->get($id), $this->request->getData());
             $message = __d('baser', 'メールフィールド「{0}」を更新しました。', $mailField->name);
         } catch (PersistenceFailedException $e) {
-            $mailField = $e->getEntity();
+            $errors = $e->getEntity()->getErrors();
             $this->setResponse($this->response->withStatus(400));
             $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', '処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
             'message' => $message,
             'mailField' => $mailField,
-            'errors' => $mailField->getErrors(),
+            'errors' => $errors
         ]);
         $this->viewBuilder()->setOption('serialize', ['mailField', 'message', 'errors']);
     }
@@ -295,7 +289,7 @@ class MailFieldsController extends BcApiController
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', '処理中にエラーが発生しました。' . $e->getMessage());
         }
 
@@ -321,6 +315,7 @@ class MailFieldsController extends BcApiController
     public function copy(MailFieldsServiceInterface $service, int $mailContentId, int $id)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
+        $mailField = null;
         try {
             if ($service->copy($mailContentId, $id)) {
                 $mailField = $service->get($id);
@@ -328,20 +323,18 @@ class MailFieldsController extends BcApiController
             } else {
                 $message = __d('baser', 'データベース処理中にエラーが発生しました。');
             }
-        } catch (PersistenceFailedException $e) {
-            $mailField = $e->getEntity();
-            $this->setResponse($this->response->withStatus(400));
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
-            $this->setResponse($this->response->withStatus(400));
+            $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', '処理中にエラーが発生しました。' . $e->getMessage());
         }
 
         $this->set([
             'message' => $message,
-            'mailField' => $mailField,
-            'errors' => $mailField->getErrors(),
+            'mailField' => $mailField
         ]);
-        $this->viewBuilder()->setOption('serialize', ['mailField', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['mailField', 'message']);
     }
 }
