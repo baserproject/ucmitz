@@ -85,25 +85,23 @@ class BlogCommentsController extends BcApiController
     public function delete(BlogCommentsServiceInterface $service, $blogCommentId)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $blogComment = $errors = null;
+        $blogComment = null;
         try {
             $blogComment = $service->get($blogCommentId);
             $service->delete($blogCommentId);
             $message = __d('baser', 'ブログコメント「{0}」を削除しました。', $blogComment->no);
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
-        } catch (Throwable $e) {
-            $this->setResponse($this->response->withStatus(500));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
+        } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
         }
         $this->set([
             'message' => $message,
-            'blogComment' => $blogComment,
-            'errors' => $errors
+            'blogComment' => $blogComment
         ]);
-        $this->viewBuilder()->setOption('serialize', ['blogComment', 'message', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['blogComment', 'message']);
     }
 
     /**
@@ -143,10 +141,6 @@ class BlogCommentsController extends BcApiController
                 false
             );
             $message = __d('baser', '一括処理が完了しました。');
-        } catch (PersistenceFailedException $e) {
-            $this->setResponse($this->response->withStatus(400));
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', '入力エラーです。内容を修正してください。');
         } catch (Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
