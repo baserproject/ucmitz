@@ -221,7 +221,10 @@ class ThemesController extends BcApiController
             $message = [__d('baser', 'テーマ「{0}」を適用しました。', $theme->name)];
             if ($info) $message = array_merge($message, [''], $info);
             $message = implode("\n", $message);
-        } catch (BcException $e) {
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser', 'データが見つかりません。');
+        } catch (Throwable $e) {
             $errors = $e->getMessage();
             $message = __d('baser', 'テーマの適用に失敗しました。', $e->getMessage());
         }
