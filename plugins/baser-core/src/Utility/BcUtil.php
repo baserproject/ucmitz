@@ -15,6 +15,7 @@ use BaserCore\Middleware\BcAdminMiddleware;
 use BaserCore\Middleware\BcFrontMiddleware;
 use BaserCore\Middleware\BcRequestFilterMiddleware;
 use BaserCore\Service\PluginsServiceInterface;
+use BaserCore\Service\SitesService;
 use Cake\Core\App;
 use Cake\Cache\Cache;
 use Cake\Core\Plugin;
@@ -268,7 +269,7 @@ class BcUtil
      * ※ ２つ目以降のバージョン番号は999までとする
      * β版の場合はfalseを返す
      *
-     * @param mixed $version Or false
+     * @param int|false $version
      * @checked
      * @noTodo
      * @unitTest
@@ -672,7 +673,8 @@ class BcUtil
      */
     public static function isTest()
     {
-        return (!empty($_SERVER['argv'][0]) && $_SERVER['argv'][0] === 'vendor/bin/phpunit');
+        return (!empty($_SERVER['argv'][0]) &&
+            preg_match('/vendor\/bin\/phpunit$/', $_SERVER['argv'][0]));
     }
 
     /**
@@ -726,6 +728,36 @@ class BcUtil
         } else {
             return false;
         }
+    }
+
+    /**
+     * フロントのテンプレートのパス一覧を取得する
+     *
+     * @param $siteId
+     * @return []|array
+     */
+    public static function getFrontTemplatePaths($siteId, $plugin)
+    {
+        /* @var SitesService $sitesService */
+        $sitesTable = TableRegistry::getTableLocator()->get('BaserCore.Sites');
+        $site = $sitesTable->get($siteId);
+
+        $themes = [$site->theme];
+        $rootTheme = BcUtil::getRootTheme();
+        if($rootTheme !== $themes[0]) $themes[] = $rootTheme;
+        $defaultTheme = Configure::read('BcApp.defaultFrontTheme');
+        if(!in_array($defaultTheme, $themes)) $themes[] = $defaultTheme;
+
+        $templatesPaths = [];
+        foreach($themes as $theme) {
+            $themeTemplatesPaths = App::path('templates', $theme);
+            $templatesPaths = array_merge($templatesPaths, [
+                $themeTemplatesPaths[0],
+                $themeTemplatesPaths[0] . 'plugin' . DS . $plugin . DS,
+            ]);
+        }
+        $templatesPaths[] = App::path('templates', $plugin)[0];
+        return $templatesPaths;
     }
 
     /**
@@ -1066,15 +1098,11 @@ class BcUtil
         $theme = Inflector::camelize(Inflector::underscore(Configure::read('BcApp.defaultFrontTheme')));
         if (!BcUtil::isInstalled()) return $theme;
         $request = Router::getRequest();
-        if (BcUtil::isAdminSystem()) {
-            $site = $request->getAttribute('currentSite');
-        } else {
-            $site = $request->getAttribute('currentSite');
-        }
-        if (!$site) {
-            return self::getRootTheme();
-        } elseif ($site->theme) {
+        $site = $request->getAttribute('currentSite');
+        if ($site) {
             return $site->theme;
+        } elseif(self::getRootTheme()) {
+            return self::getRootTheme();
         } else {
             return $theme;
         }
