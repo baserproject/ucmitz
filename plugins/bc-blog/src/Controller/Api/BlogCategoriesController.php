@@ -241,8 +241,8 @@ class BlogCategoriesController extends BcApiController
             if ($service->delete($blogCategoryId)) {
                 $message = __d('baser', 'ブログカテゴリー「{0}」を削除しました。', $blogCategory->name);
             } else {
-                $this->setResponse($this->response->withStatus(400));
-                $message = __d('baser', '入力エラーです。内容を修正してください。');
+                $this->setResponse($this->response->withStatus(500));
+                $message = __d('baser', 'データベース処理中にエラーが発生しました。');
             }
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
