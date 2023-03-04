@@ -140,7 +140,7 @@ class UploaderFilesController extends BcApiController
         }
 
         $this->set([
-            'uploadFile' => $entity,
+            'uploaderFile' => $entity,
             'message' => $message
         ]);
         $this->viewBuilder()->setOption('serialize', ['uploadFile', 'message']);
