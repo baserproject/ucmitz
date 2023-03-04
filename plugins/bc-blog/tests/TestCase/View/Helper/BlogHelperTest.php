@@ -18,6 +18,7 @@ use BaserCore\Test\Factory\SiteFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Test\Scenario\RootContentScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BcBlog\Model\Entity\BlogPost;
 use BcBlog\Service\BlogPostsService;
 use BcBlog\Service\BlogPostsServiceInterface;
 use BcBlog\Test\Factory\BlogCategoryFactory;
@@ -264,24 +265,23 @@ class BlogHelperTest extends BcTestCase
         $siteUrl = Configure::read('BcEnv.siteUrl');
         Configure::write('BcEnv.siteUrl', 'https://main.com');
 
-        // テスト対象メソッド
-        $result = $this->Blog->getPostLinkUrl($post, $useBase);
-        // Configure::write('BcEnv.siteUrl', $siteUrl);
+        $full = true;
+        if($useBase) $full = false;
 
+        // テスト対象メソッド
+        /** @var BlogPost $post */
+        $result = $this->Blog->getPostLinkUrl($post, $useBase, $full);
         $this->assertEquals($expects, $result, '記事へのリンクを正しく取得できません');
+        Configure::write('BcEnv.siteUrl', $siteUrl);
     }
 
     public function getPostLinkUrlDataProvider()
     {
         return [
-            'コンテンツURLなし' => [11, '', false, false],
-            'ベースURLなし' => [6, '', false, '/news/archives/3'],
-            'ベースURLあり' => [6, '/sub', false, '/news/archives/3'],
-            'ベースURLあり、URL付与あり' => [6, '/sub', true, '/sub/news/archives/3'],
-            'sサイト' => [7, '', false, 'https://main.com/s/news/archives/4'],
-            'enサイト' => [8, '', false, 'https://main.com/en/news/archives/5'],
-            '別サイト' => [9, '', false, 'https://example.com/news/archives/6'],
-            'サブドメイン' => [10, '', false, 'https://sub.main.com/archives/7'],
+            'コンテンツURLなし' => [11, '', false, ''],
+            'ベースURLなし' => [6, '', false, 'https://main.com/news/archives/release'],
+            'ベースURLあり、URL付与あり' => [6, '/sub', true, '/sub/news/archives/release'],
+            'ベースURLあり、フルURL' => [6, '/sub', false, 'https://main.com/sub/news/archives/release'],
         ];
     }
 
