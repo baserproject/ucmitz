@@ -44,9 +44,6 @@ class ThemesController extends BcApiController
         $themeDetail = $message = null;
         try {
             $themeDetail = $service->get($theme);
-        } catch (RecordNotFoundException $e) {
-            $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -83,14 +80,10 @@ class ThemesController extends BcApiController
     public function add(ThemesServiceInterface $service)
     {
         $this->request->allowMethod(['post']);
-        $theme = $errors = null;
+        $theme = null;
         try {
             $theme = $service->add($this->getRequest()->getUploadedFiles());
             $message = __d('baser', 'テーマファイル「' . $theme . '」を追加しました。');
-        } catch (PersistenceFailedException $e) {
-            $errors = $e->getEntity()->getErrors();
-            $message = __d('baser', "入力エラーです。内容を修正してください。");
-            $this->setResponse($this->response->withStatus(400));
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -98,10 +91,9 @@ class ThemesController extends BcApiController
 
         $this->set([
             'message' => $message,
-            'theme' => $theme,
-            'errors' => $errors
+            'theme' => $theme
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'theme', 'errors']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'theme']);
     }
     /**
      * [API] テーマを削除する
@@ -121,9 +113,6 @@ class ThemesController extends BcApiController
             $themeDetail = $service->get($theme);
             $service->delete($themeDetail->name);
             $message = __d('baser', 'テーマ「{0}」を削除しました。', $themeDetail->name);
-        } catch (NotFoundException $e) {
-            $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser', 'データが見つかりません');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -160,10 +149,6 @@ class ThemesController extends BcApiController
                 $message = __d('baser', 'テーマ「{0}」のコピーに失敗しました。', $theme);
             }
             $themeDetail = $service->get($theme);
-
-        } catch (RecordNotFoundException $e) {
-            $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser', 'データが見つかりません。');
         } catch (\Throwable $e) {
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
@@ -224,37 +209,31 @@ class ThemesController extends BcApiController
      * @noTodo
      * @unitTest
      */
-    public function apply(
-        ThemesServiceInterface $service,
-        SitesServiceInterface $sitesService,
-        int $siteId,
-        string $theme
-    ) {
+    public function apply(ThemesServiceInterface $themesService, SitesServiceInterface $sitesService, int $siteId, string $theme)
+    {
         $this->request->allowMethod(['post']);
 
-        $themeDetail = null;
+        $errors = null;
 
         try {
-            $info = $service->apply($sitesService->get($siteId), $theme);
-            $themeDetail = $service->get($theme);
-            $message = [__d('baser', 'テーマ「{0}」を適用しました。', $themeDetail->name)];
+            $info = $themesService->apply($sitesService->get($siteId), $theme);
+            $theme = $themesService->get($theme);
+            $message = [__d('baser', 'テーマ「{0}」を適用しました。', $theme->name)];
             if ($info) $message = array_merge($message, [''], $info);
             $message = implode("\n", $message);
-        } catch (RecordNotFoundException $e) {
-            $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser', 'データが見つかりません。');
-        } catch (\Throwable $e) {
-            $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
-            $this->setResponse($this->response->withStatus(500));
+        } catch (BcException $e) {
+            $errors = $e->getMessage();
+            $message = __d('baser', 'テーマの適用に失敗しました。', $e->getMessage());
         }
 
         $this->set([
             'message' => $message,
-            'theme' => $themeDetail,
-            'siteId' => $siteId
+            'theme' => $theme,
+            'siteId' => $siteId,
+            'errors' => $errors
         ]);
 
-        $this->viewBuilder()->setOption('serialize', ['message', 'theme', 'siteId']);
+        $this->viewBuilder()->setOption('serialize', ['message', 'theme', 'siteId', 'errors']);
     }
 
     /**
