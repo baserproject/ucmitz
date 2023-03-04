@@ -107,6 +107,7 @@ class MailMessagesController extends BcApiController
     )
     {
         $this->request->allowMethod(['post']);
+        $mailMessage = null;
         try {
             $service->setup($mailContentId);
             $mailContent = $mailContentsService->get($mailContentId);
@@ -274,7 +275,7 @@ class MailMessagesController extends BcApiController
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
         }
         $this->set(['message' => $message, 'errors' => $errors]);
-        $this->viewBuilder()->setOption('serialize', ['message', 'errors' => $errors]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'errors']);
     }
 
     /**
