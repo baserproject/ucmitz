@@ -174,8 +174,8 @@ class BlogContentsController extends BcApiController
                 $message = __d('baser', '入力エラーです。内容を修正してください。');
             }
         } catch (RecordNotFoundException $e) {
-            $this->setResponse($this->response->withStatus(404));
-            $message = __d('baser', 'データが見つかりません。');
+            $this->setResponse($this->response->withStatus(500));
+            $message = __d('baser', 'データベース処理中にエラーが発生しました。');
         } catch (\Throwable $e) {
             $this->setResponse($this->response->withStatus(500));
             $message = __d('baser', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
