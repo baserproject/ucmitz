@@ -65,7 +65,7 @@ class ThemesController extends BcApiController
     public function index(ThemesServiceInterface $service)
     {
         $this->set([
-            'themes' => $service->getIndex()
+            'themes' => $this->paginate($service->getIndex())
         ]);
         $this->viewBuilder()->setOption('serialize', ['themes']);
     }
