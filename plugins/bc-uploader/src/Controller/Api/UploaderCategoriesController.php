@@ -16,6 +16,8 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
 use BcUploader\Service\UploaderCategoriesServiceInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * アップロードカテゴリコントローラー
@@ -71,11 +73,35 @@ class UploaderCategoriesController extends BcApiController
      * コピーAPI
      *
      * @param UploaderCategoriesServiceInterface $service
-     * @return void
+     * @param int $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function copy(UploaderCategoriesServiceInterface $service)
+    public function copy(UploaderCategoriesServiceInterface $service, int $id)
     {
-        //todo コピーAPI
+        $this->request->allowMethod(['patch', 'post', 'put']);
+        $uploaderCategory = null;
+        try {
+            $uploaderCategory = $service->copy($id);
+            if ($uploaderCategory) {
+                $message = __d('baser_core', 'アップロードカテゴリ「{0}」をコピーしました。', $uploaderCategory->name);
+            } else {
+                $this->setResponse($this->response->withStatus(400));
+                $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');
+            }
+        } catch (\Throwable $e) {
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
+
+        $this->set([
+            'message' => $message,
+            'uploaderCategory' => $uploaderCategory
+        ]);
+
+        $this->viewBuilder()->setOption('serialize', ['message', 'uploaderCategory']);
     }
 
     /**
