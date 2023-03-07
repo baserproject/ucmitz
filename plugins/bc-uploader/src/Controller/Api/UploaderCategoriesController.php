@@ -51,12 +51,13 @@ class UploaderCategoriesController extends BcApiController
      * 編集API
      *
      * @param UploaderCategoriesServiceInterface $service
-     * @return void
+     * @param int $id
+     *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function edit(UploaderCategoriesServiceInterface $service, $id)
+    public function edit(UploaderCategoriesServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
         $uploaderCategory = $errors = null;
