@@ -13,6 +13,7 @@ namespace BcEditorTemplate\Test\TestCase\Controller\Api;
 
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BcEditorTemplate\Test\Scenario\EditorTemplatesScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
 
@@ -121,6 +122,14 @@ class EditorTemplatesControllerTest extends BcTestCase
      */
     public function test_list()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データを生成
+        $this->loadFixtureScenario(EditorTemplatesScenario::class);
+        //APIを呼ぶ
+        $this->get('/baser/api/bc-editor-template/editor_templates/list.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals(get_object_vars($result->editorTemplates)[3], 'テキスト２段組');
     }
 }
