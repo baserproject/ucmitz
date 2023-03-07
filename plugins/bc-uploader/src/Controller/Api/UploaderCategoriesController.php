@@ -16,6 +16,7 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
 use BcUploader\Service\UploaderCategoriesServiceInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 
 /**
  * アップロードカテゴリコントローラー
@@ -60,11 +61,36 @@ class UploaderCategoriesController extends BcApiController
      * 削除API
      *
      * @param UploaderCategoriesServiceInterface $service
-     * @return void
+     * @param int $id
+     *
+     * @checked
+     * @notodo
+     * @unitTest
      */
-    public function delete(UploaderCategoriesServiceInterface $service)
+    public function delete(UploaderCategoriesServiceInterface $service, int $id)
     {
-        //todo 削除API
+        $this->request->allowMethod(['post', 'delete']);
+        $uploaderCategory = null;
+        try {
+            $uploaderCategory = $service->get($id);
+            if ($service->delete($id)) {
+                $message = __d('baser_core', 'アップロードカテゴリ「{0}」を削除しました。', $uploaderCategory->name);
+            } else {
+                $this->setResponse($this->response->withStatus(500));
+                $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');
+            }
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser_core', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
+        $this->set([
+            'message' => $message,
+            'uploaderCategory' => $uploaderCategory
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['uploaderCategory', 'message']);
     }
 
     /**
