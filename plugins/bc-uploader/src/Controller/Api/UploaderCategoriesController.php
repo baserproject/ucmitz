@@ -16,6 +16,8 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Controller\Api\BcApiController;
 use BcUploader\Service\UploaderCategoriesServiceInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
  * アップロードカテゴリコントローラー
@@ -50,10 +52,34 @@ class UploaderCategoriesController extends BcApiController
      *
      * @param UploaderCategoriesServiceInterface $service
      * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function edit(UploaderCategoriesServiceInterface $service)
+    public function edit(UploaderCategoriesServiceInterface $service, $id)
     {
-        //todo 編集API
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        $uploaderCategory = $errors = null;
+        try {
+            $uploaderCategory = $service->update($service->get($id), $this->request->getData());
+            $message = __d('baser_core', 'アップロードカテゴリ「{0}」を更新しました。', $uploaderCategory->name);
+        } catch (PersistenceFailedException $e) {
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser_core', "入力エラーです。内容を修正してください。");
+            $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser_core', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
+        $this->set([
+            'message' => $message,
+            'uploaderCategory' => $uploaderCategory,
+            'errors' => $errors
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['uploaderCategory', 'message', 'errors']);
     }
 
     /**
