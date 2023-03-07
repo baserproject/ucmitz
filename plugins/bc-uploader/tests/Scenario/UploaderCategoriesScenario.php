@@ -12,8 +12,6 @@
 namespace BcUploader\Test\Scenario;
 
 use BcUploader\Test\Factory\UploaderCategoryFactory;
-use BcUploader\Test\Factory\UploaderConfigFactory;
-use BcUploader\Test\Factory\UploaderFileFactory;
 use CakephpFixtureFactories\Scenario\FixtureScenarioInterface;
 
 /**
