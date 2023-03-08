@@ -11,10 +11,12 @@
 
 namespace BcCustomContent\Test\TestCase\Controller\Api;
 
+use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
+use BcCustomContent\Service\CustomTablesServiceInterface;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
-use Cake\TestSuite\IntegrationTestTrait;
 
 /**
  * Class CustomTablesControllerTest
@@ -26,7 +28,7 @@ class CustomTablesControllerTest extends BcTestCase
      * ScenarioAwareTrait
      */
     use ScenarioAwareTrait;
-    use IntegrationTestTrait;
+    use BcContainerTrait;
 
     /**
      * Fixtures
@@ -81,7 +83,33 @@ class CustomTablesControllerTest extends BcTestCase
      */
     public function test_index()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //サービスをコル
+        $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
+        $customTable = $this->getService(CustomTablesServiceInterface::class);
+
+        //テストデータを生成
+        $customTable->create([
+            'type' => 'contact',
+            'name' => 'contact',
+            'title' => 'お問い合わせタイトル',
+            'display_field' => 'お問い合わせ'
+        ]);
+        $customTable->create([
+            'type' => 'recruit',
+            'name' => 'recruit',
+            'title' => '求人',
+            'display_field' => '求人'
+        ]);
+        //APIを呼ぶ
+        $this->get('/baser/api/bc-custom-content/custom_tables/index.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertCount(2, $result->customTables);
+        //不要なテーブルを削除
+        $dataBaseService->dropTable('custom_entry_1_contact');
+        $dataBaseService->dropTable('custom_entry_2_recruit');
     }
 
     /**
