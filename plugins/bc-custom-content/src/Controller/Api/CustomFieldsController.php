@@ -50,7 +50,7 @@ class CustomFieldsController extends BcApiController
      * @param CustomFieldsServiceInterface $service
      *
      * @checked
-     * @unitTest
+     * @noTodo
      * @unitTest
      */
     public function add(CustomFieldsServiceInterface $service)
