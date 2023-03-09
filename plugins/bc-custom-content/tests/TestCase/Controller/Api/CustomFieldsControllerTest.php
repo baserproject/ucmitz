@@ -101,6 +101,14 @@ class CustomFieldsControllerTest extends BcTestCase
         $result = json_decode((string)$this->_response->getBody());
         $this->assertNotNull($result->customField);
         $this->assertEquals('求人分類', $result->customField->title);
+
+        //存在しないIDを指定した場合、
+        $this->get('/baser/api/bc-custom-content/custom_fields/view/11.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseCode(404);
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データが見つかりません', $result->message);
     }
 
     /**
