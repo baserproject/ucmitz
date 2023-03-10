@@ -9,25 +9,32 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-namespace BcCustomContent\Test\TestCase\Controller\Api;
+namespace BcCustomContent\Test\TestCase\Service;
 
-use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
+use BaserCore\Utility\BcContainerTrait;
+use BcCustomContent\Service\CustomLinksService;
+use BcCustomContent\Service\CustomLinksServiceInterface;
 use BcCustomContent\Test\Scenario\CustomFieldsScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
-use Cake\TestSuite\IntegrationTestTrait;
 
 /**
- * Class CustomLinksControllerTest
+ * CustomLinksServiceTest
  */
-class CustomLinksControllerTest extends BcTestCase
+class CustomLinksServiceTest extends BcTestCase
 {
-
     /**
      * ScenarioAwareTrait
      */
     use ScenarioAwareTrait;
-    use IntegrationTestTrait;
+    use BcContainerTrait;
+
+    /**
+     * Test subject
+     *
+     * @var CustomLinksService
+     */
+    public $CustomLinksService;
 
     /**
      * Fixtures
@@ -35,103 +42,78 @@ class CustomLinksControllerTest extends BcTestCase
      * @var array
      */
     public $fixtures = [
-        'plugin.BaserCore.Factory/Sites',
-        'plugin.BaserCore.Factory/SiteConfigs',
-        'plugin.BaserCore.Factory/Users',
-        'plugin.BaserCore.Factory/UsersUserGroups',
-        'plugin.BaserCore.Factory/UserGroups',
         'plugin.BcCustomContent.Factory/CustomFields',
         'plugin.BcCustomContent.Factory/CustomLinks',
     ];
 
     /**
-     * Access Token
-     * @var string
-     */
-    public $accessToken = null;
-
-    /**
-     * Refresh Token
-     * @var null
-     */
-    public $refreshToken = null;
-
-    /**
-     * set up
+     * Set up
      */
     public function setUp(): void
     {
-        $this->setFixtureTruncate();
         parent::setUp();
-        $this->loadFixtureScenario(InitAppScenario::class);
-        $token = $this->apiLoginAdmin(1);
-        $this->accessToken = $token['access_token'];
-        $this->refreshToken = $token['refresh_token'];
+        $this->CustomLinksService = $this->getService(CustomLinksServiceInterface::class);
     }
 
     /**
-     * Tear Down
-     *
+     * Tear down
      */
     public function tearDown(): void
     {
+        unset($this->CustomLinksService);
         parent::tearDown();
     }
 
     /**
-     * test index
+     * test getIndex
      */
-    public function test_index()
+    public function test_getIndex()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
-     * test view
+     * test get
      */
-    public function test_view()
+    public function test_get()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
-     * test add
+     * test getNew
      */
-    public function test_add()
+    public function test_getNew()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
-     * test edit
+     * test create
      */
-    public function test_edit()
+    public function test_create()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
-     * test delete
+     * test create
      */
-    public function test_delete()
+    public function test_update()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
     }
 
     /**
-     * test list
+     * test getList
      */
-    public function test_list()
+    public function test_getList()
     {
         //データを生成
         $this->loadFixtureScenario(CustomFieldsScenario::class);
-        //APIを呼ぶ
-        $this->get('/baser/api/bc-custom-content/custom_links/list/1.json?token=' . $this->accessToken);
-        //ステータスを確認
-        $this->assertResponseOk();
-        //戻る値を確認
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('求人分類', $result->customLinks->{1});
-        $this->assertEquals('この仕事の特徴', $result->customLinks->{2});
+        $result = $this->CustomLinksService->getList(1);
+        $this->assertEquals('求人分類', $result[1]);
+        $this->assertEquals('この仕事の特徴', $result[2]);
     }
+
 }
