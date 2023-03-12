@@ -91,9 +91,9 @@ class ThemeConfigsControllerTest extends BcTestCase
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
         //全て４件を取得できるか確認
-        $this->assertCount(4, get_object_vars($result->themeConfigs));
+        $this->assertCount(4, get_object_vars($result->themeConfig));
         //単位Objectの値を確認
-        $this->assertEquals('2B7BB9', $result->themeConfigs->color_hover);
+        $this->assertEquals('2B7BB9', $result->themeConfig->color_hover);
     }
 
     /**
