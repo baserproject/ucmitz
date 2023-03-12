@@ -76,7 +76,7 @@ return [
      */
     'Cache' => [
         /**
-         * baserマーケットのテーマ、プラグイン情報等に利用
+         * 環境情報に利用
          */
         '_bc_env_' => [
             'className' => FileEngine::class,
@@ -87,8 +87,9 @@ return [
             'url' => env('CACHE_BCENV_URL', null),
         ],
         /**
-         * Packagist の BaserCore のバージョンに利用
+         * Packagist の BaserCore のバージョン、baserマーケットのテーマ、プラグイン情報、baserオフィシャルニュースに利用
          * @see \BaserCore\Service\PluginsService::getAvailableCoreVersion()
+         * @see \BaserCore\Service\BcOfficialApiService::getRss()
          */
         '_bc_update_' => [
             'className' => FileEngine::class,
@@ -238,11 +239,6 @@ return [
          * baserコアのプレフィックスの後に付与
          */
         'apiPrefix' => 'api',
-
-        /**
-         * 特権管理者グループID
-         */
-        'adminGroup' => ['admins'],
 
         /**
          * 管理者グループID
@@ -421,7 +417,12 @@ return [
                         'UserGroups' => [
                             'title' => __d('baser_core', 'ユーザーグループ'),
                             'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'user_groups', 'action' => 'index'],
-                            'currentRegex' => '/(\/user_groups\/[^\/]+?|\/permission_groups\/[^\/]+?|\/permissions\/[^\/]+?)/s'
+                            'currentRegex' => '/\/user_groups\/[^\/]+?/s'
+                        ],
+                        'PermissionGroups' => [
+                            'title' => __d('baser_core', 'アクセスルールグループ'),
+                            'url' => ['prefix' => 'Admin', 'plugin' => 'BaserCore', 'controller' => 'permission_groups', 'action' => 'index'],
+                            'currentRegex' => '/(\/permission_groups\/[^\/]+?|\/permissions\/[^\/]+?)/s'
                         ],
                     ]
                 ],
@@ -502,19 +503,22 @@ return [
      * アクセスルール
      */
     'BcPermission' => [
-        'permissionGroupTypes' => [
-            'Admin' => __d('baser_core', '管理画面'),
-            'Api' => 'Web API'
-        ],
         'defaultAllows' => [
             '/baser/admin',
             '/baser/admin/baser-core/users/login',
+            '/baser/admin/baser-core/users/logout',
+            '/baser/admin/baser-core/password_requests/*',
             '/baser/admin/baser-core/dashboard/*',
             '/baser/admin/baser-core/dblogs/*',
-            '/baser/admin/baser-core/users/logout',
             '/baser/admin/baser-core/users/back_agent',
-            '/baser/admin/baser-core/password_requests/*',
-            '/baser/admin/baser-core/preview/*'
+            '/baser/admin/baser-core/preview/*',
+            '/baser/admin/baser-core/utilities/credit',
+            '/',
+            '/baser-core/users/login',
+            '/baser-core/users/logout',
+            '/baser-core/password_requests/*',
+            '/baser/api/baser-core/users/login.json',
+            '/baser/api/baser-core/users/refresh_token.json'
         ]
     ],
 
@@ -550,6 +554,10 @@ return [
      * - `password`: ユーザー識別用テーブルにおけるパスワード
      * - `userModel`: ユーザー識別用のテーブル（プラグイン記法）
      * - `sessionKey`: セッションを利用する場合のセッションキー
+     * - `permissionType`: アクセスルール設定
+     *      - 1.ホワイトリスト: 全て拒否してアクセスルールで許可を設定
+     *      - 2.ブラックリスト: 全て許可してアクセスルールで拒否を設定
+     * - `disabled`: 設定を無効にする場合は true に設定（キーがない場合は有効とみなす）
      */
     'BcPrefixAuth' => [
         // 管理画面
@@ -563,6 +571,7 @@ return [
             'username' => ['email', 'name'],
             'password' => 'password',
             'userModel' => 'BaserCore.Users',
+            'permissionType' => 1,
             'sessionKey' => 'AuthAdmin',
         ],
         // Api
@@ -573,7 +582,23 @@ return [
             'username' => ['email', 'name'],
             'password' => 'password',
             'userModel' => 'BaserCore.Users',
+            'permissionType' => 1,
             'sessionKey' => 'AuthAdmin',
+        ],
+        // フロントページ
+        'Front' => [
+            'name' => 'フロントページ',
+            'type' => 'Session',
+            'alias' => '/',
+            'loginRedirect' => '/',
+            'loginAction' => ['plugin' => 'BaserCore', 'controller' => 'Users', 'action' => 'login'],
+            'logoutAction' => ['plugin' => 'BaserCore', 'controller' => 'Users', 'action' => 'logout'],
+            'username' => ['email', 'name'],
+            'password' => 'password',
+            'userModel' => 'BaserCore.Users',
+            'sessionKey' => 'AuthAdmin',
+            'permissionType' => 2,
+            'disabled' => true
         ]
     ],
 
@@ -601,9 +626,14 @@ return [
      * パッケージ内の外部リンク
      */
     'BcLinks' => [
+        // baserマーケット テーマRSS
         'marketThemeRss' => 'https://market.basercms.net/themes.php',
+        // baserマーケット プラグインRSS
         'marketPluginRss' => 'https://market.basercms.net/plugins.php',
+        // スペシャルサンクス
         'specialThanks' => 'https://basercms.net/special_thanks/special_thanks/ajax_users',
+        // baserCMSオフィシャルニュース
+        'baserNewsRss' => 'https://basercms.net/news/index.rss',
         // インストールマニュアル
         // TODO ucmitz リンク先を準備した上で変更要
         'installManual' => 'https://wiki.basercms.net/%E3%82%A4%E3%83%B3%E3%82%B9%E3%83%88%E3%83%BC%E3%83%AB%E3%82%AC%E3%82%A4%E3%83%89',

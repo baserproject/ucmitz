@@ -25,6 +25,8 @@ use BaserCore\Service\Admin\PagesAdminService;
 use BaserCore\Service\Admin\PagesAdminServiceInterface;
 use BaserCore\Service\Admin\PermissionGroupsAdminService;
 use BaserCore\Service\Admin\PermissionGroupsAdminServiceInterface;
+use BaserCore\Service\Admin\PermissionsAdminService;
+use BaserCore\Service\Admin\PermissionsAdminServiceInterface;
 use BaserCore\Service\Admin\PluginsAdminService;
 use BaserCore\Service\Admin\PluginsAdminServiceInterface;
 use BaserCore\Service\Admin\SiteConfigsAdminService;
@@ -39,8 +41,12 @@ use BaserCore\Service\Admin\UtilitiesAdminService;
 use BaserCore\Service\Admin\UtilitiesAdminServiceInterface;
 use BaserCore\Service\AppService;
 use BaserCore\Service\AppServiceInterface;
+use BaserCore\Service\BcCaptchaService;
+use BaserCore\Service\BcCaptchaServiceInterface;
 use BaserCore\Service\BcDatabaseService;
 use BaserCore\Service\BcDatabaseServiceInterface;
+use BaserCore\Service\BcOfficialApiService;
+use BaserCore\Service\BcOfficialApiServiceInterface;
 use BaserCore\Service\ContentFoldersService;
 use BaserCore\Service\ContentFoldersServiceInterface;
 use BaserCore\Service\ContentsService;
@@ -129,7 +135,10 @@ class BcServiceProvider extends ServiceProvider
         BcAdminContentsServiceInterface::class,
         PasswordRequestsServiceInterface::class,
         PermissionGroupsServiceInterface::class,
-        PermissionGroupsAdminServiceInterface::class
+        PermissionGroupsAdminServiceInterface::class,
+        BcCaptchaServiceInterface::class,
+        BcOfficialApiServiceInterface::class,
+        PermissionsAdminServiceInterface::class
     ];
 
     /**
@@ -198,6 +207,12 @@ class BcServiceProvider extends ServiceProvider
         $container->add(BcAdminContentsServiceInterface::class, BcAdminContentsService::class);
         // PasswordRequests サービス
         $container->add(PasswordRequestsServiceInterface::class, PasswordRequestsService::class);
+        // BcCaptcha サービス
+        $container->add(BcCaptchaServiceInterface::class, BcCaptchaService::class);
+        // BcOfficialApi サービス
+        $container->add(BcOfficialApiServiceInterface::class, BcOfficialApiService::class);
+        // PermissionAdmin サービス
+        $container->add(PermissionsAdminServiceInterface::class, PermissionsAdminService::class);
     }
 
 }
