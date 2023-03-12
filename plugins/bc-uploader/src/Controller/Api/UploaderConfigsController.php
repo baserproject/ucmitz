@@ -38,9 +38,9 @@ class UploaderConfigsController extends BcApiController
     {
         $this->request->allowMethod(['get']);
         $this->set([
-            'uploaderConfigs' => $service->get()
+            'uploaderConfig' => $service->get()
         ]);
-        $this->viewBuilder()->setOption('serialize', ['uploaderConfigs']);
+        $this->viewBuilder()->setOption('serialize', ['uploaderConfig']);
     }
 
     /**
