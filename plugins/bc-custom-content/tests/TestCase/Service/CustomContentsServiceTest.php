@@ -70,7 +70,14 @@ class CustomContentsServiceTest extends BcTestCase
      */
     public function test_getIndex()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //データを生成
+        $this->loadFixtureScenario(CustomContentsScenario::class);
+        //テストメソッドを呼ぶ
+        $result = $this->CustomContentsService->getIndex([])->toArray();
+        //戻る値を確認
+        $this->assertCount(2, $result);
+        $this->assertEquals('サービステスト', $result[0]->description);
+        $this->assertEquals('/recruit/', $result[1]->content->url);
     }
 
     /**
@@ -153,5 +160,20 @@ class CustomContentsServiceTest extends BcTestCase
     public function test_unsetTable()
     {
         $this->markTestIncomplete('このテストは、まだ実装されていません。');
+    }
+
+    /**
+     * test getList
+     */
+    public function test_getList()
+    {
+        //データを生成
+        $this->loadFixtureScenario(CustomContentsScenario::class);
+        //テストメソッドを呼ぶ
+        $result = $this->CustomContentsService->getList();
+        //戻る値を確認
+        $this->assertCount(2, $result);
+        $this->assertEquals('サービスタイトル',$result[1]);
+        $this->assertEquals('求人タイトル',$result[2]);
     }
 }

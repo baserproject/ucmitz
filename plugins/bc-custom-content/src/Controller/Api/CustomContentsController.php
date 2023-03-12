@@ -28,43 +28,79 @@ class CustomContentsController extends BcApiController
      * 一覧取得API
      *
      * @param CustomContentsServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(CustomContentsServiceInterface $service)
     {
-        //todo 一覧取得API
+        $this->set([
+            'customContents' => $this->paginate($service->getIndex($this->request->getQueryParams()))
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['customContents']);
     }
 
     /**
      * 単一データAPI
      *
      * @param CustomContentsServiceInterface $service
+     * @param int $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function view(CustomContentsServiceInterface $service)
+    public function view(CustomContentsServiceInterface $service, int $id)
     {
-        //todo 単一データAPI
+        $this->request->allowMethod(['get']);
+        $customContent = $message = null;
+        try {
+            $customContent = $service->get($id, $this->request->getQueryParams());
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser_core', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
+        $this->set([
+            'customContent' => $customContent,
+            'message' => $message
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'customContent']);
     }
 
     /**
      * カスタムコンテンツの新規追加
      *
      * @param CustomContentsServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function add(CustomContentsServiceInterface $service)
     {
         $this->request->allowMethod(['post', 'put', 'patch']);
+        $entity = $errors = null;
         try {
             $entity = $service->create($this->request->getData());
             $message = __d('baser_core', 'カスタムコンテンツ「{0}」を追加しました。', $entity->content->title);
-        } catch (\Cake\ORM\Exception\PersistenceFailedException $e) {
-            $entity = $e->getEntity();
-            $message = __d('baser_core', "入力エラーです。内容を修正してください。\n");
+        } catch (PersistenceFailedException $e) {
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser_core', "入力エラーです。内容を修正してください。");
             $this->setResponse($this->response->withStatus(400));
+        } catch (\Throwable $e) {
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
         }
+
         $this->set([
             'customContent' => $entity,
-            'content' => $entity->content,
+            'content' => $entity?->content,
             'message' => $message,
-            'errors' => $entity->getErrors()
+            'errors' => $errors
         ]);
         $this->viewBuilder()->setOption('serialize', [
             'customContent',
@@ -78,10 +114,42 @@ class CustomContentsController extends BcApiController
      * 編集API
      *
      * @param CustomContentsServiceInterface $service
+     * @param int $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function edit(CustomContentsServiceInterface $service)
+    public function edit(CustomContentsServiceInterface $service, int $id)
     {
-        //todo 編集API
+        $this->request->allowMethod(['post', 'put', 'patch']);
+        $customContent = $errors = null;
+        try {
+            $customContent = $service->update($service->get($id), $this->request->getData());
+            $message = __d('baser_core', 'カスタムコンテンツ「{0}」を更新しました。', $customContent->content->title);
+        } catch (PersistenceFailedException $e) {
+            $errors = $e->getEntity()->getErrors();
+            $message = __d('baser_core', "入力エラーです。内容を修正してください。");
+            $this->setResponse($this->response->withStatus(400));
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser_core', 'データが見つかりません。');
+        } catch (\Throwable $e) {
+            $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
+            $this->setResponse($this->response->withStatus(500));
+        }
+        $this->set([
+            'customContent' => $customContent,
+            'content' => $customContent?->content,
+            'message' => $message,
+            'errors' => $errors,
+        ]);
+        $this->viewBuilder()->setOption('serialize', [
+            'customContent',
+            'content',
+            'message',
+            'errors'
+        ]);
     }
 
     /**
@@ -121,9 +189,16 @@ class CustomContentsController extends BcApiController
      * リストAPI
      *
      * @param CustomContentsServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function list(CustomContentsServiceInterface $service)
     {
-        //todo リストAPI
+        $this->set([
+            'customContents' => $service->getList()
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['customContents']);
     }
 }
