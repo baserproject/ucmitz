@@ -39,9 +39,9 @@ class ThemeConfigsController extends BcApiController
     {
         $this->request->allowMethod(['get']);
         $this->set([
-            'themeConfigs' => $service->get()
+            'themeConfig' => $service->get()
         ]);
-        $this->viewBuilder()->setOption('serialize', ['themeConfigs']);
+        $this->viewBuilder()->setOption('serialize', ['themeConfig']);
     }
 
     /**
