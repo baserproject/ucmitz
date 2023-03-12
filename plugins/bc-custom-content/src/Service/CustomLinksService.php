@@ -97,8 +97,7 @@ class CustomLinksService implements CustomLinksServiceInterface
      */
     public function getList(int $tableId): array
     {
-        $conditions = [];
-        if ($tableId) $conditions = ['CustomLinks.custom_table_id' => $tableId];
+        $conditions = ['CustomLinks.custom_table_id' => $tableId];
         return $this->CustomLinks
             ->find('list', ['keyField' => 'id', 'valueField' => 'title'])
             ->where($conditions)->toArray();
