@@ -95,8 +95,8 @@ class UploaderConfigsControllerTest extends BcTestCase
         $this->assertResponseSuccess();
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('value_1', $result->uploaderConfigs->name_1);
-        $this->assertEquals('value_2', $result->uploaderConfigs->name_2);
+        $this->assertEquals('value_1', $result->uploaderConfig->name_1);
+        $this->assertEquals('value_2', $result->uploaderConfig->name_2);
     }
 
     /**
