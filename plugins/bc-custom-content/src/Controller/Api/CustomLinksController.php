@@ -16,6 +16,7 @@ use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BcCustomContent\Service\CustomLinksServiceInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\ORM\Exception\PersistenceFailedException;
 
 /**
@@ -23,6 +24,65 @@ use Cake\ORM\Exception\PersistenceFailedException;
  */
 class CustomLinksController extends BcApiController
 {
+
+    /**
+     * 一覧取得API
+     *
+     * @param CustomLinksServiceInterface $service
+     * @param int $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function index(CustomLinksServiceInterface $service, int $id)
+    {
+        $this->request->allowMethod('get');
+        $this->set([
+            'customLinks' => $this->paginate(
+                $service->getIndex($id, $this->request->getQueryParams())
+            )
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['customLinks']);
+    }
+
+    /**
+     * 単一データAPI
+     *
+     * @param CustomLinksServiceInterface $service
+     * @param int $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function view(CustomLinksServiceInterface $service, int $id)
+    {
+        $this->request->allowMethod('get');
+        $customLink = $message = null;
+        try {
+            $customLink = $service->get($id);
+        } catch (RecordNotFoundException $e) {
+            $this->setResponse($this->response->withStatus(404));
+            $message = __d('baser_core', 'データが見つかりません');
+        }
+
+        $this->set([
+            'customLink' => $customLink,
+            'message' => $message
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['message', 'customLink']);
+    }
+
+    /**
+     * 新規追加API
+     *
+     * @param CustomLinksServiceInterface $service
+     */
+    public function add(CustomLinksServiceInterface $service)
+    {
+        //todo 新規追加API
+    }
 
     /**
      * カスタムリンク編集API
@@ -57,6 +117,35 @@ class CustomLinksController extends BcApiController
         ]);
 
         $this->viewBuilder()->setOption('serialize', ['customLink', 'message', 'errors']);
+    }
+
+    /**
+     * 削除API
+     *
+     * @param CustomLinksServiceInterface $service
+     */
+    public function delete(CustomLinksServiceInterface $service)
+    {
+        //todo 削除API
+    }
+
+    /**
+     * リストAPI
+     *
+     * @param CustomLinksServiceInterface $service
+     * @param int $id
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function list(CustomLinksServiceInterface $service, int $id)
+    {
+        $this->request->allowMethod('get');
+        $this->set([
+            'customLinks' => $service->getList($id)
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['customLinks']);
     }
 
     /**

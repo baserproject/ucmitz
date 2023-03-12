@@ -14,6 +14,7 @@ namespace BaserCore\Service;
 use BaserCore\Model\Entity\PasswordRequest;
 use BaserCore\Model\Table\PasswordRequestsTable;
 use Cake\Datasource\EntityInterface;
+use Cake\Datasource\Exception\RecordNotFoundException;
 use Cake\Mailer\MailerAwareTrait;
 use Cake\ORM\TableRegistry;
 use DateTime;
@@ -85,25 +86,26 @@ class PasswordRequestsService implements PasswordRequestsServiceInterface
      *
      * @param EntityInterface|PasswordRequest $entity
      * @param array $postData
-     * @return EntityInterface|false
+     * @return array|false
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function update($entity, $postData): ?EntityInterface
+    public function update($entity, $postData): ?array
     {
         $passwordRequest = $this->PasswordRequests->patchEntity($entity, $postData);
         $usersTable = TableRegistry::getTableLocator()->get('BaserCore.Users');
         $user = $usersTable->find()
             ->where(['Users.email' => $postData['email']])
             ->first();
-        if (empty($user)) return false;
+        if (empty($user)) throw new RecordNotFoundException(__d('baser_core', 'ユーザーが存在しません。'));
         $passwordRequest->user_id = $user->id;
         $passwordRequest->used = 0;
         $passwordRequest->setRequestKey();
-        $result = $this->PasswordRequests->saveOrFail($passwordRequest);
-        $this->getMailer('BaserCore.Admin/PasswordRequest')->send('resetPassword', [$user, $passwordRequest]);
-        return $result;
+        if ($this->PasswordRequests->saveOrFail($passwordRequest)){
+            return $this->getMailer('BaserCore.Admin/PasswordRequest')->send('resetPassword', [$user, $passwordRequest]);
+        }
+        return false;
     }
 
     /**
