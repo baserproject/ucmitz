@@ -74,6 +74,10 @@ class CustomEntriesController extends BcApiController
      *
      * @param CustomEntriesServiceInterface $service
      * @param int $tableId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
     public function index(CustomEntriesServiceInterface $service)
     {
