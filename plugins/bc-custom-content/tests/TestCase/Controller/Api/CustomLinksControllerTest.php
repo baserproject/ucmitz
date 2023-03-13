@@ -42,6 +42,7 @@ class CustomLinksControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BcCustomContent.Factory/CustomFields',
         'plugin.BcCustomContent.Factory/CustomLinks',
+        'plugin.BcCustomContent.Factory/CustomTables',
     ];
 
     /**
@@ -116,7 +117,32 @@ class CustomLinksControllerTest extends BcTestCase
      */
     public function test_add()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $data = [
+            'custom_table_id' => 1,
+            'custom_field_id' => 1,
+            'lft' => 1,
+            'rght' => 2,
+            'name' => 'recruit_category_add',
+            'title' => '求人分類',
+        ];
+        //APIを呼ぶ
+        $this->post('/baser/api/bc-custom-content/custom_links/add.json?token=' . $this->accessToken, $data);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->customLink);
+        $this->assertEquals('カスタムリンク「求人分類」を追加しました。', $result->message);
+
+        //タイトルがない場合、
+        //存在しないBlogPostIDを削除場合、
+        $this->post('/baser/api/bc-custom-content/custom_links/add.json?token=' . $this->accessToken, ['title' => '']);
+        //ステータスを確認
+        $this->assertResponseCode(400);
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
+        $this->assertEquals('タイトルを入力してください。', $result->errors->title->_empty);
     }
 
     /**

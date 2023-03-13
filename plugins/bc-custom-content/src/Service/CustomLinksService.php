@@ -104,6 +104,22 @@ class CustomLinksService implements CustomLinksServiceInterface
     }
 
     /**
+     * 関連フィールドを新規登録する
+     *
+     * @param array $postData
+     * @return EntityInterface
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function create(array $postData)
+    {
+        $entity = $this->CustomLinks->patchEntity($this->CustomLinks->newEmptyEntity(), $postData);
+        return $this->CustomLinks->saveOrFail($entity);
+    }
+
+    /**
      * 関連フィールドを編集する
      *
      * @param EntityInterface $entity

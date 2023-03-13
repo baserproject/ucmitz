@@ -93,7 +93,17 @@ class CustomLinksServiceTest extends BcTestCase
      */
     public function test_create()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $data = [
+            'custom_table_id' => 1,
+            'custom_field_id' => 1,
+            'lft' => 1,
+            'rght' => 2,
+            'name' => 'recruit_category_add',
+            'title' => '求人分類',
+        ];
+        $result = $this->CustomLinksService->create($data);
+        $this->assertEquals('recruit_category_add', $result->name);
+        $this->assertEquals('求人分類', $result->title);
     }
 
     /**
