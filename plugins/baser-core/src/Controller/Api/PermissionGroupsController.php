@@ -26,19 +26,18 @@ class PermissionGroupsController extends BcApiController
     /**
      * [API] 単一アクセスルールグループ取得
      * @param PermissionGroupsServiceInterface $service
-     * @param int $groupId
      * @param int $id
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function view(PermissionGroupsServiceInterface $service, int $groupId, int $id)
+    public function view(PermissionGroupsServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['get']);
         $permissionGroup = $message = null;
         try {
-            $permissionGroup = $service->get($id, $groupId);
+            $permissionGroup = $service->get($id);
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser_core', 'データが見つかりません。');
