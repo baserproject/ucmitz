@@ -111,7 +111,21 @@ class PermissionGroupsControllerTest extends BcTestCase
      */
     public function test_add()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        //Postデータを用意
+        $data = [
+            'name' => 'システム基本設定　テスト',
+            'type' => 'Admin',
+            'plugin' => 'BaserCore',
+            'status' => 1
+        ];
+        //APIをコール
+        $this->post('/baser/api/baser-core/permission_groups/add.json?token=' . $this->accessToken, $data);
+        //ステータスを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->permissionGroup);
+        $this->assertEquals('ルールグループ「システム基本設定　テスト」を登録しました。', $result->message);
     }
 
     /**
@@ -119,7 +133,28 @@ class PermissionGroupsControllerTest extends BcTestCase
      */
     public function test_edit()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        //Postデータを用意
+        $data = [
+            'name' => 'システム基本設定　Update',
+        ];
+        //APIをコール
+        $this->post('/baser/api/baser-core/permission_groups/edit/1.json?token=' . $this->accessToken, $data);
+        //ステータスを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->permissionGroup);
+        $this->assertEquals('ルールグループ「システム基本設定　Update」を更新しました。', $result->message);
+
+        //存在しないIDを指定した場合。
+        //APIをコール
+        $this->post('/baser/api/baser-core/permission_groups/edit/11.json?token=' . $this->accessToken, $data);
+        //ステータスを確認
+        $this->assertResponseCode(404);
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データが見つかりません。', $result->message);
     }
 
     /**
@@ -127,11 +162,35 @@ class PermissionGroupsControllerTest extends BcTestCase
      */
     public function test_delete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        //APIをコール
+        $this->post('/baser/api/baser-core/permission_groups/delete/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->permissionGroup);
+        $this->assertEquals('ルールグループ「コンテンツフォルダ管理」を削除しました。', $result->message);
+
+        //存在しないIDを指定した場合。
+        //APIをコール
+        $this->post('/baser/api/baser-core/permission_groups/delete/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseCode(404);
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データが見つかりません。', $result->message);
     }
 
     public function test_rebuild_by_user_group()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        //APIをコール
+        $this->post('/baser/api/baser-core/permission_groups/rebuild_by_user_group/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseSuccess();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('アクセスルールの再構築に成功しました。', $result->message);
     }
 }
