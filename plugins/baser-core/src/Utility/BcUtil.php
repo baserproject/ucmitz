@@ -746,8 +746,11 @@ class BcUtil
      */
     public static function getTemplatePath(string $plugin): string
     {
-        if (Plugin::isLoaded($plugin)) {
-            return Plugin::path($plugin) . 'templates/';
+
+        $templatePath = Plugin::templatePath($plugin);
+
+        if ($templatePath) {
+            return $templatePath;
         } else {
             return false;
         }
