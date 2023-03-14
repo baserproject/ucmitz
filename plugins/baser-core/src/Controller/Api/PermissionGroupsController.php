@@ -49,7 +49,7 @@ class PermissionGroupsController extends BcApiController
 
         $queryParams = $this->getRequest()->getQueryParams();
         if (empty($queryParams['user_group_id'])) {
-            throw new BadRequestException(__d('baser_core', 'パラメーターに custom_table_id を指定してください。'));
+            throw new BadRequestException(__d('baser_core', 'パラメーターに user_group_id を指定してください。'));
         }
         $this->set([
             'permissionGroups' => $this->paginate(
