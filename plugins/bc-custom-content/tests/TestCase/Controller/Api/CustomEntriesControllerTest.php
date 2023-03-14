@@ -210,7 +210,7 @@ class CustomEntriesControllerTest extends BcTestCase
             'title' => 'title updated',
         ];
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_entries/edit/1/1.json?token=' . $this->accessToken, $data);
+        $this->post('/baser/api/bc-custom-content/custom_entries/edit/1.json?custom_table_id=1&token=' . $this->accessToken, $data);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -219,17 +219,23 @@ class CustomEntriesControllerTest extends BcTestCase
         $this->assertEquals('フィールド「title updated」を更新しました。', $result->message);
 
         //タイトルを指定しない場合、
-        $this->post('/baser/api/bc-custom-content/custom_entries/edit/1/1.json?token=' . $this->accessToken, ['title' => '']);
+        $this->post('/baser/api/bc-custom-content/custom_entries/edit/1.json?custom_table_id=1&token=' . $this->accessToken, ['title' => '']);
         $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('入力エラーです。内容を修正してください。', $result->message);
         $this->assertEquals('タイトルは必須項目です。', $result->errors->title->_empty);
 
         //存在しないIDを指定した場合、
-        $this->post('/baser/api/bc-custom-content/custom_entries/edit/11/11.json?token=' . $this->accessToken, ['title' => '']);
+        $this->post('/baser/api/bc-custom-content/custom_entries/edit/11.json?custom_table_id=11&token=' . $this->accessToken, ['title' => '']);
         $this->assertResponseCode(404);
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals('データが見つかりません。', $result->message);
+
+        //custom_table_idを指定しない場合、
+        $this->post('/baser/api/bc-custom-content/custom_entries/edit/11.json?token=' . $this->accessToken, ['title' => '']);
+        $this->assertResponseCode(400);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('パラメーターに custom_table_id を指定してください。', $result->message);
 
         //不要なテーブルを削除
         $dataBaseService->dropTable('custom_entry_1_recruit_categories');
