@@ -201,7 +201,37 @@ class CustomEntriesControllerTest extends BcTestCase
      */
     public function test_delete()
     {
-        $this->markTestIncomplete('このテストは、まだ実装されていません。');
+        $dataBaseService = $this->getService(BcDatabaseServiceInterface::class);
+        $customTable = $this->getService(CustomTablesServiceInterface::class);
+        //カスタムテーブルとカスタムエントリテーブルを生成
+        $customTable->create([
+            'id' => 1,
+            'name' => 'recruit_categories',
+            'title' => '求人情報',
+            'type' => '1',
+            'display_field' => 'title',
+            'has_child' => 0
+        ]);
+        //フィクチャーからデーターを生成
+        $this->loadFixtureScenario(CustomEntriesScenario::class);
+
+        //APIを呼ぶ
+        $this->post('/baser/api/bc-custom-content/custom_entries/delete/1/1.json?token=' . $this->accessToken);
+        //ステータスを確認
+        $this->assertResponseOk();
+        //戻る値を確認
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->entry);
+        $this->assertEquals('フィールド「Webエンジニア・Webプログラマー」を削除しました。', $result->message);
+
+        //存在しないIDを指定した場合、
+        $this->post('/baser/api/bc-custom-content/custom_entries/delete/11/11.json?token=' . $this->accessToken);
+        $this->assertResponseCode(404);
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertEquals('データが見つかりません。', $result->message);
+
+        //不要なテーブルを削除
+        $dataBaseService->dropTable('custom_entry_1_recruit_categories');
     }
 
     /**
