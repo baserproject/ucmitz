@@ -37,10 +37,21 @@ class PermissionGroupsController extends BcApiController
     /**
      * [API] アクセスルールグループの一覧
      * @param PermissionGroupsServiceInterface $service
+     * @param int $groupId
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
      */
-    public function index(PermissionGroupsServiceInterface $service)
+    public function index(PermissionGroupsServiceInterface $service, int $groupId)
     {
-        //todo アクセスルールグループの一覧
+        $this->request->allowMethod(['get']);
+        $this->set([
+            'permissionGroups' => $this->paginate(
+                $service->getIndex($groupId, $this->getRequest()->getQueryParams())
+            )
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['permissionGroups']);
     }
 
     /**
