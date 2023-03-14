@@ -136,19 +136,22 @@ class CustomEntriesController extends BcApiController
     /**
      * カスタムエントリー　削除
      * @param CustomEntriesServiceInterface $service
-     * @param int $tableId
      * @param int $id
      *
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function delete(CustomEntriesServiceInterface $service, int $tableId, int $id)
+    public function delete(CustomEntriesServiceInterface $service, int $id)
     {
         $this->request->allowMethod(['post', 'delete']);
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (empty($queryParams['custom_table_id'])) {
+            throw new BadRequestException(__d('baser_core', 'パラメーターに custom_table_id を指定してください。'));
+        }
         $entry = null;
         try {
-            $service->setup($tableId);
+            $service->setup($queryParams['custom_table_id']);
             $entry = $service->get($id);
             $service->delete($id);
             $message = __d('baser_core', 'フィールド「{0}」を削除しました。', $entry->title);

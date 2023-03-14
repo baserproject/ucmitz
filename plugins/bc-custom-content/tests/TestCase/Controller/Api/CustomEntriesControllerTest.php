@@ -216,7 +216,7 @@ class CustomEntriesControllerTest extends BcTestCase
         $this->loadFixtureScenario(CustomEntriesScenario::class);
 
         //APIを呼ぶ
-        $this->post('/baser/api/bc-custom-content/custom_entries/delete/1/1.json?token=' . $this->accessToken);
+        $this->post('/baser/api/bc-custom-content/custom_entries/delete/1.json?custom_table_id=1&token=' . $this->accessToken);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -224,11 +224,11 @@ class CustomEntriesControllerTest extends BcTestCase
         $this->assertNotNull($result->entry);
         $this->assertEquals('フィールド「Webエンジニア・Webプログラマー」を削除しました。', $result->message);
 
-        //存在しないIDを指定した場合、
-        $this->post('/baser/api/bc-custom-content/custom_entries/delete/11/11.json?token=' . $this->accessToken);
-        $this->assertResponseCode(404);
+        //custom_table_idを指定しない場合、
+        $this->post('/baser/api/bc-custom-content/custom_entries/delete/11.json?token=' . $this->accessToken, ['title' => '']);
+        $this->assertResponseCode(400);
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('データが見つかりません。', $result->message);
+        $this->assertEquals('パラメーターに custom_table_id を指定してください。', $result->message);
 
         //不要なテーブルを削除
         $dataBaseService->dropTable('custom_entry_1_recruit_categories');
