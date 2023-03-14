@@ -27,7 +27,6 @@ use Cake\Routing\Router;
 use Cake\Filesystem\File;
 use Cake\Filesystem\Folder;
 use Cake\ORM\TableRegistry;
-use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 use Cake\Database\Exception;
 use BaserCore\Annotation\Note;
@@ -747,10 +746,8 @@ class BcUtil
     public static function getTemplatePath(string $plugin): string
     {
 
-        $templatePath = Plugin::templatePath($plugin);
-
-        if ($templatePath) {
-            return $templatePath;
+        if (Plugin::isLoaded($plugin)) {
+            return Plugin::templatePath($plugin);
         } else {
             return false;
         }
