@@ -115,8 +115,19 @@ class CustomLinksService implements CustomLinksServiceInterface
      */
     public function create(array $postData)
     {
-        $entity = $this->CustomLinks->patchEntity($this->CustomLinks->newEmptyEntity(), $postData);
-        return $this->CustomLinks->saveOrFail($entity);
+        $this->CustomLinks->getConnection()->begin();
+        try {
+            $entity = $this->CustomLinks->patchEntity($this->CustomLinks->newEmptyEntity(), $postData);
+            $entity = $this->CustomLinks->saveOrFail($entity);
+            /** @var CustomEntriesService $customEntriesService */
+            $customEntriesService = $this->getService(CustomEntriesServiceInterface::class);
+            $customEntriesService->addField($entity->custom_table_id, $entity->name, $entity->type);
+        } catch (\Throwable $e) {
+            $this->CustomLinks->getConnection()->rollback();
+            throw $e;
+        }
+        $this->CustomLinks->getConnection()->commit();
+        return $entity;
     }
 
     /**
