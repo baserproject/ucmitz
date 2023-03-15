@@ -91,12 +91,25 @@ class BlogCommentsControllerTest extends BcTestCase
     }
 
     /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $controller = new BlogCommentsController($this->getRequest());
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index']);
+    }
+
+    /**
      * test index
      */
     public function test_index()
     {
         // ５件コメントを作成する
-        BlogCommentFactory::make([], 5)->persist();
+        BlogCommentFactory::make(['status' => true])->persist();
+        BlogCommentFactory::make(['status' => true])->persist();
+        BlogCommentFactory::make(['status' => true])->persist();
+        BlogCommentFactory::make(['status' => false])->persist();
+        BlogCommentFactory::make(['status' => false])->persist();
 
         // クエリはトークンの以外で何も設定しない場合、全てのコメントを取得する
         $this->get('/baser/api/bc-blog/blog_comments/index.json?token=' . $this->accessToken);
@@ -110,6 +123,23 @@ class BlogCommentsControllerTest extends BcTestCase
         $result = json_decode((string)$this->_response->getBody());
         // コメント一覧は４件が返す
         $this->assertCount(4, $result->blogComments);
+
+        //ログインしていない状態ではステータス＝trueしか取得できない
+        $this->get('/baser/api/bc-blog/blog_comments/index.json');
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        // コメント一覧は全て３件が返す
+        $this->assertCount(3, $result->blogComments);
+
+        //ログインしていない状態では status パラメーターへへのアクセスを禁止するか確認
+        $this->get('/baser/api/bc-blog/blog_comments/index.json?status=unpublish');
+        // レスポンスを確認
+        $this->assertResponseCode(403);
+
+        //ログインしている状態では status パラメーターへへのアクセできるか確認
+        $this->get('/baser/api/bc-blog/blog_comments/index.json?status=unpublish&token=' . $this->accessToken);
+        // レスポンスを確認
+        $this->assertResponseOk();
     }
 
     /**
