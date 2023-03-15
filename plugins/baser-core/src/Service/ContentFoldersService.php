@@ -153,8 +153,12 @@ class ContentFoldersService implements ContentFoldersServiceInterface
      */
     public function getIndex(array $queryParams=[]): Query
     {
+        $options = array_merge([
+            'contain' => null
+        ], $queryParams);
+
         $query = $this->ContentFolders->find('all', [
-            'contain' => $queryParams['contain']
+            'contain' => $options['contain']
         ]);
         if (!empty($queryParams['limit'])) {
             $query->limit($queryParams['limit']);
