@@ -65,8 +65,10 @@ class BlogCommentsService implements BlogCommentsServiceInterface
     public function getIndex(array $queryParams)
     {
         $options = array_merge([
-            'blog_post_id' => null
+            'blog_post_id' => null,
+            'status' => ''
         ], $queryParams);
+
         $query = $this->BlogComments->find()->contain(['BlogPosts']);
         if(!empty($queryParams['num'])) {
             $query = $query->limit($queryParams['num']);
@@ -74,6 +76,12 @@ class BlogCommentsService implements BlogCommentsServiceInterface
         if(!empty($options['blog_post_id'])) {
             $query = $query->where(['BlogComments.blog_post_id' => $options['blog_post_id']]);
         }
+
+        if ($options['status'] === 'publish') {
+            $query->where($this->BlogComments->getConditionAllowPublish());
+            $query->where($this->BlogComments->BlogContents->getConditionAllowPublish());
+        }
+
         return $query;
     }
 

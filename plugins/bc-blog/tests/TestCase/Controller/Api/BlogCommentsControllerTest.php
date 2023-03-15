@@ -12,6 +12,7 @@
 namespace BcBlog\Test\TestCase\Controller\Api;
 
 use BaserCore\Service\DblogsServiceInterface;
+use BaserCore\Test\Factory\PermissionFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
@@ -125,6 +126,7 @@ class BlogCommentsControllerTest extends BcTestCase
         $this->assertCount(4, $result->blogComments);
 
         //ログインしていない状態ではステータス＝trueしか取得できない
+        PermissionFactory::make()->allowGuest('/baser/api/*')->persist();
         $this->get('/baser/api/bc-blog/blog_comments/index.json');
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
