@@ -114,7 +114,7 @@ class ContentFoldersServiceTest extends BcTestCase
      */
     public function testGetIndex()
     {
-        $contentFolders = $this->ContentFoldersService->getIndex(['contain' => 'Contents']);
+        $contentFolders = $this->ContentFoldersService->getIndex(['Contents' => 'Contents']);
         $this->assertEquals('baserCMSサンプル', $contentFolders->first()->folder_template);
         $this->assertEquals(8, $contentFolders->count());
     }
@@ -209,7 +209,7 @@ class ContentFoldersServiceTest extends BcTestCase
         Router::setRequest($this->loginAdmin($this->getRequest()));
         $newContentFolder = $this->ContentFoldersService->getIndex([
             'folder_template' => 'testEdit',
-            'contain' => 'Contents'
+            'Contents' => 'Contents'
         ])->first();
         $newContentFolder->folder_template = "testUpdate";
         $newContentFolder->content->title = "contentFolderTestUpdate";
