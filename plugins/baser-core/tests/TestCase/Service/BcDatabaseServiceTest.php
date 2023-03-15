@@ -179,9 +179,11 @@ class BcDatabaseServiceTest extends BcTestCase
         // テーブル生成
         $table = 'table_test_create';
         $columns = [
-            'id' => ['type' => 'integer'],
+            'no' => ['type' => 'integer'],
             'contents' => ['type' => 'text'],
         ];
+        //drop if exist
+        $this->BcDatabaseService->dropTable($table);
         // テスト対象メソッドを呼ぶ
         $result = $this->BcDatabaseService->createTable($table,$columns);
         $this->assertTrue($result);
