@@ -182,12 +182,8 @@ class BcDatabaseServiceTest extends BcTestCase
             'no' => ['type' => 'integer'],
             'contents' => ['type' => 'text'],
         ];
-        //drop if exist
-        if ($this->BcDatabaseService->tableExists($table)){
-            $this->BcDatabaseService->dropTable($table);
-        }
         // テスト対象メソッドを呼ぶ
-        $result = $this->BcDatabaseService->createTable($table,$columns);
+        $result = $this->BcDatabaseService->createTable($table, $columns);
         $this->assertTrue($result);
         // check exist
         $result = $this->BcDatabaseService->tableExists($table);
