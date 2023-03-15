@@ -230,7 +230,7 @@ class ContentsControllerTest extends BcTestCase
         $this->enableCsrfToken();
         $data = $this->ContentsService->getIndex([
             'name' => 'testEditのエイリアス',
-            'contain' => 'Sites'
+            'Sites' => 'Sites'
         ])->first();
         $data->title = 'ControllerEditエイリアス';
         $data->site->name = 'ucmitz'; // site側でエラーが出るため
