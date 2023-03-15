@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: baserCMS\n"
 "POT-Creation-Date: 2023-03-13 13:32+0900\n"
-"PO-Revision-Date: 2023-03-15 14:54+0900\n"
+"PO-Revision-Date: 2023-03-15 15:10+0900\n"
 "Last-Translator: ryuring\n"
 "Language-Team: baserCMS Users Community <info@basercms.net>\n"
 "Language: en\n"
@@ -152,10 +152,8 @@ msgid "ルール再構築"
 msgstr "Rule restructuring"
 
 #: plugins/baser-core/config/permission.php:63
-#, fuzzy
-#| msgid "アクセス制限設定管理"
 msgid "アクセスルール管理"
-msgstr "Manage Access Restriction Settings"
+msgstr "Access Rule Management"
 
 #: plugins/baser-core/config/permission.php:68
 #: plugins/baser-core/config/permission.php:108
@@ -336,10 +334,8 @@ msgstr "Publicity Settings"
 
 #: plugins/baser-core/config/permission.php:73
 #: plugins/baser-core/config/permission.php:112
-#, fuzzy
-#| msgid "公開設定"
 msgid "非公開設定"
-msgstr "Publicity Settings"
+msgstr "Private Settings"
 
 #: plugins/baser-core/config/permission.php:78
 #: plugins/baser-core/config/setting.php:464
