@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: baserCMS\n"
 "POT-Creation-Date: 2023-03-13 13:32+0900\n"
-"PO-Revision-Date: 2023-03-15 14:40+0900\n"
+"PO-Revision-Date: 2023-03-15 14:54+0900\n"
 "Last-Translator: ryuring\n"
 "Language-Team: baserCMS Users Community <info@basercms.net>\n"
 "Language: en\n"
@@ -149,7 +149,7 @@ msgstr "Access rule group management"
 
 #: plugins/baser-core/config/permission.php:58
 msgid "ルール再構築"
-msgstr ""
+msgstr "Rule restructuring"
 
 #: plugins/baser-core/config/permission.php:63
 #, fuzzy
