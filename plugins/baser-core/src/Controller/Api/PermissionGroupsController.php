@@ -105,7 +105,7 @@ class PermissionGroupsController extends BcApiController
      */
     public function add(PermissionGroupsServiceInterface $service)
     {
-        $this->request->allowMethod(['post', 'put', 'patch']);
+        $this->request->allowMethod(['post', 'put']);
 
         $permissionGroup = $errors = null;
         try {
