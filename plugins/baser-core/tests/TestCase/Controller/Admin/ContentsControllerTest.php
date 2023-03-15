@@ -195,7 +195,7 @@ class ContentsControllerTest extends BcTestCase
     public function testTrash_index_getRequest(): void
     {
         // requestテスト
-        $this->get('/baser/admin/baser-core/contents/trash_index/');
+        $this->get('/baser/admin/baser-core/contents/trash_index/?contain=Sites');
         $this->assertResponseOk();
     }
 
@@ -228,7 +228,10 @@ class ContentsControllerTest extends BcTestCase
     {
         $this->enableSecurityToken();
         $this->enableCsrfToken();
-        $data = $this->ContentsService->getIndex(['name' => 'testEditのエイリアス'])->first();
+        $data = $this->ContentsService->getIndex([
+            'name' => 'testEditのエイリアス',
+            'contain' => 'Sites'
+        ])->first();
         $data->title = 'ControllerEditエイリアス';
         $data->site->name = 'ucmitz'; // site側でエラーが出るため
         $this->post('/baser/admin/baser-core/contents/edit_alias/' . $data->id, ["content" => $data->toArray()]);

@@ -558,7 +558,10 @@ class ContentsServiceTest extends BcTestCase
     public function testUpdate()
     {
         $name = "testUpdate";
-        $newContent = $this->ContentsService->getIndex(['name' => 'testEdit'])->first();
+        $newContent = $this->ContentsService->getIndex([
+            'name' => 'testEdit',
+            'contain' => 'Sites'
+        ])->first();
         $newContent->name = $name;
         $newContent->site->name = 'ucmitz'; // site側でエラーが出るため
         $this->ContentsService->update($this->ContentsService->get($newContent->id), $newContent->toArray());
@@ -598,7 +601,7 @@ class ContentsServiceTest extends BcTestCase
     {
         $request = $this->loginAdmin($this->getRequest('/'));
         Router::setRequest($request);
-        $content = $this->ContentsService->getIndex()->all()->last();
+        $content = $this->ContentsService->getIndex(['contain' => 'Sites'])->all()->last();
         $request = $request->withParsedBody([
             'parent_id' => '1',
             'plugin' => 'BaserCore',
@@ -856,7 +859,10 @@ class ContentsServiceTest extends BcTestCase
         ];
         $neighbors = $this->ContentsService->getNeighbors($options);
         // フィールドが空かテスト
-        $this->assertEquals($this->ContentsService->getIndex(['site_id' => 1])->all()->last(), $neighbors['prev']);
+        $this->assertEquals($this->ContentsService->getIndex([
+            'site_id' => 1,
+            'contain' => 'Sites'
+        ])->all()->last(), $neighbors['prev']);
     }
 
 
