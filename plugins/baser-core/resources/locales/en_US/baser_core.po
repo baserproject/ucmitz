@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: baserCMS\n"
 "POT-Creation-Date: 2023-03-13 13:32+0900\n"
-"PO-Revision-Date: 2023-03-13 13:40+0900\n"
+"PO-Revision-Date: 2023-03-15 14:40+0900\n"
 "Last-Translator: ryuring\n"
 "Language-Team: baserCMS Users Community <info@basercms.net>\n"
 "Language: en\n"
@@ -136,10 +136,8 @@ msgstr "Edit Alias"
 
 #: plugins/baser-core/config/permission.php:38
 #: plugins/baser-core/config/permission.php:215
-#, fuzzy
-#| msgid "ゴミ箱から戻す事に失敗しました。"
 msgid "ゴミ箱から戻す"
-msgstr "Failed restoring from Trash."
+msgstr "Get it back from the trash"
 
 #: plugins/baser-core/config/permission.php:43
 msgid "固定ページ管理"
