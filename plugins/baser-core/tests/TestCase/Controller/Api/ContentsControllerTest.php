@@ -201,7 +201,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     {
         $data = $this->ContentsService->getIndex([
             'name' => 'testEdit',
-            'contain' => 'Sites'
+            'Sites' => 'Sites'
         ])->first();
         $id = $data->id;
         $data->name = 'ControllerEdit';
@@ -211,7 +211,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
         // updateRelateSubSiteContentにより、連携されてるサイトに同コンテンツが生成されるため2個となる
         $query = $this->ContentsService->getIndex([
             'name' => 'ControllerEdit',
-            'contain' => 'Sites'
+            'Sites' => 'Sites'
         ]);
         $this->assertEquals(2, $query->count());
     }
