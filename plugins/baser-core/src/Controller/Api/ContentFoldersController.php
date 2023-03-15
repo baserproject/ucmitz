@@ -36,7 +36,7 @@ class ContentFoldersController extends BcApiController
     {
         $this->request->allowMethod('get');
         $this->set([
-            'contentFolders' => $this->paginate($service->getIndex())
+            'contentFolders' => $this->paginate($service->getIndex($this->request->getQueryParams()))
         ]);
         $this->viewBuilder()->setOption('serialize', ['contentFolders']);
     }

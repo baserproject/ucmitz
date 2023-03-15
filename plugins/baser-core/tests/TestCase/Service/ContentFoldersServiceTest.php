@@ -114,7 +114,8 @@ class ContentFoldersServiceTest extends BcTestCase
      */
     public function testGetIndex()
     {
-        $contentFolders = $this->ContentFoldersService->getIndex();
+        $queryParams['contain'] = 'Contents';
+        $contentFolders = $this->ContentFoldersService->getIndex($queryParams);
         $this->assertEquals('baserCMSサンプル', $contentFolders->first()->folder_template);
         $this->assertEquals(8, $contentFolders->count());
     }
