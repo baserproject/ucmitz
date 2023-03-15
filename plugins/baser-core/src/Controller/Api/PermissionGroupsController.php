@@ -56,7 +56,6 @@ class PermissionGroupsController extends BcApiController
     /**
      * [API] アクセスルールグループの一覧
      * @param PermissionGroupsServiceInterface $service
-     * @param int $groupId
      *
      * @checked
      * @noTodo
@@ -79,6 +78,23 @@ class PermissionGroupsController extends BcApiController
     }
 
     /**
+     * [API] アクセスルールグループのリスト
+     * @param PermissionGroupsServiceInterface $service
+     *
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function list(PermissionGroupsServiceInterface $service)
+    {
+        $this->request->allowMethod(['get']);
+        $this->set([
+            'permissionGroups' => $service->getList($this->getRequest()->getQueryParams())
+        ]);
+        $this->viewBuilder()->setOption('serialize', ['permissionGroups']);
+    }
+
+    /**
      * 登録処理
      *
      * @param PermissionGroupsServiceInterface $service
@@ -89,7 +105,7 @@ class PermissionGroupsController extends BcApiController
      */
     public function add(PermissionGroupsServiceInterface $service)
     {
-        $this->request->allowMethod(['post', 'put']);
+        $this->request->allowMethod(['post', 'put', 'patch']);
 
         $permissionGroup = $errors = null;
         try {
@@ -156,7 +172,7 @@ class PermissionGroupsController extends BcApiController
      */
     public function edit(PermissionGroupsServiceInterface $service, int $id)
     {
-        $this->request->allowMethod(['post', 'put']);
+        $this->request->allowMethod(['post', 'put', 'patch']);
         $permissionGroup = $errors = null;
         try {
             $permissionGroup = $service->update($service->get($id), $this->request->getData());
