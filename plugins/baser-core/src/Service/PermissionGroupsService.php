@@ -184,10 +184,11 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 	}
 
 	/**
-	 * ユーザーグループを指定してアクセスグループを構築する
-	 *
-	 * @param int $userGroupId
-	 */
+     * ユーザーグループを指定してアクセスグループを構築する
+     *
+     * @param int $userGroupId
+     * @unitTest
+     */
 	public function buildByUserGroup(int $userGroupId)
 	{
 		// 有効なプラグインをキャッシュなしで強制的に取得する
