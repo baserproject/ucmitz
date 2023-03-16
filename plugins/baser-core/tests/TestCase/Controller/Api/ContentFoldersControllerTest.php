@@ -68,7 +68,7 @@ class ContentFoldersControllerTest extends BcTestCase
      */
     public function testIndex()
     {
-        $this->get('/baser/api/baser-core/content_folders/index.json?Contents=Contents&token=' . $this->accessToken);
+        $this->get('/baser/api/baser-core/content_folders/index.json?contain=Contents&token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
         $this->assertEquals("baserCMSサンプル", $result->contentFolders[0]->folder_template);
@@ -130,18 +130,12 @@ class ContentFoldersControllerTest extends BcTestCase
      */
     public function testEdit()
     {
-        $data = $this->ContentFoldersService->getIndex([
-            'folder_template' => 'testEdit',
-            'Contents' => 'Contents'
-        ])->first();
+        $data = $this->ContentFoldersService->getIndex(['folder_template' => "testEdit"])->first();
         $data->content->name = "contentFolderTestUpdate";
         $id = $data->id;
         $this->post("/baser/api/baser-core/content_folders/edit/${id}.json?token=" . $this->accessToken, $data->toArray());
         $this->assertResponseSuccess();
-        $query = $this->ContentFoldersService->getIndex([
-            'folder_template' => $data['folder_template'],
-            'Contents' => 'Contents'
-        ]);
+        $query = $this->ContentFoldersService->getIndex(['folder_template' => $data['folder_template']]);
         $this->assertEquals(1, $query->all()->count());
         $this->assertEquals("contentFolderTestUpdate", $query->all()->first()->content->name);
     }

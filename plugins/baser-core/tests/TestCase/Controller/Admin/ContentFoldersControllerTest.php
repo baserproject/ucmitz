@@ -85,10 +85,7 @@ class ContentFoldersControllerTest extends BcTestCase
     {
         $this->enableSecurityToken();
         $this->enableCsrfToken();
-        $data = $this->ContentFoldersService->getIndex([
-            'folder_template' => 'testEdit',
-            'Contents' => 'Contents'
-        ])->first();
+        $data = $this->ContentFoldersService->getIndex(['folder_template' => "testEdit"])->first();
         $data->folder_template = 'testEditテンプレート';
         $data->content->name = "contentFolderTestUpdate";
         $id = $data->id;
