@@ -195,7 +195,7 @@ class ContentsControllerTest extends BcTestCase
     public function testTrash_index_getRequest(): void
     {
         // requestテスト
-        $this->get('/baser/admin/baser-core/contents/trash_index/?contain=Sites');
+        $this->get('/baser/admin/baser-core/contents/trash_index/');
         $this->assertResponseOk();
     }
 
