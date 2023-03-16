@@ -248,14 +248,12 @@ class ContentsService implements ContentsServiceInterface
     public function getIndex(array $queryParams = [], ?string $type = "all"): Query
     {
         $queryParams = array_merge([
-            'Sites' => null
+            'contain' => ['Sites'],
         ], $queryParams);
 
         $columns = $this->Contents->getSchema()->columns();
 
-        $query = $this->Contents->find($type, [
-            'contain' => $queryParams['Sites']
-        ]);
+        $query = $this->Contents->find($type)->contain($queryParams['contain']);
 
         if (!empty($queryParams['withTrash'])) {
             $query = $query->applyOptions(['withDeleted']);

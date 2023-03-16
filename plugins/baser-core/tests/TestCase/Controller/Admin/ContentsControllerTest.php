@@ -228,10 +228,7 @@ class ContentsControllerTest extends BcTestCase
     {
         $this->enableSecurityToken();
         $this->enableCsrfToken();
-        $data = $this->ContentsService->getIndex([
-            'name' => 'testEditのエイリアス',
-            'Sites' => 'Sites'
-        ])->first();
+        $data = $this->ContentsService->getIndex(['name' => 'testEditのエイリアス'])->first();
         $data->title = 'ControllerEditエイリアス';
         $data->site->name = 'ucmitz'; // site側でエラーが出るため
         $this->post('/baser/admin/baser-core/contents/edit_alias/' . $data->id, ["content" => $data->toArray()]);
