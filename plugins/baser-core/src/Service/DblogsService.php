@@ -157,13 +157,10 @@ class DblogsService implements DblogsServiceInterface
     public function getIndex(array $queryParams = []): Query
     {
         $queryParams = array_merge([
-            'Users' => null
+            'contain' => ['Users']
         ], $queryParams);
 
-        $query = $this->Dblogs
-            ->find('all', [
-                'contain' => $queryParams['Users']
-            ]);
+        $query = $this->Dblogs->find()->contain($queryParams['contain']);
 
         if (!empty($queryParams['message'])) {
             $query->where(['message LIKE' => '%' . $queryParams['message'] . '%']);
