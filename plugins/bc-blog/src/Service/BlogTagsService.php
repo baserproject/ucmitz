@@ -94,7 +94,8 @@ class BlogTagsService implements BlogTagsServiceInterface
             'contentId' => null,    // 《条件》ブログコンテンツID
             'contentUrl' => null,    // 《条件》コンテンツURL
             'siteId' => null,        // 《条件》サイトID
-            'name' => null
+            'name' => null,
+            'contain' => ['BlogPosts']
         ], $queryParams);
 
         $query = $this->BlogTags->find();
@@ -146,6 +147,9 @@ class BlogTagsService implements BlogTagsServiceInterface
         }
         if (!empty($queryParams['name'])) {
             $conditions['BlogTags.name LIKE'] = '%' . urldecode($queryParams['name']) . '%';
+        }
+        if (is_null($params['contain'])){
+            $assocContent = false;
         }
         if($conditions) $query->where($conditions);
         if($assocContent) {
