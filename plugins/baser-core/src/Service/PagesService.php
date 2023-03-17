@@ -149,10 +149,11 @@ class PagesService implements PagesServiceInterface
     public function getIndex(array $queryParams = []): Query
     {
         $options = array_merge([
-            'status' => ''
+            'status' => '',
+            'contain' => ['Contents']
         ], $queryParams);
 
-        $query = $this->Pages->find()->contain('Contents');
+        $query = $this->Pages->find()->contain($options['contain']);
         if (!empty($options['limit'])) {
             $query->limit($options['limit']);
         }
