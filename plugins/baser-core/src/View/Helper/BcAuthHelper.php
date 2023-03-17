@@ -55,6 +55,12 @@ class BcAuthHelper extends Helper
         if (!empty($request)) {
             $currentPrefix = BcUtil::getRequestPrefix($request);
         }
+        $users = BcUtil::getLoggedInUsers();
+        if($users && empty($users[$currentPrefix])) {
+            foreach($users as $key => $user) {
+                return $key;
+            }
+        }
         return $currentPrefix;
     }
 
@@ -142,7 +148,8 @@ class BcAuthHelper extends Helper
      */
     public function isCurrentUserAdminAvailable(): bool
     {
-        return in_array('Admin', $this->getCurrentUserPrefixes());
+        return (in_array('Admin', $this->getCurrentUserPrefixes()) &&
+            BcUtil::loginUserFromSession());
     }
 
 
