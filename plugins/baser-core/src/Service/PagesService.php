@@ -154,10 +154,12 @@ class PagesService implements PagesServiceInterface
         ], $queryParams);
 
         $fields = $this->Pages->getSchema()->columns();
-        if (!is_null($options['contain'])) {
-            $fields[] = $options['contain'];
+        if (is_null($options['contain'])) {
+            $query = $this->Pages->find()->contain('Contents')->select($fields);
+        } else {
+            $query = $this->Pages->find()->contain($options['contain']);
         }
-        $query = $this->Pages->find()->contain('Contents')->select($fields);
+
         if (!empty($options['limit'])) {
             $query->limit($options['limit']);
         }
