@@ -1440,7 +1440,7 @@ class BlogHelper extends Helper
             }
         }
         if ($base) {
-            return $this->url($url);
+            return $this->Url->build($url);
         } else {
             return $url;
         }
