@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: baserCMS\n"
 "POT-Creation-Date: 2023-03-16 10:33+0900\n"
-"PO-Revision-Date: 2023-03-18 13:34+0900\n"
+"PO-Revision-Date: 2023-03-18 15:29+0900\n"
 "Last-Translator: ryuring\n"
 "Language-Team: baserCMS Users Community <info@basercms.net>\n"
 "Language: en\n"
@@ -965,60 +965,43 @@ msgid "- composer.json をセットアップします。"
 msgstr "- Set up composer.json."
 
 #: plugins/baser-core/src/Command/CreateReleaseCommand.php:55
-#, fuzzy
-#| msgid "%s プラグインのデータを初期化しました。"
 msgid "- プラグインを初期化します。"
-msgstr "Initialized Plugin %s’sdata."
+msgstr "- Initialize the plugin."
 
 #: plugins/baser-core/src/Command/CreateReleaseCommand.php:58
-#, fuzzy
-#| msgid "次のファイルを開きます。"
 msgid "- 不要ファイルを削除します。"
-msgstr "Open following file."
+msgstr "- Delete unnecessary files."
 
 #: plugins/baser-core/src/Command/CreateReleaseCommand.php:61
-#, fuzzy
-#| msgid "ファイル %s を作成しました。"
 msgid "- Zip ファイルを作成します。"
-msgstr "Created File %s."
+msgstr "- Create a zip file."
 
 #: plugins/baser-core/src/Command/CreateReleaseCommand.php:64
-#, fuzzy
-#| msgid "アップデート処理を開始します。"
 msgid "- クリーニング処理を実行します。"
-msgstr "Starting update process."
+msgstr "- Perform a cleaning process."
 
 #: plugins/baser-core/src/Command/CreateReleaseCommand.php:69
-#, fuzzy
-#| msgid "エラーが発生しました。内容を確認してください。"
 msgid ""
 "リリースパッケージの作成が完了しました。/tmp/basercms.zip を確認してくださ"
 "い。"
-msgstr "Error occured. Check content."
+msgstr ""
+"You have finished creating your release package. Check /tmp/basercms.zip."
 
 #: plugins/baser-core/src/Command/SetupInstallCommand.php:45
-#, fuzzy
-#| msgid "baserCMSのインストールが完了しました。"
 msgid "インストールの準備ができました。"
-msgstr "Completed baserCMS installation."
+msgstr "Ready to install."
 
 #: plugins/baser-core/src/Command/SetupTestCommand.php:44
-#, fuzzy
-#| msgid "アップデートスクリプトの実行が完了しました。"
 msgid "ユニットテストの準備ができました。"
-msgstr "Completed running update script."
+msgstr "Unit testing is ready."
 
 #: plugins/baser-core/src/Command/UpdateCommand.php:62
-#, fuzzy
-#| msgid "アップデートスクリプトの実行が完了しました。"
 msgid "Migration と アップデーターによるアップデートが完了しました。"
-msgstr "Completed running update script."
+msgstr "The Migration and Updater updates are complete."
 
 #: plugins/baser-core/src/Command/UpdateCommand.php:64
-#, fuzzy
-#| msgid "ファイルアップロードに失敗しました。"
 msgid "Migration と アップデーターによるアップデートが失敗しました。"
-msgstr "Failed File Upload."
+msgstr "Migration and updater update failed."
 
 #: plugins/baser-core/src/Controller/Admin/ContentFoldersController.php:56
 #: plugins/baser-core/src/Controller/Admin/SitesController.php:217
