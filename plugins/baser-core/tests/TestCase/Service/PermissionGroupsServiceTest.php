@@ -93,4 +93,40 @@ class PermissionGroupsServiceTest extends BcTestCase
         $this->expectException(RecordNotFoundException::class);
         $this->PermissionGroups->get(-1);
     }
+
+
+    /**
+     * Test deleteByUserGroup
+     *
+     * @return void
+     */
+    public function testDeleteByUserGroup(): void
+    {
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        $this->Permissions->create(
+            [
+                'no' => 1,
+                'sort' => 1,
+                'permission_group_id' => 1,
+                'name' => 'nghiem',
+                'url' => 'abc',
+                'user_group_id' => 99
+            ]
+        );
+        $this->Permissions->create(
+            [
+                'no' => 2,
+                'sort' => 2,
+                'permission_group_id' => 1,
+                'name' => 'nghiem 2',
+                'url' => 'abc',
+                'user_group_id' => 99
+            ]
+        );
+        $data1 = $this->PermissionGroups->get(1, 99);
+        $this->assertCount(2, $data1->permissions);
+        $this->PermissionGroups->deleteByUserGroup(99);
+        $data2 = $this->PermissionGroups->get(1, 99);
+        $this->assertCount(0, $data2->permissions);
+    }
 }
