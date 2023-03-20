@@ -75,7 +75,7 @@ class PermissionGroupsServiceTest extends BcTestCase
     }
 
     /**
-     * Test get
+     * Test getList
      *
      * @return void
      */
