@@ -57,6 +57,7 @@ class BlogCommentsControllerTest extends BcTestCase
         'plugin.BcBlog.Factory/BlogComments',
         'plugin.BcBlog.Factory/BlogContents',
         'plugin.BaserCore.Factory/Contents',
+        'plugin.BcBlog.Factory/BlogPosts',
     ];
 
     /**
@@ -108,7 +109,7 @@ class BlogCommentsControllerTest extends BcTestCase
      */
     public function test_index()
     {
-        // ５件コメントを作成する
+        // コメントを作成する
         $this->loadFixtureScenario(
             BlogContentScenario::class,
             1,  // id
