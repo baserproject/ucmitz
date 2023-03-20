@@ -89,4 +89,23 @@ class PermissionGroupsServiceTest extends BcTestCase
         $this->expectException(RecordNotFoundException::class);
         $this->PermissionGroups->get(-1);
     }
+
+    /**
+     * Test update
+     *
+     * @return void
+     */
+    public function testUpdate(): void
+    {
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        $data1 = $this->PermissionGroups->get(1);
+        $data1->name = 'name update test';
+        $data1->type = 'super';
+        $data1->plugin = 'update';
+        $this->PermissionGroups->update($data1, $data1->toArray());
+        $data2 = $this->PermissionGroups->get(1);
+        $this->assertEquals('name update test', $data2->name);
+        $this->assertEquals('super', $data2->type);
+        $this->assertEquals('update', $data2->plugin);
+    }
 }
