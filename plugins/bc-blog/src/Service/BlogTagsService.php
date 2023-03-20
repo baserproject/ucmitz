@@ -95,7 +95,7 @@ class BlogTagsService implements BlogTagsServiceInterface
             'contentUrl' => null,    // 《条件》コンテンツURL
             'siteId' => null,        // 《条件》サイトID
             'name' => null,
-            'contain' => ['BlogPosts']
+            'contain' => ['BlogPosts' => ['BlogContents' => ['Contents']]]
         ], $queryParams);
 
         $query = $this->BlogTags->find();
@@ -153,7 +153,7 @@ class BlogTagsService implements BlogTagsServiceInterface
         }
         if($conditions) $query->where($conditions);
         if($assocContent) {
-            $query->contain(['BlogPosts' => ['BlogContents' => ['Contents']]]);
+            $query->contain($params['contain']);
             if ($query['fields']) {
                 if (is_array($query['fields'])) {
                     $query->distinct($query['fields'][0]);
