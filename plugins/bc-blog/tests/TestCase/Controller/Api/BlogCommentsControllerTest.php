@@ -19,6 +19,9 @@ use BaserCore\Utility\BcContainerTrait;
 use BcBlog\Controller\Api\BlogCommentsController;
 use BcBlog\Service\BlogCommentsServiceInterface;
 use BcBlog\Test\Factory\BlogCommentFactory;
+use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Scenario\BlogCommentsScenario;
+use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 use Cake\TestSuite\IntegrationTestTrait;
 
@@ -106,24 +109,30 @@ class BlogCommentsControllerTest extends BcTestCase
     public function test_index()
     {
         // ５件コメントを作成する
-        BlogCommentFactory::make(['status' => true])->persist();
-        BlogCommentFactory::make(['status' => true])->persist();
-        BlogCommentFactory::make(['status' => true])->persist();
-        BlogCommentFactory::make(['status' => false])->persist();
-        BlogCommentFactory::make(['status' => false])->persist();
+        $this->loadFixtureScenario(
+            BlogContentScenario::class,
+            1,  // id
+            1, // siteId
+            null, // parentId
+            'news1', // name
+            '/news/' // url
+        );
+        BlogPostFactory::make(['id' => 1, 'blog_content_id'=> 1, 'status' => true])->persist();
+        $this->loadFixtureScenario(BlogCommentsScenario::class,);
+
 
         // クエリはトークンの以外で何も設定しない場合、全てのコメントを取得する
         $this->get('/baser/api/bc-blog/blog_comments/index.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        // コメント一覧は全て５件が返す
-        $this->assertCount(5, $result->blogComments);
+        // コメント一覧は全て3件が返す
+        $this->assertCount(3, $result->blogComments);
 
         // クエリを設定し(limit = 4)、該当の結果が返す
         $this->get('/baser/api/bc-blog/blog_comments/index.json?limit=4&token=' . $this->accessToken);
         $result = json_decode((string)$this->_response->getBody());
-        // コメント一覧は４件が返す
-        $this->assertCount(4, $result->blogComments);
+        // コメント一覧は3件が返す
+        $this->assertCount(3, $result->blogComments);
 
         //ログインしていない状態ではステータス＝trueしか取得できない
         PermissionFactory::make()->allowGuest('/baser/api/*')->persist();

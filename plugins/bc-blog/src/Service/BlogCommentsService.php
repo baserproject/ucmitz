@@ -66,21 +66,28 @@ class BlogCommentsService implements BlogCommentsServiceInterface
     {
         $options = array_merge([
             'blog_post_id' => null,
-            'status' => ''
-            'contain' => ['BlogPosts']
+            'status' => '',
+            'contain' => ['BlogPosts' => ['BlogContents' => ['Contents']]]
         ], $queryParams);
 
-        $query = $this->BlogComments->find()->contain($options['contain']);
-        if(!empty($queryParams['num'])) {
+        if (is_null($options['contain'])) {
+            $fields = $this->BlogComments->getSchema()->columns();
+            $query = $this->BlogComments->find()
+                ->contain(['BlogPosts' => ['BlogContents' => ['Contents']]])
+                ->select($fields);
+        } else {
+            $query = $this->BlogComments->find()->contain($options['contain']);
+        }
+
+        if (!empty($queryParams['num'])) {
             $query = $query->limit($queryParams['num']);
         }
-        if(!empty($options['blog_post_id'])) {
+        if (!empty($options['blog_post_id'])) {
             $query = $query->where(['BlogComments.blog_post_id' => $options['blog_post_id']]);
         }
 
         if ($options['status'] === 'publish') {
-            $query->where($this->BlogComments->getConditionAllowPublish());
-            $query->where($this->BlogComments->BlogContents->getConditionAllowPublish());
+            $query->where($this->BlogComments->BlogContents->Contents->getConditionAllowPublish());
         }
 
         return $query;
