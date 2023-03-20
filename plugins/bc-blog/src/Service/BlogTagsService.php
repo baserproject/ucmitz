@@ -148,9 +148,7 @@ class BlogTagsService implements BlogTagsServiceInterface
         if (!empty($queryParams['name'])) {
             $conditions['BlogTags.name LIKE'] = '%' . urldecode($queryParams['name']) . '%';
         }
-        if (is_null($params['contain'])){
-            $assocContent = false;
-        }
+
         if($conditions) $query->where($conditions);
         if($assocContent) {
             $query->contain($params['contain']);
