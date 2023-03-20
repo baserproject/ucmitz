@@ -600,8 +600,8 @@ class BlogHelper extends Helper
         if ($options['tag'] === false) {
             $options['link'] = false;
         }
-        if (!empty($post['BlogTag'])) {
-            foreach($post['BlogTag'] as $tag) {
+        if (!empty($post->blog_tags)) {
+            foreach($post->blog_tags as $tag) {
                 if ($options['link']) {
                     $tags[] = $this->BcBaser->getLink($tag['name'], $this->getTagLinkUrl($crossingId, $tag, false), ['escape' => true]);
                 } else {
@@ -1306,9 +1306,9 @@ class BlogHelper extends Helper
         ], $options);
         $blogContentId = $options['blogContentId'];
         unset($options['blogContentId']);
-        /* @var BlogCategory $BlogCategory */
-        $BlogCategory = ClassRegistry::init('BcBlog.BlogCategory');
-        return $BlogCategory->getCategoryList($blogContentId, $options);
+        /* @var BlogCategories $blogCategoriesTable */
+        $blogCategoriesTable = TableRegistry::getTableLocator()->get('BcBlog.BlogCategories');
+        return $blogCategoriesTable->getCategoryList($blogContentId, $options);
     }
 
     /**
@@ -1440,7 +1440,7 @@ class BlogHelper extends Helper
             }
         }
         if ($base) {
-            return $this->url($url);
+            return $this->Url->build($url);
         } else {
             return $url;
         }
@@ -1589,6 +1589,10 @@ class BlogHelper extends Helper
             'page' => 1,
             'data' => [],
         ], $options);
+
+        if ($options['preview'] === false) {
+            $options['status'] = 'publish';
+        }
 
         if (!$contentsName && empty($options['contentsTemplate'])) {
             throw new BcException(__d('baser_core', '$contentsName を省略時は、contentsTemplate オプションで、コンテンツテンプレート名を指定してください。'));

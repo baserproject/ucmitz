@@ -11,6 +11,7 @@
 
 namespace BaserCore\Controller\Api;
 
+use Authentication\Authenticator\AuthenticationRequiredException;
 use Authentication\Authenticator\JwtAuthenticator;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Controller\Component\AuthenticationComponent;
@@ -21,8 +22,11 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Error\BcException;
 use BaserCore\Utility\BcApiUtil;
 use BaserCore\Utility\BcContainerTrait;
+use BaserCore\Utility\BcUtil;
+use Cake\Controller\Exception\AuthSecurityException;
 use Cake\Core\Configure;
 use Cake\Event\EventInterface;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\TableRegistry;
 
 /**
@@ -84,14 +88,17 @@ class BcApiController extends AppController
             return;
         }
 
+        // 管理画面APIが許可されていない場合は弾く
+        // ただし、同じリファラからのアクセスは、Webブラウザの管理画面からのAJAXとして通す
         if (!filter_var(env('USE_CORE_ADMIN_API', false), FILTER_VALIDATE_BOOLEAN)) {
-            $this->setResponse($this->response->withStatus(401));
+            if (!BcUtil::isSameReferrerAsCurrent()) {
+                return $this->response->withStatus(401);
+            }
         }
 
         // ユーザーの有効チェック
         if (!$this->isAvailableUser()) {
-            $this->setResponse($this->response->withStatus(401));
-            return;
+            return $this->response->withStatus(401);
         }
 
         // トークンタイプチェック
@@ -107,7 +114,7 @@ class BcApiController extends AppController
     /**
      * 認証が必要なAPIを利用可能かどうか判定
      *
-     * @return \Authentication\IdentityInterface|false|null
+     * @return bool
      */
     public function isAdminApiEnabled()
     {

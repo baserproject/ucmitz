@@ -115,34 +115,84 @@ class BcUtil
 
     /**
      * 認証領域を指定してログインユーザーのデータを取得する
-     * セッションクラスが設定されていない場合にはスーパーグローバル変数を利用する
+     *
+     * - 第一優先：authenticationから取得
+     *  - モデルが BaserCore.Users の場合、ユーザーグループがなかったら取得する
+     * - 第二優先：現在のリクエストに紐づくセッションから取得
+     * - 第三優先：上記で取得できない場合、プレフィックスが Front だった場合に、
+     *      他の領域のログインセッションより取得する。
+     *      複数のログインセッションにログインしている場合は定義順の降順で最初のログイン情報を取得
+     *
+     * $prefix を指定したとしても authentication より取得できた場合はそちらを優先する
      *
      * @return User|false
      * @checked
      * @noTodo
      * @unitTest
      */
-    public static function loginUser($prefix = 'Admin')
+    public static function loginUser($prefix = null)
     {
         $request = Router::getRequest();
         if (!$request) return false;
 
-        $authenticator = $request->getAttribute('authentication');
-        if (!$authenticator) return BcUtil::loginUserFromSession($prefix);
-
-        /** @var Result $result */
-        $result = $authenticator->getResult();
-        if (isset($result) && $result->isValid()) {
-            /* @var User $user */
-            $user = $result->getData();
-            if (is_null($user->user_groups)) {
-                $userTable = TableRegistry::getTableLocator()->get('BaserCore.Users');
-                $user = $userTable->get($user->id, ['contain' => ['UserGroups']]);
-            }
-            return $user;
-        } else {
-            return BcUtil::loginUserFromSession($prefix);
+        if(!$prefix) {
+            $prefix = BcUtil::getRequestPrefix($request);
         }
+
+        $authenticator = $request->getAttribute('authentication');
+        if($authenticator) {
+            /** @var Result $result */
+            $result = $authenticator->getResult();
+            if (!empty($result) && $result->isValid()) {
+                /* @var User $user */
+                $user = $result->getData();
+                if (is_null($user->user_groups)) {
+                    $userModel = Configure::read("BcPrefixAuth.{$prefix}.userModel");
+                    if($userModel === 'BaserCore.Users') {
+                        $userTable = TableRegistry::getTableLocator()->get('BaserCore.Users');
+                        $user = $userTable->get($user->id, ['contain' => ['UserGroups']]);
+                    }
+                }
+                return $user;
+            }
+        }
+
+        $user = false;
+        if($prefix === 'Front') {
+            $user = BcUtil::loginUserFromSession($prefix);
+            if (!$user) {
+                $users = self::getLoggedInUsers(false);
+                if (!empty($users[0])) $user = $users[0];
+            }
+        }
+        return $user;
+    }
+
+    /**
+     * ログイン済のユーザー情報をログイン領域ごとに取得する
+     *
+     * @param bool $assoc ログイン領域のプレフィックスをキーとして連想配列で取得するかどうか
+     *                      false の場合は、通常の配列として取得する
+     * @return array
+     * @checked
+     * @noTodo
+     */
+    public static function getLoggedInUsers($assoc = true)
+    {
+        $users = [];
+        $prefixSettings = array_reverse(Configure::read('BcPrefixAuth'));
+        foreacH($prefixSettings as $key => $prefixSetting) {
+            if(!empty($prefixSetting['disabled'])) continue;
+            $user = BcUtil::loginUserFromSession($key);
+            if($user) {
+                if($assoc) {
+                    $users[$key] = $user;
+                } else {
+                    $users[] = $user;
+                }
+            }
+        }
+        return $users;
     }
 
     /**

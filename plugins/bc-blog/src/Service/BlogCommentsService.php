@@ -67,9 +67,10 @@ class BlogCommentsService implements BlogCommentsServiceInterface
         $options = array_merge([
             'blog_post_id' => null,
             'status' => ''
+            'contain' => ['BlogPosts']
         ], $queryParams);
 
-        $query = $this->BlogComments->find()->contain(['BlogPosts']);
+        $query = $this->BlogComments->find()->contain($options['contain']);
         if(!empty($queryParams['num'])) {
             $query = $query->limit($queryParams['num']);
         }
