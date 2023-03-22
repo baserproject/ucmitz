@@ -105,7 +105,7 @@ class ContentsControllerTest extends \BaserCore\TestSuite\BcTestCase
     public function test_initialize()
     {
         $controller = new ContentsController($this->getRequest());
-        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index']);
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index', 'view']);
     }
 
     /**
