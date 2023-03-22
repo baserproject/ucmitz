@@ -11,7 +11,9 @@
 
 namespace BaserCore\Controller\Api;
 
+use BaserCore\Service\ContentsService;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Http\Exception\ForbiddenException;
 use Cake\ORM\Exception\PersistenceFailedException;
 use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
@@ -91,25 +93,48 @@ class ContentsController extends BcApiController
      * @noTodo
      * @unitTest
      */
-    public function index(ContentsServiceInterface $service, string $type = "index")
+    public function index(ContentsServiceInterface $service)
     {
+        $this->request->allowMethod('get');
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (isset($queryParams['status']) && !$this->isAdminApiEnabled()) {
+            throw new ForbiddenException();
+        }
+
+        $params = array_merge([
+            'list_type' => 'index',
+            'contain' => null,
+            'status' => 'publish'
+        ], $queryParams);
+        $type = $params['list_type'];
+        unset($params['list_type']);
+
         switch ($type) {
             case "index":
-                $data = $this->paginate($service->getIndex(['contain' => null]));
-                break;
-            case "trash":
-                $data = $this->paginate($service->getTrashIndex($this->request->getQueryParams(), 'threaded')->order(['site_id', 'lft']));
+                $entities = $this->paginate($service->getTableIndex($params));
                 break;
             case "tree":
-                $data = $this->paginate($service->getTreeIndex($this->request->getQueryParams()));
-                break;
-            case "table":
-                $data = $this->paginate($service->getTableIndex($this->request->getQueryParams()));
+                $entities = $this->paginate($service->getTreeIndex($params));
                 break;
         }
-        $this->set([
-            'contents' => $data
-        ]);
+
+        $this->set(['contents' => $entities]);
+        $this->viewBuilder()->setOption('serialize', ['contents']);
+    }
+
+    /**
+     * ゴミ箱内のコンテンツ一覧を取得する
+     *
+     * @param ContentsService $service
+     * @return void
+     */
+    public function index_trash(ContentsServiceInterface $service)
+    {
+        $entities = $this->paginate($service->getTrashIndex(
+            $this->request->getQueryParams(), 'threaded'
+        )->order(['site_id', 'lft']));
+
+        $this->set(['contents' => $entities]);
         $this->viewBuilder()->setOption('serialize', ['contents']);
     }
 
@@ -121,12 +146,13 @@ class ContentsController extends BcApiController
      * @noTodo
      * @unitTest
      */
-    public function delete(ContentsServiceInterface $service)
+    public function delete(ContentsServiceInterface $service, $id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
         $content = $message = $errors = null;
         try {
-            $id = $this->request->getData('id');
+            if(!$id) $id = $this->request->getData('id');
+
             $content = $service->get($id);
             $children = $service->getChildren($id);
             // EVENT Contents.beforeDelete
@@ -252,7 +278,7 @@ class ContentsController extends BcApiController
      */
     public function trash_return(ContentsServiceInterface $service, int $id)
     {
-        $this->request->allowMethod(['get', 'head']);
+        $this->request->allowMethod(['post', 'put', 'patch']);
         $restored = null;
         try {
             if ($restored = $service->restore($id)) {
@@ -392,7 +418,7 @@ class ContentsController extends BcApiController
      * リネーム
      *
      * 新規登録時の初回リネーム時は、name にも保存する
-     * @param ContentsServiceInterface $service
+     * @param ContentsService $service
      * @return void
      * @checked
      * @noTodo
@@ -404,12 +430,12 @@ class ContentsController extends BcApiController
         $newContent = $url = $errors = null;
         try {
             $oldContent = $service->get($this->request->getData('id'));
+            $oldTitle = $oldContent->title;
             $newContent = $service->rename($oldContent, $this->getRequest()->getData());
             $url = $service->getUrlById($newContent->id);
             $this->setResponse($this->response->withStatus(200));
-            $message = sprintf(
-                __d('baser_core', '「%s」を「%s」に名称変更しました。'),
-                $oldContent->title,
+            $message = __d('baser_core', '「{0}」を「{1}」に名称変更しました。',
+                $oldTitle,
                 $newContent->title
             );
         } catch (PersistenceFailedException $e) {
@@ -484,7 +510,7 @@ class ContentsController extends BcApiController
 
     /**
      * 並び順を移動する
-     * @param ContentsServiceInterface $service
+     * @param ContentsService $service
      * @return void
      * @checked
      * @noTodo
