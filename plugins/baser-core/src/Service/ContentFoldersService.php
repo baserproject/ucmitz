@@ -155,6 +155,7 @@ class ContentFoldersService implements ContentFoldersServiceInterface
     {
         $options = array_merge([
             'contain' => ['Contents'],
+            'status' => '',
             'limit' => null,
             'folder_template' => null,
             'page_template' => null
