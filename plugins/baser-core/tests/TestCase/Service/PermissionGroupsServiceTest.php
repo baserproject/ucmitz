@@ -120,4 +120,33 @@ class PermissionGroupsServiceTest extends BcTestCase
         $this->expectException(RecordNotFoundException::class);
         $this->PermissionGroups->get(-1);
     }
+
+    /**
+     * Test deleteByPlugin
+     *
+     * @return void
+     */
+    public function testDeleteByPlugin(): void
+    {
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        $result = $this->PermissionGroups->getList();
+        $this->assertCount(3, $result);
+        PermissionGroupFactory::make([
+            'name' => 'group 1',
+            'type' => 'Supper',
+            'plugin' => 'Nghiem',
+            'status' => 1
+        ])->persist();
+        PermissionGroupFactory::make([
+            'name' => 'group 2',
+            'type' => 'Supper',
+            'plugin' => 'Nghiem',
+            'status' => 1
+        ])->persist();
+        $result = $this->PermissionGroups->getList();
+        $this->assertCount(5, $result);
+        $this->PermissionGroups->deleteByPlugin('Nghiem');
+        $result = $this->PermissionGroups->getList();
+        $this->assertCount(3, $result);
+    }
 }
