@@ -19,6 +19,7 @@ use BaserCore\Test\Scenario\PermissionGroupsScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Test\Factory\PermissionGroupFactory;
+use BaserCore\Test\Factory\PermissionFactory;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -134,7 +135,7 @@ class PermissionGroupsServiceTest extends BcTestCase
     public function testDeleteByUserGroup(): void
     {
         $this->loadFixtureScenario(PermissionGroupsScenario::class);
-        $this->Permissions->create(
+        PermissionFactory::make(
             [
                 'no' => 1,
                 'sort' => 1,
@@ -143,8 +144,8 @@ class PermissionGroupsServiceTest extends BcTestCase
                 'url' => 'abc',
                 'user_group_id' => 99
             ]
-        );
-        $this->Permissions->create(
+        )->persist();
+        PermissionFactory::make(
             [
                 'no' => 2,
                 'sort' => 2,
@@ -153,7 +154,7 @@ class PermissionGroupsServiceTest extends BcTestCase
                 'url' => 'abc',
                 'user_group_id' => 99
             ]
-        );
+        )->persist();
         $data1 = $this->PermissionGroups->get(1, 99);
         $this->assertCount(2, $data1->permissions);
         $this->PermissionGroups->deleteByUserGroup(99);
