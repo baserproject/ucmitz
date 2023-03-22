@@ -160,7 +160,15 @@ class ContentFoldersService implements ContentFoldersServiceInterface
             'page_template' => null
         ], $queryParams);
 
-        $query = $this->ContentFolders->find()->contain($options['contain']);
+        if (is_null($options['contain'])) {
+            $fields = $this->ContentFolders->getSchema()->columns();
+            $query = $this->ContentFolders->find()
+                ->contain(['Contents'])
+                ->select($fields);
+        } else {
+            $query = $this->ContentFolders->find()->contain($options['contain']);
+        }
+
         if (!is_null($options['limit'])) {
             $query->limit($options['limit']);
         }
@@ -170,6 +178,11 @@ class ContentFoldersService implements ContentFoldersServiceInterface
         if (!is_null($options['page_template'])) {
             $query->where(['page_template LIKE' => '%' . $options['page_template'] . '%']);
         }
+
+        if ($options['status'] === 'publish') {
+            $query->where($this->ContentFolders->Contents->getConditionAllowPublish());
+        }
+
         return $query;
     }
 
