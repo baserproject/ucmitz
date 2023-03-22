@@ -79,8 +79,8 @@ class BlogCommentsService implements BlogCommentsServiceInterface
             $query = $this->BlogComments->find()->contain($options['contain']);
         }
 
-        if (!empty($queryParams['num'])) {
-            $query = $query->limit($queryParams['num']);
+        if (!empty($queryParams['limit'])) {
+            $query = $query->limit($queryParams['limit']);
         }
         if (!empty($options['blog_post_id'])) {
             $query = $query->where(['BlogComments.blog_post_id' => $options['blog_post_id']]);
