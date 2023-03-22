@@ -28,6 +28,19 @@ class ContentsController extends BcApiController
 {
 
     /**
+     * initialize
+     * @return void
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Authentication->allowUnauthenticated(['index', 'view']);
+    }
+
+    /**
      * コンテンツ情報取得
      * @param ContentsServiceInterface $service
      * @param int $id
@@ -38,8 +51,18 @@ class ContentsController extends BcApiController
     public function view(ContentsServiceInterface $service, int $id)
     {
         $content = $message = null;
+
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (isset($queryParams['status'])) {
+            if (!$this->isAdminApiEnabled()) throw new ForbiddenException();
+        }
+
+        $queryParams = array_merge([
+            'status' => 'publish'
+        ], $queryParams);
+
         try {
-            $content = $service->get($id);
+            $content = $service->get($id, $queryParams);
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser_core', 'データが見つかりません');
