@@ -93,12 +93,12 @@ class BlogCommentsServiceTest extends BcTestCase
 
 
         // ブログコメント一覧データを取得できるテスト
-        $query = $this->BlogCommentsService->getIndex(['blog_post_id' => 1, 'num' => 2]);
+        $query = $this->BlogCommentsService->getIndex(['blog_post_id' => 1, 'limit' => 2]);
         $this->assertCount(2, $query->toArray());
         $this->assertEquals(1, $query->toArray()[0]['blog_post']['id']);
 
         // ブログコメント一覧データを取得できないテスト
-        $query = $this->BlogCommentsService->getIndex(['blog_post_id' => 9, 'num' => 2]);
+        $query = $this->BlogCommentsService->getIndex(['blog_post_id' => 9, 'limit' => 2]);
         $this->assertEmpty($query->toArray());
     }
 
