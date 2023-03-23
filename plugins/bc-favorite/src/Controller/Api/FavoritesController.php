@@ -27,6 +27,19 @@ class FavoritesController extends BcApiController
 {
 
     /**
+     * initialize
+     * @return void
+     * @checked
+     * @unitTest
+     * @unitTest
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Authentication->allowUnauthenticated(['get_favorite_box_opened']);
+    }
+
+    /**
      * お気に入り情報取得
      * @param FavoritesServiceInterface $service
      * @param $id

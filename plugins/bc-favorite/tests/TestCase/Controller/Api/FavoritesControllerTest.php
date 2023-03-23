@@ -11,6 +11,7 @@
 
 namespace BcFavorite\Test\TestCase\Controller\Api;
 
+use BcFavorite\Controller\Api\FavoritesController;
 use Cake\Core\Configure;
 use Cake\TestSuite\IntegrationTestTrait;
 
@@ -69,6 +70,15 @@ class FavoritesControllerTest extends \BaserCore\TestSuite\BcTestCase
     public function tearDown(): void
     {
         parent::tearDown();
+    }
+
+    /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $controller = new FavoritesController($this->getRequest());
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['get_favorite_box_opened']);
     }
 
     /**
