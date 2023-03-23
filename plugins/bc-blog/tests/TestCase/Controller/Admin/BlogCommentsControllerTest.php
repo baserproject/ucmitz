@@ -46,6 +46,9 @@ class BlogCommentsControllerTest extends BcTestCase
         'plugin.BaserCore.Factory/UsersUserGroups',
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BcBlog.Factory/BlogComments',
+        'plugin.BcBlog.Factory/BlogContents',
+        'plugin.BaserCore.Factory/Contents',
+        'plugin.BcBlog.Factory/BlogPosts',
     ];
 
     /**
