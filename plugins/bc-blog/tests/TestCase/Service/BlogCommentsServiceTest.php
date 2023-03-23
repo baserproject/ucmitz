@@ -14,6 +14,7 @@ namespace BcBlog\Test\TestCase\Service;
 use BaserCore\TestSuite\BcTestCase;
 use BcBlog\Service\BlogCommentsService;
 use BcBlog\Test\Scenario\BlogCommentsServiceScenario;
+use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -36,6 +37,8 @@ class BlogCommentsServiceTest extends BcTestCase
     public $fixtures = [
         'plugin.BcBlog.Factory/BlogPosts',
         'plugin.BcBlog.Factory/BlogComments',
+        'plugin.BcBlog.Factory/BlogContents',
+        'plugin.BaserCore.Factory/Contents',
     ];
 
     /**
@@ -91,6 +94,15 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testGet()
     {
+        // コメントを作成する
+        $this->loadFixtureScenario(
+            BlogContentScenario::class,
+            1,  // id
+            1, // siteId
+            null, // parentId
+            'news1', // name
+            '/news/' // url
+        );
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
 
         // ブログコメントの単一データを取得するテスト
@@ -105,6 +117,15 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testPublish()
     {
+        // コメントを作成する
+        $this->loadFixtureScenario(
+            BlogContentScenario::class,
+            1,  // id
+            1, // siteId
+            null, // parentId
+            'news1', // name
+            '/news/' // url
+        );
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
 
         $comment = $this->BlogCommentsService->publish(3);
@@ -116,6 +137,15 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testUnpublish()
     {
+        // コメントを作成する
+        $this->loadFixtureScenario(
+            BlogContentScenario::class,
+            1,  // id
+            1, // siteId
+            null, // parentId
+            'news1', // name
+            '/news/' // url
+        );
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
 
         $comment = $this->BlogCommentsService->unpublish(1);
@@ -127,6 +157,15 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testDelete()
     {
+        // コメントを作成する
+        $this->loadFixtureScenario(
+            BlogContentScenario::class,
+            1,  // id
+            1, // siteId
+            null, // parentId
+            'news1', // name
+            '/news/' // url
+        );
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         $count = $this->BlogCommentsService->getIndex(['blog_post_id' => 1])->count();
 
@@ -143,6 +182,15 @@ class BlogCommentsServiceTest extends BcTestCase
      */
     public function testBatch()
     {
+        // コメントを作成する
+        $this->loadFixtureScenario(
+            BlogContentScenario::class,
+            1,  // id
+            1, // siteId
+            null, // parentId
+            'news1', // name
+            '/news/' // url
+        );
         $this->loadFixtureScenario(BlogCommentsServiceScenario::class);
         $ids = [1, 2, 3];
 
