@@ -96,7 +96,7 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_initialize()
     {
         $controller = new BlogPostsController($this->getRequest());
-        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['view']);
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index',  'view']);
     }
 
     /**
@@ -105,16 +105,16 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_index()
     {
         //データを生成
-        BlogPostFactory::make(['blog_content_id' => 1])->persist();
-        BlogPostFactory::make(['blog_content_id' => 2])->persist();
-
+        ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
+        BlogContentFactory::make(['id' => 1])->persist();
+        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'status' => true])->persist();
         //APIを呼ぶ
         $this->get('/baser/api/bc-blog/blog_posts/index/1.json?token=' . $this->accessToken);
         //responseを確認
         $this->assertResponseOk();
         //戻る値を確認
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertCount(2, $result->blogPosts);
+        $this->assertCount(1, $result->blogPosts);
     }
 
     /**
