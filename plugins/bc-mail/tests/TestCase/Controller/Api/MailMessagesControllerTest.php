@@ -15,6 +15,7 @@ use BaserCore\Test\Factory\ContentFactory;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Service\DblogsServiceInterface;
 use BaserCore\TestSuite\BcTestCase;
+use BcMail\Controller\Api\MailMessagesController;
 use BcMail\Test\Factory\MailContentFactory;
 use Cake\ORM\Entity;
 use Cake\ORM\TableRegistry;
@@ -67,6 +68,15 @@ class MailMessagesControllerTest extends BcTestCase
     public function tearDown(): void
     {
         parent::tearDown();
+    }
+
+    /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $controller = new MailMessagesController($this->getRequest());
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['add']);
     }
 
     /**

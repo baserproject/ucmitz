@@ -31,6 +31,19 @@ class MailMessagesController extends BcApiController
 {
 
     /**
+     * initialize
+     * @return void
+     * @checked
+     * @unitTest
+     * @unitTest
+     */
+    public function initialize(): void
+    {
+        parent::initialize();
+        $this->Authentication->allowUnauthenticated(['add']);
+    }
+
+    /**
      * [API] 受信メール一覧
      *
      * @param MailMessagesService $service
