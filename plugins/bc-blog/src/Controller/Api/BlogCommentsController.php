@@ -39,7 +39,7 @@ class BlogCommentsController extends BcApiController
     public function initialize(): void
     {
         parent::initialize();
-        $this->Authentication->allowUnauthenticated(['index']);
+        $this->Authentication->allowUnauthenticated(['index', 'view']);
     }
 
     /**

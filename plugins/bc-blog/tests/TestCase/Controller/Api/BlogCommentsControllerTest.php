@@ -101,7 +101,7 @@ class BlogCommentsControllerTest extends BcTestCase
     public function test_initialize()
     {
         $controller = new BlogCommentsController($this->getRequest());
-        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index']);
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index', 'view']);
     }
 
     /**
