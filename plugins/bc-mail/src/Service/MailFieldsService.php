@@ -48,13 +48,27 @@ class MailFieldsService implements MailFieldsServiceInterface
 
     /**
      * 単一データ取得
+     * @param int $id
+     * @param array $queryParams
      * @return EntityInterface|MailField
      * @checked
      * @noTodo
      */
-    public function get(int $id)
+    public function get(int $id, array $queryParams = [])
     {
-        return $this->MailFields->get($id);
+        $queryParams = array_merge([
+            'status' => ''
+        ], $queryParams);
+
+        $conditions = [];
+        if ($queryParams['status'] === 'publish') {
+            $conditions = $this->MailFields->MailContents->Contents->getConditionAllowPublish();
+        }
+
+        return $this->MailFields->get($id, [
+            'contain' => ['MailContents' => ['Contents']],
+            'conditions' => $conditions
+        ]);
     }
 
     /**
@@ -66,7 +80,8 @@ class MailFieldsService implements MailFieldsServiceInterface
     {
         $options = array_merge([
             'use_field' => null,
-            'contain' => ['MailContents']
+            'status' => '',
+            'contain' => ['MailContents' => ['Contents']]
         ], $queryParams);
 
         $conditions = ['MailFields.mail_content_id' => $mailContentId];
@@ -79,6 +94,11 @@ class MailFieldsService implements MailFieldsServiceInterface
         if (!empty($queryParams['limit'])) {
             $query->limit($queryParams['limit']);
         }
+
+        if ($options['status'] === 'publish') {
+            $query->where($this->MailFields->MailContents->Contents->getConditionAllowPublish());
+        }
+
         return $query;
     }
 
