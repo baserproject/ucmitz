@@ -254,12 +254,15 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 	}
 
 	/**
-	 * アクセスルールを構築する
-	 *
-	 * @param int $userGroupId
-	 * @param string $plugin
-	 * @return bool
-	 */
+     * アクセスルールを構築する
+     *
+     * @param int $userGroupId
+     * @param string $plugin
+     * @return bool
+     * @noTodo
+     * @unitTest
+     * @checked
+     */
 	public function build(int $userGroupId, string $plugin)
 	{
 		$pluginPath = BcUtil::getPluginPath($plugin);
@@ -279,7 +282,7 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 		$settings = Configure::read('permission');
 		if (!$settings) return false;
 
-		$result = true;
+        $result = [];
 		foreach($settings as $ruleGroupName => $setting) {
 
 			// PermissionGroup 存在確認、なければ作成
@@ -313,6 +316,7 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 					'status' => true,
 				]);
 			}
+            $result[] = $permissionGroup;
 		}
 
 		Configure::delete('permission');

@@ -71,7 +71,15 @@ class PermissionGroupsServiceTest extends BcTestCase
      */
     public function testBuild()
     {
-        $this->markTestIncomplete('このテストは未実装です。');
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        $result = $this->PermissionGroups->build(0, 'BaserCore');
+        $this->assertCount(0, $result);
+        $result = $this->PermissionGroups->build(1, 'BaserCore');
+        $this->assertCount(24, $result);
+        $result = $this->PermissionGroups->build(1, 'BcBlog');
+        $this->assertCount(10, $result);
+        $result = $this->PermissionGroups->build(1, 'Nghiem');
+        $this->assertFalse($result);
     }
 
     /**
