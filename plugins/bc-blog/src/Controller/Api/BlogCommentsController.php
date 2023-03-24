@@ -53,9 +53,17 @@ class BlogCommentsController extends BcApiController
     public function index(BlogCommentsServiceInterface $service)
     {
         $this->request->allowMethod(['get']);
+
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (isset($queryParams['status'])) {
+            if (!$this->isAdminApiEnabled()) throw new ForbiddenException();
+        }
+
         $queryParams = array_merge([
+            'status' => 'publish',
             'contain' => null,
-        ], $this->getRequest()->getQueryParams());
+        ], $queryParams);
+
         $this->set([
             'blogComments' => $this->paginate($service->getIndex($queryParams))
         ]);
