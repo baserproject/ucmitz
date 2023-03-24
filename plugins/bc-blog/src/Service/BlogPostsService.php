@@ -91,7 +91,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         $conditions = [];
         if ($options['status'] === 'publish') {
             $conditions = $this->BlogPosts->getConditionAllowPublish();
-            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
+//            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
         }
         return $this->BlogPosts->get($id, [
             'conditions' => $conditions,
@@ -118,10 +118,11 @@ class BlogPostsService implements BlogPostsServiceInterface
             'id' => null,
             'no' => null,
             'contentUrl' => null,
+            'status' => '',
             'contain' => [
                 'Users',
                 'BlogCategories',
-                'BlogContents' => ['Contents'],
+                'BlogContents',
                 'BlogComments',
                 'BlogTags',
             ]
@@ -144,11 +145,6 @@ class BlogPostsService implements BlogPostsServiceInterface
         }
         if (!empty($options)) {
             $query = $this->createIndexConditions($query, $options);
-        }
-
-        if (is_null($options['contain'])) {
-            $fields = $this->BlogPosts->getSchema()->columns();
-            $query = $this->BlogPosts->find()->contain(['BlogContents' => ['Contents']])->select($fields);
         }
 
         return $query;
@@ -242,6 +238,9 @@ class BlogPostsService implements BlogPostsServiceInterface
         // ステータス
         if (($params['status'] === 'publish' || (string)$params['status'] === '1') && !$params['preview']) {
             $conditions = $this->BlogPosts->getConditionAllowPublish();
+
+            $fields = $this->BlogPosts->getSchema()->columns();
+            $query = $this->BlogPosts->find()->contain(['BlogContents' => ['Contents']])->select($fields);
             $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
         } elseif ((string)$params['status'] === '0') {
             $conditions = ['BlogPosts.status' => false];
