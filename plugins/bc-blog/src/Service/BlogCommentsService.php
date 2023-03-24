@@ -97,6 +97,7 @@ class BlogCommentsService implements BlogCommentsServiceInterface
         $conditions = [];
         if ($queryParams['status'] === 'publish') {
             $conditions = $this->BlogComments->BlogContents->Contents->getConditionAllowPublish();
+            $conditions = array_merge($conditions, ['BlogComments.status' => true]);
         }
 
         return $this->BlogComments->get($id, [
