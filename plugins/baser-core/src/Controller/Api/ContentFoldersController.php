@@ -56,7 +56,7 @@ class ContentFoldersController extends BcApiController
         }
         $queryParams = array_merge([
             'status' => 'publish',
-            'contain' => ['Contents'],
+            'contain' => null,
         ], $queryParams);
 
         $this->set([
