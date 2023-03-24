@@ -15,6 +15,7 @@ use BaserCore\Service\BcDatabaseServiceInterface;
 use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
+use BcCustomContent\Controller\Api\CustomEntriesController;
 use BcCustomContent\Service\CustomTablesServiceInterface;
 use BcCustomContent\Test\Scenario\CustomContentsScenario;
 use BcCustomContent\Test\Scenario\CustomEntriesScenario;
@@ -80,6 +81,15 @@ class CustomEntriesControllerTest extends BcTestCase
     public function tearDown(): void
     {
         parent::tearDown();
+    }
+
+    /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $controller = new CustomEntriesController($this->getRequest());
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index', 'view']);
     }
 
     /**
