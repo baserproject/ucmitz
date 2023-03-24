@@ -63,6 +63,7 @@ class MailFieldsService implements MailFieldsServiceInterface
         $conditions = [];
         if ($queryParams['status'] === 'publish') {
             $conditions = $this->MailFields->MailContents->Contents->getConditionAllowPublish();
+            $conditions['use_field'] = true;
         }
 
         return $this->MailFields->get($id, [
@@ -89,17 +90,17 @@ class MailFieldsService implements MailFieldsServiceInterface
 
         $query = $this->MailFields->find()
             ->contain($options['contain'])
-            ->order(['MailFields.sort'])
-            ->where($conditions);
+            ->order(['MailFields.sort']);
         if (!empty($queryParams['limit'])) {
             $query->limit($queryParams['limit']);
         }
 
         if ($options['status'] === 'publish') {
+            $conditions['use_field'] = true;
             $query->where($this->MailFields->MailContents->Contents->getConditionAllowPublish());
         }
 
-        return $query;
+        return $query->where($conditions);
     }
 
     /**
