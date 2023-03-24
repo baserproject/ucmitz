@@ -51,9 +51,18 @@ class CustomLinksService implements CustomLinksServiceInterface
     public function get(int $id, array $options = [])
     {
         $options = array_merge_recursive([
-            'contain' => ['CustomFields']
+            'status' => '',
+            'contain' => [
+                'CustomFields',
+                'CustomContents' => ['Contents']
+            ]
         ], $options);
-        return $this->CustomLinks->get($id, $options);
+        $conditions = [];
+        if ($options['status'] === 'publish') {
+            $conditions = $this->CustomLinks->CustomContents->Contents->getConditionAllowPublish();
+            $conditions = array_merge($conditions, ['CustomLinks.status' => true]);
+        }
+        return $this->CustomLinks->get($id, ['contain' => $options['contain'], 'conditions' => $conditions]);
     }
 
     /**
@@ -69,23 +78,33 @@ class CustomLinksService implements CustomLinksServiceInterface
             'finder' => 'threaded',
             'status' => null,
             'for' => null,
-            'contain' => ['CustomFields']
+            'contain' => [
+                'CustomFields',
+                'CustomContents' => ['Contents']
+            ]
         ], $options);
-
-        $conditions = ['CustomLinks.custom_table_id' => $tableId];
-        if (!is_null($options['status']) && $options['status'] !== 'all') {
-            $conditions['CustomLinks.status'] = $options['status'];
-        }
 
         $findOptions = [];
         if (!is_null($options['for'])) {
             $findOptions['for'] = $options['for'];
         }
 
-        return $this->CustomLinks->find($options['finder'], $findOptions)
-            ->order('lft ASC')
-            ->where($conditions)
-            ->contain($options['contain']);
+        $query = $this->CustomLinks->find($options['finder'], $findOptions)
+            ->order('CustomLinks.lft ASC');
+
+        if ($options['status'] === 'publish') {
+            $options['status'] = true;
+            $options ['contain'] = ['CustomContents' => ['Contents']];
+            $fields = $this->CustomLinks->getSchema()->columns();
+            $query->where($this->CustomLinks->CustomContents->Contents->getConditionAllowPublish())->select($fields);
+        }
+
+        $conditions = ['CustomLinks.custom_table_id' => $tableId];
+        if (!is_null($options['status']) && $options['status'] !== 'all') {
+            $conditions['CustomLinks.status'] = $options['status'];
+        }
+
+        return $query->where($conditions)->contain($options['contain']);
     }
 
     /**
