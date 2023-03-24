@@ -182,7 +182,8 @@ class MailFieldsController extends BcApiController
             if (!$this->isAdminApiEnabled()) throw new ForbiddenException();
         }
         $queryParams = array_merge([
-            'status' => 'publish'
+            'status' => 'publish',
+            'contain' => null
         ], $queryParams);
 
         $this->set([
