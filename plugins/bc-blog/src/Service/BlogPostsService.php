@@ -91,7 +91,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         $conditions = [];
         if ($options['status'] === 'publish') {
             $conditions = $this->BlogPosts->getConditionAllowPublish();
-//            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
+            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
         }
         return $this->BlogPosts->get($id, [
             'conditions' => $conditions,
