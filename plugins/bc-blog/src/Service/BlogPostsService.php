@@ -91,6 +91,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         $conditions = [];
         if ($options['status'] === 'publish') {
             $conditions = $this->BlogPosts->getConditionAllowPublish();
+            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
         }
         return $this->BlogPosts->get($id, [
             'conditions' => $conditions,
@@ -120,7 +121,7 @@ class BlogPostsService implements BlogPostsServiceInterface
             'contain' => [
                 'Users',
                 'BlogCategories',
-                'BlogContents',
+                'BlogContents' => ['Contents'],
                 'BlogComments',
                 'BlogTags',
             ]
@@ -144,6 +145,12 @@ class BlogPostsService implements BlogPostsServiceInterface
         if (!empty($options)) {
             $query = $this->createIndexConditions($query, $options);
         }
+
+        if (is_null($options['contain'])) {
+            $fields = $this->BlogPosts->getSchema()->columns();
+            $query = $this->BlogPosts->find()->contain(['BlogContents' => ['Contents']])->select($fields);
+        }
+
         return $query;
     }
 
@@ -200,7 +207,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      */
     protected function createIndexConditions(Query $query, array $params)
     {
-        foreach($params as $key => $value) {
+        foreach ($params as $key => $value) {
             if ($value === '') unset($params[$key]);
         }
         if (empty($params)) return $query;
@@ -235,6 +242,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         // ステータス
         if (($params['status'] === 'publish' || (string)$params['status'] === '1') && !$params['preview']) {
             $conditions = $this->BlogPosts->getConditionAllowPublish();
+            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
         } elseif ((string)$params['status'] === '0') {
             $conditions = ['BlogPosts.status' => false];
         } else {
@@ -253,7 +261,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         // URL
         if ($params['contentUrl']) {
             $query->contain(['BlogContents' => ['Contents']]);
-            if(is_array($params['contentUrl'])) {
+            if (is_array($params['contentUrl'])) {
                 $conditions['Contents.url IN'] = $params['contentUrl'];
             } else {
                 $conditions['Contents.url'] = $params['contentUrl'];
@@ -261,7 +269,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         }
         // タグ
         if (!is_null($params['blog_tag_id'])) {
-            $query->matching('BlogTags', function($q) use ($params) {
+            $query->matching('BlogTags', function ($q) use ($params) {
                 return $q->where(['BlogTags.id' => $params['blog_tag_id']]);
             });
         }
@@ -270,7 +278,7 @@ class BlogPostsService implements BlogPostsServiceInterface
             $blogCategoryIds = [$params['blog_category_id']];
             $children = $this->BlogPosts->BlogCategories->find('children', ['for' => $params['blog_category_id']]);
             if ($children) {
-                foreach($children as $child) {
+                foreach ($children as $child) {
                     $blogCategoryIds[] = $child->id;
                 }
             }

@@ -22,6 +22,7 @@ use BcBlog\Controller\Api\BlogPostsController;
 use BcBlog\Service\BlogPostsServiceInterface;
 use BcBlog\Test\Factory\BlogContentFactory;
 use BcBlog\Test\Factory\BlogPostFactory;
+use BcBlog\Test\Scenario\BlogContentScenario;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -105,9 +106,8 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_index()
     {
         //データを生成
-        ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
-        BlogContentFactory::make(['id' => 1])->persist();
-        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'status' => true])->persist();
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/test');
+        BlogPostFactory::make(['id' => '1', 'blog_content_id' => '1', 'title' => 'blog post', 'status' => true])->persist();
         //APIを呼ぶ
         $this->get('/baser/api/bc-blog/blog_posts/index/1.json?token=' . $this->accessToken);
         //responseを確認
@@ -123,9 +123,8 @@ class BlogPostsControllerTest extends BcTestCase
     public function test_view()
     {
         // データを生成
-        ContentFactory::make(['plugin' => 'BcBlog', 'type' => 'BlogContent', 'entity_id' => 1])->persist();
-        BlogContentFactory::make(['id' => 1])->persist();
-        BlogPostFactory::make(['id' => 1, 'blog_content_id' => 1, 'status' => true])->persist();
+        $this->loadFixtureScenario(BlogContentScenario::class, 1, 1, null, 'test', '/test');
+        BlogPostFactory::make(['id' => '1', 'blog_content_id' => '1', 'title' => 'blog post', 'status' => true])->persist();
         PermissionFactory::make()->allowGuest('/baser/api/*')->persist();
 
         // APIを呼ぶ
