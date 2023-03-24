@@ -16,10 +16,12 @@ use BaserCore\Service\PermissionsService;
 use BaserCore\Service\PermissionGroupsServiceInterface;
 use BaserCore\Service\PermissionsServiceInterface;
 use BaserCore\Test\Scenario\PermissionGroupsScenario;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Test\Factory\PermissionGroupFactory;
 use BaserCore\Test\Factory\PermissionFactory;
+use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -160,5 +162,28 @@ class PermissionGroupsServiceTest extends BcTestCase
         $this->PermissionGroups->deleteByUserGroup(99);
         $data2 = $this->PermissionGroups->get(1, 99);
         $this->assertCount(0, $data2->permissions);
+    }
+
+    /**
+     * Test buildByPlugin
+     *
+     * @return void
+     */
+    public function testBuildByPlugin(): void
+    {
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        $plugin = 'BcBlog';
+        $this->PermissionGroups->buildByPlugin($plugin);
+        $data = $this->PermissionGroups->getIndex(0, [])->where(['plugin' => $plugin])->all()->toArray();
+        Configure::load($plugin . '.permission', 'baser');
+        $settings = Configure::read('permission');
+        $this->assertCount(count($settings), $data);
+        $plugin = 'BaserCore';
+        $this->PermissionGroups->buildByPlugin($plugin);
+        $data = $this->PermissionGroups->getIndex(0, [])->where(['plugin' => $plugin])->all()->toArray();
+        Configure::load($plugin . '.permission', 'baser');
+        $settings = Configure::read('permission');
+        $this->assertCount(count($settings), $data);
     }
 }
