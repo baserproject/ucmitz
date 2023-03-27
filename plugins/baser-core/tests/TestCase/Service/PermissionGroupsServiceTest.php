@@ -186,7 +186,7 @@ class PermissionGroupsServiceTest extends BcTestCase
         $data = $this->PermissionGroups->getIndex(0, [])->where(['plugin' => $plugin])->all()->toArray();
         Configure::load($plugin . '.permission', 'baser');
         $settings = Configure::read('permission');
-        $this->assertCount(count($settings), $data);
+        Configure::delete('permission');
         $this->assertCount(count($settings), $data);
     }
 }
