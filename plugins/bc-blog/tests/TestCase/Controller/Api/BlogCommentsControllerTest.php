@@ -302,10 +302,10 @@ class BlogCommentsControllerTest extends BcTestCase
             'message' => 'いいね！'
         ];
 
-//        $this->post('/baser/api/bc-blog/blog_comments/add.json?token=' . $this->accessToken, $postData);
-//        $this->assertResponseOk();
-//        $result = json_decode((string)$this->_response->getBody());
-//        $this->assertNotNull($result->blogComment);
+        $this->post('/baser/api/bc-blog/blog_comments/add.json?token=' . $this->accessToken, $postData);
+        $this->assertResponseOk();
+        $result = json_decode((string)$this->_response->getBody());
+        $this->assertNotNull($result->blogComment);
 
         //blog_post_idを指定しない場合、
         $postData = [
