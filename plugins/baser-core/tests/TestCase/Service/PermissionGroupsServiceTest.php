@@ -96,13 +96,16 @@ class PermissionGroupsServiceTest extends BcTestCase
         $this->loadFixtureScenario(PermissionGroupsScenario::class);
         $this->loadFixtureScenario(InitAppScenario::class);
         $plugins = array_merge([0 => 'BaserCore'], Hash::extract(BcUtil::getEnablePlugins(true), '{n}.name'));
+        $count = 0;
         foreach ($plugins as $plugin) {
             Configure::load($plugin . '.permission', 'baser');
             $settings = Configure::read('permission');
+            $count += count($settings);
+            Configure::delete('permission');
         }
         $this->PermissionGroups->buildByUserGroup(1);
         $Pg = $this->PermissionGroups->getIndex(1, [])->all()->toArray();
-        $this->assertCount(count($plugins), $Pg);
+        $this->assertCount($count, $Pg);
     }
 
 
