@@ -241,8 +241,11 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 	}
 
 	/**
-	 * アクセスルールを全て構築する
-	 */
+     * アクセスルールを全て構築する
+     * @noTodo
+     * @unitTest
+     * @checked
+     */
 	public function buildAll()
 	{
 	    $userGroupsService = $this->getService(UserGroupsServiceInterface::class);

@@ -15,12 +15,17 @@ use BaserCore\Service\PermissionGroupsService;
 use BaserCore\Service\PermissionsService;
 use BaserCore\Service\PermissionGroupsServiceInterface;
 use BaserCore\Service\PermissionsServiceInterface;
+use BaserCore\Service\UserGroupsServiceInterface;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Test\Scenario\PermissionGroupsScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Test\Factory\PermissionGroupFactory;
 use BaserCore\Test\Factory\PermissionFactory;
+use BaserCore\Utility\BcUtil;
+use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Utility\Hash;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
 /**
@@ -124,6 +129,33 @@ class PermissionGroupsServiceTest extends BcTestCase
         $this->assertNotEmpty($data2);
         $this->expectException(RecordNotFoundException::class);
         $this->PermissionGroups->get(-1);
+    }
+
+    /**
+     * Test buildAll
+     *
+     * @return void
+     */
+    public function testBuildAll(): void
+    {
+        $this->loadFixtureScenario(InitAppScenario::class);
+        $userGroupsService = $this->getService(UserGroupsServiceInterface::class);
+        $userGroups = $userGroupsService->getIndex(['exclude_admin' => true])->all()->toArray();
+        $count = 0;
+        foreach ($userGroups as $userGroup) {
+            $plugins = array_merge([0 => 'BaserCore'], Hash::extract(BcUtil::getEnablePlugins(true), '{n}.name'));
+            foreach ($plugins as $plugin) {
+                Configure::load($plugin . '.permission', 'baser');
+                $settings = Configure::read('permission');
+                $count = +count($settings);
+                Configure::delete('permission');
+            }
+        }
+        $settings = Configure::read('BcPrefixAuth');
+        $count = +count($settings);
+        $this->PermissionGroups->buildAll();
+        $Pg = $this->PermissionGroups->getList();
+        $this->assertCount($count, $Pg);
     }
 
 
