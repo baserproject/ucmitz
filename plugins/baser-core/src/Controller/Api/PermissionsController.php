@@ -117,7 +117,7 @@ class PermissionsController extends BcApiController
      */
     public function delete(PermissionsServiceInterface $service, int $permissionId)
     {
-        $this->request->allowMethod(['post', 'put', 'patch']);
+        $this->request->allowMethod(['post', 'delete']);
         $permission = null;
         try {
             $permission = $service->get($permissionId);
