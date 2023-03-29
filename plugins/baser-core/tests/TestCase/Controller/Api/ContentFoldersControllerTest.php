@@ -11,6 +11,7 @@
 
 namespace BaserCore\Test\TestCase\Controller\Api;
 
+use BaserCore\Controller\Api\ContentFoldersController;
 use BaserCore\TestSuite\BcTestCase;
 use Cake\TestSuite\IntegrationTestTrait;
 use BaserCore\Service\ContentFoldersService;
@@ -59,6 +60,15 @@ class ContentFoldersControllerTest extends BcTestCase
         $this->accessToken = $token['access_token'];
         $this->refreshToken = $token['refresh_token'];
         $this->ContentFoldersService = new ContentFoldersService();
+    }
+
+    /**
+     * test initialize
+     */
+    public function test_initialize()
+    {
+        $controller = new ContentFoldersController($this->getRequest());
+        $this->assertEquals($controller->Authentication->unauthenticatedActions, ['index', 'view']);
     }
 
     /**
@@ -133,7 +143,7 @@ class ContentFoldersControllerTest extends BcTestCase
         $data = $this->ContentFoldersService->getIndex(['folder_template' => "testEdit"])->first();
         $data->content->name = "contentFolderTestUpdate";
         $id = $data->id;
-        $this->post("/baser/api/baser-core/content_folders/edit/${id}.json?token=" . $this->accessToken, $data->toArray());
+        $this->post("/baser/api/baser-core/content_folders/edit/{$id}.json?token=" . $this->accessToken, $data->toArray());
         $this->assertResponseSuccess();
         $query = $this->ContentFoldersService->getIndex(['folder_template' => $data['folder_template']]);
         $this->assertEquals(1, $query->all()->count());
