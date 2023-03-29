@@ -161,4 +161,25 @@ class PermissionGroupsServiceTest extends BcTestCase
         $data2 = $this->PermissionGroups->get(1, 99);
         $this->assertCount(0, $data2->permissions);
     }
+
+    /**
+     * Test rebuildByUserGroup
+     *
+     * @return void
+     */
+    public function testRebuildByUserGroup(): void
+    {
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        $pgs = $this->PermissionGroups->getIndex(1, [])->all();
+        $this->assertTrue(count($pgs) > 0);
+        foreach ($pgs as $pg){
+            $this->PermissionGroups->delete($pg->id);
+        }
+        $pgs = $this->PermissionGroups->getIndex(1, [])->all();
+        $this->assertCount(0, $pgs);
+
+        $this->PermissionGroups->rebuildByUserGroup(1);
+        $pgs = $this->PermissionGroups->getIndex(1, [])->all();
+        $this->assertTrue(count($pgs) > 0);
+    }
 }
