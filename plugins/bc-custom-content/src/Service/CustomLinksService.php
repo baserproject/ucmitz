@@ -93,10 +93,9 @@ class CustomLinksService implements CustomLinksServiceInterface
             ->order('CustomLinks.lft ASC');
 
         if ($options['status'] === 'publish') {
-            $options['status'] = true;
             $options ['contain'] = ['CustomContents' => ['Contents']];
             $fields = $this->CustomLinks->getSchema()->columns();
-            $query->where($this->CustomLinks->CustomContents->Contents->getConditionAllowPublish())->select($fields);
+            $query->where($this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish())->select($fields);
         }
 
         $conditions = ['CustomLinks.custom_table_id' => $tableId];
