@@ -97,7 +97,7 @@ class MailFieldsService implements MailFieldsServiceInterface
 
         if ($options['status'] === 'publish') {
             $conditions['use_field'] = true;
-            $query->where($this->MailFields->MailContents->Contents->getConditionAllowPublish());
+            $conditions[] = $this->MailFields->MailContents->Contents->getConditionAllowPublish();
         }
 
         return $query->where($conditions);
