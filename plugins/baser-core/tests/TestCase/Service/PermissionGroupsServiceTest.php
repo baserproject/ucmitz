@@ -22,6 +22,7 @@ use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Test\Factory\PermissionGroupFactory;
 use BaserCore\Test\Factory\PermissionFactory;
+use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
@@ -174,10 +175,10 @@ class PermissionGroupsServiceTest extends BcTestCase
     {
         $this->loadFixtureScenario(PermissionGroupsScenario::class);
         $this->loadFixtureScenario(InitAppScenario::class);
-        UserGroupFactory::make([
+        $ug = UserGroupFactory::make([
             'name' => 'Nghiem',
             'title' => 'Nghiem title',
-            'auth_prefix' => 'Nghiem'
+            'auth_prefix' => 'Api,Nghiem'
         ])->persist();
         $field = 'user_group_id';
         $result = $this->PermissionGroups->getControlSource($field);
@@ -186,8 +187,14 @@ class PermissionGroupsServiceTest extends BcTestCase
         } else {
             $this->assertCount(2, $result);
         }
+
         $field = 'auth_prefix';
+        $prefixes = BcUtil::getAuthPrefixList();
         $result = $this->PermissionGroups->getControlSource($field);
+        $this->assertEquals($prefixes, $result);
+
+        $result = $this->PermissionGroups->getControlSource($field, ['user_group_id' => $ug->id]);
+        $this->assertCount(1, $result);
 
     }
 
