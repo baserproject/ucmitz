@@ -82,9 +82,19 @@ class BlogCommentsController extends BcApiController
     public function view(BlogCommentsServiceInterface $service, $blogCommentId)
     {
         $this->request->allowMethod(['get']);
+
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (isset($queryParams['status'])) {
+            if (!$this->isAdminApiEnabled()) throw new ForbiddenException();
+        }
+
+        $queryParams = array_merge([
+            'status' => 'publish'
+        ], $queryParams);
+
         $blogComment = $message = null;
         try {
-            $blogComment = $service->get($blogCommentId);
+            $blogComment = $service->get($blogCommentId, $queryParams);
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser_core', 'データが見つかりません。');
@@ -193,10 +203,11 @@ class BlogCommentsController extends BcApiController
         $this->request->allowMethod(['post', 'put']);
         $postData = $this->getRequest()->getData();
 
-        if (!$postData['blog_content_id']) {
+        if (!isset($queryParams['blog_content_id']) && !$postData['blog_content_id']) {
             throw new BcException(__d('baser_core', 'パラメーターに blog_content_id が指定されていません。'));
         }
-        if (!$postData['blog_post_id']) {
+
+        if (!isset($queryParams['blog_post_id']) && !$postData['blog_post_id']) {
             throw new BcException(__d('baser_core', 'パラメーターに blog_post_id が指定されていません。'));
         }
 

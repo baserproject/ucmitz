@@ -37,7 +37,7 @@ class BlogPostsController extends BcApiController
     public function initialize(): void
     {
         parent::initialize();
-        $this->Authentication->allowUnauthenticated(['view']);
+        $this->Authentication->allowUnauthenticated(['index', 'view']);
     }
 
     /**
@@ -50,9 +50,17 @@ class BlogPostsController extends BcApiController
      */
     public function index(BlogPostsServiceInterface $service)
     {
+        $this->request->allowMethod('get');
+
+        $queryParams = $this->getRequest()->getQueryParams();
+        if (isset($queryParams['status'])) {
+            if (!$this->isAdminApiEnabled()) throw new ForbiddenException();
+        }
+
         $queryParams = array_merge([
             'contain' => null,
-        ], $this->getRequest()->getQueryParams());
+            'status' => 'publish'
+        ], $queryParams);
         $this->set([
             'blogPosts' => $this->paginate($service->getIndex($queryParams))
         ]);
@@ -230,7 +238,7 @@ class BlogPostsController extends BcApiController
         try {
             $result = $service->publish($id);
             if ($result) {
-                $message = __d('baser_core', 'ブログ記事「%s」を公開状態にしました。', $result->title);
+                $message = __d('baser_core', 'ブログ記事「{0}」を公開状態にしました。', $result->title);
             } else {
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');
@@ -263,7 +271,7 @@ class BlogPostsController extends BcApiController
         try {
             $result = $service->unpublish($id);
             if ($result) {
-                $message = __d('baser_core', 'ブログ記事「%s」を非公開状態にしました。', $result->title);
+                $message = __d('baser_core', 'ブログ記事「{0}」を非公開状態にしました。', $result->title);
             } else {
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');
