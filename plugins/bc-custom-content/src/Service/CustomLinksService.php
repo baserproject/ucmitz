@@ -100,6 +100,7 @@ class CustomLinksService implements CustomLinksServiceInterface
             $query->select($fields);
             $conditions = array_merge(
                 $conditions,
+                ['CustomLinks.status' => true],
                 $this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish()
             );
         }
