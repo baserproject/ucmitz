@@ -92,15 +92,16 @@ class CustomLinksService implements CustomLinksServiceInterface
         $query = $this->CustomLinks->find($options['finder'], $findOptions)
             ->order('CustomLinks.lft ASC');
 
+        $conditions = ['CustomLinks.custom_table_id' => $tableId];
+
         if ($options['status'] === 'publish') {
             $options ['contain'] = ['CustomContents' => ['Contents']];
             $fields = $this->CustomLinks->getSchema()->columns();
-            $query->where($this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish())->select($fields);
-        }
-
-        $conditions = ['CustomLinks.custom_table_id' => $tableId];
-        if (!is_null($options['status']) && $options['status'] !== 'all') {
-            $conditions['CustomLinks.status'] = $options['status'];
+            $query->select($fields);
+            $conditions = array_merge(
+                $conditions,
+                $this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish()
+            );
         }
 
         return $query->where($conditions)->contain($options['contain']);
