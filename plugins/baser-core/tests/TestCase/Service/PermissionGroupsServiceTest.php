@@ -15,11 +15,14 @@ use BaserCore\Service\PermissionGroupsService;
 use BaserCore\Service\PermissionsService;
 use BaserCore\Service\PermissionGroupsServiceInterface;
 use BaserCore\Service\PermissionsServiceInterface;
+use BaserCore\Test\Factory\UserGroupFactory;
+use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Test\Scenario\PermissionGroupsScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Test\Factory\PermissionGroupFactory;
 use BaserCore\Test\Factory\PermissionFactory;
+use Cake\Core\Configure;
 use Cake\Datasource\Exception\RecordNotFoundException;
 use CakephpFixtureFactories\Scenario\ScenarioAwareTrait;
 
@@ -160,6 +163,32 @@ class PermissionGroupsServiceTest extends BcTestCase
         $this->PermissionGroups->deleteByUserGroup(99);
         $data2 = $this->PermissionGroups->get(1, 99);
         $this->assertCount(0, $data2->permissions);
+    }
+
+    /**
+     * Test getControlSource
+     *
+     * @return void
+     */
+    public function testGetControlSource(): void
+    {
+        $this->loadFixtureScenario(PermissionGroupsScenario::class);
+        $this->loadFixtureScenario(InitAppScenario::class);
+        UserGroupFactory::make([
+            'name' => 'Nghiem',
+            'title' => 'Nghiem title',
+            'auth_prefix' => 'Nghiem'
+        ])->persist();
+        $field = 'user_group_id';
+        $result = $this->PermissionGroups->getControlSource($field);
+        if (Configure::read('BcPrefixAuth.Front.disabled')) {
+            $this->assertCount(1, $result);
+        } else {
+            $this->assertCount(2, $result);
+        }
+        $field = 'auth_prefix';
+        $result = $this->PermissionGroups->getControlSource($field);
+
     }
 
     /**
