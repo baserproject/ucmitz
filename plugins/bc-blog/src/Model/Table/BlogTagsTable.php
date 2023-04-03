@@ -22,7 +22,6 @@ use Cake\Validation\Validator;
 /**
  * ブログタグモデル
  *
- * @package Blog.Model
  */
 class BlogTagsTable extends BlogAppTable
 {
@@ -102,7 +101,7 @@ class BlogTagsTable extends BlogAppTable
         $permissionsService = $this->getService(PermissionsServiceInterface::class);
         $addUrl = preg_replace('|^/index.php|', '', Router::url([
             'plugin' => 'BcBlog',
-            'prefix' => 'Api',
+            'prefix' => 'Api/Admin',
             'controller' => 'BlogTags',
             'action' => 'add',
             $blogContentId

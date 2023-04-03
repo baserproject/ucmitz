@@ -17,7 +17,6 @@ use Cake\Validation\Validator;
 
 /**
  * Class UserGroupsTableTest
- * @package BaserCore\Test\TestCase\Model\Table
  * @property UserGroupsTable $UserGroups
  */
 class UserGroupsTableTest extends BcTestCase
@@ -113,7 +112,7 @@ class UserGroupsTableTest extends BcTestCase
     public function testGetAuthPrefix()
     {
         $result = $this->UserGroups->getAuthPrefix(1);
-        $this->assertEquals('Admin', $result);
+        $this->assertEquals('Admin,Api/Admin', $result);
 
         $result = $this->UserGroups->getAuthPrefix(999);
         $this->assertEquals(null, $result);
