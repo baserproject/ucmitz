@@ -54,6 +54,7 @@ class PermissionGroupsServiceTest extends BcTestCase
         'plugin.BaserCore.Factory/PermissionGroups',
         'plugin.BaserCore.Factory/UserGroups',
         'plugin.BaserCore.Factory/Users',
+        'plugin.BaserCore.Factory/Sites',
         'plugin.BaserCore.Factory/UsersUserGroups',
     ];
 
