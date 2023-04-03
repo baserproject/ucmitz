@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: baserCMS\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2023-03-27 00:07+0900\n"
+"PO-Revision-Date: 2023-03-31 09:38+0900\n"
 "Last-Translator: ryuring\n"
 "Language-Team: baserCMS Users Community <info@basercms.net>\n"
 "Language: en\n"
@@ -2805,34 +2805,24 @@ msgstr "Follow the main site"
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:317
 #: plugins/baser-core/src/Service/BcDatabaseService.php:333
-#, fuzzy
-#| msgid "%s の初期データのロードに失敗しました。"
 msgid "%s %s の初期データのロードに失敗しました。"
-msgstr "Failed loading of %s’s initial data."
+msgstr "Failed to load %s %s initial data."
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:339
-#, fuzzy
-#| msgid ""
-#| "初期データの読み込みに失敗しましたので baserCMSコアの初期データを読み込み"
-#| "ました。"
 msgid ""
 "初期データの読み込みに失敗しましたので baserCMSコアの初期データを読み込みまし"
 "た。ログを確認してください。"
 msgstr ""
-"Loaded baserCMS Core’s initial data because loading of initial data has "
-"failed."
+"Initial data loading failed, so baserCMS core initial data was loaded. Check "
+"the logs."
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:342
-#, fuzzy
-#| msgid ""
-#| "初期データの読み込みに失敗しました。データが不完全な状態です。正常に動作し"
-#| "ない可能性があります。"
 msgid ""
 "初期データの読み込みに失敗しました。データが不完全な状態です。正常に動作しな"
 "い可能性があります。ログを確認してください。"
 msgstr ""
-"Failed loading of initial data. Data is incomplete. It might not run "
-"normally."
+"Failed to load initial data. The data is incomplete. It may not work "
+"properly. Check the logs."
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:383
 msgid "%s の読み込みに失敗。"
@@ -2860,37 +2850,28 @@ msgid "データベースの保存フォルダに書き込み権限がありま�
 msgstr "There is no write permission to database's saving folder"
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:1338
-#, fuzzy
-#| msgid ""
-#| "ドライバが見つかりません Driver is not defined.(MySQL|Postgres|SQLite|CSV)"
 msgid "ドライバが見つかりません Driver is not defined.(MySQL|Postgres|SQLite)"
-msgstr "Driver is not defined.(MySQL|Postgres|SQLite|CSV)"
+msgstr "Driver not found Driver is not defined. (MySQL| Postgres| SQLite)"
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:1358
-#, fuzzy
-#| msgid ""
-#| "データベースへの接続でエラーが発生しました。データベース設定を見直してくだ"
-#| "さい。<br>サーバー上に指定されたデータベースが存在しない可能性が高いです。"
 msgid ""
 "データベースへの接続でエラーが発生しました。データベース設定を見直してくださ"
 "い。\n"
 "サーバー上に指定されたデータベースが存在しない可能性が高いです。\n"
 msgstr ""
-"Error has occurred when connecting to the database. Please re-check the "
-"database config.<br>It’s likely specified database is not on server."
+"Error occurred connecting to the database. Review your database settings.\n"
+"It is highly likely that the specified database does not exist on the "
+"server.\n"
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:1362
-#, fuzzy
-#| msgid ""
-#| "データベースへの接続でエラーが発生しました。データベース設定を見直してくだ"
-#| "さい。<br>サーバー上に指定されたデータベースが存在しない可能性が高いです。"
 msgid ""
 "データベースへの接続でエラーが発生しました。データベース設定を見直してくださ"
 "い。\n"
 "サーバー上に指定されたデータベースが存在しない可能性が高いです。"
 msgstr ""
-"Error has occurred when connecting to the database. Please re-check the "
-"database config.<br>It’s likely specified database is not on server."
+"An error occurred connecting to the database. Review your database "
+"settings.\n"
+"It is highly likely that the specified database does not exist on the server."
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:1374
 msgid ""
@@ -2906,10 +2887,8 @@ msgid "データベースのバージョンが %s 以上か確認してくださ
 msgstr "Please confirm the database version is %s or newer."
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:1402
-#, fuzzy
-#| msgid "データベースへの接続でエラーが発生しました。"
 msgid "データベースへの接続でエラーが発生しました。\n"
-msgstr "Error has occurred when connecting to the database."
+msgstr "Error occurred connecting to the database.\n"
 
 #: plugins/baser-core/src/Service/BcDatabaseService.php:1413
 msgid ""
@@ -2937,18 +2916,16 @@ msgid "データが存在しません。"
 msgstr "Data does not exist."
 
 #: plugins/baser-core/src/Service/ContentsService.php:983
-#, fuzzy
-#| msgid "同一URLのコンテンツが存在するため処理に失敗しました。"
 msgid ""
 "同一URLのコンテンツが存在するため処理に失敗しました。（現在のサイトに存在しな"
 "い場合は、関連サイトに存在します）"
-msgstr "Failed processing because the same URL Contents exists."
+msgstr ""
+"Processing failed because there is content with the same URL. (If it does "
+"not exist in the current site, it exists in the related site)"
 
 #: plugins/baser-core/src/Service/ContentsService.php:1370
-#, fuzzy
-#| msgid "contentId を指定してください。"
 msgid "site_idを指定してください。"
-msgstr "Please specify contentId."
+msgstr "Specify the site_id."
 
 #: plugins/baser-core/src/Service/ContentsService.php:1483
 msgid "送信データが不正です。"
@@ -2970,19 +2947,18 @@ msgstr "Full Access"
 
 #: plugins/baser-core/src/Service/PermissionGroupsService.php:434
 msgid "{0} その他"
-msgstr ""
+msgstr "{0} Other"
 
 #: plugins/baser-core/src/Service/PluginsService.php:150
 msgid ""
 "プラグインに Plugin クラスが存在しません。src ディレクトリ配下に作成してくだ"
 "さい。"
 msgstr ""
+"The plugin does not have a Plugin class. Create it under the src directory."
 
 #: plugins/baser-core/src/Service/PluginsService.php:198
-#, fuzzy
-#| msgid "アップデート処理を開始します。"
 msgid "{0} プラグイン {1} へのアップデートを開始します。"
-msgstr "Starting update process."
+msgstr "{0} Start update to plugin {1}."
 
 #: plugins/baser-core/src/Service/PluginsService.php:225
 #: plugins/baser-core/src/Service/PluginsService.php:245
@@ -2990,45 +2966,34 @@ msgid "アップデート処理が途中で失敗しました。"
 msgstr "Failed update process in the middle."
 
 #: plugins/baser-core/src/Service/PluginsService.php:237
-#, fuzzy
-#| msgid "ファイルのアップロードに失敗しました。"
 msgid "{0} プラグイン {1} へのアップデートが完了しました。"
-msgstr "Failed uploading the file."
+msgstr "{0} Update to plugin {1} completed."
 
 #: plugins/baser-core/src/Service/PluginsService.php:276
-#, fuzzy
-#| msgid ""
-#| "baserCMSのインストールに失敗しました。ログファイルを確認してください。"
 msgid ""
 "プログラムファイルのアップデートに失敗しました。ログを確認してください。"
-msgstr "Failed baserCMS installation. Please check the log file."
+msgstr "Program file update failed. Check the logs."
 
 #: plugins/baser-core/src/Service/PluginsService.php:288
-#, fuzzy
-#| msgid ""
-#| "アップデートスクリプトの実行が完了しました。<a href=\"#UpdateLog\">アップ"
-#| "デートログ</a>を確認してください。"
 msgid ""
 "アップデートスクリプトの処理が失敗したので、プログラムファイルを元に戻そうと"
 "しましたが失敗しました。。ログを確認してください。"
-msgstr "Completed update script. Check <a href=\"#UpdateLog\">update log</a>."
+msgstr ""
+"The update script failed to process, so I tried to restore the program files "
+"but failed. Check the logs."
 
 #: plugins/baser-core/src/Service/PluginsService.php:290
-#, fuzzy
-#| msgid ""
-#| "アップデートスクリプトの実行が完了しました。<a href=\"#UpdateLog\">アップ"
-#| "デートログ</a>を確認してください。"
 msgid ""
 "アップデートスクリプトの処理が失敗したので、プログラムファイルを元に戻しまし"
 "た。。ログを確認してください。"
-msgstr "Completed update script. Check <a href=\"#UpdateLog\">update log</a>."
+msgstr ""
+"The update script process failed, so I moved the program files back. Check "
+"the logs."
 
 #: plugins/baser-core/src/Service/PluginsService.php:416
 #: plugins/baser-core/src/Service/PluginsService.php:452
-#, fuzzy
-#| msgid "テーマフォルダを手動で削除してください。"
 msgid "プラグインに Plugin クラスが存在しません。手動で削除してください。"
-msgstr "Please delete Theme Folder manually."
+msgstr "The plugin does not have a Plugin class. Remove it manually."
 
 #: plugins/baser-core/src/Service/PluginsService.php:421
 msgid "処理中にエラーが発生しました。プラグインの開発者に確認してください。"
@@ -3047,10 +3012,8 @@ msgid "アップロードしたZIPファイルの展開に失敗しました。"
 msgstr "Failed extracting the uploaded zip file."
 
 #: plugins/baser-core/src/Service/SitesService.php:186
-#, fuzzy
-#| msgid "このユーザーは削除できません。"
 msgid "メインサイトは削除できません。"
-msgstr "Can't delete this User."
+msgstr "You cannot delete the main site."
 
 #: plugins/baser-core/src/Service/ThemesService.php:234
 msgid "このテーマは下記のプラグインを同梱しています。"
@@ -3074,104 +3037,60 @@ msgstr ""
 "Initial data’s version is different, or initial data’s structure is broken."
 
 #: plugins/baser-core/src/Service/UsersService.php:133
-#, fuzzy
-#| msgid "contentId を指定してください。"
 msgid "user_groups[_ids][] を指定してください。"
-msgstr "Please specify contentId."
+msgstr "Specify user_groups[_ids][]."
 
 #: plugins/baser-core/src/Service/UsersService.php:137
 #: plugins/baser-core/src/Service/UsersService.php:166
 #: plugins/baser-core/src/Service/UsersService.php:170
 #: plugins/baser-core/src/Service/UsersService.php:191
 #: plugins/baser-core/src/Service/UsersService.php:394
-#, fuzzy
-#| msgid "削除中にエラーが発生しました。"
 msgid "特権エラーが発生しました。"
-msgstr "Error has occurred when deleting."
+msgstr "A privilege error occurred."
 
 #: plugins/baser-core/src/Service/UsersService.php:423
-#, fuzzy
-#| msgid "データが見つかりませんでした。"
 msgid "対象データが見つかりません。"
-msgstr "Couldn't find the data."
+msgstr "Target data not found."
 
 #: plugins/baser-core/src/Service/UtilitiesService.php:223
-#, fuzzy
-#| msgid "スペシャルサンクスデータが取得できませんでした。"
 msgid "スペシャルサンクスのデータが読み込めませんでした。"
-msgstr "Couldn’t fetch Special Thanks data."
+msgstr "Special Thanks data could not be loaded."
 
 #: plugins/baser-core/src/Service/UtilitiesService.php:272
 msgid "エラーログが削除できませんでした。"
 msgstr "Couldn't delete error log."
 
 #: plugins/baser-core/src/Service/UtilitiesService.php:399
-#, fuzzy
-#| msgid "データが送信できませんでした。"
 msgid "バックアップファイルが送信されませんでした。"
-msgstr "Couldn’t send data."
+msgstr "The backup file was not sent."
 
 #: plugins/baser-core/src/Utility/BcComposer.php:82
-#, fuzzy
-#| msgid "baserCMSのインストールを開始できません"
 msgid "composer がインストールできません。{0}"
-msgstr "Couldn’t start installation of baserCMS"
+msgstr "Composer cannot be installed. {0}"
 
 #: plugins/baser-core/src/Utility/BcComposer.php:97
-#, fuzzy
-#| msgid ""
-#| "/app/Config/ に書き込み権限を与える事ができませんでした。手動で書き込み権"
-#| "限を与えてください。"
 msgid "/composer に書き込み権限がありません。書き込み権限を与えてください。"
-msgstr ""
-"Couldn't give the write permission to /app/Config . Give the write "
-"permission to it manually."
+msgstr "/composer does not have write permission. Give write permission."
 
 #: plugins/baser-core/src/Utility/BcComposer.php:100
-#, fuzzy
-#| msgid ""
-#| "/app/Config/ に書き込み権限を与える事ができませんでした。手動で書き込み権"
-#| "限を与えてください。"
 msgid "/vendor に書き込み権限がありません。書き込み権限を与えてください。"
-msgstr ""
-"Couldn't give the write permission to /app/Config . Give the write "
-"permission to it manually."
+msgstr "/vendor does not have write permission. Give write permission."
 
 #: plugins/baser-core/src/Utility/BcComposer.php:103
-#, fuzzy
-#| msgid ""
-#| "/app/Config/ に書き込み権限を与える事ができませんでした。手動で書き込み権"
-#| "限を与えてください。"
 msgid "/config に書き込み権限がありません。書き込み権限を与えてください。"
-msgstr ""
-"Couldn't give the write permission to /app/Config . Give the write "
-"permission to it manually."
+msgstr "/config does not have write permission. Give write permission."
 
 #: plugins/baser-core/src/Utility/BcComposer.php:106
-#, fuzzy
-#| msgid ""
-#| "/app/Config/ に書き込み権限を与える事ができませんでした。手動で書き込み権"
-#| "限を与えてください。"
 msgid "/tmp に書き込み権限がありません。書き込み権限を与えてください。"
-msgstr ""
-"Couldn't give the write permission to /app/Config . Give the write "
-"permission to it manually."
+msgstr "/tmp does not have write permission. Give write permission."
 
 #: plugins/baser-core/src/Utility/BcComposer.php:109
-#, fuzzy
-#| msgid ""
-#| "/app/Config/ に書き込み権限を与える事ができませんでした。手動で書き込み権"
-#| "限を与えてください。"
 msgid "/logs に書き込み権限がありません。書き込み権限を与えてください。"
-msgstr ""
-"Couldn't give the write permission to /app/Config . Give the write "
-"permission to it manually."
+msgstr "/logs does not have write permission. Give write permission."
 
 #: plugins/baser-core/src/Utility/BcGmaps.php:61
-#, fuzzy
-#| msgid "データベースユーザー名を入力してください。"
 msgid "システム基本設定にて、Google Maps API キーを入力してください。"
-msgstr "Please enter username for database."
+msgstr "In the system preferences, enter your Google Maps API key."
 
 #: plugins/baser-core/src/Utility/BcUtil.php:1808
 msgid "リトライ回数は正の整数値で指定してください。"
@@ -3181,10 +3100,8 @@ msgstr "Please specify retry number with positive integers."
 #: plugins/bc-custom-content/config/setting.php:107
 #: plugins/bc-custom-content/plugins/BcCcDate/config/setting.php:26
 #: plugins/bc-custom-content/plugins/BcCcDateTime/config/setting.php:26
-#, fuzzy
-#| msgid "添付"
 msgid "日付"
-msgstr "Attachment"
+msgstr "Date"
 
 #: plugins/baser-core/src/View/Helper/BcAdminHelper.php:449
 #: plugins/bc-admin-third/templates/plugin/BcBlog/Admin/element/BlogContents/form.php:208
@@ -3267,6 +3184,8 @@ msgid ""
 "システム基本設定で住所を指定するか、パラーメーター address を指定してくださ"
 "い。"
 msgstr ""
+"Specify the address in the system preferences or specify the parameter "
+"address."
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:78
 msgid "無"
@@ -3286,205 +3205,203 @@ msgstr "Allowed"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:100
 msgid "%s しない"
-msgstr ""
+msgstr "%s DO"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:101
 msgid "%s する"
-msgstr ""
+msgstr "%s TO"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:130
-#, fuzzy
-#| msgid "都道府県リスト"
 msgid "都道府県"
 msgstr "Prefecture List"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:134
 msgid "北海道"
-msgstr ""
+msgstr "Hokkaido"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:134
 msgid "青森県"
-msgstr ""
+msgstr "Aomori"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:134
 msgid "岩手県"
-msgstr ""
+msgstr "Iwate"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:134
 msgid "宮城県"
-msgstr ""
+msgstr "Miyagi"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:134
 msgid "秋田県"
-msgstr ""
+msgstr "Akita"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:134
 msgid "山形県"
-msgstr ""
+msgstr "Yamagata"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:134
 msgid "福島県"
-msgstr ""
+msgstr "Fukushima"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:135
 msgid "茨城県"
-msgstr ""
+msgstr "Ibaraki"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:135
 msgid "栃木県"
-msgstr ""
+msgstr "Tochigi"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:135
 msgid "群馬県"
-msgstr ""
+msgstr "Gumma"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:135
 msgid "埼玉県"
-msgstr ""
+msgstr "Saitama"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:135
 msgid "千葉県"
-msgstr ""
+msgstr "Chiba"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:135
 msgid "東京都"
-msgstr ""
+msgstr "Tokyo"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:135
 msgid "神奈川県"
-msgstr ""
+msgstr "Kanagawa"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:136
 msgid "新潟県"
-msgstr ""
+msgstr "Niigata"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:136
 msgid "富山県"
-msgstr ""
+msgstr "Toyama"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:136
 msgid "石川県"
-msgstr ""
+msgstr "Ishikawa"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:136
 msgid "福井県"
-msgstr ""
+msgstr "Fukui"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:136
 msgid "山梨県"
-msgstr ""
+msgstr "Yamanashi"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:136
 msgid "長野県"
-msgstr ""
+msgstr "Nagano"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:136
 msgid "岐阜県"
-msgstr ""
+msgstr "Gifu"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:137
 msgid "静岡県"
-msgstr ""
+msgstr "Shizuoka"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:137
 msgid "愛知県"
-msgstr ""
+msgstr "Aichi"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:137
 msgid "三重県"
-msgstr ""
+msgstr "Mie"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:137
 msgid "滋賀県"
-msgstr ""
+msgstr "Shiga"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:137
 msgid "京都府"
-msgstr ""
+msgstr "Kyoto"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:137
 msgid "大阪府"
-msgstr ""
+msgstr "Osaka"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:137
 msgid "兵庫県"
-msgstr ""
+msgstr "Hyogo"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:138
 msgid "奈良県"
-msgstr ""
+msgstr "Nara"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:138
 msgid "和歌山県"
-msgstr ""
+msgstr "Wakayama"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:138
 msgid "鳥取県"
-msgstr ""
+msgstr "Tottori"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:138
 msgid "島根県"
-msgstr ""
+msgstr "Shimane"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:138
 msgid "岡山県"
-msgstr ""
+msgstr "Okayama"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:138
 msgid "広島県"
-msgstr ""
+msgstr "Hiroshima"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:138
 msgid "山口県"
-msgstr ""
+msgstr "Yamaguchi"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:139
 msgid "徳島県"
-msgstr ""
+msgstr "Tokushima"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:139
 msgid "香川県"
-msgstr ""
+msgstr "Kagawa"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:139
 msgid "愛媛県"
-msgstr ""
+msgstr "Ehime"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:139
 msgid "高知県"
-msgstr ""
+msgstr "Kochi"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:139
 msgid "福岡県"
-msgstr ""
+msgstr "Fukuoka"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:139
 msgid "佐賀県"
-msgstr ""
+msgstr "Saga"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:139
 msgid "長崎県"
-msgstr ""
+msgstr "Nagasaki"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:140
 msgid "熊本県"
-msgstr ""
+msgstr "Kumamoto"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:140
 msgid "大分県"
-msgstr ""
+msgstr "Oita"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:140
 msgid "宮崎県"
-msgstr ""
+msgstr "Miyazaki"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:140
 msgid "鹿児島県"
-msgstr ""
+msgstr "Kagoshima"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:140
 msgid "沖縄県"
-msgstr ""
+msgstr "Okinawa"
 
 #: plugins/baser-core/src/View/Helper/BcTextHelper.php:154
 msgid "男"
@@ -3517,7 +3434,7 @@ msgstr "Enable"
 
 #: plugins/baser-core/src/View/Helper/BcToolbarHelper.php:230
 msgid "インストールモード"
-msgstr "Install Mode"
+msgstr "Installation Mode"
 
 #: plugins/baser-core/src/View/Helper/BcToolbarHelper.php:246
 msgid ""
@@ -3537,7 +3454,7 @@ msgstr ""
 
 #: plugins/baser-core/src/View/Helper/BcToolbarHelper.php:327
 msgid "インストールマニュアル"
-msgstr "Install Manual"
+msgstr "Installation Manual"
 
 #: plugins/baser-core/src/View/Helper/BcToolbarHelper.php:328
 msgid "アップデートマニュアル"
@@ -3545,10 +3462,8 @@ msgstr "Update Manual"
 
 #: plugins/baser-core/src/View/Helper/BcUploadHelper.php:104
 #: plugins/baser-core/src/View/Helper/BcUploadHelper.php:240
-#, fuzzy
-#| msgid "contentId を指定してください。"
 msgid "第２引数に EntityInterface を指定してください。"
-msgstr "Please specify contentId."
+msgstr "Specify EntityInterface as the second argument."
 
 #: plugins/baser-core/src/View/Helper/BcUploadHelper.php:530
 msgid ""
@@ -3556,20 +3471,20 @@ msgid ""
 ">BcUpload->fileLink() または、$this->BcUpload->uploadImage() の第３引数の "
 "`table` キーでテーブル名を指定してください。"
 msgstr ""
+"To use BcUploadHelper, specify the table name in the 'table' key of the "
+"third argument of $this->BcUpload->setTable(), $this->BcUpload->fileLink() "
+"or $this->BcUpload->uploadImage()."
 
 #: plugins/baser-core/src/View/Helper/BcUploadHelper.php:533
-#, fuzzy
-#| msgid ""
-#| "BcUploadHelper を利用するには、モデルで BcUploadBehavior の利用設定が必要"
-#| "です。"
 msgid ""
 "BcUploadHelper を利用するには、テーブル {0} で BcUploadBehavior の利用設定が"
 "必要です。\n"
 "            テーブルを変更するには、$options['table'] でテーブル名を指定して"
 "ください。"
 msgstr ""
-"You must set BcUploadBehavior’s using settings in Model to use "
-"BcUploadHelper."
+"To use BcUploadHelper, you need to set the BcUploadBehavior usage setting in "
+"table {0}.\n"
+"            To modify a table, specify the table name in $options['table']."
 
 #: plugins/baser-core/tests/TestCase/View/Helper/BcBaserHelperTest.php:447
 #: plugins/bc-admin-third/templates/Admin/layout/default.php:45
@@ -3633,47 +3548,45 @@ msgstr "Save"
 
 #: plugins/BcSpaSample/config.php:14
 msgid "SPAサンプル"
-msgstr ""
+msgstr "SPA sample"
 
 #: plugins/BcSpaSample/config.php:15
-#, fuzzy
-#| msgid "メールプラグイン"
 msgid "SPAのサンプルプラグインです"
-msgstr "Mail Plugin"
+msgstr "This is a sample plug-in of SPA"
 
 #: plugins/BcThemeSample/config.php:14
 msgid "サンプルテーマ"
-msgstr ""
+msgstr "Sample Themes"
 
 #: plugins/BcThemeSample/config.php:15
 msgid "制作用のサンプルテーマです。"
-msgstr ""
+msgstr "This is a sample theme for production."
 
 #: plugins/bc-admin-third/config.php:14
 msgid "BcAdminThird"
-msgstr ""
+msgstr "BcAdminThird"
 
 #: plugins/bc-admin-third/config.php:15
 msgid "デフォルトの管理画面テーマです。"
-msgstr ""
+msgstr "This is the default management screen theme."
 
 #: plugins/bc-admin-third/templates/Admin/ContentFolders/edit.php:30
 #: plugins/bc-theme-file/config/permission.php:36
 msgid "フォルダ編集"
-msgstr "Edit Folder"
+msgstr "Folder Editing"
 
 #: plugins/bc-admin-third/templates/Admin/ContentFolders/edit.php:41
 msgid "フォルダーテンプレート"
-msgstr "Folder Template"
+msgstr "Folder Templates"
 
 #: plugins/bc-admin-third/templates/Admin/ContentFolders/edit.php:48
 #: plugins/bc-admin-third/templates/Admin/element/Pages/form.php:60
 msgid "固定ページテンプレート"
-msgstr "Static Page Template"
+msgstr "Static Page Templates"
 
 #: plugins/bc-admin-third/templates/Admin/Contents/edit.php:16
 msgid "コンテンツ編集"
-msgstr "Edit Content"
+msgstr "Content Editing"
 
 #: plugins/bc-admin-third/templates/Admin/Contents/index.php:21
 msgid "コンテンツ一覧"
@@ -3682,11 +3595,11 @@ msgstr "Content List"
 #: plugins/bc-admin-third/templates/Admin/Dblogs/index.php:20
 #: plugins/bc-admin-third/templates/Admin/element/Dashboard/update_log.php:26
 msgid "最近の動き"
-msgstr "Recent Activity"
+msgstr "Recent Trends"
 
 #: plugins/bc-admin-third/templates/Admin/Pages/edit.php:22
 msgid "固定ページ情報編集"
-msgstr "Edit Static Page information"
+msgstr "Edit Static Page Information"
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/apply.php:19
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/entry.php:19
@@ -3697,10 +3610,8 @@ msgstr "Reset Password"
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/apply.php:23
 #: plugins/bc-front/templates/PasswordRequests/apply.php:25
-#, fuzzy
-#| msgid "検索キーワードを入力してください。"
 msgid "新しいパスワードを入力してください。"
-msgstr "Please enter Search Keyword."
+msgstr "Enter a new password."
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/apply.php:28
 #: plugins/bc-admin-third/templates/Admin/Users/login.php:45
@@ -3717,21 +3628,17 @@ msgstr "Password"
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/apply.php:29
 #: plugins/bc-front/templates/PasswordRequests/apply.php:41
 msgid "再入力"
-msgstr ""
+msgstr "Re-enter"
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/done.php:18
 #: plugins/bc-front/templates/PasswordRequests/done.php:18
-#, fuzzy
-#| msgid "パスワードのリセット"
 msgid "パスワードのリセット完了"
-msgstr "Reset Password"
+msgstr "Password reset complete"
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/done.php:22
 #: plugins/bc-front/templates/PasswordRequests/done.php:24
-#, fuzzy
-#| msgid "フィード「%s」を更新しました。"
 msgid "パスワードを変更しました。"
-msgstr "Updated Feed \"%s\"."
+msgstr "I changed my password."
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/done.php:25
 #: plugins/bc-admin-third/templates/Admin/Users/login.php:24
@@ -3746,32 +3653,27 @@ msgstr "Login"
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/entry.php:23
 #: plugins/bc-front/templates/PasswordRequests/entry.php:25
-#, fuzzy
-#| msgid ""
-#| "パスワードを忘れた方は、登録されているメールアドレスを送信してください。"
-#| "<br />新しいパスワードをメールでお知らせします。"
 msgid ""
 "パスワードを忘れた方は、登録されているメールアドレスを送信してください。<br /"
 ">パスワードの再発行URLをメールでお知らせします。"
 msgstr ""
-"Please send registered mail address if you forgot password.<br />We will "
-"notify new password by mail."
+"If you have forgotten your password, please send us your registered email "
+"address.<br />You will receive an email with the URL to reissue your "
+"password."
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/expired.php:18
 #: plugins/bc-front/templates/PasswordRequests/expired.php:18
 msgid "Not Found"
-msgstr ""
+msgstr "Not Found"
 
 #: plugins/bc-admin-third/templates/Admin/PasswordRequests/expired.php:22
 #: plugins/bc-front/templates/PasswordRequests/expired.php:24
 msgid "ページの有効期限が切れているか、もしくは誤ったURLにアクセスしています。"
-msgstr ""
+msgstr "The page has expired or you are accessing the wrong URL."
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/add.php:25
-#, fuzzy
-#| msgid "ユーザーグループ編集"
 msgid "%s｜アクセスルールグループ新規登録"
-msgstr "Edit User Group"
+msgstr "%s | New Registration for Access Rule Groups"
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/add.php:36
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/edit.php:45
@@ -3797,13 +3699,11 @@ msgstr "Edit User Group"
 #: plugins/bc-admin-third/templates/plugin/BcThemeFile/Admin/ThemeFiles/view.php:52
 #: plugins/bc-admin-third/templates/plugin/BcThemeFile/Admin/ThemeFiles/view_folder.php:58
 msgid "一覧に戻る"
-msgstr "Back to List"
+msgstr "Return to list"
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/edit.php:25
-#, fuzzy
-#| msgid "ユーザーグループ編集"
 msgid "%s｜アクセスルールグループ編集"
-msgstr "Edit User Group"
+msgstr "%s | Edit Access Rule Groups"
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/edit.php:65
 #: plugins/bc-admin-third/templates/Admin/Permissions/edit.php:69
@@ -3825,87 +3725,62 @@ msgstr "Edit User Group"
 #: plugins/bc-admin-third/templates/plugin/BcUploader/Admin/element/UploaderFiles/form.php:195
 #: plugins/bc-admin-third/templates/plugin/BcUploader/Admin/element/UploaderFiles/index_row_table.php:87
 #: plugins/bc-admin-third/templates/plugin/BcWidgetArea/Admin/element/WidgetAreas/index_row.php:57
-#, fuzzy
-#| msgid "%s を本当に削除してもいいですか？"
 msgid "{0} を本当に削除してもいいですか？"
-msgstr "Are you sure to delete %s?"
+msgstr "Are you sure you want to delete {0}?"
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/index.php:25
-#, fuzzy
-#| msgid "ユーザーグループ一覧"
 msgid "アクセスルールグループ一覧"
-msgstr "User Group List"
+msgstr "Access Rule Group List"
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/index.php:41
 msgid "ルールを再構築する"
-msgstr ""
+msgstr "Rebuild the rule"
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/index.php:45
-#, fuzzy
-#| msgid ""
-#| "プラグインをアップロードし、そのままインストールします。よろしいですか？"
 msgid ""
 "このユーザーグループのアクセスルールを再構築します。これまでの変更内容はリ"
 "セットされます。よろしいですか？"
-msgstr "Uploading and installing Plugin. Are you sure?"
+msgstr ""
+"Rebuild the access rules for this user group. Previous changes will be "
+"reset. May I?"
 
 #: plugins/bc-admin-third/templates/Admin/PermissionGroups/index.php:50
-#, fuzzy
-#| msgid "プラグイン一覧に移動する"
 msgid "アクセスルール一覧に移動"
-msgstr "Move to Plugin List"
+msgstr "Go to the access rule list"
 
 #: plugins/bc-admin-third/templates/Admin/Permissions/add.php:26
-#, fuzzy
-#| msgid "新規アクセス制限設定登録"
 msgid "%s｜新規アクセスルール登録"
-msgstr "Add Access Restriction Settings"
+msgstr "%s | Registration of new access rule"
 
 #: plugins/bc-admin-third/templates/Admin/Permissions/add.php:37
 #: plugins/bc-admin-third/templates/Admin/Permissions/edit.php:37
-#, fuzzy
-#| msgid "ユーザーグループ編集"
 msgid "アクセスグループ編集に戻る"
-msgstr "Edit User Group"
+msgstr "Back to Edit Access Group"
 
 #: plugins/bc-admin-third/templates/Admin/Permissions/edit.php:26
-#, fuzzy
-#| msgid "アクセス制限設定編集"
 msgid "%s｜アクセスルール編集"
-msgstr "Edit Access Restriction Settings"
+msgstr "%s | Edit Access Rules"
 
 #: plugins/bc-admin-third/templates/Admin/Permissions/index.php:26
-#, fuzzy
-#| msgid "アクセス制限設定一覧"
 msgid "%s｜アクセスルール一覧"
-msgstr "Access Restriction Settings List"
+msgstr "%s | List of access rules"
 
 #: plugins/bc-admin-third/templates/Admin/Permissions/index.php:51
-#, fuzzy
-#| msgid "ユーザーグループ一覧"
 msgid "アクセスルールグループ一覧に戻る"
-msgstr "User Group List"
+msgstr "Return to Access Rule Group List"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/add.php:19
 msgid "プラグインアップロード"
 msgstr "Upload Plugin"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/add.php:21
-#, fuzzy
-#| msgid ""
-#| "プラグインをアップロードし、そのままインストールします。よろしいですか？"
 msgid "プラグインをアップロードします。よろしいですか？"
-msgstr "Uploading and installing Plugin. Are you sure?"
+msgstr "Upload the plugin. Are you sure?"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/add.php:27
-#, fuzzy
-#| msgid ""
-#| "ZIP 形式のプラグインファイルをお持ちの場合、こちらからアップロードしてイン"
-#| "ストールできます。"
 msgid ""
 "ZIP 形式のプラグインファイルをお持ちの場合、こちらからアップロードできます。"
-msgstr ""
-"You can upload and install Plugin if you have zip-formatted Plugin File."
+msgstr "If you have a plug-in file in ZIP format, you can upload it here."
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/add.php:32
 #: plugins/bc-admin-third/templates/Admin/Themes/add.php:31
@@ -3945,25 +3820,23 @@ msgstr "You are about to initialize Plugin data, are you sure?"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/install.php:30
 msgid "新規プラグイン登録"
-msgstr "Add Plugin"
+msgstr "New plug-in registration"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/install.php:56
 msgid "全てのユーザーで利用"
-msgstr "Used for Every User"
+msgstr "Available to all users"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/install.php:56
 msgid "管理ユーザーのみ利用"
-msgstr "Used Only for Admin User"
+msgstr "Available to administrative users only"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/install.php:68
 msgid "プラグインのデータを初期化する"
 msgstr "Initialize Plugin Data"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:30
-#, fuzzy
-#| msgid "データベースアップデート（baserCMSコア）"
 msgid "%s｜データベースアップデート"
-msgstr "Update Data Base (baserCMS Core)"
+msgstr "%s | Database Update"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:30
 msgid "baserCMSコア"
@@ -3978,28 +3851,20 @@ msgid "現在のバージョン状況"
 msgstr "Current Version Status"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:44
-#, fuzzy
-#| msgid "%1$sのバージョン： <strong>%2$s</strong>"
 msgid "{0} の利用可能なバージョン： <strong>{1}</strong>"
-msgstr "%1$s's Version: <strong>%2$s</strong>"
+msgstr "Available versions of {0} : <strong>{1}</strong>"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:45
-#, fuzzy
-#| msgid "%1$sのバージョン： <strong>%2$s</strong>"
 msgid "{0} の現在のバージョン： <strong>{1}</strong>"
-msgstr "%1$s's Version: <strong>%2$s</strong>"
+msgstr "Current version of {0} : <strong>{1}</strong>"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:47
-#, fuzzy
-#| msgid "現在のデータベースのバージョン：<strong> %s </strong>"
 msgid "{0} の現在のプログラムバージョン： <strong>{1}</strong>"
-msgstr "Current Database Version: <strong> %s </strong>"
+msgstr "Current program version of {0} : <strong>{1}</strong>"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:48
-#, fuzzy
-#| msgid "現在のデータベースのバージョン：<strong> %s </strong>"
 msgid "{0} の現在のデータベースのバージョン：<strong>{1}</strong>"
-msgstr "Current Database Version: <strong> %s </strong>"
+msgstr "Current database version of {0} : <strong>{1}</strong>"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:54
 msgid "α版の場合はアップデートサポート外です。"
@@ -4018,18 +3883,14 @@ msgid "データベースのバックアップは行いましたか？"
 msgstr "Did you backup database?"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:84
-#, fuzzy
-#| msgid ""
-#| "バックアップを行われていない場合は、アップデートを実行する前に、プログラム"
-#| "ファイルを前のバージョンに戻しシステム設定よりデータベースのバックアップを"
-#| "行いましょう。"
 msgid ""
 "バックアップを行われていない場合は、アップデートを実行する前にプログラムファ"
 "イルを前のバージョンに戻し、システム設定よりデータベースのバックアップを行い"
 "ましょう。"
 msgstr ""
-"We recommend restore program files to previous version doing backup of "
-"database from System Settings if backup isn’t done before updating."
+"If you have not backed up the database, revert the program files to the "
+"previous version and back up the database from the System Settings before "
+"performing the update."
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:87
 msgid ""
@@ -4048,12 +3909,6 @@ msgid "リリースノートのアップデート時の注意事項は読まれ�
 msgstr "Did you read cautions about updating on release note?"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:99
-#, fuzzy
-#| msgid ""
-#| "リリースバージョンによっては、追加作業が必要となる場合があるので注意が必要"
-#| "です。<br />公式サイトの <a href=\"https://basercms.net/news/archives/"
-#| "category/release\" target=\"_blank\" class=\"outside-link\">リリースノート"
-#| "</a> を必ず確認してください。"
 msgid ""
 "リリースバージョンによっては、追加作業が必要となる場合があるので注意が必要で"
 "す。<br />\n"
@@ -4061,10 +3916,10 @@ msgid ""
 "release\" target=\"_blank\" class=\"outside-link\">リリースノート</a> を必ず"
 "確認してください。"
 msgstr ""
-"Please note additional work will be needed depending on release version.<br /"
-">Please check <a href=“https://basercms.net/news/archives/category/release” "
-"target=“_blank” class=“outside-link”>release note</a> on official site for "
-"sure."
+"Note that additional work may be required depending on the release version."
+"<br />Please check <a href=“https://basercms.net/news/archives/category/"
+"release” target=“_blank” class=“outside-link”>release note</a> on official "
+"site for sure."
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:110
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:128
@@ -4072,24 +3927,22 @@ msgid "アップデート実行"
 msgstr "Run Update"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:112
-#, fuzzy
-#| msgid ""
-#| "「アップデート実行」をクリックしてデータベースのアップデートを完了させてく"
-#| "ださい。"
 msgid ""
 "「アップデート実行」をクリックしてプラグインのアップデートを完了させてくださ"
 "い。"
-msgstr "Complete database’s update by clicking “Run Update”"
+msgstr "Click “Run Update” to complete the update of the plug-in."
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:118
 msgid "PHP CLI の実行パス"
-msgstr ""
+msgstr "PHP CLI execution path"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:125
 msgid ""
 "PHPのパスが取得できないためアップデートを実行できません。確認の上、手動で入力"
 "してください。"
 msgstr ""
+"Unable to perform update because the path to PHP cannot be obtained. Please "
+"check and enter it manually."
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:143
 msgid ""
@@ -4101,11 +3954,11 @@ msgstr ""
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:149
 msgid "管理画面に移動する"
-msgstr ""
+msgstr "Go to the administration page"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:156
 msgid "プラグイン一覧に移動する"
-msgstr "Move to Plugin List"
+msgstr "Go to the list of plug-ins"
 
 #: plugins/bc-admin-third/templates/Admin/Plugins/update.php:168
 #: plugins/bc-admin-third/templates/Admin/Updaters/exec_script.php:31
@@ -4143,17 +3996,17 @@ msgstr "Sent test mail."
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:35
 msgid "管理システムSSL設定確認"
-msgstr "Check Admin System SSL Settings"
+msgstr "Confirmation of management system SSL settings"
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:44
 #: plugins/bc-admin-third/templates/plugin/BcMail/Admin/element/MailFields/form.php:25
 msgid "基本項目"
-msgstr "Basic Item"
+msgstr "Basic Items"
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:51
 #: plugins/bc-installer/src/Command/InstallCommand.php:54
 msgid "管理者メールアドレス"
-msgstr "Admin Mail Address"
+msgstr "Administrator’s email address"
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:52
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:62
@@ -4236,7 +4089,7 @@ msgstr "Required"
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:61
 #: plugins/bc-admin-third/templates/plugin/BcMail/Admin/MailConfigs/index.php:46
 msgid "WebサイトURL"
-msgstr "Web Site URL"
+msgstr "Web site URL"
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:81
 msgid ""
@@ -4261,11 +4114,11 @@ msgstr ""
 #: plugins/bc-admin-third/templates/plugin/BcUploader/Admin/element/UploaderFiles/index_list_table.php:112
 #: plugins/bc-admin-third/templates/plugin/BcUploader/Admin/element/UploaderFiles/index_row_panel.php:49
 msgid "公開状態"
-msgstr "Public Status"
+msgstr "Publishing status"
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:93
 msgid "公開中"
-msgstr "Public"
+msgstr "Publishing"
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:93
 #: plugins/bc-front/templates/Maintenance/index.php:18
@@ -4274,12 +4127,6 @@ msgid "メンテナンス中"
 msgstr "Under maintanance"
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:97
-#, fuzzy
-#| msgid ""
-#| "公開状態を指定します。<br />メンテナンス中の場合に、公開ページを確認するに"
-#| "は、管理画面にログインする必要があります。<br>ただし、制作・開発モードがデ"
-#| "バッグモードに設定されている場合は、メンテナンス中にしていても公開ページが"
-#| "表示されてしまいますので注意が必要です。"
 msgid ""
 "公開状態を指定します。<br>\n"
 "            メンテナンス中の場合に、公開ページを確認するには、管理画面にログ"
@@ -4288,9 +4135,10 @@ msgid ""
 "メンテナンス中にしていても公開ページが表示されてしまいますので注意が必要で"
 "す。"
 msgstr ""
-"Set Public Status.<br />You must login to Admin Screen to check Public Pages "
-"in maintenance.<br>Please note Public Page will be displayed if Creation / "
-"Development Mode was set to Debug Mode."
+"Specify the publication status.<br />To check the public page when it is "
+"under maintenance, you must log in to the administration page.<br>Note, "
+"however, that if the production/development mode is set to debug mode, the "
+"public page will be displayed even if the system is under maintenance."
 
 #: plugins/bc-admin-third/templates/Admin/SiteConfigs/index.php:108
 msgid "制作・開発モード"
