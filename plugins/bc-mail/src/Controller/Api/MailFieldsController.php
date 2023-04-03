@@ -47,7 +47,7 @@ class MailFieldsController extends BcApiController
         $mailFields = $message = null;
         try {
             $queryParams = array_merge([
-                'contain' => null,
+                'contain' => ['MailContents' => ['Contents']],
                 'status' => 'publish'
             ], $queryParams);
             $mailFields = $this->paginate($service->getIndex($mailContentId, $queryParams));
