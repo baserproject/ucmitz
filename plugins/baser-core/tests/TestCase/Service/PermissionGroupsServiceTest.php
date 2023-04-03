@@ -154,8 +154,8 @@ class PermissionGroupsServiceTest extends BcTestCase
         $settings = Configure::read('BcPrefixAuth');
         $count = +count($settings);
         $this->PermissionGroups->buildAll();
-        $Pg = $this->PermissionGroups->getList();
-        $this->assertCount($count, $Pg);
+        $permissionGroups = $this->PermissionGroups->getList();
+        $this->assertCount($count, $permissionGroups);
     }
 
 
