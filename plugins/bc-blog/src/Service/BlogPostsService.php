@@ -91,6 +91,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         $conditions = [];
         if ($options['status'] === 'publish') {
             $conditions = $this->BlogPosts->getConditionAllowPublish();
+            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
         }
         return $this->BlogPosts->get($id, [
             'conditions' => $conditions,
@@ -117,6 +118,7 @@ class BlogPostsService implements BlogPostsServiceInterface
             'id' => null,
             'no' => null,
             'contentUrl' => null,
+            'status' => '',
             'contain' => [
                 'Users',
                 'BlogCategories',
@@ -144,6 +146,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         if (!empty($options)) {
             $query = $this->createIndexConditions($query, $options);
         }
+
         return $query;
     }
 
@@ -200,7 +203,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      */
     protected function createIndexConditions(Query $query, array $params)
     {
-        foreach($params as $key => $value) {
+        foreach ($params as $key => $value) {
             if ($value === '') unset($params[$key]);
         }
         if (empty($params)) return $query;
@@ -235,6 +238,10 @@ class BlogPostsService implements BlogPostsServiceInterface
         // ステータス
         if (($params['status'] === 'publish' || (string)$params['status'] === '1') && !$params['preview']) {
             $conditions = $this->BlogPosts->getConditionAllowPublish();
+
+            $fields = $this->BlogPosts->getSchema()->columns();
+            $query = $this->BlogPosts->find()->contain(['BlogContents' => ['Contents']])->select($fields);
+            $conditions = array_merge($conditions, $this->BlogPosts->BlogContents->Contents->getConditionAllowPublish());
         } elseif ((string)$params['status'] === '0') {
             $conditions = ['BlogPosts.status' => false];
         } else {
@@ -253,7 +260,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         // URL
         if ($params['contentUrl']) {
             $query->contain(['BlogContents' => ['Contents']]);
-            if(is_array($params['contentUrl'])) {
+            if (is_array($params['contentUrl'])) {
                 $conditions['Contents.url IN'] = $params['contentUrl'];
             } else {
                 $conditions['Contents.url'] = $params['contentUrl'];
@@ -261,7 +268,7 @@ class BlogPostsService implements BlogPostsServiceInterface
         }
         // タグ
         if (!is_null($params['blog_tag_id'])) {
-            $query->matching('BlogTags', function($q) use ($params) {
+            $query->matching('BlogTags', function ($q) use ($params) {
                 return $q->where(['BlogTags.id' => $params['blog_tag_id']]);
             });
         }
@@ -270,7 +277,7 @@ class BlogPostsService implements BlogPostsServiceInterface
             $blogCategoryIds = [$params['blog_category_id']];
             $children = $this->BlogPosts->BlogCategories->find('children', ['for' => $params['blog_category_id']]);
             if ($children) {
-                foreach($children as $child) {
+                foreach ($children as $child) {
                     $blogCategoryIds[] = $child->id;
                 }
             }
@@ -789,7 +796,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      * 前の記事を取得する
      *
      * @param BlogPost $post ブログ記事
-     * @return BlogPost|EntityInterface
+     * @return BlogPost|EntityInterface|null
      *
      * @noTodo
      * @checked
@@ -797,6 +804,7 @@ class BlogPostsService implements BlogPostsServiceInterface
      */
     public function getPrevPost(BlogPost $post)
     {
+        if(is_null($post->posted)) return null;
         $order = 'BlogPosts.posted DESC, BlogPosts.id DESC';
         // 投稿日が年月日時分秒が同一のデータの対応のため、投稿日が同じでIDが大きいデータを検索
         $conditions = array_merge_recursive([
@@ -826,13 +834,14 @@ class BlogPostsService implements BlogPostsServiceInterface
      * 次の記事を取得する
      *
      * @param BlogPost $post ブログ記事
-     * @return BlogPost|EntityInterface
+     * @return BlogPost|EntityInterface|null
      * @checked
      * @noTodo
      * @unitTest
      */
     public function getNextPost(BlogPost $post)
     {
+        if(is_null($post->posted)) return null;
         $order = 'BlogPosts.posted, BlogPosts.id';
         // 投稿日が年月日時分秒が同一のデータの対応のため、投稿日が同じでIDが小さいデータを検索
         $conditions = array_merge_recursive([

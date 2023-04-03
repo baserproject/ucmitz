@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package            Blog.View
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
@@ -24,6 +23,8 @@
 
 
 <?php echo $this->BcAdminForm->control('blog_content_id', ['type' => 'hidden']) ?>
+<?php echo $this->BcAdminForm->control('status', ['type' => 'hidden']) ?>
+
 <?php echo $this->BcFormTable->dispatchBefore() ?>
 
 <!-- form -->

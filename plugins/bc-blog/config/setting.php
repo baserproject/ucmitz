@@ -6,7 +6,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Blog.Config
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
@@ -49,7 +48,7 @@ return [
                             'action' => 'index'
                         ],
                         'add' => [
-                            'prefix' => 'Api',
+                            'prefix' => 'Api/Admin',
                             'plugin' => 'BcBlog',
                             'controller' => 'BlogContents',
                             'action' => 'add'
@@ -72,7 +71,7 @@ return [
                             'action' => 'index'
                         ],
                         'copy' => [
-                            'prefix' => 'Api',
+                            'prefix' => 'Api/Admin',
                             'plugin' => 'BcBlog',
                             'controller' => 'BlogContents',
                             'action' => 'copy'

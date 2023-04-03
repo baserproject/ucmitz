@@ -77,6 +77,11 @@ class BlogCategoriesTable extends BlogAppTable
             'dependent' => false,
             'exclusive' => false,
         ]);
+
+        $this->belongsTo('BlogContents', [
+            'className' => 'BcBlog.BlogContents',
+            'foreignKey' => 'blog_content_id',
+        ]);
     }
 
     /**
@@ -325,7 +330,7 @@ class BlogCategoriesTable extends BlogAppTable
         $permissionsService = $this->getService(PermissionsServiceInterface::class);
         $addUrl = preg_replace('|^/index.php|', '', Router::url([
             'plugin' => 'BcBlog',
-            'prefix' => 'Api',
+            'prefix' => 'Api/Admin',
             'controller' => 'BlogCategories',
             'action' => 'add',
             $blogContentId

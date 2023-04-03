@@ -11,7 +11,6 @@
 
 namespace BaserCore\View\Helper;
 
-use BaserCore\Model\Entity\User;
 use BaserCore\Utility\BcSiteConfig;
 use Cake\Core\Plugin;
 use Cake\Datasource\EntityInterface;
@@ -484,7 +483,7 @@ class BcBaserHelper extends Helper
     /**
      * 管理者グループかどうかチェックする
      *
-     * @param array| BaserCore\Model\Entity\User $user ユーザー（初期値 : null）※ 指定しない場合は、現在のログインユーザーについてチェックする
+     * @param array|\BaserCore\Model\Entity\User $user ユーザー（初期値 : null）※ 指定しない場合は、現在のログインユーザーについてチェックする
      * @return bool 管理者グループの場合は true を返す
      * @checked
      * @noTodo
@@ -1238,6 +1237,10 @@ class BcBaserHelper extends Helper
      */
     public function scripts()
     {
+        if (BcUtil::isInstalled() && !BcUtil::isAdminSystem()) {
+            echo BcSiteConfig::get('outer_service_output_header');
+        }
+
         $currentPrefix = $this->BcAuth->getCurrentPrefix();
         $authPrefix = Configure::read('BcPrefixAuth.' . $currentPrefix);
         $toolbar = true;
@@ -1270,7 +1273,7 @@ class BcBaserHelper extends Helper
             $plugins = Plugin::loaded();
             if ($plugins) {
                 foreach($plugins as $plugin) {
-                    $cssName = 'admin' . DS . Inflector::underscore($plugin) . '_admin';
+                    $cssName = 'admin/' . Inflector::underscore($plugin) . '_admin';
                     $path = Plugin::path($plugin) . 'webroot' . DS . 'css' . DS . $cssName . '.css';
                     if (file_exists($path)) {
                         $this->css($plugin . '.' . $cssName);
@@ -1305,6 +1308,10 @@ class BcBaserHelper extends Helper
      */
     public function func()
     {
+        if (BcUtil::isInstalled() && !BcUtil::isAdminSystem()) {
+            echo BcSiteConfig::get('outer_service_output_footer');
+        }
+
         $currentPrefix = $this->BcAuth->getCurrentPrefix();
         $authPrefix = Configure::read('BcPrefixAuth.' . $currentPrefix);
         $toolbar = true;
@@ -1397,7 +1404,8 @@ class BcBaserHelper extends Helper
      * @param mixed $path CSSファイルのパス（css フォルダからの相対パス）拡張子は省略可
      * @param bool $inline コンテンツ内に Javascript を出力するかどうか（初期値 : true）
      * @param mixed $options オプション
-     * ※💣inline=false→block=trueに変更になったため注意 @return string|void
+     * ※💣inline=false→block=trueに変更になったため注意
+     * @return string|void
      * @checked
      * @unitTest
      * @noTodo
@@ -2279,7 +2287,7 @@ END_FLASH;
     public function googleAnalytics($data = [], $options = [])
     {
         $data = array_merge([
-            'useUniversalAnalytics' => (bool) BcSiteConfig::get('use_universal_analytics')
+            'googleAnalyticsId' => (bool) BcSiteConfig::get('google_analytics_id')
         ], $data);
         $this->element('google_analytics', $data, $options);
     }
@@ -2387,7 +2395,7 @@ END_FLASH;
     /**
      * WebサイトURLを出力する
      *
-     * @param boolean ssl （初期値 : false）
+     * @param bool ssl （初期値 : false）
      * @return void
      */
     public function siteUrl($ssl = false)
@@ -2398,7 +2406,7 @@ END_FLASH;
     /**
      * WebサイトURLを取得する
      *
-     * @param boolean ssl （初期値 : false）
+     * @param bool ssl （初期値 : false）
      * @return string サイト基本設定のWebサイト名
      */
     public function getSiteUrl($ssl = false)
@@ -2631,7 +2639,6 @@ END_FLASH;
     /**
      * alternate タグ出力
      * スマホサイトが存在し、別URLの場合に出力する
-     * @param $contentUrl
      */
     public function setAlternateUrl()
     {
@@ -2662,7 +2669,7 @@ END_FLASH;
     /**
      * トップページのタイトルをセットする
      *
-     * @param $title
+     * @param string $title
      */
     public function setHomeTitle($title = null)
     {
@@ -2769,8 +2776,8 @@ END_FLASH;
     /**
      * IDがコンテンツ自身の親のIDかを判定する
      *
-     * @param $id コンテンツ自身のID
-     * @param $parentId 親として判定するID
+     * @param int $id コンテンツ自身のID
+     * @param int $parentId 親として判定するID
      * @return bool
      */
     public function isContentsParentId($id, $parentId)

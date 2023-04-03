@@ -44,8 +44,11 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 	use BcContainerTrait;
 
 	/**
-	 * Constructor
-	 */
+     * Constructor
+     * @noTodo
+     * @unitTest
+     * @checked
+     */
 	public function __construct()
 	{
 		$this->PermissionGroups = TableRegistry::getTableLocator()->get('BaserCore.PermissionGroups');
@@ -102,12 +105,15 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 	}
 
 	/**
-	 * アクセスルールグループを更新する
-	 *
-	 * @param EntityInterface $entity
-	 * @param array $postData
-	 * @return EntityInterface
-	 */
+     * アクセスルールグループを更新する
+     *
+     * @param EntityInterface $entity
+     * @param array $postData
+     * @return EntityInterface
+     * @noTodo
+     * @checked
+     * @unitTest
+     */
 	public function update(EntityInterface $entity, array $postData)
 	{
 		$entity = $this->PermissionGroups->patchEntity($entity, $postData);
@@ -120,6 +126,9 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
      * @param int $userGroupId
      * @param array $queryParams
      * @return Query
+     * @notodo
+     * @unitTest
+     * @checked
      */
 	public function getIndex(int $userGroupId, array $queryParams): Query
 	{
@@ -189,10 +198,10 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 	}
 
 	/**
-	 * ユーザーグループを指定してアクセスグループを構築する
-	 *
-	 * @param int $userGroupId
-	 */
+     * ユーザーグループを指定してアクセスグループを構築する
+     *
+     * @param int $userGroupId
+     */
 	public function buildByUserGroup(int $userGroupId)
 	{
 		// 有効なプラグインをキャッシュなしで強制的に取得する
@@ -216,10 +225,12 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 	}
 
 	/**
-	 * ユーザーを指定してアクセスルールを削除する
-	 *
-	 * @param int $userGroupId
-	 */
+     * ユーザーを指定してアクセスルールを削除する
+     *
+     * @param int $userGroupId
+     * @noTodo
+     * @unitTest
+     */
 	public function deleteByUserGroup(int $userGroupId)
 	{
 		$this->PermissionGroups->Permissions->deleteAll(['user_group_id' => $userGroupId]);
@@ -365,7 +376,11 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
      * コントロールソースを取得する
      *
      * @param string $field
+     * @param array $options
      * @return array
+     * @noTodo
+     * @unitTest
+     * @checked
      */
 	public function getControlSource(string $field, array $options = []): array
     {
@@ -436,6 +451,9 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
      * @param string $type
      * @param string $name
      * @return EntityInterface|false
+     * @noTodo
+     * @unitTest
+     * @checked
      */
     public function buildDefaultEtcRuleGroup(string $type, string $name)
     {

@@ -17,7 +17,6 @@ use BaserCore\Model\Table\SiteConfigsTable;
 
 /**
  * Class SiteConfigsTableTest
- * @package BaserCore\Test\TestCase\Model\Table
  * @property SiteConfigsTable $SiteConfigs
  */
 class SiteConfigsTableTest extends BcTestCase
@@ -90,13 +89,10 @@ class SiteConfigsTableTest extends BcTestCase
         $validator = $this->SiteConfigs->getValidator('keyValue');
         $errors = $validator->validate([
             'email' => '',
-            'mail_encode' => '',
             'site_url' => ''
         ]);
         $this->assertArrayHasKey('email', $errors);
         $this->assertEquals('管理者メールアドレスを入力してください。', current($errors['email']));
-        $this->assertArrayHasKey('mail_encode', $errors);
-        $this->assertEquals('メール送信文字コードを入力してください。初期値は「ISO-2022-JP」です。', current($errors['mail_encode']));
         $this->assertArrayHasKey('site_url', $errors);
         $this->assertEquals('WebサイトURLを入力してください。', current($errors['site_url']));
     }
@@ -111,7 +107,6 @@ class SiteConfigsTableTest extends BcTestCase
                 'formal_name' => 'hoge',
                 'name' => 'hoge',
                 'email' => 'hoge@basercms.net',
-                'mail_encode' => 'ISO-2022-JP',
                 'site_url' => 'hoge',
         ]);
         $this->assertEmpty($errors);
