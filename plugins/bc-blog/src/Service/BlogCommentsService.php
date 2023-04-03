@@ -97,13 +97,28 @@ class BlogCommentsService implements BlogCommentsServiceInterface
      * ブログコメントの単一データを取得する
      *
      * @param int $id
-     * @return \Cake\Datasource\EntityInterface
+     * @param array $queryParams
+     * @return EntityInterface
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function get(int $id) {
-        return $this->BlogComments->get($id, ['contain' => ['BlogPosts']]);
+    public function get(int $id, array $queryParams = [])
+    {
+        $queryParams = array_merge([
+            'status' => ''
+        ], $queryParams);
+
+        $conditions = [];
+        if ($queryParams['status'] === 'publish') {
+            $conditions = $this->BlogComments->BlogContents->Contents->getConditionAllowPublish();
+            $conditions = array_merge($conditions, ['BlogComments.status' => true]);
+        }
+
+        return $this->BlogComments->get($id, [
+            'contain' => ['BlogPosts' => ['BlogContents' => ['Contents']]],
+            'conditions' => $conditions
+        ]);
     }
 
     /**
@@ -129,8 +144,8 @@ class BlogCommentsService implements BlogCommentsServiceInterface
     public function add(int $blogContentId, int $blogPostId, array $postData)
     {
         $postData = array_merge([
-            'url' => null,
-            'email' => null,
+            'url' => '',
+            'email' => '',
             'auth_captcha' => null,
             'captcha_id' => null
         ], $postData);
