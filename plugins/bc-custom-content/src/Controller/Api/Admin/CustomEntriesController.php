@@ -113,22 +113,18 @@ class CustomEntriesController extends BcAdminApiController
     /**
      * カスタムエントリー　追加
      * @param CustomEntriesServiceInterface $service
-     *
+     * @param $customTableId
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function add(CustomEntriesServiceInterface $service)
+    public function add(CustomEntriesServiceInterface $service, $customTableId)
     {
         $this->request->allowMethod(['post']);
-        $queryParams = $this->getRequest()->getQueryParams();
-        if (empty($queryParams['custom_table_id'])) {
-            throw new BadRequestException(__d('baser_core', 'パラメーターに custom_table_id を指定してください。'));
-        }
 
         $entry = $errors = null;
         try {
-            $service->setup($queryParams['custom_table_id'], $this->getRequest()->getData());
+            $service->setup($customTableId, $this->getRequest()->getData());
             $entry = $service->create($this->request->getData());
             $message = __d('baser_core', 'フィールド「{0}」を追加しました。', $entry->title);
         } catch (PersistenceFailedException $e) {

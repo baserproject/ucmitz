@@ -110,7 +110,7 @@ class CustomEntriesControllerTest extends BcTestCase
             'status' => 1
         ];
         //APIを呼ぶ
-        $this->post('/baser/api/admin/bc-custom-content/custom_entries/add.json?custom_table_id=1&token=' . $this->accessToken, $data);
+        $this->post('/baser/api/admin/bc-custom-content/custom_entries/add/1.json?token=' . $this->accessToken, $data);
         //ステータスを確認
         $this->assertResponseOk();
         //戻る値を確認
@@ -120,7 +120,7 @@ class CustomEntriesControllerTest extends BcTestCase
 
         //タイトルがない場合、
         //存在しないBlogPostIDを削除場合、
-        $this->post('/baser/api/admin/bc-custom-content/custom_entries/add.json?custom_table_id=1&token=' . $this->accessToken, []);
+        $this->post('/baser/api/admin/bc-custom-content/custom_entries/add/1.json?token=' . $this->accessToken, []);
         //ステータスを確認
         $this->assertResponseCode(400);
         //戻る値を確認
@@ -130,13 +130,6 @@ class CustomEntriesControllerTest extends BcTestCase
 
         //不要なテーブルを削除
         $dataBaseService->dropTable('custom_entry_1_recruit_categories');
-
-        //custom_table_idを指定しない場合、
-        $this->get('/baser/api/admin/bc-custom-content/custom_entries/add.json?token=' . $this->accessToken, []);
-        //ステータスを確認
-        $this->assertResponseCode(400);
-        $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('パラメーターに custom_table_id を指定してください。', $result->message);
     }
 
     /**
