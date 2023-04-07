@@ -21,7 +21,6 @@ use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\Service\UserGroupsService;
 use BaserCore\Test\Factory\UserGroupFactory;
 use BaserCore\Test\Scenario\PermissionGroupsScenario;
-use BaserCore\Test\Scenario\InitAppScenario;
 use BaserCore\TestSuite\BcTestCase;
 use BaserCore\Utility\BcContainerTrait;
 use BaserCore\Test\Factory\PermissionGroupFactory;
