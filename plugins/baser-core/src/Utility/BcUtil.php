@@ -43,7 +43,6 @@ use ReflectionClass;
 /**
  * Class BcUtil
  *
- * @package Baser.Lib
  */
 class BcUtil
 {
@@ -156,7 +155,7 @@ class BcUtil
                 return $user;
             }
         }
-		
+
         $user = false;
         if($prefix === 'Front') {
             $user = BcUtil::loginUserFromSession($prefix);
@@ -207,7 +206,7 @@ class BcUtil
     {
         $request = Router::getRequest();
         $sessionKey = BcUtil::authSessionKey($prefix);
-        if ($request->getSession()->check($sessionKey)) {
+        if ($sessionKey && $request->getSession()->check($sessionKey)) {
             return $request->getSession()->read($sessionKey);
         } else {
             return false;
@@ -501,6 +500,8 @@ class BcUtil
         Cache::clear('_cake_core_');
         self::clearModelCache();
         Cache::clear('_bc_env_');
+        Cache::clear('_bc_update_');
+        Cache::clear('_bc_gmaps_');
         //TODO ucmitz : viewキャッシュ削除
         // clearCache();
         //TODO ucmitz : dataキャッシュ削除
@@ -634,7 +635,7 @@ class BcUtil
      */
     public static function getThemesPlugins($theme)
     {
-        $path = BcUtil::getPluginPath($theme) . 'Plugin';
+        $path = BcUtil::getPluginPath($theme) . 'plugins';
         if (!file_exists($path)) return [];
         $Folder = new Folder($path);
         $files = $Folder->read(true, true, false);
@@ -657,7 +658,7 @@ class BcUtil
      */
     public static function getDefaultDataPath($theme = null, $pattern = null)
     {
-        if (!$theme) $theme = Configure::read('BcApp.defaultFrontTheme');
+        if (!$theme) $theme = Configure::read('BcApp.coreFrontTheme');
         if (!$pattern) $pattern = 'default';
         $base = Plugin::path($theme);
         $paths = [
@@ -697,7 +698,10 @@ class BcUtil
         $value = @unserialize(base64_decode($value));
         // 下位互換のため、しばらくの間、失敗した場合の再変換を行う v.3.0.2
         if ($value === false) {
-            $value = unserialize($_value);
+			$value = @unserialize($_value);
+			if($value === false) {
+				return '';
+			}
         }
         return $value;
     }
@@ -818,7 +822,7 @@ class BcUtil
         $themes = [$site->theme];
         $rootTheme = BcUtil::getRootTheme();
         if ($rootTheme !== $themes[0]) $themes[] = $rootTheme;
-        $defaultTheme = Configure::read('BcApp.defaultFrontTheme');
+        $defaultTheme = Configure::read('BcApp.coreFrontTheme');
         if (!in_array($defaultTheme, $themes)) $themes[] = $defaultTheme;
 
         $templatesPaths = [];
@@ -1168,7 +1172,7 @@ class BcUtil
      */
     public static function getCurrentTheme()
     {
-        $theme = Inflector::camelize(Inflector::underscore(Configure::read('BcApp.defaultFrontTheme')));
+        $theme = Inflector::camelize(Inflector::underscore(Configure::read('BcApp.coreFrontTheme')));
         if (!BcUtil::isInstalled()) return $theme;
         $request = Router::getRequest();
         $site = $request->getAttribute('currentSite');
@@ -1202,7 +1206,7 @@ class BcUtil
      */
     public static function getCurrentAdminTheme()
     {
-        $adminTheme = Inflector::camelize(Inflector::underscore(Configure::read('BcApp.defaultAdminTheme')));
+        $adminTheme = Inflector::camelize(Inflector::underscore(Configure::read('BcApp.coreAdminTheme')));
         if (BcUtil::isInstalled() && !empty(BcSiteConfig::get('admin_theme'))) {
             $adminTheme = BcSiteConfig::get('admin_theme');
         }
@@ -1886,7 +1890,8 @@ class BcUtil
     {
         $authPrefixes = [];
         foreach(Configure::read('BcPrefixAuth') as $key => $authPrefix) {
-            if($key === 'Api' && !filter_var(env('USE_CORE_API', false), FILTER_VALIDATE_BOOLEAN)) continue;
+            if($key === 'Api') continue;
+            if(!empty($authPrefix['isRestApi']) && !filter_var(env('USE_CORE_API', false), FILTER_VALIDATE_BOOLEAN)) continue;
             if(!empty($authPrefix['disabled'])) continue;
             $authPrefixes[$key] = $authPrefix['name'];
         }
@@ -1906,6 +1911,16 @@ class BcUtil
         $prefix = $request->getParam('prefix');
         if (!$prefix) $prefix = 'Front';
         return $prefix;
+    }
+
+    /**
+     * デバッグモードかどうか
+     *
+     * @return bool
+     */
+    public static function isDebug(): bool
+    {
+        return Configure::read('debug');
     }
 
 }

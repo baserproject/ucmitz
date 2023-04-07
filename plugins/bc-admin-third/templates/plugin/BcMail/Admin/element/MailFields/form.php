@@ -197,9 +197,16 @@
 
 <section class="bca-section" data-bca-section-type="form-group">
   <div class="bca-collapse__action">
-    <button type="button" class="bca-collapse__btn" data-bca-collapse="collapse"
-            data-bca-target="#mailFieldSettingBody" aria-expanded="false" aria-controls="mailFieldSettingBody">詳細設定&nbsp;&nbsp;<i
-        class="bca-icon--chevron-down bca-collapse__btn-icon"></i></button>
+    <button
+      type="button"
+      class="bca-collapse__btn"
+      data-bca-collapse="collapse"
+      data-bca-target="#mailFieldSettingBody"
+      aria-expanded="false"
+      aria-controls="mailFieldSettingBody">
+        <?php echo __d('baser_core', '詳細設定') ?>&nbsp;&nbsp;
+        <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
+    </button>
   </div>
   <div class="bca-collapse" id="mailFieldSettingBody" data-bca-state="">
     <table class="form-table bca-form-table" id="formOptionBody">
@@ -240,6 +247,19 @@
         <td class="col-input bca-form-table__input">
           <?php echo $this->BcAdminForm->control('options', ['type' => 'text', 'size' => 40, 'maxlength' => 255]) ?>
           <?php echo $this->BcAdminForm->error('options') ?>
+        </td>
+      </tr>
+      <tr id="RowAutoComplete">
+        <th class="col-head bca-form-table__label"><?php echo $this->BcForm->label('autocomplete', __d('baser_core', 'オートコンプリート')) ?></th>
+        <td class="col-input bca-form-table__input">
+          <?php echo $this->BcAdminForm->control('autocomplete', ['type' => 'select', 'options' => $autoCompleteOptions]) ?>
+          <?php echo $this->BcAdminForm->error('autocomplete') ?>
+          <i class="bca-icon--question-circle bca-help"></i>
+          <div class="bca-helptext">
+            <ul>
+              <li><?php echo __d('baser_core', 'オートコンプリート属性については<a href="https://developer.mozilla.org/ja/docs/Web/HTML/Attributes/autocomplete" target="_blank">リファレンス</a>を参照してください。') ?></li>
+            </ul>
+          </div>
         </td>
       </tr>
       <tr id="RowClass">

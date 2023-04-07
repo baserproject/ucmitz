@@ -25,7 +25,14 @@ use BaserCore\View\BcAdminAppView;
  * @unitTest
  */
 // JSの出力について、ツールバーはフロントエンドでも利用するため、inlineに出力する
-$this->BcBaser->js(['vendor/jquery.fixedMenu', 'vendor/outerClick', 'admin/toolbar.bundle']);
+$this->BcBaser->js([
+    'vendor/jquery.fixedMenu',
+    'vendor/outerClick',
+    'admin/toolbar.bundle'
+  ],
+  true,
+  ['defer']
+);
 ?>
 
 
@@ -78,11 +85,23 @@ $this->BcBaser->js(['vendor/jquery.fixedMenu', 'vendor/outerClick', 'admin/toolb
           <?php $this->BcToolbar->editLink() ?>
         </div>
       <?php endif ?>
+			<?php if($this->BcToolbar->isAvailableAddLink()): ?>
+				<div class="bca-toolbar__tools-button bca-toolbar__tools-button-add">
+					<?php $this->BcToolbar->addLink() ?>
+				</div>
+			<?php endif ?>
       <?php if ($this->BcToolbar->isAvailablePublishLink()): ?>
         <div class="bca-toolbar__tools-button bca-toolbar__tools-button-publish">
           <?php $this->BcToolbar->publishLink() ?>
         </div>
       <?php endif ?>
+			<?php
+			// EVENT leftOfToolbar
+			$event = $this->dispatchLayerEvent('leftOfToolbar', [], ['layer' => 'View', 'class' => '', 'plugin' => '']);
+			if ($event !== false) {
+				echo ($event->getResult() === null || $event->getResult() === true)? '' : $event->getResult();
+			}
+		 	?>
       <?php if ($this->BcToolbar->isAvailableMode()): ?>
         <div class="bca-toolbar__tools-mode">
           <span id="DebugMode" class="bca-debug-mode" title="<?php echo h($this->BcToolbar->getModeDescription()) ?>">
@@ -115,6 +134,13 @@ $this->BcBaser->js(['vendor/jquery.fixedMenu', 'vendor/outerClick', 'admin/toolb
               <?php if ($this->BcToolbar->isAvailableAccountSetting()): ?>
                 <li><?php $this->BcBaser->link(__d('baser_core', 'アカウント設定'), $this->BcToolbar->getAccountSettingUrl()) ?></li>
               <?php endif ?>
+							<?php
+							// EVENT userMenuOfToolbar
+							$event = $this->dispatchLayerEvent('userMenuOfToolbar', [], ['layer' => 'View', 'class' => '', 'plugin' => '']);
+							if ($event !== false) {
+								echo ($event->getResult() === null || $event->getResult() === true)? '' : $event->getResult();
+							}
+							?>
               <li><?php $this->BcBaser->link(__d('baser_core', 'ログアウト'), $this->BcToolbar->getLogoutUrl(), ['id' => 'BtnLogout']) ?></li>
             </ul>
           </li>
@@ -141,6 +167,13 @@ $this->BcBaser->js(['vendor/jquery.fixedMenu', 'vendor/outerClick', 'admin/toolb
               ) ?>
             </li>
           <?php endif ?>
+          <?php
+          // EVENT rightOfToolbar
+          $event = $this->dispatchLayerEvent('rightOfToolbar', [], ['layer' => 'View', 'class' => '', 'plugin' => '']);
+          if ($event !== false) {
+            echo ($event->getResult() === null || $event->getResult() === true)? '' : $event->getResult();
+          }
+          ?>
         </ul>
       </div>
     <?php endif ?>

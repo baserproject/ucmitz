@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.View
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
@@ -241,13 +240,13 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
 <section class="bca-section" data-bca-section-type='form-group'>
   <div class="bca-collapse__action">
     <button type="button"
-            class="bca-collapse__btn"
-            data-bca-collapse="collapse"
-            data-bca-target="#formOuterServiceSettingBody"
-            aria-expanded="false"
-            aria-controls="formOuterServiceSettingBody">
-      外部サービス設定&nbsp;&nbsp;
-      <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
+      class="bca-collapse__btn"
+      data-bca-collapse="collapse"
+      data-bca-target="#formOuterServiceSettingBody"
+      aria-expanded="false"
+      aria-controls="formOuterServiceSettingBody">
+        <?php echo __d('baser_core', '外部サービス設定') ?>&nbsp;&nbsp;
+        <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
     </button>
   </div>
 
@@ -349,13 +348,13 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
 <section class="bca-section" data-bca-section-type='form-group'>
   <div class="bca-collapse__action">
     <button type="button"
-            class="bca-collapse__btn"
-            data-bca-collapse="collapse"
-            data-bca-target="#formSubSiteSettingBody"
-            aria-expanded="false"
-            aria-controls="formSubSiteSettingBody">
-      サイト設定&nbsp;&nbsp;
-      <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
+      class="bca-collapse__btn"
+      data-bca-collapse="collapse"
+      data-bca-target="#formSubSiteSettingBody"
+      aria-expanded="false"
+      aria-controls="formSubSiteSettingBody">
+        <?php echo __d('baser_core', 'サイト設定') ?>&nbsp;&nbsp;
+        <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
     </button>
   </div>
   <div class="bca-collapse" id="formSubSiteSettingBody" data-bca-state="">
@@ -368,20 +367,20 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
         <td class="col-input bca-form-table__input">
           <?php echo $this->BcAdminForm->control('use_site_device_setting', [
             'type' => 'checkbox',
-            'label' => __d('baser_core', 'サブサイトでデバイス設定を利用する')
+            'label' => __d('baser_core', 'サイト管理でデバイス設定を利用する')
           ]) ?>
           <i class="bca-icon--question-circle bca-help"></i>
           <div class="bca-helptext">
-            <?php echo __d('baser_core', 'サブサイトにデバイス属性を持たせ、サイトアクセス時、ユーザーエージェントを判定し適切なサイトを表示する機能を利用します。') ?>
+            <?php echo __d('baser_core', 'サイトにデバイス属性を持たせ、サイトアクセス時、ユーザーエージェントを判定し適切なサイトを表示する機能を利用します。') ?>
           </div>
           <br>
           <?php echo $this->BcAdminForm->control('use_site_lang_setting', [
             'type' => 'checkbox',
-            'label' => __d('baser_core', 'サブサイトで言語設定を利用する')
+            'label' => __d('baser_core', 'サイト管理で言語設定を利用する')
           ]) ?>
           <i class="bca-icon--question-circle bca-help"></i>
           <div class="bca-helptext">
-            <?php echo __d('baser_core', 'サブサイトに言語属性を持たせ、サイトアクセス時、ブラウザの言語設定を判定し適切なサイトを表示する機能を利用します。') ?>
+            <?php echo __d('baser_core', 'サイトに言語属性を持たせ、サイトアクセス時、ブラウザの言語設定を判定し適切なサイトを表示する機能を利用します。') ?>
           </div>
           <?php echo $this->BcAdminForm->error('use_site_device_setting') ?>
           <?php echo $this->BcAdminForm->error('use_site_lang_setting') ?>
@@ -397,13 +396,13 @@ $this->BcBaser->js('admin/site_configs/index.bundle', false, ['id' => 'AdminSite
 <section class="bca-section" data-bca-section-type='form-group'>
   <div class="bca-collapse__action">
     <button type="button"
-            class="bca-collapse__btn"
-            data-bca-collapse="collapse"
-            data-bca-target="#formEditorSettingBody"
-            aria-expanded="false"
-            aria-controls="formEditorSettingBody">
-      <?php echo __d('baser_core', 'エディタ設定') ?>&nbsp;&nbsp;
-      <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
+      class="bca-collapse__btn"
+      data-bca-collapse="collapse"
+      data-bca-target="#formEditorSettingBody"
+      aria-expanded="false"
+      aria-controls="formEditorSettingBody">
+        <?php echo __d('baser_core', 'エディタ設定') ?>&nbsp;&nbsp;
+        <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
     </button>
   </div>
   <div class="bca-collapse" id="formEditorSettingBody" data-bca-state="">
@@ -478,13 +477,13 @@ h2 {}
 <section class="bca-section" data-bca-section-type='form-group'>
   <div class="bca-collapse__action">
     <button type="button"
-            class="bca-collapse__btn"
-            data-bca-collapse="collapse"
-            data-bca-target="#formMailSettingBody"
-            aria-expanded="false"
-            aria-controls="formMailSettingBody">
-      メール設定&nbsp;&nbsp;
-      <i lass="bca-icon--chevron-down bca-collapse__btn-icon"></i>
+      class="bca-collapse__btn"
+      data-bca-collapse="collapse"
+      data-bca-target="#formMailSettingBody"
+      aria-expanded="false"
+      aria-controls="formMailSettingBody">
+        <?php echo __d('baser_core', 'メール設定') ?>&nbsp;&nbsp;
+        <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
     </button>
   </div>
   <div class="bca-collapse" id="formMailSettingBody" data-bca-state="">

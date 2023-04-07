@@ -26,7 +26,6 @@ use BaserCore\Annotation\UnitTest;
 /**
  * FormHelper 拡張クラス
  *
- * @package Baser.View.Helper
  * @property BcHtmlHelper $BcHtml
  * @property BcUploadHelper $BcUpload
  * @property BcCkeditorHelper $BcCkeditor
@@ -209,7 +208,8 @@ SCRIPT_END;
             'timeInput' => [],
             'timeDiv' => ['tag' => 'span'],
             'timeLabel' => ['text' => '時間'],
-            'id' => $this->_domId($fieldName)
+            'id' => $this->_domId($fieldName),
+            'timeStep' => 30
         ], $options);
 
         $dateOptions = array_merge($options, [
@@ -229,9 +229,10 @@ SCRIPT_END;
             'maxlength' => 8,
             'escape' => true,
             'id' => $options['id'] . '-time',
+            'step' => $options['timeStep'],
         ], $options['timeInput']);
 
-        unset($options['dateDiv'], $options['dateLabel'], $options['timeDiv'], $options['timeLabel'], $options['dateInput'], $options['timeInput']);
+        unset($options['dateDiv'], $options['dateLabel'], $options['timeDiv'], $options['timeLabel'], $options['dateInput'], $options['timeInput'], $options['timeStep']);
         unset($dateOptions['dateDiv'], $dateOptions['dateLabel'], $dateOptions['timeDiv'], $dateOptions['timeLabel'], $dateOptions['dateInput'], $dateOptions['timeInput']);
         unset($timeOptions['dateDiv'], $timeOptions['dateLabel'], $timeOptions['timeDiv'], $timeOptions['timeLabel'], $timeOptions['dateInput'], $timeOptions['timeInput']);
 
@@ -252,6 +253,9 @@ SCRIPT_END;
             $dateOptions['value'] = $dateValue;
             $timeOptions['value'] = $timeValue;
         }
+
+		$step = $timeOptions['step'];
+		unset($timeOptions['step']);
 
         $dateDivOptions = $timeDivOptions = $dateLabelOptions = $timeLabelOptions = null;
         if (!empty($dateOptions['div'])) {
@@ -306,7 +310,7 @@ $(function(){
     var id = "{$options['id']}";
     var time = $("#" + id + "-time");
     var date = $("#" + id + "-date");
-    time.timepicker({ 'timeFormat': 'H:i' });
+    time.timepicker({ 'timeFormat': 'H:i', 'step': {$step} });
     date.add(time).change(function(){
         if(date.val() && !time.val()) {
             time.val('00:00');
@@ -1180,7 +1184,7 @@ SCRIPT_END;
                     if ($attributes['style'] === 'checkbox') {
                         $htmlOptions['value'] = $name;
 
-                        $tagName = $attributes['id'] . $this->domIdSuffix($name);
+                        $tagName = $attributes['id'] . $this->domIdSuffix($name, 'html5');
                         $htmlOptions['id'] = $tagName;
                         $label = ['for' => $tagName];
 
@@ -1495,7 +1499,9 @@ SCRIPT_END;
             $div = $attributes['div'];
             unset($attributes['div']);
         }
-        unset($label['label']);
+        if (isset($label['label'])) {
+            unset($label['label']);
+        }
 
         $this->_domIdSuffixes = [];
         foreach($options as $optValue => $optTitle) {
@@ -1517,7 +1523,7 @@ SCRIPT_END;
             if ($disabled && (!is_array($disabled) || in_array((string)$optValue, $disabled, !$isNumeric))) {
                 $optionsHere['disabled'] = true;
             }
-            $tagName = $attributes['id'] . $this->domIdSuffix($optValue);
+            $tagName = $attributes['id'] . $this->domIdSuffix($optValue, 'html5');
 
             if ($label) {
                 $labelOpts = is_array($label)? $label : [];

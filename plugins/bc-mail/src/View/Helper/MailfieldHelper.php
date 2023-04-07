@@ -21,7 +21,6 @@ use BaserCore\Annotation\Checked;
 /**
  * メールフィールドヘルパー
  *
- * @package Mail.View.Helper
  *
  */
 class MailfieldHelper extends Helper
@@ -43,6 +42,9 @@ class MailfieldHelper extends Helper
         $attributes['rows'] = $data['text_rows'];
         $attributes['maxlength'] = $data['maxlength'];
         $attributes['class'] = $data['class'];
+        if ($data['autocomplete'] !== 'none') {
+            $attributes['autocomplete'] = $data['autocomplete'];
+        }
         if ($data['type'] === 'multi_check') {
             $attributes['multiple'] = true;
         } elseif ($data['type'] === 'tel') {

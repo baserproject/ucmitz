@@ -20,19 +20,17 @@ use BaserCore\Annotation\NoTodo;
 use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\View\Helper\BcContentsHelper;
-use BaserCore\View\Helper\BcPageHelper;
 use BaserCore\View\Helper\BcBaserHelper;
 use BaserCore\Event\BcEventDispatcherTrait;
 
 /**
  * Class AppView
- * @package BaserCore\View
- * @property BcPageHelper $BcPage
  * @property BcBaserHelper $BcBaser
  * @property BcUploadHelper $BcUpload
  * @property BcToolbarHelper $BcToolbar
  * @property BcFormHelper $BcForm
  * @property BcTimeHelper $BcTime
+ * @property BcContentsHelper $BcContents
  */
 class AppView extends View
 {

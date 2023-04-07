@@ -71,25 +71,25 @@ return [
         'MailConfigsApi' => [
             'title' => __d('baser_core', 'メールフォーム設定API'),
             'plugin' => 'BcMail',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'view' => ['title' => __d('baser_core', '設定取得'), 'url' => '/baser/api/bc-mail/mail_configs/view.json', 'method' => 'GET', 'auth' => true],
-                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-mail/mail_configs/edit.json', 'method' => 'POST', 'auth' => false],
+                'view' => ['title' => __d('baser_core', '設定取得'), 'url' => '/baser/api/admin/bc-mail/mail_configs/view.json', 'method' => 'GET', 'auth' => true],
+                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-mail/mail_configs/edit.json', 'method' => 'POST', 'auth' => false],
             ]
         ],
 
         'MailContentsApi' => [
             'title' => __d('baser_core', 'メールコンテンツAPI'),
             'plugin' => 'BcMail',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/bc-mail/mail_contents/index.json', 'method' => 'GET', 'auth' => true],
-                'view' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/bc-mail/mail_contents/view/*.json', 'method' => 'GET', 'auth' => true],
-                'list' => ['title' => __d('baser_core', 'リスト取得'), 'url' => '/baser/api/bc-mail/mail_contents/list.json', 'method' => 'GET', 'auth' => true],
-                'add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/bc-mail/mail_contents/add.json', 'method' => 'POST', 'auth' => true],
-                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-mail/mail_contents/edit/*.json', 'method' => 'POST', 'auth' => true],
-                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/bc-mail/mail_contents/delete/*.json', 'method' => 'POST', 'auth' => true],
-                'copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/bc-mail/mail_contents/copy.json', 'method' => 'POST', 'auth' => true],
+                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/admin/bc-mail/mail_contents/index.json', 'method' => 'GET', 'auth' => true],
+                'view' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/admin/bc-mail/mail_contents/view/*.json', 'method' => 'GET', 'auth' => true],
+                'list' => ['title' => __d('baser_core', 'リスト取得'), 'url' => '/baser/api/admin/bc-mail/mail_contents/list.json', 'method' => 'GET', 'auth' => true],
+                'add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/admin/bc-mail/mail_contents/add.json', 'method' => 'POST', 'auth' => true],
+                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-mail/mail_contents/edit/*.json', 'method' => 'POST', 'auth' => true],
+                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/admin/bc-mail/mail_contents/delete/*.json', 'method' => 'POST', 'auth' => true],
+                'copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/admin/bc-mail/mail_contents/copy.json', 'method' => 'POST', 'auth' => true],
             ]
         ],
 
@@ -97,32 +97,32 @@ return [
         'MailFieldsApi' => [
             'title' => __d('baser_core', 'メールフィールドAPI'),
             'plugin' => 'BcMail',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/bc-mail/mail_fields/index/*.json', 'method' => 'GET', 'auth' => true],
-                'view' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/bc-mail/mail_fields/view/*.json', 'method' => 'GET', 'auth' => true],
-                'list' => ['title' => __d('baser_core', 'リスト取得'), 'url' => '/baser/api/bc-mail/mail_fields/list/*.json', 'method' => 'GET', 'auth' => true],
-                'add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/bc-mail/mail_fields/add/*.json', 'method' => 'POST', 'auth' => true],
-                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-mail/mail_fields/edit/*.json', 'method' => 'POST', 'auth' => true],
-                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/bc-mail/mail_fields/delete/*.json', 'method' => 'POST', 'auth' => true],
-                'copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/bc-mail/mail_fields/copy/*.json', 'method' => 'POST', 'auth' => true],
-                'batch' => ['title' => __d('baser_core', '一括処理'), 'url' => '/baser/api/bc-mail/mail_fields/batch.json', 'method' => 'POST', 'auth' => true],
-                'update_sort' => ['title' => __d('baser_core', '並び順更新'), 'url' => '/baser/api/bc-mail/mail_fields/update_sort/*.json', 'method' => 'POST', 'auth' => true],
+                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/admin/bc-mail/mail_fields/index/*.json', 'method' => 'GET', 'auth' => true],
+                'view' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/admin/bc-mail/mail_fields/view/*.json', 'method' => 'GET', 'auth' => true],
+                'list' => ['title' => __d('baser_core', 'リスト取得'), 'url' => '/baser/api/admin/bc-mail/mail_fields/list/*.json', 'method' => 'GET', 'auth' => true],
+                'add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/admin/bc-mail/mail_fields/add/*.json', 'method' => 'POST', 'auth' => true],
+                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-mail/mail_fields/edit/*.json', 'method' => 'POST', 'auth' => true],
+                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/admin/bc-mail/mail_fields/delete/*.json', 'method' => 'POST', 'auth' => true],
+                'copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/admin/bc-mail/mail_fields/copy/*.json', 'method' => 'POST', 'auth' => true],
+                'batch' => ['title' => __d('baser_core', '一括処理'), 'url' => '/baser/api/admin/bc-mail/mail_fields/batch.json', 'method' => 'POST', 'auth' => true],
+                'update_sort' => ['title' => __d('baser_core', '並び順更新'), 'url' => '/baser/api/admin/bc-mail/mail_fields/update_sort/*.json', 'method' => 'POST', 'auth' => true],
             ]
         ],
 
         'MailMessagesApi' => [
             'title' => __d('baser_core', 'メールメッセージAPI'),
             'plugin' => 'BcMail',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/bc-mail/mail_messages/add/*.json', 'method' => 'POST', 'auth' => true],
-                'batch' => ['title' => __d('baser_core', '一括処理'), 'url' => '/baser/api/bc-mail/mail_messages/batch/*.json', 'method' => 'POST', 'auth' => true],
-                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/bc-mail/mail_messages/delete/*.json', 'method' => 'POST', 'auth' => true],
-                'download' => ['title' => __d('baser_core', 'ダウンロード'), 'url' => '/baser/api/bc-mail/mail_messages/download/*.json', 'method' => 'GET', 'auth' => true],
-                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-mail/mail_messages/edit/*.json', 'method' => 'POST', 'auth' => true],
-                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/bc-mail/mail_messages/index/*.json', 'method' => 'GET', 'auth' => true],
-                'view' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/bc-mail/mail_messages/view/*.json', 'method' => 'GET', 'auth' => true],
+                'add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/admin/bc-mail/mail_messages/add/*.json', 'method' => 'POST', 'auth' => true],
+                'batch' => ['title' => __d('baser_core', '一括処理'), 'url' => '/baser/api/admin/bc-mail/mail_messages/batch/*.json', 'method' => 'POST', 'auth' => true],
+                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/admin/bc-mail/mail_messages/delete/*.json', 'method' => 'POST', 'auth' => true],
+                'download' => ['title' => __d('baser_core', 'ダウンロード'), 'url' => '/baser/api/admin/bc-mail/mail_messages/download/*.json', 'method' => 'GET', 'auth' => true],
+                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-mail/mail_messages/edit/*.json', 'method' => 'POST', 'auth' => true],
+                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/admin/bc-mail/mail_messages/index/*.json', 'method' => 'GET', 'auth' => true],
+                'view' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/admin/bc-mail/mail_messages/view/*.json', 'method' => 'GET', 'auth' => true],
             ]
         ],
     ]

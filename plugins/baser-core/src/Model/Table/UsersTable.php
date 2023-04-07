@@ -29,7 +29,6 @@ use BaserCore\Annotation\UnitTest;
 
 /**
  * Class UsersTable
- * @package BaserCore\Model\Table
  * @property BelongsTo $UserGroups
  * @method User get($primaryKey, $options = [])
  * @method User newEntity($data = null, array $options = [])
@@ -344,7 +343,6 @@ class UsersTable extends AppTable
                 'Users.status' => true
             ])
             ->matching('UserGroups', function($q) use ($prefix) {
-                if($prefix === 'Api') $prefix = 'Admin';
                 return $q->where(['UserGroups.auth_prefix LIKE' => '%' . $prefix . '%']);
             })->contain(['UserGroups']);
     }

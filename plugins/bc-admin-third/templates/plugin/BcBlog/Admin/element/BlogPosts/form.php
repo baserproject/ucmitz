@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package            Blog.View
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
@@ -143,7 +142,9 @@ $this->BcBaser->js('BcBlog.admin/blog_posts/form.bundle', false, [
 <?php endif ?>
 
 <section class="bca-section bca-section__post-detail">
-  <label for="BlogPostDetailTmp" class="bca-form-table__label -label">本文</label>
+  <label for="BlogPostDetailTmp" class="bca-form-table__label -label">
+    <?php echo __d('baser_core', '本文') ?>
+  </label>
   <span class="bca-form-table__input-wrap">
   <?php echo $this->BcAdminForm->editor('detail', array_merge([
     'type' => 'editor',

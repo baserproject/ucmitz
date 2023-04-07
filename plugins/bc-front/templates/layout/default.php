@@ -9,11 +9,12 @@
  * @license       https://basercms.net/license/index.html MIT License
  */
 
-use BaserCore\View\AppView;
 /**
  * レイアウト
+ *
  * 呼出箇所：全ページ
- * @var AppView $this
+ *
+ * @var \BaserCore\View\BcFrontAppView $this
  */
 $request = $this->getRequest();
 $attributes = $request->getAttributes();
@@ -57,6 +58,8 @@ $base = $attributes['base'];
 </head>
 <body id="<?php $this->BcBaser->contentsName() ?>">
 
+<?php $this->BcBaser->func() ?>
+
 <div class="bs-container">
 
 	<!-- /Elements/header.php -->
@@ -97,6 +100,5 @@ $base = $attributes['base'];
 
 </div>
 
-<?php $this->BcBaser->func() ?>
 </body>
 </html>

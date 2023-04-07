@@ -138,6 +138,12 @@ class AppController extends BaseController
     {
         parent::beforeFilter($event);
 
+		// index.php をつけたURLの場合、base の値が正常でなくなり、
+		// 内部リンクが影響を受けておかしくなってしまうため強制的に Not Found とする
+		if(preg_match('/\/index\.php\//', $this->getRequest()->getAttribute('base'))) {
+			$this->notFound();
+		}
+
         if (!$this->getRequest()->is('requestview')) return;
 
         $response = $this->redirectIfIsRequireMaintenance();
@@ -149,13 +155,13 @@ class AppController extends BaseController
         // インストーラー、アップデーターの場合はテーマを設定して終了
         // コンソールから利用される場合、$isInstall だけでは判定できないので、BC_INSTALLED も判定に入れる
         if ((!BcUtil::isInstalled() || $this->getRequest()->is('install')) && !in_array($this->getName(), ['Error', 'BcError'])) {
-            $this->viewBuilder()->setTheme(Configure::read('BcApp.defaultAdminTheme'));
+            $this->viewBuilder()->setTheme(Configure::read('BcApp.coreAdminTheme'));
             return;
         }
 
         if(!$this->checkPermission()) {
             $prefix = BcUtil::getRequestPrefix($this->getRequest());
-            if ($prefix === 'Api') {
+            if ($prefix === 'Api/Admin') {
                 throw new ForbiddenException(__d('baser_core', '指定されたAPIエンドポイントへのアクセスは許可されていません。'));
             } else {
                 $this->BcMessage->setError(__d('baser_core', '指定されたページへのアクセスは許可されていません。'));
@@ -230,7 +236,7 @@ class AppController extends BaseController
      */
     public function _blackHoleCallback($err, $exception)
     {
-        $message = __d('baser_core', '不正なリクエストと判断されました。') . "\n" . $exception->getMessage();
+        $message = __d('baser_core', '不正なリクエストと判断されました。もしくは、システムが受信できるデータ上限より大きなデータが送信された可能性があります') . "\n" . $exception->getMessage();
         throw new BadRequestException($message);
     }
 

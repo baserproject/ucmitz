@@ -137,7 +137,7 @@ class PluginsService implements PluginsServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function install($name, bool $permission, $connection = 'default'): ?bool
+    public function install($name, bool $permission = true, $connection = 'default'): ?bool
     {
         $options = ['permission' => $permission];
         if ($connection) {
@@ -611,7 +611,7 @@ class PluginsService implements PluginsServiceInterface
         }
         if (empty($_FILES['file']['tmp_name'])) {
             $message = '';
-            if ($postData['file']->getError() === 1) {
+            if (isset($postData['file']) && $postData['file']->getError() === 1) {
                 $message = __d('baser_core', 'サーバに設定されているサイズ制限を超えています。');
             }
             throw new BcException($message);

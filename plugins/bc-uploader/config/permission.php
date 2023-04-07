@@ -62,36 +62,36 @@ return [
         'UploaderCategoriesApi' => [
             'title' => __d('baser_core', 'アップロードカテゴリAPI'),
             'plugin' => 'BcUploader',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/bc-uploader/uploader_categories/index.json', 'method' => 'GET', 'auth' => true],
-                'Add' => ['title' => __d('baser_core', '新規追加'), 'url' => '/baser/api/bc-uploader/uploader_categories/add.json', 'method' => 'POST', 'auth' => true],
-                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-uploader/uploader_categories/edit/*.json', 'method' => 'POST', 'auth' => true],
-                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/bc-uploader/uploader_categories/delete/*.json', 'method' => 'POST', 'auth' => true],
-                'copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/bc-uploader/uploader_categories/copy/*.json', 'method' => 'POST', 'auth' => true],
-                'batch' => ['title' => __d('baser_core', '一括処理'), 'url' => '/baser/api/bc-uploader/uploader_categories/batch.json', 'method' => 'POST', 'auth' => true],
+                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/index.json', 'method' => 'GET', 'auth' => true],
+                'Add' => ['title' => __d('baser_core', '新規追加'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/add.json', 'method' => 'POST', 'auth' => true],
+                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/edit/*.json', 'method' => 'POST', 'auth' => true],
+                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/delete/*.json', 'method' => 'POST', 'auth' => true],
+                'copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/copy/*.json', 'method' => 'POST', 'auth' => true],
+                'batch' => ['title' => __d('baser_core', '一括処理'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/batch.json', 'method' => 'POST', 'auth' => true],
             ]
         ],
 
         'UploaderConfigsApi' => [
             'title' => __d('baser_core', 'アップローダー設定API'),
             'plugin' => 'BcUploader',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'view' => ['title' => __d('baser_core', '設定取得'), 'url' => '/baser/api/bc-uploader/uploader_categories/view.json', 'method' => 'GET', 'auth' => true],
-                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-uploader/uploader_categories/edit.json', 'method' => 'POST', 'auth' => false],
+                'view' => ['title' => __d('baser_core', '設定取得'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/view.json', 'method' => 'GET', 'auth' => true],
+                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-uploader/uploader_categories/edit.json', 'method' => 'POST', 'auth' => false],
             ]
         ],
 
         'UploaderFilesApi' => [
             'title' => __d('baser_core', 'アップロードファイルAPI'),
             'plugin' => 'BcUploader',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/bc-uploader/uploader_files/index.json', 'method' => 'GET', 'auth' => true],
-                'Add' => ['title' => __d('baser_core', '新規追加'), 'url' => '/baser/api/bc-uploader/uploader_files/add.json', 'method' => 'POST', 'auth' => true],
-                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-uploader/uploader_files/edit/*.json', 'method' => 'POST', 'auth' => true],
-                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/bc-uploader/uploader_files/delete/*.json', 'method' => 'POST', 'auth' => true],
+                'index' => ['title' => __d('baser_core', '一覧取得'), 'url' => '/baser/api/admin/bc-uploader/uploader_files/index.json', 'method' => 'GET', 'auth' => true],
+                'Add' => ['title' => __d('baser_core', '新規追加'), 'url' => '/baser/api/admin/bc-uploader/uploader_files/add.json', 'method' => 'POST', 'auth' => true],
+                'edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-uploader/uploader_files/edit/*.json', 'method' => 'POST', 'auth' => true],
+                'delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/admin/bc-uploader/uploader_files/delete/*.json', 'method' => 'POST', 'auth' => true],
             ]
         ],
     ]

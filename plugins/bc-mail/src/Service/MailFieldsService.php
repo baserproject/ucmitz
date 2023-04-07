@@ -18,6 +18,7 @@ use BaserCore\Error\BcException;
 use BaserCore\Utility\BcContainerTrait;
 use BcMail\Model\Entity\MailField;
 use BcMail\Model\Table\MailFieldsTable;
+use Cake\Core\Configure;
 use Cake\Datasource\EntityInterface;
 use Cake\ORM\TableRegistry;
 use Throwable;
@@ -48,13 +49,28 @@ class MailFieldsService implements MailFieldsServiceInterface
 
     /**
      * 単一データ取得
+     * @param int $id
+     * @param array $queryParams
      * @return EntityInterface|MailField
      * @checked
      * @noTodo
      */
-    public function get(int $id)
+    public function get(int $id, array $queryParams = [])
     {
-        return $this->MailFields->get($id);
+        $queryParams = array_merge([
+            'status' => ''
+        ], $queryParams);
+
+        $conditions = [];
+        if ($queryParams['status'] === 'publish') {
+            $conditions = $this->MailFields->MailContents->Contents->getConditionAllowPublish();
+            $conditions['use_field'] = true;
+        }
+
+        return $this->MailFields->get($id, [
+            'contain' => ['MailContents' => ['Contents']],
+            'conditions' => $conditions
+        ]);
     }
 
     /**
@@ -66,7 +82,8 @@ class MailFieldsService implements MailFieldsServiceInterface
     {
         $options = array_merge([
             'use_field' => null,
-            'contain' => ['MailContents']
+            'status' => '',
+            'contain' => ['MailContents' => ['Contents']]
         ], $queryParams);
 
         $conditions = ['MailFields.mail_content_id' => $mailContentId];
@@ -74,12 +91,17 @@ class MailFieldsService implements MailFieldsServiceInterface
 
         $query = $this->MailFields->find()
             ->contain($options['contain'])
-            ->order(['MailFields.sort'])
-            ->where($conditions);
+            ->order(['MailFields.sort']);
         if (!empty($queryParams['limit'])) {
             $query->limit($queryParams['limit']);
         }
-        return $query;
+
+        if ($options['status'] === 'publish') {
+            $conditions['use_field'] = true;
+            $conditions = array_merge($conditions, $this->MailFields->MailContents->Contents->getConditionAllowPublish());
+        }
+
+        return $query->where($conditions);
     }
 
     /**
@@ -123,15 +145,15 @@ class MailFieldsService implements MailFieldsServiceInterface
      */
     public function create(array $postData)
     {
-        if (is_array($postData['valid_ex'])) $postData['valid_ex'] = implode(',', $postData['valid_ex']);
-        $postData['no'] = $this->MailFields->getMax('no', ['mail_content_id' => $postData['mail_content_id']]) + 1;
+        if (isset($postData['valid_ex']) && is_array($postData['valid_ex'])) $postData['valid_ex'] = implode(',', $postData['valid_ex']);
+        $postData['no'] = $this->MailFields->getMax('no', ['mail_content_id' => $postData['mail_content_id'] ?? '']) + 1;
         $postData['sort'] = $this->MailFields->getMax('sort') + 1;
-        $postData['source'] = $this->MailFields->formatSource($postData['source']);
+        $postData['source'] = $this->MailFields->formatSource($postData['source'] ?? null);
         $entity = $this->MailFields->patchEntity($this->MailFields->newEmptyEntity(), $postData);
         $this->MailFields->getConnection()->begin();
         try {
             if (!$entity->getErrors()) {
-                if (!$this->MailMessagesService->addMessageField($postData['mail_content_id'], $postData['field_name'])) {
+                if (!$this->MailMessagesService->addMessageField($postData['mail_content_id'], $postData['field_name'] ?? null)) {
                     $this->MailFields->getConnection()->rollback();
                     throw new BcException(__d('baser_core', 'データベースに問題があります。メール受信データ保存用テーブルの更新処理に失敗しました。'));
                 }
@@ -155,8 +177,8 @@ class MailFieldsService implements MailFieldsServiceInterface
     public function update(EntityInterface $entity, array $postData)
     {
         $oldFieldName = $entity->field_name;
-        if (is_array($postData['valid_ex'])) $postData['valid_ex'] = implode(',', $postData['valid_ex']);
-        $postData['source'] = $this->MailFields->formatSource($postData['source']);
+        if (isset($postData['valid_ex']) && is_array($postData['valid_ex'])) $postData['valid_ex'] = implode(',', $postData['valid_ex']);
+        $postData['source'] = $this->MailFields->formatSource($postData['source'] ?? '');
         $entity = $this->MailFields->patchEntity($entity, $postData);
         $this->MailFields->getConnection()->begin();
         if (!$entity->getErrors() && $entity->field_name !== $oldFieldName) {
@@ -298,5 +320,39 @@ class MailFieldsService implements MailFieldsServiceInterface
         ]);
         return $result;
     }
+
+    /**
+     * オートコンプリートオプションを取得する
+     *
+     * @return array
+     * @checked
+     * @noTodo
+     */
+	public function getAutoCompleteOptions(): array
+	{
+		$autoCompleteDatas = Configure::read('BcMail.autoComplete');
+
+		$autoCompleteOptions = [];
+		foreach ($autoCompleteDatas as $data) {
+			$autoCompleteOptions[$data['name']] = $data['title'];
+			if (isset($data['child'])) {
+				foreach ($data['child'] as $dataChild1) {
+					$autoCompleteOptions[$dataChild1['name']] = '　└' . $dataChild1['title'];
+					if (isset($dataChild1['child'])) {
+						foreach ($dataChild1['child'] as $dataChild2) {
+							$autoCompleteOptions[$dataChild2['name']] = '　　└' . $dataChild2['title'];
+							if (isset($dataChild2['child'])) {
+								foreach ($dataChild2['child'] as $dataChild3) {
+									$autoCompleteOptions[$dataChild3['name']] = '　　　└' . $dataChild3['title'];
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return $autoCompleteOptions;
+	}
 
 }

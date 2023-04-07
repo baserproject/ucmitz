@@ -31,13 +31,16 @@ use BcSearchIndex\Service\SearchIndexesServiceInterface;
 use Cake\Core\Configure;
 use Cake\Core\Plugin;
 use Cake\Database\Connection;
+use Cake\Database\Driver\Sqlite;
 use Cake\Filesystem\Folder;
 use Cake\I18n\FrozenTime;
 use Cake\Log\LogTrait;
 use Cake\Mailer\MailerAwareTrait;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\TableRegistry;
+use PDO;
 use PDOException;
+use SQLite3;
 
 /**
  * InstallationsService
@@ -93,7 +96,7 @@ class InstallationsService implements InstallationsServiceInterface
         $status = [
             'encoding' => mb_internal_encoding(),
             'phpVersion' => phpversion(),
-            'phpMemory' => intval(ini_get('memory_limit')),
+            'phpMemory' => $this->_getMemoryLimit(),
             'safeModeOff' => !ini_get('safe_mode'),
             'configDirWritable' => is_writable($info['configDir']),
             'pluginDirWritable' => is_writable($info['pluginDir']),
@@ -147,6 +150,20 @@ class InstallationsService implements InstallationsServiceInterface
         return $info + $status + $check;
     }
 
+	/**
+	 * memory_limit を取得する
+	 * @return int
+	 */
+	protected function _getMemoryLimit ()
+	{
+		$size = ini_get('memory_limit');
+		switch (substr ($size, -1)) {
+			case 'M': case 'm': return (int) $size;
+			case 'G': case 'g': return (int) $size * 1024;
+			default: return (int) $size;
+		}
+	}
+
     /**
      * baserCMSコアのデータベースを構築する
      *
@@ -160,7 +177,7 @@ class InstallationsService implements InstallationsServiceInterface
     public function constructionDb(array $dbConfig, string $dbDataPattern = '', string $adminTheme = ''): bool
     {
         if (!$dbDataPattern) {
-            $dbDataPattern = Configure::read('BcApp.defaultFrontTheme') . '.default';
+            $dbDataPattern = Configure::read('BcApp.coreFrontTheme') . '.default';
         }
         if (strpos($dbDataPattern, '.') === false) {
             throw new BcException(__d('baser_core', 'データパターンの形式が不正です。'));
@@ -210,7 +227,7 @@ class InstallationsService implements InstallationsServiceInterface
         }
         if (!empty($type) && !empty($name)) {
             if ($type == 'sqlite') {
-                return APP . 'db' . DS . 'sqlite' . DS . $name . '.db';
+                return ROOT . DS . 'db' . DS . 'sqlite' . DS . $name . '.db';
             }
         }
         return $name;
@@ -339,6 +356,10 @@ class InstallationsService implements InstallationsServiceInterface
             $this->log(__d('baser_core', 'コンテンツの更新に失敗しました。'));
             $result = false;
         }
+        if (!$this->_updateBlogPosts()) {
+            $this->log(__d('baser_core', 'ブログ記事の更新に失敗しました。'));
+            $result = false;
+        }
         /** @var SearchIndexesServiceInterface $searchIndexesService */
         $searchIndexesService = $this->getService(SearchIndexesServiceInterface::class);
         $searchIndexesService->reconstruct();
@@ -360,6 +381,27 @@ class InstallationsService implements InstallationsServiceInterface
         foreach($contents as $content) {
             $content->created_date = new FrozenTime();
             if (!$contentsTable->save($content)) {
+                $result = false;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * コンテンツの作成日を更新する
+     *
+     * @return bool
+     * @checked
+     * @noTodo
+     */
+    protected function _updateBlogPosts(): bool
+    {
+        $table = TableRegistry::getTableLocator()->get('BcBlog.BlogPosts');
+        $entities = $table->find()->all();
+        $result = true;
+        foreach($entities as $entity) {
+            $entity->posted = new FrozenTime();
+            if (!$table->save($entity)) {
                 $result = false;
             }
         }
@@ -514,7 +556,13 @@ class InstallationsService implements InstallationsServiceInterface
         $installCoreData[] = '    ],';
         $installCoreData[] = '    \'Datasources.test\' => [';
         foreach($dbConfig as $key => $value) {
-            if($key === 'database') $value = 'test_' . $value;
+            if($key === 'database') {
+                if(str_replace('\\\\', '\\', $dbConfig['driver']) === Sqlite::class) {
+                    $value = dirname($value) . DS . 'test_' . basename($value);
+                } else {
+                    $value = 'test_' . $value;
+                }
+            }
             if($key === 'datasource' || $key === 'dataPattern') continue;
             $installCoreData[] = '        \'' . $key . '\' => \'' . $value . '\',';
         }
@@ -584,7 +632,7 @@ class InstallationsService implements InstallationsServiceInterface
             $Folder = new Folder();
             $Folder->create($path, 0777);
         }
-        $pluginPath = BcUtil::getPluginPath(Configure::read('BcApp.defaultAdminTheme')) . DS;
+        $pluginPath = BcUtil::getPluginPath(Configure::read('BcApp.coreAdminTheme')) . DS;
         $src = $pluginPath . DS . 'webroot' . DS . 'img' . DS . 'admin' . DS . 'ckeditor' . DS;
         $Folder = new Folder($src);
         $files = $Folder->read(true, true);
@@ -609,9 +657,6 @@ class InstallationsService implements InstallationsServiceInterface
      */
     protected function _getDbSource(): array
     {
-        // TODO uctmiz 未実装
-        return ['mysql' => 'MySQL'];
-
         /* DBソース取得 */
         $dbsource = [];
         $folder = new Folder();
@@ -626,7 +671,7 @@ class InstallationsService implements InstallationsServiceInterface
         }
         /* SQLite利用可否チェック */
         if (in_array('sqlite', $pdoDrivers) && extension_loaded('sqlite3') && class_exists('SQLite3')) {
-            $dbFolderPath = APP . 'db' . DS . 'sqlite';
+            $dbFolderPath = ROOT . DS . 'db' . DS . 'sqlite';
             if (is_writable(dirname($dbFolderPath)) && $folder->create($dbFolderPath, 0777)) {
                 $info = SQLite3::version();
                 if (version_compare($info['versionString'], Configure::read('BcRequire.winSQLiteVersion'), '>')) {
