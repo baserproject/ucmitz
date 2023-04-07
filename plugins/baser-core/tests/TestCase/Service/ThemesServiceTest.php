@@ -163,16 +163,16 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
     public function testGetDefaultDataPatterns()
     {
         $options = ['useTitle' => false];
-        $result = $this->ThemesService->getDefaultDataPatterns('BcFront', $options);
+        $result = $this->ThemesService->getDefaultDataPatterns('BcThemeSample', $options);
         $expected = [
-            'BcFront.default' => 'default',
-            'BcFront.empty' => 'empty'
+            'BcThemeSample.default' => 'default',
+            'BcThemeSample.empty' => 'empty'
         ];
         $this->assertEquals($expected, $result, '初期データのセットのタイトルを外して取得できません');
-        $result = $this->ThemesService->getDefaultDataPatterns('BcFront');
+        $result = $this->ThemesService->getDefaultDataPatterns('BcThemeSample');
         $expected = [
-            'BcFront.default' => 'フロントテーマ ( default )',
-            'BcFront.empty' => 'フロントテーマ ( empty )'
+            'BcThemeSample.default' => 'サンプルテーマ ( default )',
+            'BcThemeSample.empty' => 'サンプルテーマ ( empty )'
         ];
         $this->assertEquals($expected, $result);
     }
@@ -217,14 +217,14 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $theme = 'BcFront';
         $themePath = BcUtil::getPluginPath($theme);
 
-        mkdir($themePath . 'Plugin', 0777);
-        mkdir($themePath . 'Plugin/test', 0777);
+        mkdir($themePath . 'plugins', 0777);
+        mkdir($themePath . 'plugins/test', 0777);
 
-        $file = new File($themePath . 'Plugin/test/test.txt');
+        $file = new File($themePath . 'plugins/test/test.txt');
         $file->write('test file plugin');
         $file->close();
 
-        $file = new File($themePath . 'Plugin/test2.txt');
+        $file = new File($themePath . 'plugins/test2.txt');
         $file->write('test file 2');
         $file->close();
 
@@ -244,7 +244,7 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $this->assertEquals($expected, $rs);
 
         $folder = new Folder();
-        $folder->delete($themePath . 'Plugin');
+        $folder->delete($themePath . 'plugins');
     }
 
     /**
@@ -282,7 +282,7 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
      */
     public function testCheckDefaultDataPattern()
     {
-        $theme = Configure::read('BcApp.defaultFrontTheme');
+        $theme = Configure::read('BcApp.coreFrontTheme');
         $configDataPath = BASER_THEMES . Inflector::dasherize($theme) . DS . 'config' . DS . 'data';
         $Folder = new Folder($configDataPath . DS . 'default' . DS . 'BaserCore');
         $files = $Folder->read(true, true);
@@ -346,14 +346,14 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $themePath = BcUtil::getPluginPath($theme);
         $pluginName = 'test';
         $folder = new Folder();
-        $folder->create($themePath . 'Plugin/' . $pluginName);
+        $folder->create($themePath . 'plugins/' . $pluginName);
 
         $pluginsInfo = $this->execPrivateMethod($this->ThemesService, 'getThemesPluginsInfo', [$theme]);
         $this->assertEquals('このテーマは下記のプラグインを同梱しています。', $pluginsInfo[0]);
         $this->assertEquals('	・' . $pluginName, $pluginsInfo[1]);
 
         $folder = new Folder();
-        $folder->delete($themePath . 'Plugin');
+        $folder->delete($themePath . 'plugins');
     }
 
     /**
@@ -422,7 +422,7 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
     {
         $this->loadFixtureScenario(InitAppScenario::class);
         Router::setRequest($this->loginAdmin($this->getRequest()));
-        $theme = 'BcFront';
+        $theme = 'BcThemeSample';
         $pattern = 'default';
         $plugin = 'BaserCore';
         $result = $this->ThemesService->loadDefaultDataPattern($theme, $theme . '.' . $pattern);
@@ -452,7 +452,7 @@ class ThemesServiceTest extends \BaserCore\TestSuite\BcTestCase
         $userGroupTable = TableRegistry::getTableLocator()->get('BaserCore.UserGroups');
         $this->assertTrue($userGroupTable->find()->where(['UserGroups.name' => 'admins'])->count() > 0);
         // users_user_groups　テーブルにデータが登録されている事を確認
-        $corePath = BcUtil::getPluginPath(Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-')) . 'config' . DS . 'data' . DS . 'default' . DS . 'BaserCore';
+        $corePath = BcUtil::getPluginPath(Inflector::camelize(Configure::read('BcApp.coreFrontTheme'), '-')) . 'config' . DS . 'data' . DS . 'default' . DS . 'BaserCore';
         $usersUserGroups = $BcDatabaseService->loadCsvToArray($corePath . DS . 'users_user_groups.csv');
         $this->assertCount(UsersUserGroupFactory::count(), $usersUserGroups);
         // site_configs テーブルの email / google_analytics_id / first_access / admin_theme / version の設定状況を確認

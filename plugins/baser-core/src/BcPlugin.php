@@ -40,7 +40,6 @@ use BaserCore\Annotation\Checked;
 
 /**
  * Class plugin
- * @package BaserCore
  */
 class BcPlugin extends BasePlugin
 {
@@ -406,19 +405,98 @@ class BcPlugin extends BasePlugin
     {
         $plugin = $this->getName();
 
-        /**
-         * プラグインの管理画面用ルーティング
-         * プラグイン名がダッシュ区切りの場合
-         */
+        if (BcUtil::isInstalled() && !BcUtil::isMigrations()) {
+            // コンテンツルーティング（リバースルーティング用）
+            $routes = $this->contentsRoutingForReverse($routes, $plugin);
+            // フロントページルーティング
+            $routes = $this->frontPageRouting($routes, $plugin);
+        }
+
+        // プレフィックスルーティング
+        $routes = $this->prefixRouting($routes, $plugin);
+
+        if (BcUtil::isInstalled() && !BcUtil::isMigrations()) {
+            // サイトルーティング
+            $routes = $this->siteRouting($routes, $plugin);
+        }
+
+        parent::routes($routes);
+    }
+
+    /**
+     * コンテンツ管理ルーティング
+     *
+     * リバースルーティングのために必要
+     *
+     * @param RouteBuilder $routes
+     * @param string $plugin
+     * @return RouteBuilder
+     */
+    public function contentsRoutingForReverse(RouteBuilder $routes, string $plugin)
+    {
+        $routes->plugin(
+            $plugin,
+            ['path' => '/'],
+            function(RouteBuilder $routes) {
+                $routes->setRouteClass('BaserCore.BcContentsRoute');
+                $routes->connect('/', []);
+                $routes->connect('/{controller}/index', []);
+                $routes->connect('/:controller/:action/*', []);
+            }
+        );
+        return $routes;
+    }
+
+    /**
+     * プラグインのフロントエンド用ルーティング（プラグイン名がダッシュ区切りの場合）
+     *
+     * BcPrefixAuthより先に定義が必要
+     * 定義しない場合、CSRFトークン取得などの処理にて、BcPrefixAuthのルーティングに捕まり認証を求められてしまう場合がある。
+     * 例）認証付 MyPage の定義で、alias を '/' とした場合
+     *
+     * @param RouteBuilder $routes
+     * @param string $plugin
+     * @return RouteBuilder
+     */
+    public function frontPageRouting(RouteBuilder $routes, string $plugin)
+    {
+
+        $routes->plugin(
+            $plugin,
+            ['path' => '/' . Inflector::dasherize($plugin)],
+            function(RouteBuilder $routes) {
+                $routes->setExtensions(['json']);   // AnalyseController で利用
+                $routes->connect('/{controller}/index', ['sitePrefix' => ''], ['routeClass' => InflectedRoute::class]);
+                $routes->connect('/{controller}/{action}/*', ['sitePrefix' => ''], ['routeClass' => InflectedRoute::class]);
+                $routes->fallbacks(InflectedRoute::class);
+            }
+        );
+        return $routes;
+    }
+
+    /**
+     * プラグインの管理画面用ルーティング
+     *
+     * プラグイン名がダッシュ区切りの場合
+     *
+     * @param RouteBuilder $routes
+     * @param string $plugin
+     * @return RouteBuilder
+     */
+    public function prefixRouting(RouteBuilder $routes, string $plugin)
+    {
         $prefixSettings = Configure::read('BcPrefixAuth');
         foreach($prefixSettings as $prefix => $setting) {
-            if(empty($setting['type'])) throw new BcException(__d('baser_core', 'BcPrefixAuth の {0} で type が指定されていません。', $prefix));
+            if($prefix === 'Front') continue;
+            if(!empty($setting['disabled'])) continue;
             if(empty($setting['alias'])) throw new BcException(__d('baser_core', 'BcPrefixAuth の {0} で alias が指定されていません。', $prefix));
-            $isApi = ($setting['type'] === 'Jwt')? true : false;
-            if(in_array($prefix, ['Admin', 'Api'])) {
+            $isApi = !empty($setting['isRestApi']);
+            if(!empty($setting['withCorePrefix'])) {
                 $path = '/' . BcUtil::getBaserCorePrefix() . $setting['alias'];
-            } else {
+            } elseif($setting['alias'] !== '/') {
                 $path = '/' . $setting['alias'];
+            } else {
+                $path = $setting['alias'];
             }
             $routes->prefix(
                 $prefix,
@@ -440,46 +518,20 @@ class BcPlugin extends BasePlugin
                 }
             );
         }
+        return $routes;
+    }
 
-        if (!BcUtil::isInstalled() || BcUtil::isMigrations()) {
-            parent::routes($routes);
-            return;
-        }
-
-        /**
-         * コンテンツ管理ルーティング
-         * リバースルーティングのために必要
-         */
-        $routes->plugin(
-            $plugin,
-            ['path' => '/'],
-            function(RouteBuilder $routes) {
-                $routes->setRouteClass('BaserCore.BcContentsRoute');
-                $routes->connect('/', []);
-                $routes->connect('/{controller}/index', []);
-                $routes->connect('/:controller/:action/*', []);
-            }
-        );
-
-        /**
-         * プラグインのフロントエンド用ルーティング
-         * プラグイン名がダッシュ区切りの場合
-         */
-        $routes->plugin(
-            $plugin,
-            ['path' => '/' . Inflector::dasherize($plugin)],
-            function(RouteBuilder $routes) {
-                $routes->setExtensions(['json']);   // AnalyseController で利用
-                $routes->connect('/{controller}/index', ['sitePrefix' => ''], ['routeClass' => InflectedRoute::class]);
-                $routes->connect('/{controller}/{action}/*', ['sitePrefix' => ''], ['routeClass' => InflectedRoute::class]);
-                $routes->fallbacks(InflectedRoute::class);
-            }
-        );
-
-        /**
-         * サブサイトのプラグイン用ルーティング
-         * プラグイン名がダッシュ区切りの場合
-         */
+    /**
+     * サブサイトのプラグイン用ルーティング
+     *
+     * プラグイン名がダッシュ区切りの場合
+     *
+     * @param RouteBuilder $routes
+     * @param string $plugin
+     * @return RouteBuilder
+     */
+    public function siteRouting(RouteBuilder $routes, string $plugin)
+    {
         $request = Router::getRequest();
         if (!$request) {
             $request = ServerRequestFactory::fromGlobals();
@@ -499,8 +551,7 @@ class BcPlugin extends BasePlugin
                 }
             );
         }
-
-        parent::routes($routes);
+        return $routes;
     }
 
     /**

@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.View
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
@@ -32,7 +31,7 @@ $this->BcAdmin->setHelp('widget_areas_form');
     'id' => 'WidgetAreaUpdateTitleSubmit',
     'data-bca-btn-type' => 'save'
 ]) ?>
-<?php $this->BcBaser->img('admin/ajax-loader-s.gif', ['style' => 'vertical-align:middle;display:none', 'id' => 'WidgetAreaUpdateTitleLoader']) ?>
+<?php $this->BcBaser->img('admin/ajax-loader-s.gif', ['style' => 'display:none', 'class' => 'bca-small-loader', 'id' => 'WidgetAreaUpdateTitleLoader']) ?>
 <?php echo $this->BcAdminForm->error('name') ?>
 <?php echo $this->BcAdminForm->end() ?>
 

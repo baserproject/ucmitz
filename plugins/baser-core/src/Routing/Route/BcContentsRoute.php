@@ -105,7 +105,7 @@ class BcContentsRoute extends Route
         }
 
         // 管理画面にログインしていないとき、リダイレクトする設定ならば処理をする
-        $redirect = Configure::read('BcPrefixAuth.Admin.previewRedirect');
+        $redirect = Configure::read('BcContents.previewRedirect');
         if ($redirect) {
             // データが存在してもプレビューで管理システムにログインしていない場合はログイン画面に遷移
             if ((!empty($request->geQuery['preview']) || !empty($request->geQuery['force'])) && !BcUtil::loginUser()) {
@@ -142,6 +142,11 @@ class BcContentsRoute extends Route
      */
     public function getParams($requestUrl, $entryUrl, $plugin, $type, $entityId, $alias)
     {
+        $ext = '';
+        if(preg_match('/([^.]+)\.([^.]+)$/', $requestUrl, $matches)) {
+            $requestUrl = $matches[1];
+            $ext = $matches[2];
+        }
         $viewParams = Configure::read('BcContents.items.' . $plugin . '.' . $type . '.routes.view');
         if (!$viewParams) {
             if($requestUrl === '/') {
@@ -205,6 +210,7 @@ class BcContentsRoute extends Route
                 'named' => $named,
                 'entityId' => $entityId
             ];
+            if($ext) $params['_ext'] = $ext;
             if($prefix) $params['prefix'] = $prefix;
         }
         $params['_matchedRoute'] = $this->template;

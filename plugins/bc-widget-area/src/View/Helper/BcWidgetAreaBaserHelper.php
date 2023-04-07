@@ -11,6 +11,7 @@
 
 namespace BcWidgetArea\View\Helper;
 
+use BaserCore\View\Helper\BcPluginBaserHelperInterface;
 use Cake\View\Helper;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -21,7 +22,7 @@ use BaserCore\Annotation\Checked;
  *
  * @property BcWidgetAreaHelper $BcWidgetArea
  */
-class BcWidgetAreaBaserHelper extends Helper
+class BcWidgetAreaBaserHelper extends Helper implements BcPluginBaserHelperInterface
 {
 
     /**
@@ -31,32 +32,16 @@ class BcWidgetAreaBaserHelper extends Helper
     public $helpers = ['BcWidgetArea.BcWidgetArea'];
 
     /**
-     * ウィジェットエリアを表示する
+     * メソッド一覧取得
      *
-     * @param null $no
-     * @param array $options
-     * @checked
-     * @noTodo
-     * @unitTest ラッパーメソッドのためユニットテストは実装しない
+     * @return array[]
      */
-    public function widgetArea($no = null, $options = [])
+    public function methods(): array
     {
-        $this->BcWidgetArea->widgetArea($no, $options);
-    }
-
-    /**
-     * ウィジェットエリアを取得する
-     *
-     * @param null $no
-     * @param array $options
-     * @return string
-     * @checked
-     * @noTodo
-     * @unitTest ラッパーメソッドのためユニットテストは実装しない
-     */
-    public function getWidgetArea($no = null, $options = [])
-    {
-        return $this->BcWidgetArea->getWidgetArea($no, $options);
+        return [
+            'widgetArea' => ['BcWidgetArea', 'widgetArea'],
+            'getWidgetArea' => ['BcWidgetArea', 'getWidgetArea']
+        ];
     }
 
 }

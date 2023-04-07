@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Baser.View
  * @since           baserCMS v 4.2.0
  * @license         https://basercms.net/license/index.html
  */
@@ -23,14 +22,16 @@ if ($isAlias) {
 
 
 <div class="bca-actions">
-  <div class="bca-actions__main">
+  <div class="bca-actions__before">
     <?php echo $this->BcHtml->link(__d('baser_core', '一覧に戻る'), ['controller' => 'contents', 'action' => 'index', '?' => ['site_id' => $currentSiteId]], [
-      'class' => 'button bca-btn bca-actions__item',
+      'class' => 'bca-btn bca-actions__item',
       'data-bca-btn-type' => 'back-to-list'
     ]) ?>
+  </div>
+  <div class="bca-actions__main">
     <?php if ($isAvailablePreview): ?>
       <?php echo $this->BcAdminForm->button(__d('baser_core', 'プレビュー'), [
-        'class' => 'button bca-btn bca-actions__item',
+        'class' => 'bca-btn bca-actions__item',
         'data-bca-btn-type' => 'preview',
         'id' => 'BtnPreview'
       ]) ?>

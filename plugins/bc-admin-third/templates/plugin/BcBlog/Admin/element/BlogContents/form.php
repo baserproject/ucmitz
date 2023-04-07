@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package            Blog.View
  * @since           baserCMS v 0.1.0
  * @license         https://basercms.net/license/index.html
  */
@@ -59,7 +58,7 @@ use Cake\Routing\Router;
       data-bca-target="#blogContentsSettingBody"
       aria-expanded="false"
       aria-controls="blogContentsSettingBody">
-      詳細設定&nbsp;&nbsp;
+      <?php echo __d('baser_core', '詳細設定') ?>&nbsp;&nbsp;
       <i class="bca-icon--chevron-down bca-collapse__btn-icon"></i>
     </button>
   </div>

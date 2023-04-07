@@ -16,7 +16,6 @@ use BaserCore\Annotation\Checked;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Model\Entity\Content;
 use BaserCore\Service\ContentsServiceInterface;
-use BaserCore\Service\SiteConfigsServiceInterface;
 use BaserCore\Service\SitesServiceInterface;
 use BaserCore\Service\UsersServiceInterface;
 use BaserCore\Utility\BcContainerTrait;
@@ -33,6 +32,47 @@ class BcAdminContentsService implements BcAdminContentsServiceInterface
      * Trait
      */
     use BcContainerTrait;
+
+    /**
+     * 新規登録画面用のデータを取得
+     * BcAdminContentsComponent より呼び出される
+     * @param Content $content
+     * @return array
+     * @checked
+     * @noTodo
+     * @unitTest
+     */
+    public function getViewVarsForAdd(EntityInterface $content): array
+    {
+        $options = [];
+        if ($content->type === 'ContentFolder') $options['excludeId'] = $content->id;
+        $related = false;
+
+        /* @var \BaserCore\Service\SitesService $sitesService */
+        $sitesService = $this->getService(SitesServiceInterface::class);
+        $content->site = $sitesService->get($content->site_id);
+
+        if (($content->site->relate_main_site && $content->main_site_content_id && $content->alias_id) ||
+            $content->site->relate_main_site && $content->main_site_content_id && $content->type == 'ContentFolder') {
+            $related = true;
+        }
+
+        /** @var ContentsServiceInterface $contentsService */
+        $contentsService = $this->getService(ContentsServiceInterface::class);
+        return [
+            'content' => $content,
+            'related' => $related,
+            'currentSiteId' => $content->site_id,
+            'mainSiteId' => $content->site->main_site_id,
+            'publishLink' => '',
+            'parentContents' => $contentsService->getContentFolderList($content->site_id, $options),
+            'fullUrl' => $contentsService->getUrl($content->url, true, $content->site->use_subdomain),
+            'authorList' => $this->getService(UsersServiceInterface::class)->getList(),
+            'sites' => $sitesService->getList(),
+            'relatedContents' => $sitesService->getRelatedContents($content->id, $content->parent_id),
+            'layoutTemplates' => $this->getLayoutTemplates($content)
+        ];
+    }
 
     /**
      * 編集画面用のデータを取得
@@ -59,7 +99,6 @@ class BcAdminContentsService implements BcAdminContentsServiceInterface
 
         /* @var \BaserCore\Service\SitesService $sitesService */
         $sitesService = $this->getService(SitesServiceInterface::class);
-        $siteConfigsService = $this->getService(SiteConfigsServiceInterface::class);
 
         return [
             'content' => $content,
@@ -72,7 +111,6 @@ class BcAdminContentsService implements BcAdminContentsServiceInterface
             'authorList' => $this->getService(UsersServiceInterface::class)->getList(),
             'sites' => $sitesService->getList(),
             'relatedContents' => $sitesService->getRelatedContents($content->id),
-            'mainSiteDisplayName' => $siteConfigsService->getValue('main_site_display_name'),
             'layoutTemplates' => $this->getLayoutTemplates($content)
         ];
     }
@@ -90,7 +128,7 @@ class BcAdminContentsService implements BcAdminContentsServiceInterface
         $templates = BcUtil::getTemplateList('layout', [$content->plugin, $theme]);
         $contentsService = $this->getService(ContentsAdminServiceInterface::class);
         if ($content->id != 1) {
-            $parentTemplate = $contentsService->getParentLayoutTemplate($content->id);
+            $parentTemplate = $contentsService->getParentLayoutTemplate($content->id, $content->parent_id);
             if (in_array($parentTemplate, $templates)) {
                 unset($templates[$parentTemplate]);
             }

@@ -38,7 +38,6 @@ use BaserCore\Annotation\UnitTest;
 
 /**
  * Class ContentsService
- * @package BaserCore\Service
  * @property ContentsTable $Contents
  * @checked
  * @noTodo
@@ -133,10 +132,20 @@ class ContentsService implements ContentsServiceInterface
      * @noTodo
      * @unitTest
      */
-    public function get($id): EntityInterface
+    public function get($id, array $queryParams = []): EntityInterface
     {
+        $queryParams = array_merge([
+            'status' => '',
+            'contain' => ['Sites']
+        ], $queryParams);
+
+        $conditions = [];
+        if ($queryParams['status'] === 'publish') {
+            $conditions = $this->Contents->getConditionAllowPublish();
+        }
         return $this->Contents->get($id, [
-            'contain' => ['Sites'],
+            'contain' => $queryParams['contain'],
+            'conditions' => $conditions
         ]);
     }
 
@@ -704,24 +713,22 @@ class ContentsService implements ContentsServiceInterface
     /**
      * 直属の親フォルダのレイアウトテンプレートを取得する
      *
-     * @param $id
+     * @param int $id
+     * @param int|null $parentId
      * @return string $parentTemplate|false
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function getParentLayoutTemplate($id)
+    public function getParentLayoutTemplate(?int $id, int $parentId = null)
     {
         if (!$id) {
-            return false;
+            if($parentId) {
+                $id = $parentId;
+            } else {
+                return false;
+            }
         }
-        // ===========================================================================================
-        // 2016/09/22 ryuring
-        // PHP 7.0.8 環境にて、コンテンツ一覧追加時、検索インデックス作成のため、BcContentsComponent が
-        // 呼び出されるが、その際、モデルのマジックメソッドの戻り値を返すタイミングで処理がストップしてしまう。
-        // そのため、ビヘイビアのメソッドを直接実行して対処した。
-        // CakePHPも、PHP自体のエラーも発生せず、ただ止まる。PHP7のバグ？PHP側のメモリーを256Mにしても変わらず。
-        // ===========================================================================================
         $contents = $this->Contents->find('path', ['for' => $id])->all()->toArray();
         $contents = array_reverse($contents);
         unset($contents[0]);

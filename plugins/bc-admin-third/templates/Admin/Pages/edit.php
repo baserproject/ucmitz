@@ -10,7 +10,7 @@
  */
 
 /**
- * [ADMIN] ページ登録・編集フォーム
+ * [ADMIN] ページ編集フォーム
  * @var \BaserCore\View\BcAdminAppView $this
  * @var \BaserCore\Model\Entity\Page $page
  * @checked
@@ -25,6 +25,7 @@ $this->BcAdmin->setHelp('pages_form');
 
 
 <?php echo $this->BcAdminForm->create($page, ['id' => 'PageAdminEditForm', 'novalidate' => true]) ?>
+<?php echo $this->BcAdminForm->control('id', ['type' => 'hidden']) ?>
 <?php echo $this->BcAdminForm->control('mode', ['type' => 'hidden']) ?>
 
 <?php $this->BcBaser->element('BaserCore.Pages/form') ?>

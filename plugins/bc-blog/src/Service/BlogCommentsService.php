@@ -66,15 +66,30 @@ class BlogCommentsService implements BlogCommentsServiceInterface
     {
         $options = array_merge([
             'blog_post_id' => null,
-            'contain' => ['BlogPosts']
+            'status' => '',
+            'contain' => ['BlogPosts' => ['BlogContents' => ['Contents']]]
         ], $queryParams);
-        $query = $this->BlogComments->find()->contain($options['contain']);
-        if(!empty($queryParams['num'])) {
-            $query = $query->limit($queryParams['num']);
+
+        if (is_null($options['contain'])) {
+            $fields = $this->BlogComments->getSchema()->columns();
+            $query = $this->BlogComments->find()
+                ->contain(['BlogPosts' => ['BlogContents' => ['Contents']]])
+                ->select($fields);
+        } else {
+            $query = $this->BlogComments->find()->contain($options['contain']);
         }
-        if(!empty($options['blog_post_id'])) {
+
+        if (!empty($queryParams['limit'])) {
+            $query = $query->limit($queryParams['limit']);
+        }
+        if (!empty($options['blog_post_id'])) {
             $query = $query->where(['BlogComments.blog_post_id' => $options['blog_post_id']]);
         }
+
+        if ($options['status'] === 'publish') {
+            $query->where($this->BlogComments->BlogContents->Contents->getConditionAllowPublish());
+        }
+
         return $query;
     }
 
@@ -82,13 +97,28 @@ class BlogCommentsService implements BlogCommentsServiceInterface
      * ブログコメントの単一データを取得する
      *
      * @param int $id
-     * @return \Cake\Datasource\EntityInterface
+     * @param array $queryParams
+     * @return EntityInterface
      * @checked
      * @noTodo
      * @unitTest
      */
-    public function get(int $id) {
-        return $this->BlogComments->get($id, ['contain' => ['BlogPosts']]);
+    public function get(int $id, array $queryParams = [])
+    {
+        $queryParams = array_merge([
+            'status' => ''
+        ], $queryParams);
+
+        $conditions = [];
+        if ($queryParams['status'] === 'publish') {
+            $conditions = $this->BlogComments->BlogContents->Contents->getConditionAllowPublish();
+            $conditions = array_merge($conditions, ['BlogComments.status' => true]);
+        }
+
+        return $this->BlogComments->get($id, [
+            'contain' => ['BlogPosts' => ['BlogContents' => ['Contents']]],
+            'conditions' => $conditions
+        ]);
     }
 
     /**
@@ -114,8 +144,8 @@ class BlogCommentsService implements BlogCommentsServiceInterface
     public function add(int $blogContentId, int $blogPostId, array $postData)
     {
         $postData = array_merge([
-            'url' => null,
-            'email' => null,
+            'url' => '',
+            'email' => '',
             'auth_captcha' => null,
             'captcha_id' => null
         ], $postData);

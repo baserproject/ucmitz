@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package            Uploader.View
  * @since           baserCMS v 3.0.10
  * @license         https://basercms.net/license/index.html
  */
@@ -70,5 +69,14 @@ $uploaderCategories = $this->BcAdminForm->getControlSource("UploaderFiles.upload
       <p class="no-data bca-file-list__no-data"><?php echo __d('baser_core', 'ファイルが存在しません') ?></p>
     <?php endif ?>
   </div>
+
+	<div class="bca-data-list__bottom">
+		<div class="bca-data-list__sub">
+			<!-- pagination -->
+			<?php $this->BcBaser->element('pagination') ?>
+			<!-- list-num -->
+			<?php $this->BcBaser->element('list_num') ?>
+		</div>
+	</div>
 
 </div>

@@ -87,11 +87,11 @@ class ThemesService implements ThemesServiceInterface
      */
     public function getDefaultDataPatterns($theme = '', $options = [])
     {
-        if (!$theme) $theme = Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-');
+        if (!$theme) $theme = Inflector::camelize(Configure::read('BcApp.coreFrontTheme'), '-');
         $options = array_merge(['useTitle' => true], $options);
         $dataPath = dirname(BcUtil::getDefaultDataPath($theme));
         if(!$dataPath) return [];
-        if ($theme !== Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-') &&
+        if ($theme !== Inflector::camelize(Configure::read('BcApp.coreFrontTheme'), '-') &&
             $dataPath === dirname(BcUtil::getDefaultDataPath())) {
             return [];
         }
@@ -141,7 +141,7 @@ class ThemesService implements ThemesServiceInterface
         }
         if (empty($_FILES['file']['tmp_name'])) {
             $message = '';
-            if ($postData['file']->getError() === 1) {
+            if (isset($postData['file']) && $postData['file']->getError() === 1) {
                 $message = __d('baser_core', 'サーバに設定されているサイズ制限を超えています。');
             }
             throw new BcException($message);
@@ -178,12 +178,18 @@ class ThemesService implements ThemesServiceInterface
      */
     public function apply(Site $site, string $theme): array
     {
-        // テーマ梱包のプラグインを無効化
-        $this->detachCurrentThemesPlugins();
-
         // テーマを適用
         BcUtil::includePluginClass($theme);
-        Plugin::getCollection()->get($theme)->applyAsTheme($site, $theme);
+
+        $plugin = Plugin::getCollection()->get($theme);
+        if(method_exists($plugin, 'applyAsTheme')) {
+            $plugin->applyAsTheme($site, $theme);
+        } else {
+            throw new BcException(__d('baser_core', 'src フォルダに Plugin クラスが配置されていません。'));
+        }
+
+        // テーマ梱包のプラグインを無効化
+        $this->detachCurrentThemesPlugins();
 
         // テーマが梱包するプラグイン情報を取得
         $info = $this->getThemesPluginsInfo($theme);
@@ -227,7 +233,7 @@ class ThemesService implements ThemesServiceInterface
     {
         $info = [];
         $themePath = BcUtil::getPluginPath($theme);
-        $Folder = new Folder($themePath . 'Plugin');
+        $Folder = new Folder($themePath . 'plugins');
         $files = $Folder->read(true, true, false);
         if (!empty($files[0])) {
             $info = array_merge($info, [
@@ -529,7 +535,7 @@ class ThemesService implements ThemesServiceInterface
     {
         $path = BcUtil::getDefaultDataPath($theme, $pattern);
         if (!$path) return false;
-        $corePath = BcUtil::getDefaultDataPath(Configure::read('BcApp.defaultFrontTheme'), 'default');
+        $corePath = BcUtil::getDefaultDataPath(Configure::read('BcApp.coreFrontTheme'), 'default');
 
         $Folder = new Folder($corePath . DS . 'BaserCore');
         $files = $Folder->read(true, true);

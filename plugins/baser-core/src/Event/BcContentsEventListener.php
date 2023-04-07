@@ -29,7 +29,6 @@ use BaserCore\Annotation\UnitTest;
  * 階層コンテンツと連携したフォーム画面を表示する為のイベント
  * BcContentsComponent でコントロールされる
  *
- * @package Baser.Event
  */
 class BcContentsEventListener extends BcEventListener
 {
@@ -105,7 +104,7 @@ class BcContentsEventListener extends BcEventListener
     {
         if (!BcUtil::isAdminSystem()) return;
         if ($event->getData('id') === 'PermissionAjaxAddForm') return;
-        if (!preg_match('/(AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) return;
+        if (!preg_match('/(AdminAddForm|AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) return;
         $View = $event->getSubject();
         return $event->getData('out') . "\n" . $View->element('content_fields');
     }
@@ -125,7 +124,7 @@ class BcContentsEventListener extends BcEventListener
     public function formAfterSubmit(Event $event)
     {
         if (!BcUtil::isAdminSystem()) return;
-        if (!preg_match('/(AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) return;
+        if (!preg_match('/(AdminAddForm|AdminEditForm|AdminEditAliasForm)$/', $event->getData('id'))) return;
         /**  @var BcAdminAppView $view*/
         $view = $event->getSubject();
         $entity = $view->get($this->entityVarName);

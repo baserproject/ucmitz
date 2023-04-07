@@ -50,16 +50,16 @@ return [
         'ThemeFilesApi' => [
             'title' => __d('baser_core', 'テーマファイルAPI'),
             'plugin' => 'BcThemeFile',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'Add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/bc-theme-file/theme_files/add.json', 'method' => 'POST', 'auth' => false],
-                'Edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-theme-file/theme_files/edit.json', 'method' => 'POST', 'auth' => false],
-                'Delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/bc-theme-file/theme_files/delete.json', 'method' => 'POST', 'auth' => false],
-                'Copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/bc-theme-file/theme_files/copy.json', 'method' => 'POST', 'auth' => false],
-                'CopyToTheme' => ['title' => __d('baser_core', 'ファイルをテーマにコピー'), 'url' => '/baser/api/bc-theme-file/theme_files/copy_to_theme.json', 'method' => 'POST', 'auth' => false],
-                'View' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/bc-theme-file/theme_files/view.json', 'method' => 'GET', 'auth' => false],
-                'Img' => ['title' => __d('baser_core', '画像取得'), 'url' => '/baser/api/bc-theme-file/theme_files/img.json', 'method' => 'GET', 'auth' => false],
-                'ImgThumb' => ['title' => __d('baser_core', 'サムネイル画像取得'), 'url' => '/baser/api/bc-theme-file/theme_files/img_thumb.json', 'method' => 'GET', 'auth' => false],
+                'Add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/add.json', 'method' => 'POST', 'auth' => false],
+                'Edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/edit.json', 'method' => 'POST', 'auth' => false],
+                'Delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/delete.json', 'method' => 'POST', 'auth' => false],
+                'Copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/copy.json', 'method' => 'POST', 'auth' => false],
+                'CopyToTheme' => ['title' => __d('baser_core', 'ファイルをテーマにコピー'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/copy_to_theme.json', 'method' => 'POST', 'auth' => false],
+                'View' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/view.json', 'method' => 'GET', 'auth' => false],
+                'Img' => ['title' => __d('baser_core', '画像取得'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/img.json', 'method' => 'GET', 'auth' => false],
+                'ImgThumb' => ['title' => __d('baser_core', 'サムネイル画像取得'), 'url' => '/baser/api/admin/bc-theme-file/theme_files/img_thumb.json', 'method' => 'GET', 'auth' => false],
             ]
         ],
 
@@ -67,16 +67,16 @@ return [
         'ThemeFoldersApi' => [
             'title' => __d('baser_core', 'テーマフォルダAPI'),
             'plugin' => 'BcThemeFile',
-            'type' => 'Api',
+            'type' => 'Api/Admin',
             'items' => [
-                'Index' => ['title' => __d('baser_core', '一覧'), 'url' => '/baser/api/bc-theme-file/theme_folders/index.json', 'method' => 'GET', 'auth' => false],
-                'Add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/bc-theme-file/theme_folders/add.json', 'method' => 'POST', 'auth' => false],
-                'Edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/bc-theme-file/theme_folders/edit.json', 'method' => 'POST', 'auth' => false],
-                'Delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/bc-theme-file/theme_folders/delete.json', 'method' => 'POST', 'auth' => false],
-                'Copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/bc-theme-file/theme_folders/copy.json', 'method' => 'POST', 'auth' => false],
-                'Upload' => ['title' => __d('baser_core', 'アップロード'), 'url' => '/baser/api/bc-theme-file/theme_folders/upload.json', 'method' => 'POST', 'auth' => false],
-                'CopyToTheme' => ['title' => __d('baser_core', 'フォルダをテーマにコピー'), 'url' => '/baser/api/bc-theme-file/theme_folders/copy_to_theme.json', 'method' => 'POST', 'auth' => false],
-                'View' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/bc-theme-file/theme_folders/view.json', 'method' => 'GET', 'auth' => false],
+                'Index' => ['title' => __d('baser_core', '一覧'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/index.json', 'method' => 'GET', 'auth' => false],
+                'Add' => ['title' => __d('baser_core', '新規登録'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/add.json', 'method' => 'POST', 'auth' => false],
+                'Edit' => ['title' => __d('baser_core', '編集'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/edit.json', 'method' => 'POST', 'auth' => false],
+                'Delete' => ['title' => __d('baser_core', '削除'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/delete.json', 'method' => 'POST', 'auth' => false],
+                'Copy' => ['title' => __d('baser_core', 'コピー'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/copy.json', 'method' => 'POST', 'auth' => false],
+                'Upload' => ['title' => __d('baser_core', 'アップロード'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/upload.json', 'method' => 'POST', 'auth' => false],
+                'CopyToTheme' => ['title' => __d('baser_core', 'フォルダをテーマにコピー'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/copy_to_theme.json', 'method' => 'POST', 'auth' => false],
+                'View' => ['title' => __d('baser_core', '単一取得'), 'url' => '/baser/api/admin/bc-theme-file/theme_folders/view.json', 'method' => 'GET', 'auth' => false],
             ]
         ],
     ]

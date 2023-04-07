@@ -5,7 +5,6 @@
  *
  * @copyright       Copyright (c) baserCMS Users Community
  * @link            https://basercms.net baserCMS Project
- * @package         Blog.Test.Case.Model
  * @since           baserCMS v 3.0.0
  * @license         https://basercms.net/license/index.html
  */
@@ -361,7 +360,7 @@ class BlogCategoriesTableTest extends BcTestCase
             'id' => 3,
             'name' => '新着情報記事管理',
             'user_group_id' => 3,
-            'url' => '/baser/api/bc-blog/*',
+            'url' => '/baser/api/admin/bc-blog/*',
             'auth' => true,
             'status' => true
         ])->persist();
@@ -374,7 +373,7 @@ class BlogCategoriesTableTest extends BcTestCase
             'id' => 2,
             'name' => '新着情報記事管理ブロック',
             'user_group_id' => 2,
-            'url' => '/baser/api/bc-blog/*',
+            'url' => '/baser/api/admin/bc-blog/*',
             'auth' => false,
             'status' => true
         ])->persist();

@@ -1,32 +1,31 @@
 <?php
 /**
  * baserCMS :  Based Website Development Project <https://basercms.net>
- * Copyright (c) baserCMS Users Community <https://basercms.net/community/>
+ * Copyright (c) NPO baser foundation <https://baserfoundation.org/>
  *
- * @copyright       Copyright (c) baserCMS Users Community
- * @link			https://basercms.net baserCMS Project
- * @package         Baser.View
- * @since           baserCMS v 4.4.0
- * @license         https://basercms.net/license/index.html
+ * @copyright     Copyright (c) NPO baser foundation
+ * @link          https://basercms.net baserCMS Project
+ * @since         5.0.0
+ * @license       https://basercms.net/license/index.html MIT License
  */
 
 /**
  * Google Analytics トラッキングコード
- * 呼出箇所：全ページ
  *
+ * 呼出箇所：全ページ
  * $this->BcBaser->googleAnalytics() で呼び出す
  *
- * @var array $siteConfig サイト基本設定データ
+ * @var \BaserCore\View\BcFrontAppView $this
+ * @var string $googleAnalyticsId
  */
+if(!$googleAnalyticsId) return;
 ?>
 
 
-<?php if (!empty($siteConfig['google_analytics_id'])): ?>
-<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo $siteConfig['google_analytics_id'] ?>"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo h($googleAnalyticsId) ?>"></script>
 <script>
 	window.dataLayer = window.dataLayer || [];
 	function gtag(){dataLayer.push(arguments);}
 	gtag('js', new Date());
-	gtag('config', '<?php echo $siteConfig['google_analytics_id'] ?>');
+	gtag('config', '<?php echo h($googleAnalyticsId) ?>');
 </script>
-<?php endif; ?>

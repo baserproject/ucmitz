@@ -31,7 +31,7 @@ $(function () {
         $.bcToken.check(function () {
             return $.ajax({
                 type: 'POST',
-                url: $.bcUtil.apiBaseUrl + 'baser-core/site_configs/check_sendmail.json',
+                url: $.bcUtil.apiAdminBaseUrl + 'baser-core/site_configs/check_sendmail.json',
                 headers: {
                     "Authorization": $.bcJwt.accessToken,
                 },
@@ -45,8 +45,8 @@ $(function () {
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     var errorMessage = '';
-                    if (XMLHttpRequest.responseText) {
-                        errorMessage = XMLHttpRequest.responseText;
+                    if (XMLHttpRequest.responseJSON.message) {
+                        errorMessage = XMLHttpRequest.responseJSON.message;
                     } else {
                         errorMessage = errorThrown;
                     }
@@ -91,7 +91,7 @@ $(function () {
      * エディタ切替時イベント
      */
     function siteConfigEditorClickHandler() {
-        if ($('input[name="editor"]:checked').val() === 'BcCkeditor') {
+        if ($('input[name="editor"]:checked').val() === 'BaserCore.BcCkeditor') {
             $(".ckeditor-option").show();
         } else {
             $(".ckeditor-option").hide();

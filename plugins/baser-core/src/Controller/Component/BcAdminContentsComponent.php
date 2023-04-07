@@ -50,6 +50,15 @@ class BcAdminContentsComponent extends Component
      */
     public $editAction = 'edit';
 
+	/**
+	 * コンテンツ新規登録用のアクション名
+	 * 判定に利用
+	 * settings で指定する
+	 *
+	 * @var string
+	 */
+	public $addAction = 'add';
+
     /**
      * Initialize
      *
@@ -92,7 +101,7 @@ class BcAdminContentsComponent extends Component
         $controller = $this->getController();
         $request = $controller->getRequest();
         $controller->set('contentsItems', $this->getConfig('items'));
-        if ($this->getConfig('useForm') && in_array($request->getParam('action'), [$this->editAction, 'edit_alias'])) {
+        if ($this->getConfig('useForm') && in_array($request->getParam('action'), [$this->addAction, $this->editAction, 'edit_alias'])) {
             $this->settingForm();
         }
     }
@@ -107,6 +116,7 @@ class BcAdminContentsComponent extends Component
     public function settingForm()
     {
         $controller = $this->getController();
+        $request = $controller->getRequest();
         $entityName = $this->getConfig('entityVarName')?? Inflector::classify($controller->getName());
         EventManager::instance()->on(new BcContentsEventListener($entityName));
 
@@ -124,11 +134,15 @@ class BcAdminContentsComponent extends Component
         $controller->setRequest($controller->getRequest()->withAttribute('currentSite', $content->site));
         Router::setRequest($controller->getRequest());
 
-        if (Configure::read('BcApp.autoUpdateContentCreatedDate')) {
+        if (Configure::read('BcContents.autoUpdateContentCreatedDate')) {
             $content->modified_date = date('Y-m-d H:i:s');
         }
         /* @var \BaserCore\Service\Admin\BcAdminContentsService $bcAdminContentsService */
         $bcAdminContentsService = $this->getService(BcAdminContentsServiceInterface::class);
-        $controller->set($bcAdminContentsService->getViewVarsForEdit($content));
+        if($request->getParam('action') === $this->addAction) {
+            $controller->set($bcAdminContentsService->getViewVarsForAdd($content));
+        } else {
+            $controller->set($bcAdminContentsService->getViewVarsForEdit($content));
+        }
     }
 }

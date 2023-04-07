@@ -19,6 +19,7 @@ use BaserCore\Utility\BcUtil;
 use Cake\Core\Configure;
 use Cake\Core\Container;
 use Cake\Event\EventManager;
+use Cake\Http\Middleware\CsrfProtectionMiddleware;
 use Cake\Http\MiddlewareQueue;
 use Authentication\Middleware\AuthenticationMiddleware;
 use Cake\Routing\Router;
@@ -26,7 +27,6 @@ use Cake\Filesystem\File;
 
 /**
  * Class PluginTest
- * @package BaserCore\Test\TestCase
  * @property Plugin $Plugin
  */
 class PluginTest extends BcTestCase
@@ -105,8 +105,8 @@ class PluginTest extends BcTestCase
 
         $this->assertEquals($pathsPluginsExpected, Configure::read('App.paths.plugins'));
 
-        $this->assertNotNull(Configure::read('BcApp.defaultAdminTheme'));
-        $this->assertNotNull(Configure::read('BcApp.defaultFrontTheme'));
+        $this->assertNotNull(Configure::read('BcApp.coreAdminTheme'));
+        $this->assertNotNull(Configure::read('BcApp.coreFrontTheme'));
 
         $plugins = BcUtil::getEnablePlugins();
         foreach ($plugins as $plugin) {
@@ -114,7 +114,7 @@ class PluginTest extends BcTestCase
         }
 
         $this->assertNotNull(\Cake\Core\Plugin::getCollection()->get('DebugKit'));
-        $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.defaultFrontTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
+        $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.coreFrontTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
 
         copy('config/.env','config/.env.bak');
 
@@ -142,7 +142,7 @@ return [];
 
         $this->loginAdmin($this->getRequest('/baser/admin'));
         $this->Plugin->bootstrap($this->application);
-        $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.defaultAdminTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
+        $this->assertEquals('/var/www/html/plugins/' . Configure::read('BcApp.coreAdminTheme') . '/templates/', Configure::read('App.paths.templates')[0]);
 
         $this->assertNotNull(\Cake\Core\Plugin::getCollection()->get('DebugKit'));
 
@@ -174,6 +174,7 @@ return [];
     public function testMiddleware(): void
     {
         $middleware = new MiddlewareQueue();
+        $middleware->add(CsrfProtectionMiddleware::class);
         $middlewareQueue = $this->Plugin->middleware($middleware);
         $this->assertInstanceOf(AuthenticationMiddleware::class, $middlewareQueue->current());
     }
@@ -211,8 +212,8 @@ return [];
     public function getAuthenticationServiceDataProvider()
     {
         return [
-            // APIの場合
-            ['Api', ['Jwt', 'Form'], 'JwtSubject', []],
+            // Api/Admin の場合
+            ['Api/Admin', ['Jwt', 'Form'], 'JwtSubject', []],
             // Adminの場合
             ['Admin', ['Session', 'Form'], 'Password', ['unauthenticatedRedirect' => '/baser/admin/baser-core/users/login']],
             // // それ以外の場合
@@ -263,6 +264,8 @@ return [];
         $this->assertEquals([
             ROOT . DS . 'plugins' . DS . 'bc-front' . DS . 'templates' . DS,
             ROOT . DS . 'vendor' . DS . 'baserproject' . DS . 'bc-front' . DS . 'templates' . DS,
+            ROOT . DS . 'plugins' . DS . 'bc-admin-third' . DS . 'templates' . DS,
+            ROOT . DS . 'vendor' . DS . 'baserproject' . DS . 'bc-admin-third' . DS . 'templates' . DS,
             ROOT . DS . 'templates' . DS,
         ], Configure::read('App.paths.templates'));
     }
