@@ -126,17 +126,17 @@ class BcTextHelper extends TextHelper
         } elseif ($empty === false) {
             $pref = ["" => ""];
         } else {
-            $pref = ["" => __d('baser_core', '都道府県')];
+            $pref = ["" => __d('default', '都道府県')];
         }
 
         $pref = $pref + [
-                1 => __d('baser_core', '北海道'), 2 => __d('baser_core', '青森県'), 3 => __d('baser_core', '岩手県'), 4 => __d('baser_core', '宮城県'), 5 => __d('baser_core', '秋田県'), 6 => __d('baser_core', '山形県'), 7 => __d('baser_core', '福島県'),
-                8 => __d('baser_core', '茨城県'), 9 => __d('baser_core', '栃木県'), 10 => __d('baser_core', '群馬県'), 11 => __d('baser_core', '埼玉県'), 12 => __d('baser_core', '千葉県'), 13 => __d('baser_core', '東京都'), 14 => __d('baser_core', '神奈川県'),
-                15 => __d('baser_core', '新潟県'), 16 => __d('baser_core', '富山県'), 17 => __d('baser_core', '石川県'), 18 => __d('baser_core', '福井県'), 19 => __d('baser_core', '山梨県'), 20 => __d('baser_core', '長野県'), 21 => __d('baser_core', '岐阜県'),
-                22 => __d('baser_core', '静岡県'), 23 => __d('baser_core', '愛知県'), 24 => __d('baser_core', '三重県'), 25 => __d('baser_core', '滋賀県'), 26 => __d('baser_core', '京都府'), 27 => __d('baser_core', '大阪府'), 28 => __d('baser_core', '兵庫県'),
-                29 => __d('baser_core', '奈良県'), 30 => __d('baser_core', '和歌山県'), 31 => __d('baser_core', '鳥取県'), 32 => __d('baser_core', '島根県'), 33 => __d('baser_core', '岡山県'), 34 => __d('baser_core', '広島県'), 35 => __d('baser_core', '山口県'),
-                36 => __d('baser_core', '徳島県'), 37 => __d('baser_core', '香川県'), 38 => __d('baser_core', '愛媛県'), 39 => __d('baser_core', '高知県'), 40 => __d('baser_core', '福岡県'), 41 => __d('baser_core', '佐賀県'), 42 => __d('baser_core', '長崎県'),
-                43 => __d('baser_core', '熊本県'), 44 => __d('baser_core', '大分県'), 45 => __d('baser_core', '宮崎県'), 46 => __d('baser_core', '鹿児島県'), 47 => __d('baser_core', '沖縄県')
+                1 => __d('default', '北海道'), 2 => __d('default', '青森県'), 3 => __d('default', '岩手県'), 4 => __d('default', '宮城県'), 5 => __d('default', '秋田県'), 6 => __d('default', '山形県'), 7 => __d('default', '福島県'),
+                8 => __d('default', '茨城県'), 9 => __d('default', '栃木県'), 10 => __d('default', '群馬県'), 11 => __d('default', '埼玉県'), 12 => __d('default', '千葉県'), 13 => __d('default', '東京都'), 14 => __d('default', '神奈川県'),
+                15 => __d('default', '新潟県'), 16 => __d('default', '富山県'), 17 => __d('default', '石川県'), 18 => __d('default', '福井県'), 19 => __d('default', '山梨県'), 20 => __d('default', '長野県'), 21 => __d('default', '岐阜県'),
+                22 => __d('default', '静岡県'), 23 => __d('default', '愛知県'), 24 => __d('default', '三重県'), 25 => __d('default', '滋賀県'), 26 => __d('default', '京都府'), 27 => __d('default', '大阪府'), 28 => __d('default', '兵庫県'),
+                29 => __d('default', '奈良県'), 30 => __d('default', '和歌山県'), 31 => __d('default', '鳥取県'), 32 => __d('default', '島根県'), 33 => __d('default', '岡山県'), 34 => __d('default', '広島県'), 35 => __d('default', '山口県'),
+                36 => __d('default', '徳島県'), 37 => __d('default', '香川県'), 38 => __d('default', '愛媛県'), 39 => __d('default', '高知県'), 40 => __d('default', '福岡県'), 41 => __d('default', '佐賀県'), 42 => __d('default', '長崎県'),
+                43 => __d('default', '熊本県'), 44 => __d('default', '大分県'), 45 => __d('default', '宮崎県'), 46 => __d('default', '鹿児島県'), 47 => __d('default', '沖縄県')
             ];
         return $pref;
     }

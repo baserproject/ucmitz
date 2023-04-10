@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2023-03-13 13:32+0900\n"
+"POT-Creation-Date: 2023-04-10 17:40+0900\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -14,142 +14,314 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/archives.php:5
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/archives.php:5
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/archives.php:5
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Blog/default/archives.php:7
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Blog/tags.php:19
-msgid "のアーカイブ一覧です。"
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:129
+msgid "都道府県"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/archives.php:39
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/index.php:35
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/posts.php:23
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/archives.php:46
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/index.php:43
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/posts.php:31
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/archives.php:37
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/index.php:35
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/posts.php:31
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Blog/default/archives.php:44
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Blog/default/index.php:46
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Blog/tags.php:51
-msgid "記事がありません。"
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:133
+msgid "北海道"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/index.php:20
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/archives.php:29
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/index.php:27
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/archives.php:33
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/index.php:31
-msgid "詳細ページへ"
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:133
+msgid "青森県"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/single.php:39
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/single.php:39
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/single.php:31
-msgid "前の記事"
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:133
+msgid "岩手県"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/single.php:41
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/single.php:41
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/single.php:33
-msgid "一覧へ"
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:133
+msgid "宮城県"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/default/single.php:42
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/topics/single.php:42
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Blog/works/single.php:35
-msgid "後の記事"
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:133
+msgid "秋田県"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:32
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:133
+msgid "山形県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:133
+msgid "福島県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:134
+msgid "茨城県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:134
+msgid "栃木県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:134
+msgid "群馬県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:134
+msgid "埼玉県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:134
+msgid "千葉県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:134
+msgid "東京都"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:134
+msgid "神奈川県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:135
+msgid "新潟県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:135
+msgid "富山県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:135
+msgid "石川県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:135
+msgid "福井県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:135
+msgid "山梨県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:135
+msgid "長野県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:135
+msgid "岐阜県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:136
+msgid "静岡県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:136
+msgid "愛知県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:136
+msgid "三重県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:136
+msgid "滋賀県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:136
+msgid "京都府"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:136
+msgid "大阪府"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:136
+msgid "兵庫県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:137
+msgid "奈良県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:137
+msgid "和歌山県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:137
+msgid "鳥取県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:137
+msgid "島根県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:137
+msgid "岡山県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:137
+msgid "広島県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:137
+msgid "山口県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:138
+msgid "徳島県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:138
+msgid "香川県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:138
+msgid "愛媛県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:138
+msgid "高知県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:138
+msgid "福岡県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:138
+msgid "佐賀県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:138
+msgid "長崎県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:139
+msgid "熊本県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:139
+msgid "大分県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:139
+msgid "宮崎県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:139
+msgid "鹿児島県"
+msgstr ""
+
+#: ./plugins/baser-core/src/View/Helper/BcTextHelper.php:139
+msgid "沖縄県"
+msgstr ""
+
+#: ./plugins/BcColumn/templates/element/blog_comments.php:48
 msgid "お名前"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:32
+#: ./plugins/BcColumn/templates/element/blog_comments.php:48
 msgid "ニックネーム"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:36
+#: ./plugins/BcColumn/templates/element/blog_comments.php:53
 msgid "Eメール"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:39
+#: ./plugins/BcColumn/templates/element/blog_comments.php:57
 msgid "Eメールは公開されません"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:47
+#: ./plugins/BcColumn/templates/element/blog_comments.php:65
 msgid "コメント"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:55
+#: ./plugins/BcColumn/templates/element/blog_comments.php:73
 msgid "認証画象"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:58
+#: ./plugins/BcColumn/templates/element/blog_comments.php:76
 msgid "画像の文字を入力してください"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/blog_comments.php:62
+#: ./plugins/BcColumn/templates/element/blog_comments.php:80
 msgid "送信する"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/crumbs.php:6
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/crumbs.php:22
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Elements/crumbs.php:6
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Elements/crumbs.php:22
+#: ./plugins/BcColumn/templates/element/crumbs.php:6
+#: ./plugins/BcColumn/templates/element/crumbs.php:22
 msgid "ホーム"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Elements/toppage.php:12
+#: ./plugins/BcColumn/templates/element/toppage.php:12
 msgid "実績"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/confirm.php:18
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/confirm.php:16
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/archives.php:5
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/archives.php:5
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/archives.php:5
+msgid "のアーカイブ一覧です。"
+msgstr ""
+
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/archives.php:39
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/index.php:35
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/posts.php:23
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/archives.php:46
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/index.php:43
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/posts.php:31
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/archives.php:37
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/index.php:35
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/posts.php:31
+msgid "記事がありません。"
+msgstr ""
+
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/index.php:20
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/archives.php:29
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/index.php:27
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/archives.php:33
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/index.php:31
+msgid "詳細ページへ"
+msgstr ""
+
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/single.php:39
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/single.php:39
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/single.php:31
+msgid "前の記事"
+msgstr ""
+
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/single.php:41
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/single.php:41
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/single.php:33
+msgid "一覧へ"
+msgstr ""
+
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/default/single.php:42
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/topics/single.php:42
+#: ./plugins/BcColumn/templates/plugin/BcBlog/Blog/works/single.php:35
+msgid "後の記事"
+msgstr ""
+
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/confirm.php:18
 msgid "入力内容の確認"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/confirm.php:19
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/confirm.php:17
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/confirm.php:19
 msgid "入力した内容に間違いがなければ「送信する」ボタンをクリックしてください。"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/confirm.php:21
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/index.php:14
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/confirm.php:19
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/index.php:13
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/confirm.php:21
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/index.php:14
 msgid "入力フォーム"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/submit.php:14
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/submit.php:13
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/submit.php:14
 msgid "メール送信完了"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/submit.php:16
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/submit.php:15
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/submit.php:16
 msgid "お問い合わせ頂きありがとうございました。"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/submit.php:17
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/submit.php:16
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/submit.php:17
 msgid "確認次第、ご連絡させて頂きます。"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/submit.php:19
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/submit.php:18
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/submit.php:19
 msgid "%s 秒後にトップページへ自動的に移動します。"
 msgstr ""
 
-#: ./__assets/plugins/baser-core/config/theme/bccolumn/Mail/default/submit.php:20
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Mail/default/submit.php:19
+#: ./plugins/BcColumn/templates/plugin/BcMail/Mail/default/submit.php:20
 msgid "移動しない場合はコチラをクリックしてください。"
-msgstr ""
-
-#: ./__assets/plugins/baser-core/config/theme/nada-icons/Layouts/default.php:64
-msgid "ページトップへ戻る"
 msgstr ""
 
 #: ./templates/layout/error.php:40
