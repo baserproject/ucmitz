@@ -56,7 +56,7 @@ class BcCcFileControllerEventListener extends BcControllerEventListener
     public function bcCustomContentCustomEntriesStartup(EventInterface $event)
     {
         $request = $event->getSubject()->getRequest();
-        if(!$this->isAction('Add', false) && !$this->isAction('Edit', false)) return;
+        if(!$this->isAction('add', false) && !$this->isAction('edit', false)) return;
         $tableId = $request->getParam('pass.0');
         $this->setupUploader($tableId);
     }
