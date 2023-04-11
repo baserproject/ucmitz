@@ -600,7 +600,6 @@ class ContentsController extends BcAdminApiController
                 false
             );
             $message = __d('baser_core', '一括処理が完了しました。');
-            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");

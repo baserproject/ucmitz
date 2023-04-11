@@ -250,7 +250,6 @@ class PermissionsController extends BcAdminApiController
                 false
             );
             $message = __d('baser_core', '一括処理が完了しました。');
-            $this->BcMessage->setSuccess($message, true, false);
         } catch (\Throwable $e) {
             $message = __d('baser_core', 'データベース処理中にエラーが発生しました。' . $e->getMessage());
             $this->setResponse($this->response->withStatus(500));
