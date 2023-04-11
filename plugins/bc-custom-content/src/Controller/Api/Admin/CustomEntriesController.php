@@ -131,6 +131,7 @@ class CustomEntriesController extends BcAdminApiController
             $service->setup($queryParams['custom_table_id'], $this->getRequest()->getData());
             $entry = $service->create($this->request->getData());
             $message = __d('baser_core', 'フィールド「{0}」を追加しました。', $entry->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
@@ -169,6 +170,7 @@ class CustomEntriesController extends BcAdminApiController
             $service->setup($queryParams['custom_table_id'], $this->getRequest()->getData());
             $entry = $service->update($service->get($id), $this->request->getData());
             $message = __d('baser_core', 'フィールド「{0}」を更新しました。', $entry->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
@@ -211,6 +213,7 @@ class CustomEntriesController extends BcAdminApiController
             $entry = $service->get($id);
             $service->delete($id);
             $message = __d('baser_core', 'フィールド「{0}」を削除しました。', $entry->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (RecordNotFoundException $e) {
             $this->setResponse($this->response->withStatus(404));
             $message = __d('baser_core', 'データが見つかりません。');

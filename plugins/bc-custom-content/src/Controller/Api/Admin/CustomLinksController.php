@@ -95,6 +95,7 @@ class CustomLinksController extends BcAdminApiController
         try {
             $customLink = $service->create($this->request->getData());
             $message = sprintf(__d('baser_core', 'カスタムリンク「%s」を追加しました。'), $customLink->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
@@ -127,6 +128,7 @@ class CustomLinksController extends BcAdminApiController
         try {
             $entity = $service->update($service->get($id), $this->request->getData());
             $message = __d('baser_core', 'カスタムリンク「{0}」を更新しました。', $entity->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $entity = $e->getEntity();
@@ -167,6 +169,7 @@ class CustomLinksController extends BcAdminApiController
             $customLink = $service->get($id);
             if ($service->delete($id)) {
                 $message = __d('baser_core', 'カスタムリンク「{0}」を削除しました。', $customLink->title);
+                $this->BcMessage->setSuccess($message, true, false);
             } else {
                 $this->setResponse($this->response->withStatus(500));
                 $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');
