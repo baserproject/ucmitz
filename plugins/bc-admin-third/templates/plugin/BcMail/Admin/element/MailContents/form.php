@@ -48,6 +48,7 @@
       </th>
       <td class="col-input bca-form-table__input">
         <?php echo $this->BcAdminForm->control('sender_1_', [
+          'id' => 'sender-1-',
           'type' => 'radio',
           'options' => ['0' => __d('baser_core', '管理者用メールアドレスに送信する'), '1' => __d('baser_core', '別のメールアドレスに送信する')],
           'legend' => false,

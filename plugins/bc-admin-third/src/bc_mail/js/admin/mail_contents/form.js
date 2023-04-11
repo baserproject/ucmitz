@@ -31,11 +31,11 @@ $(function () {
 
     let sender1 = $("#sender-1");
     sender1.hide();
-    if ($('input[name="sender_1_"]:checked').val() === undefined) {
+    if ($('input[name="sender_1_"]:checked').val() == undefined) {
         if (sender1.val() !== '') {
-            $("#sender-1-1").prop('checked', true);
+            $("#sender-1--1").prop('checked', true);
         } else {
-            $("#sender-1-0").prop('checked', true);
+            $("#sender-1--0").prop('checked', true);
         }
     }
     mailContentSender1ClickHandler();
