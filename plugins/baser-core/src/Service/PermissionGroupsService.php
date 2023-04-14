@@ -305,7 +305,7 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 		$settings = Configure::read('permission');
 		if (!$settings) return false;
 
-        $result = [];
+        $result = true;
 		foreach($settings as $ruleGroupName => $setting) {
 
 			// PermissionGroup 存在確認、なければ作成
@@ -329,17 +329,18 @@ class PermissionGroupsService implements PermissionGroupsServiceInterface
 
 			// Permission 作成
 			foreach($setting['items'] as $ruleName => $item) {
-				$permissionsService->create([
-					'name' => isset($item['title'])? $item['title'] : $ruleName,
-					'permission_group_id' => $permissionGroup->id,
-					'user_group_id' => $userGroupId,
-					'url' => $item['url'],
-					'auth' => $item['auth'],
-					'method' => $item['method'],
-					'status' => true,
-				]);
-			}
-            $result[] = $permissionGroup;
+                if (!$permissionsService->create([
+                    'name' => isset($item['title']) ? $item['title'] : $ruleName,
+                    'permission_group_id' => $permissionGroup->id,
+                    'user_group_id' => $userGroupId,
+                    'url' => $item['url'],
+                    'auth' => $item['auth'],
+                    'method' => $item['method'],
+                    'status' => true,
+                ])) {
+                    $result = false;
+                }
+            }
 		}
 
 		Configure::delete('permission');

@@ -98,8 +98,12 @@ class PermissionGroupsServiceTest extends BcTestCase
     {
         $this->loadFixtureScenario(PermissionGroupsScenario::class);
         $plugin = 'BaserCore';
-        $result = $this->PermissionGroups->build(0, $plugin);
-        $this->assertCount(0, $result);
+        $this->PermissionGroups->build(0, $plugin);
+        $data = $this->PermissionGroups->getIndex(0, ['permission_amount' => true])
+            ->where(['plugin' => $plugin])
+            ->where(['permissions.user_group_id' => 0])
+            ->all()->toArray();
+        $this->assertCount(0, $data);
 
         $this->PermissionGroups->build(1, $plugin);
         $data = $this->PermissionGroups->getIndex(1, [])->where(['plugin' => $plugin])->all()->toArray();
