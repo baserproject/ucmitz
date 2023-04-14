@@ -35,7 +35,6 @@ class PermissionsControllerTest extends BcTestCase
         'plugin.BaserCore.Permissions',
         'plugin.BaserCore.Sites',
         'plugin.BaserCore.SiteConfigs',
-        'plugin.BaserCore.Dblogs'
     ];
 
     /**
@@ -221,8 +220,8 @@ class PermissionsControllerTest extends BcTestCase
         $this->post('/baser/api/admin/baser-core/permissions/copy/1.json?token=' . $this->accessToken);
         $this->assertResponseOk();
         $result = json_decode((string)$this->_response->getBody());
-        $this->assertEquals('アクセスルール「システム管理」をコピーしました。', $result->message);
-        $this->assertEquals('システム管理', $result->permission->name);
+        $this->assertEquals('アクセスルール「システム管理_copy」をコピーしました。', $result->message);
+        $this->assertEquals('システム管理_copy', $result->permission->name);
 
         $this->post('/baser/api/admin/baser-core/permissions/copy/2222.json?token=' . $this->accessToken);
         $this->assertResponseCode(404);

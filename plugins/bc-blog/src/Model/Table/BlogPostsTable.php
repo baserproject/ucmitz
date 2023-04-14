@@ -24,6 +24,7 @@ use Cake\Core\Plugin;
 use Cake\Database\Driver\Mysql;
 use Cake\Database\Driver\Postgres;
 use Cake\Database\Driver\Sqlite;
+use Cake\Datasource\EntityInterface;
 use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\ORM\Exception\PersistenceFailedException;
@@ -230,6 +231,27 @@ class BlogPostsTable extends BlogAppTable
     }
 
     /**
+     * Before Save
+     *
+     * @param  EventInterface $event
+     * @param  EntityInterface $entity
+     * @param  ArrayObject $options
+     * @return void
+     * @checked
+     * @noTodo
+     */
+    public function beforeSave(EventInterface $event, EntityInterface $entity, ArrayObject $options)
+    {
+        if (!Plugin::isLoaded('BcSearchIndex') || !$this->searchIndexSaving ) {
+            return;
+        }
+        // 検索用テーブルに登録
+        if (empty($entity->content) || !empty($entity->content->exclude_search)) {
+            $this->setExcluded();
+        }
+    }
+
+    /**
      * アップロードビヘイビアの設定
      *
      * @param int $id ブログコンテンツID
@@ -431,14 +453,14 @@ class BlogPostsTable extends BlogAppTable
                 break;
             case Postgres::class:
                 if (!empty($year)) {
-                    $conditions["date_part('year', \"BlogPosts\".\"posted\") ="] = $year;
+                    $conditions["date_part('year', BlogPosts.posted) ="] = $year;
                 } else {
-                    $conditions["date_part('year', \"BlogPosts\".\"posted\") ="] = date('Y');
+                    $conditions["date_part('year', BlogPosts.posted) ="] = date('Y');
                 }
                 if (!empty($month)) {
-                    $conditions["date_part('month', \"BlogPosts\".\"posted\") ="] = $month;
+                    $conditions["date_part('month', BlogPosts.posted) ="] = $month;
                 } else {
-                    $conditions["date_part('month', \"BlogPosts\".\"posted\") ="] = date('m');
+                    $conditions["date_part('month', BlogPosts.posted) ="] = date('m');
                 }
                 break;
             case Sqlite::class:
@@ -646,7 +668,7 @@ class BlogPostsTable extends BlogAppTable
         $eyeCatch = $data->eye_catch;
         $data->eye_catch = null;
         $arrayData = $data->toArray();
-        if (!empty($arrayData)) {
+        if (!empty($arrayData['blog_tags'])) {
             $blogTagIds = [];
             foreach($arrayData['blog_tags'] as $tag) {
                 $blogTagIds[] = $tag['id'];
@@ -807,7 +829,8 @@ class BlogPostsTable extends BlogAppTable
                 'BlogContents' => ['Contents' => ['Sites']],
                 'BlogCategories',
                 'BlogTags',
-                'BlogComments'
+                'BlogComments',
+                'Users'
             ])
             ->first();
     }

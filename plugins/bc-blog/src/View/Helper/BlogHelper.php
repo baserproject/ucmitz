@@ -461,7 +461,8 @@ class BlogHelper extends Helper
             ]);
         }
         if ($moreLink && trim($post->detail) != "<br>") {
-            $out .= $this->BcBaser->getElement('blog_post_content', [
+            if ($moreLink === true) $moreLink = __d('baser_core', '≫ 続きを読む');
+            $out .= $this->BcBaser->getElement('blog_post_content_more', [
                 'moreLink' => $moreLink,
                 'post' => $post
             ]);
@@ -710,7 +711,7 @@ class BlogHelper extends Helper
      * @param BlogPost $post ブログ記事
      * @return void
      */
-    public function author($post)
+    public function author(BlogPost $post)
     {
         echo h($this->BcBaser->getUserName($post->user));
     }
@@ -734,7 +735,7 @@ class BlogHelper extends Helper
         ], $options);
         if ($depth < $options['current']) return '';
         if ($categories) {
-            return $this->BcBaser->getElement('blog_category_list', [
+            return $this->BcBaser->getElement('BcBlog.blog_category_list', [
                 'categories' => $categories,
                 'depth' => $depth,
                 'count' => $count,

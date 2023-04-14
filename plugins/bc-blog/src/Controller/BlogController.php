@@ -49,7 +49,9 @@ class BlogController extends BlogFrontAppController
     public function initialize(): void
     {
         parent::initialize();
-        if ($this->getRequest()->getParam('action') !== 'index') {
+        if ($this->getRequest()->getParam('action') === 'index') {
+            $this->loadComponent('BaserCore.BcFrontContents');
+        } else {
             $this->loadComponent('BaserCore.BcFrontContents', ['viewContentCrumb' => true]);
         }
     }
@@ -135,6 +137,11 @@ class BlogController extends BlogFrontAppController
         }
 
         try {
+            $this->setRequest($this->getRequest()->withQueryParams(array_merge([
+                'limit' => $listCount,
+                'sort' => 'BlogPosts.posted',
+                'direction' => $blogContent->list_direction
+            ], $this->getRequest()->getQueryParams())));
             $entities = $this->paginate($blogPostsService->getIndex([
                 'blog_content_id' => $blogContentId,
                 'limit' => $listCount,

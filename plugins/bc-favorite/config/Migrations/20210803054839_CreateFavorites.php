@@ -12,9 +12,11 @@ class CreateFavorites extends BcMigration
      * https://book.cakephp.org/phinx/0/en/migrations.html#the-up-method
      * @return void
      */
-    public function change()
+    public function up()
     {
-        $table = $this->table('favorites');
+        $table = $this->table('favorites', [
+            'collation' => 'utf8mb4_general_ci'
+         ]);
         $table
             ->addColumn('user_id', 'integer', ['null' => true, 'default' => null, 'limit' => 8])
             ->addColumn('name', 'string', ['null' => true, 'default' => null, 'limit' => null])

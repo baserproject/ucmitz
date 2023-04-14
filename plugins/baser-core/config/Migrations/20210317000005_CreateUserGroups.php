@@ -14,7 +14,9 @@ class CreateUserGroups extends BcMigration
      */
     public function up()
     {
-          $this->table('user_groups')
+          $this->table('user_groups', [
+            'collation' => 'utf8mb4_general_ci'
+         ])
             ->addColumn('name', 'string', [
                 'default' => null,
                 'limit' => 50,
@@ -27,7 +29,7 @@ class CreateUserGroups extends BcMigration
             ])
             ->addColumn('auth_prefix', 'string', [
                 'default' => null,
-                'limit' => 20,
+                'limit' => 255,
                 'null' => true,
             ])
            ->addColumn('use_move_contents', 'boolean', [

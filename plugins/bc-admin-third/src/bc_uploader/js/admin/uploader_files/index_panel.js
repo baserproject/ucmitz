@@ -50,10 +50,10 @@ $(function () {
             $("#UploaderFileAlt" + listId).val($("#FileList" + listId + " .selected .alt").html());
 
             /* ダイアログ初期化時、hidden値が空になるため公開期間開始日時を取得して hidden値に入れ込む */
-            var publishBeginDate = $("#FileList" + listId + " .selected .publish-begin").html();
-            var publishBeginTime = $("#FileList" + listId + " .selected .publish-begin-time").html();
-            $("#UploaderFilePublishBeginDate").val(publishBeginDate);
-            $("#UploaderFilePublishBeginTime").val(publishBeginTime);
+            var publishBeginDate = $("#FileList" + listId + " .selected .publish-begin").html().trim();
+            var publishBeginTime = $("#FileList" + listId + " .selected .publish-begin-time").html().trim();
+            $("#UploaderFilePublishBegin-date").val(publishBeginDate);
+            $("#UploaderFilePublishBegin-time").val(publishBeginTime);
             var publishBeginDateTime = publishBeginDate;
             if (publishBeginTime) {
                 publishBeginDateTime += ' ' + publishBeginTime;
@@ -61,10 +61,10 @@ $(function () {
             $("#UploaderFilePublishBegin").val(publishBeginDateTime);
 
             /* ダイアログ初期化時、hidden値が空になるため公開期間終了日時を取得して hidden値に入れ込む */
-            var publishEndDate = $("#FileList" + listId + " .selected .publish-end").html();
-            var publishEndTime = $("#FileList" + listId + " .selected .publish-end-time").html();
-            $("#UploaderFilePublishEndDate").val(publishEndDate);
-            $("#UploaderFilePublishEndTime").val(publishEndTime);
+            var publishEndDate = $("#FileList" + listId + " .selected .publish-end").html().trim();
+            var publishEndTime = $("#FileList" + listId + " .selected .publish-end-time").html().trim();
+            $("#UploaderFilePublishEnd-date").val(publishEndDate);
+            $("#UploaderFilePublishEnd-time").val(publishEndTime);
             var publishEndDateTime = publishEndDate;
             if (publishEndTime) {
                 publishEndDateTime += ' ' + publishEndTime;
@@ -407,7 +407,8 @@ $(function () {
      * コンテキストメニューハンドラ
      */
     function contextMenuHander(action, el) {
-        let delUrl = $.bcUtil.apiAdminBaseUrl + 'bc-uploader/uploader_files/delete/' + $("#FileList" + listId + " .selected .id").html() + '.json';
+        let id = $("#FileList" + listId + " .selected .id").html().trim();
+        let delUrl = $.bcUtil.apiAdminBaseUrl + 'bc-uploader/uploader_files/delete/' + id + '.json';
 
         // IEの場合、action値が正常に取得できないので整形する
         let pos = action.indexOf("#");
@@ -421,20 +422,27 @@ $(function () {
             case 'delete':
                 if (confirm(bcI18n.uploaderConfirmMessage1)) {
                     $.bcToken.check(function () {
-                        $("#Waiting").show();
-                        return $.bcUtil.ajax(delUrl, function (res) {
-                            if (!res) {
-                                $("#Waiting").hide();
-                                alert(bcI18n.uploaderAlertMessage4);
-                            } else {
+                        $.ajax({
+                            url: delUrl,
+                            headers: {
+                                "X-CSRF-Token": $.bcToken.key,
+                            },
+                            type: 'post',
+                            dataType: 'json',
+                            beforeSend: function() {
+                                $("#Waiting").show();
+                            },
+                            success: function () {
                                 $("#FileList" + listId).trigger("deletecomplete");
                                 updateFileList();
+                            },
+                            error: function () {
+                                alert(bcI18n.uploaderAlertMessage4);
+                            },
+                            complete: function(){
+                                $("#Waiting").hide();
+                                $.bcToken.key = null;
                             }
-                            $.bcToken.key = null;
-                        }, {
-                            data: {
-                                _Token: {key: $.bcToken.key}
-                            }, hideLoader: false
                         });
                     }, {useUpdate: false, hideLoader: false});
                 }

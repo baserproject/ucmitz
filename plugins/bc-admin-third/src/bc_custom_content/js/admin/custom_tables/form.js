@@ -38,7 +38,8 @@ let customLinks = new Vue({
             parentList: {},
             enabledUseLoop: true,
             enabledGroupValid: true,
-            currentParentId: null
+            currentParentId: null,
+            tableId: script.attr('data-tableId')
         }
     },
 
@@ -287,30 +288,36 @@ let customLinks = new Vue({
             this.hideError();
             $.bcUtil.showLoader();
             let url = $.bcUtil.apiAdminBaseUrl + 'bc-custom-content/custom_links/edit/' + this.link.id + '.json';
-            axios.post(url, this.link)
-                .then(response => {
-                    $.bcUtil.hideLoader();
-                    this.links[this.link.id] = this.link;
-                    this.$refs.modalCustomLinkDetail.closeModal();
-                })
-                .catch(error => {
-                    $.bcUtil.hideLoader();
-                    const errors = error.response.data.errors;
-                    if (error.response.status === 400) {
-                        $('.modal-content #MessageBox .alert-message').html(error.response.data.message);
-                        Object.keys(errors).forEach(function (name) {
-                            Object.keys(errors[name]).forEach(function (detail) {
-                                $('.error-' + name).append(errors[name][detail]).show();
+            const $this = this;
+            $.bcToken.check(function(){
+                axios.post(url, $this.link, {
+                        headers: {
+                            'X-CSRF-Token': $.bcToken.key
+                        }
+                    })
+                    .then(response => {
+                        $.bcUtil.hideLoader();
+                        $this.links[$this.link.id] = $this.link;
+                        $this.$refs.modalCustomLinkDetail.closeModal();
+                    })
+                    .catch(error => {
+                        $.bcUtil.hideLoader();
+                        const errors = error.response.data.errors;
+                        if (error.response.status === 400) {
+                            $('.modal-content #MessageBox .alert-message').html(error.response.data.message);
+                            Object.keys(errors).forEach(function (name) {
+                                Object.keys(errors[name]).forEach(function (detail) {
+                                    $('.error-' + name).append(errors[name][detail]).show();
+                                });
                             });
-                        });
-                    } else if (error.response.status === 500) {
-                        $('.modal-content #MessageBox .alert-message').html(error.response.data.message);
-                    } else {
-                        $('.modal-content #MessageBox .alert-message').html('予期せぬエラーが発生しました。システム管理者に連絡してください。');
-                    }
-                    $('.modal-content #MessageBox').show();
-                });
-
+                        } else if (error.response.status === 500) {
+                            $('.modal-content #MessageBox .alert-message').html(error.response.data.message);
+                        } else {
+                            $('.modal-content #MessageBox .alert-message').html('予期せぬエラーが発生しました。システム管理者に連絡してください。');
+                        }
+                        $('.modal-content #MessageBox').show();
+                    });
+            });
         },
 
         /**
@@ -342,6 +349,31 @@ let customLinks = new Vue({
             if((this.link.rght - this.link.lft) > 1) {
                 this.enabledUseLoop = false;
             }
+        },
+
+        /**
+         * 削除する
+         *
+         * レイアウト上の問題にて、vue.js のアプリケーション内に削除ボタンを配置する必要があるが、
+         * アプリケーション内では、FormHelper::postLink() の JS が無効化されてしまうため、vue.js 内で実装。
+         * API を利用していない理由は次の課題をクリアするため
+         * - 削除してそのまま一覧に画面遷移する
+         * - 遷移後、フラッシュメッセージを表示する
+         * _Token フィールドの生成が JS上で難しいため、コントローラーにて validatePost を false にしている
+         * @see Admin/CustomTablesController::beforeFilter
+         */
+        deleteTable() {
+            if(!confirm(bcI18n.confirmDeleteMessage)) return;
+            $.bcUtil.showLoader();
+            const $form = $('<form method="post"/>');
+            const $input = $('<input name="_csrfToken"/>');
+            $form.attr('action', $.bcUtil.adminBaseUrl + 'bc-custom-content/custom_tables/delete/' + this.tableId);
+            $form.append($input);
+            $.bcToken.check(function (){
+                $input.val($.bcToken.key);
+                $("body").append($form);
+                $form.submit();
+            }, {hideLoader: false});
         }
 
     }

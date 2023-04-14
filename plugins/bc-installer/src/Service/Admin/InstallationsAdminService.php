@@ -86,7 +86,7 @@ class InstallationsAdminService extends InstallationsService implements Installa
                 'dbPrefix' => '',
                 'dbPort' => '3306',
                 'dbName' => 'basercms',
-                'dbDataPattern' => Inflector::camelize(Configure::read('BcApp.coreFrontTheme'), '-') . '.default'
+                'dbDataPattern' => Inflector::camelize(Configure::read('BcApp.defaultFrontTheme'), '-') . '.default'
             ];
         }
         $setting = $this->readDbSetting($request);
@@ -137,11 +137,23 @@ class InstallationsAdminService extends InstallationsService implements Installa
      */
     public function writeDbSettingToSession(ServerRequest $request, array $data): void
     {
-        $data['dbEncoding'] = 'utf8';
         $data['dbSchema'] = '';
-        if (!empty($data['dbType']) && $data['dbType'] === 'postgres') {
-            $data['dbSchema'] = 'public'; // TODO とりあえずpublic固定
+        if(!empty($data['dbType'])) {
+            switch($data['dbType']) {
+                case 'mysql':
+                    $data['dbEncoding'] = 'utf8mb4';
+                    break;
+                case 'postgres':
+                    $data['dbSchema'] = 'public'; // TODO とりあえずpublic固定
+                    $data['dbEncoding'] = 'utf8';
+                    break;
+                case 'sqlite':
+                default:
+                    $data['dbEncoding'] = 'utf8';
+                    break;
+            }
         }
+
         $sessionData = $request->getSession()->read();
         $sessionInstallation = [];
         if(!empty($sessionData['Installation'])) $sessionInstallation = $sessionData['Installation'];

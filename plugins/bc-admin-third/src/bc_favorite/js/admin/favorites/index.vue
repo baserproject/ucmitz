@@ -95,7 +95,6 @@ export default {
             i18nEdit: bcI18n.i18nEdit,
             i18nDelete: bcI18n.i18nDelete,
             favorites: [],
-            registerUrl: $.bcUtil.apiAdminBaseUrl + "bc-favorite/favorites/add.json",
             ariaExpanded: 'true',
             baseUrl: $.bcUtil.baseUrl,
             formError: false,
@@ -187,20 +186,24 @@ export default {
                 // ボタンの制御
                 this.favoriteBoxOpened = 'none';
                 this.ariaExpanded = 'true';
-                axios.post(baseUrl + '.json', {}, {
-                    headers: {
-                        "Authorization": $.bcJwt.accessToken,
-                    }
-                });
+                $.bcToken.check(function () {
+                    axios.post(baseUrl + '.json', {}, {
+                        headers: {
+                            'X-CSRF-Token': $.bcToken.key
+                        }
+                    });
+                }, {loaderType: 'none'});
             } else {
                 // ボタンの制御
                 this.favoriteBoxOpened = 'block';
                 this.ariaExpanded = 'false';
-                axios.post(baseUrl + '/1.json', {}, {
-                    headers: {
-                        "Authorization": $.bcJwt.accessToken,
-                    }
-                });
+                $.bcToken.check(function () {
+                    axios.post(baseUrl + '/1.json', {}, {
+                        headers: {
+                            'X-CSRF-Token': $.bcToken.key
+                        }
+                    });
+                }, {loaderType: 'none'});
             }
         },
 
@@ -254,7 +257,7 @@ export default {
                         $("#Waiting").show();
                         axios.post($.bcUtil.apiAdminBaseUrl + "bc-favorite/favorites/delete/" + id + ".json", {}, {
                             headers: {
-                                "Authorization": $.bcJwt.accessToken,
+                                "X-CSRF-Token": $.bcToken.key,
                             }
                         }).then(function (response) {
                             if (response.status === 200) {

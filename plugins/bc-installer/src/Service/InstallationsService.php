@@ -348,10 +348,6 @@ class InstallationsService implements InstallationsServiceInterface
     public function executeDefaultUpdates(): bool
     {
         $result = true;
-        if (!$this->_updatePluginStatus()) {
-            $this->log(__d('baser_core', 'プラグインの有効化に失敗しました。'));
-            $result = false;
-        }
         if (!$this->_updateContents()) {
             $this->log(__d('baser_core', 'コンテンツの更新に失敗しました。'));
             $result = false;
@@ -404,38 +400,6 @@ class InstallationsService implements InstallationsServiceInterface
             if (!$table->save($entity)) {
                 $result = false;
             }
-        }
-        return $result;
-    }
-
-    /**
-     * プラグインのステータスを更新する
-     *
-     * @return boolean
-     * @checked
-     * @noTodo
-     */
-    protected function _updatePluginStatus(): bool
-    {
-        $this->BcDatabase->truncate('plugins');
-        $version = BcUtil::getVersion();
-        $pluginsTable = TableRegistry::getTableLocator()->get('BaserCore.Plugins');
-        $priority = intval($pluginsTable->getMax('priority')) + 1;
-        $corePlugins = Configure::read('BcApp.defaultInstallCorePlugins');
-        $result = true;
-        foreach($corePlugins as $corePlugin) {
-            $plugin = $pluginsTable->getPluginConfig($corePlugin);
-            $plugin = $pluginsTable->patchEntity($plugin, [
-                'name' => $corePlugin,
-                'version' => $version,
-                'status' => true,
-                'db_inited' => false,
-                'priority' => $priority
-            ]);
-            if (!$pluginsTable->save($plugin)) {
-                $result = false;
-            }
-            $priority++;
         }
         return $result;
     }
@@ -692,13 +656,11 @@ class InstallationsService implements InstallationsServiceInterface
     public function getAllDefaultDataPatterns(): array
     {
         $themesService = $this->getService(ThemesServiceInterface::class);
-        // コア
-        $patterns = $themesService->getDefaultDataPatterns();
-        // 外部テーマ
         $paths = [
             BASER_THEMES,
             ROOT . DS . 'vendor' . DS . 'baserproject' . DS
         ];
+        $patterns = [];
         foreacH($paths as $path) {
             $Folder = new Folder($path);
             $files = $Folder->read(true, true, true);

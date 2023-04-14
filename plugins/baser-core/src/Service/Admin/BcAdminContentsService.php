@@ -95,11 +95,11 @@ class BcAdminContentsService implements BcAdminContentsServiceInterface
 
         /** @var ContentsServiceInterface $contentsService */
         $contentsService = $this->getService(ContentsServiceInterface::class);
-        $publishLink = $contentsService->isAllowPublish($content)? $contentsService->getUrl($content->url, false, $content->site->use_subdomain) : null;
+        $publishLink = $contentsService->isAllowPublish($content)? $contentsService->getUrl($content->url, true, $content->site->use_subdomain) : null;
 
         /* @var \BaserCore\Service\SitesService $sitesService */
         $sitesService = $this->getService(SitesServiceInterface::class);
-
+        $mainSite = $sitesService->Sites->getRootMain();
         return [
             'content' => $content,
             'related' => $related,
@@ -111,7 +111,8 @@ class BcAdminContentsService implements BcAdminContentsServiceInterface
             'authorList' => $this->getService(UsersServiceInterface::class)->getList(),
             'sites' => $sitesService->getList(),
             'relatedContents' => $sitesService->getRelatedContents($content->id),
-            'layoutTemplates' => $this->getLayoutTemplates($content)
+            'layoutTemplates' => $this->getLayoutTemplates($content),
+            'mainSiteDisplayName' => $mainSite->display_name
         ];
     }
 

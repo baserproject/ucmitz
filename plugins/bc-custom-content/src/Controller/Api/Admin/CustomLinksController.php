@@ -14,6 +14,7 @@ namespace BcCustomContent\Controller\Api\Admin;
 use BaserCore\Controller\Api\Admin\BcAdminApiController;
 use BcCustomContent\Service\CustomLinksServiceInterface;
 use Cake\Datasource\Exception\RecordNotFoundException;
+use Cake\Http\Exception\BadRequestException;
 use Cake\ORM\Exception\PersistenceFailedException;
 use BaserCore\Annotation\UnitTest;
 use BaserCore\Annotation\NoTodo;
@@ -29,16 +30,19 @@ class CustomLinksController extends BcAdminApiController
      * 一覧取得API
      *
      * @param CustomLinksServiceInterface $service
-     * @param int $id
      *
      * @checked
      * @noTodo
      */
-    public function index(CustomLinksServiceInterface $service, int $id)
+    public function index(CustomLinksServiceInterface $service)
     {
         $this->request->allowMethod('get');
 
         $queryParams = $this->getRequest()->getQueryParams();
+
+        if (empty($queryParams['custom_table_id'])) {
+            throw new BadRequestException(__d('baser_core', 'パラメーターに custom_table_id を指定してください。'));
+        }
 
         $queryParams = array_merge([
             'contain' => null,
@@ -46,7 +50,7 @@ class CustomLinksController extends BcAdminApiController
 
         $this->set([
             'customLinks' => $this->paginate(
-                $service->getIndex($id, $queryParams)
+                $service->getIndex($queryParams['custom_table_id'], $queryParams)
             )
         ]);
         $this->viewBuilder()->setOption('serialize', ['customLinks']);
@@ -95,6 +99,7 @@ class CustomLinksController extends BcAdminApiController
         try {
             $customLink = $service->create($this->request->getData());
             $message = sprintf(__d('baser_core', 'カスタムリンク「%s」を追加しました。'), $customLink->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
@@ -125,8 +130,9 @@ class CustomLinksController extends BcAdminApiController
         $this->request->allowMethod(['post', 'put', 'patch']);
         $entity = null;
         try {
-            $entity = $service->update($service->get($id), $this->request->getData());
+            $entity = $service->update($service->get($id, ['contain' => null]), $this->request->getData());
             $message = __d('baser_core', 'カスタムリンク「{0}」を更新しました。', $entity->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $this->setResponse($this->response->withStatus(400));
             $entity = $e->getEntity();
@@ -167,6 +173,7 @@ class CustomLinksController extends BcAdminApiController
             $customLink = $service->get($id);
             if ($service->delete($id)) {
                 $message = __d('baser_core', 'カスタムリンク「{0}」を削除しました。', $customLink->title);
+                $this->BcMessage->setSuccess($message, true, false);
             } else {
                 $this->setResponse($this->response->withStatus(500));
                 $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');

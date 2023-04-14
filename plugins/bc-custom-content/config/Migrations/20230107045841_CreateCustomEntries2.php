@@ -14,7 +14,9 @@ class CreateCustomEntries2 extends BcMigration
      */
     public function up()
     {
-        $this->table('custom_entry_2_occupations')
+        $this->table('custom_entry_2_occupations', [
+            'collation' => 'utf8mb4_general_ci'
+         ])
             ->addColumn('custom_table_id', 'integer', [
                 'default' => null,
                 'limit' => null,
@@ -97,6 +99,6 @@ class CreateCustomEntries2 extends BcMigration
      */
     public function down()
     {
-        $this->table('custom_entries')->drop()->save();
+        $this->table('custom_entry_2_occupations')->drop()->save();
     }
 }

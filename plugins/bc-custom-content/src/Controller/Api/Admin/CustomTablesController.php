@@ -90,6 +90,7 @@ class CustomTablesController extends BcAdminApiController
         try {
             $customTable = $service->create($this->request->getData());
             $message = __d('baser_core', 'テーブル「{0}」を追加しました。', $customTable->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
@@ -118,11 +119,12 @@ class CustomTablesController extends BcAdminApiController
      */
     public function edit(CustomTablesServiceInterface $service, int $id)
     {
-        $this->request->allowMethod(['post', 'put']);
+        $this->request->allowMethod(['post', 'put', 'patch']);
         $customTable = $errors = null;
         try {
             $customTable = $service->update($service->get($id), $this->request->getData());
             $message = __d('baser_core', 'テーブル「{0}」を更新しました。', $customTable->title);
+            $this->BcMessage->setSuccess($message, true, false);
         } catch (PersistenceFailedException $e) {
             $errors = $e->getEntity()->getErrors();
             $message = __d('baser_core', "入力エラーです。内容を修正してください。");
@@ -159,6 +161,7 @@ class CustomTablesController extends BcAdminApiController
             $customTable = $service->get($id);
             if ($service->delete($id)) {
                 $message = __d('baser_core', 'テーブル「{0}」を削除しました。', $customTable->title);
+                $this->BcMessage->setSuccess($message, true, false);
             } else {
                 $this->setResponse($this->response->withStatus(400));
                 $message = __d('baser_core', 'データベース処理中にエラーが発生しました。');

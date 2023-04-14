@@ -115,7 +115,7 @@ class MailContentsService implements MailContentsServiceInterface
         if (BcUtil::isOverPostSize()) {
             throw new BcException(__d('baser_core', '送信できるデータ量を超えています。合計で {0} 以内のデータを送信してください。', ini_get('post_max_size')));
         }
-        if (empty($postData['sender_1_'])) {
+        if (empty($postData['sender_1_select'])) {
             $postData['sender_1'] = '';
         }
         $entity = $this->MailContents->patchEntity($entity, $postData);
@@ -241,6 +241,21 @@ class MailContentsService implements MailContentsServiceInterface
             BcUtil::loginUser()->id,
             $postData['site_id'] ?? null
         );
+    }
+
+    /**
+     * 公開状態のメールコンテンツを全て取得する
+     *
+     * @param int|null $siteId
+     * @return \Cake\Datasource\ResultSetInterface
+     */
+    public function getPublishedAll(int $siteId = null)
+    {
+        $query = $this->getIndex(['status' => 'publish']);
+        if($siteId) {
+            $query = $query->where(['Contents.site_id' => $siteId]);
+        }
+        return $query->all();
     }
 
 }

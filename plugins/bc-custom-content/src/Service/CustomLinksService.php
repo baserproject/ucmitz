@@ -50,16 +50,16 @@ class CustomLinksService implements CustomLinksServiceInterface
      */
     public function get(int $id, array $options = [])
     {
-        $options = array_merge_recursive([
+        $options = array_merge([
             'status' => '',
             'contain' => [
                 'CustomFields',
-                'CustomContents' => ['Contents']
+                'CustomTables' => ['CustomContents' => ['Contents']]
             ]
         ], $options);
         $conditions = [];
         if ($options['status'] === 'publish') {
-            $conditions = $this->CustomLinks->CustomContents->Contents->getConditionAllowPublish();
+            $conditions = $this->CustomLinks->CustomTables->CustomContents->Contents->getConditionAllowPublish();
             $conditions = array_merge($conditions, ['CustomLinks.status' => true]);
         }
         return $this->CustomLinks->get($id, ['contain' => $options['contain'], 'conditions' => $conditions]);
@@ -165,6 +165,7 @@ class CustomLinksService implements CustomLinksServiceInterface
         $this->CustomLinks->getConnection()->begin();
         try {
             $oldName = $entity->name;
+            unset($postData['custom_field']);
             $entity = $this->CustomLinks->patchEntity($entity, $postData);
             $result = $this->CustomLinks->saveOrFail($entity);
             if($oldName !== $entity->name) {

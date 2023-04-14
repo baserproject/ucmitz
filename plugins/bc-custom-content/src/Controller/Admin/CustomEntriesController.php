@@ -81,11 +81,15 @@ class CustomEntriesController extends CustomContentAdminAppController
                     'direction' => 'desc',
                 ]]]);
 
+        $params = array_merge([
+            'contain' => ['CustomTables' => ['CustomLinks']
+        ]], $this->getRequest()->getQueryParams());
+
         $table = $service->getTableWithLinksByAll($tableId);
         if($table->has_child) {
-            $entries = $service->getTreeIndex($this->getRequest()->getQueryParams());
+            $entries = $service->getTreeIndex($params);
         } else {
-            $entries = $this->paginate($service->getIndex($this->getRequest()->getQueryParams()));
+            $entries = $this->paginate($service->getIndex($params));
         }
 
         $this->set($service->getViewVarsForIndex($table, $entries));
@@ -105,7 +109,7 @@ class CustomEntriesController extends CustomContentAdminAppController
         if($this->getRequest()->is(['post', 'put'])) {
             try {
                 $entity = $service->create($this->getRequest()->getData());
-                $entity = $service->get($entity->id);
+                $entity = $service->get($entity->id, ['contain' => ['CustomTables']]);
                 $this->BcMessage->setSuccess(__d('baser_core',
                     'エントリー「{0}」を追加しました。',
                     $entity->{$entity->custom_table->display_field}
@@ -131,7 +135,7 @@ class CustomEntriesController extends CustomContentAdminAppController
     public function edit(CustomEntriesAdminServiceInterface $service, int $tableId, int $id)
     {
         $service->setup($tableId, $this->getRequest()->getData());
-        $entity = $service->get($id);
+        $entity = $service->get($id, ['contain' => 'CustomTables']);
         if($this->getRequest()->is(['post', 'put'])) {
             try {
                 $entity = $service->update($entity, $this->getRequest()->getData());
@@ -163,7 +167,7 @@ class CustomEntriesController extends CustomContentAdminAppController
         $this->getRequest()->allowMethod(['post', 'put']);
         $service->setup($tableId);
         try {
-            $entity = $service->get($id);
+            $entity = $service->get($id, ['contain' => ['CustomTables']]);
             if ($service->delete($id)) {
                 $this->BcMessage->setSuccess(__d('baser_core',
                     'エントリー「{0}」を削除しました。',
@@ -188,7 +192,7 @@ class CustomEntriesController extends CustomContentAdminAppController
         $this->getRequest()->allowMethod(['post', 'put', 'delete']);
         $service->setup($tableId);
         try {
-            $entity = $service->get($id);
+            $entity = $service->get($id, ['contain' => ['CustomTables']]);
             if ($service->moveUp($id)) {
                 $this->BcMessage->setSuccess(__d('baser_core', 'エントリー「{0}」を上に移動しました。', $entity->title));
             }
@@ -214,7 +218,7 @@ class CustomEntriesController extends CustomContentAdminAppController
         $this->getRequest()->allowMethod(['post', 'put', 'delete']);
         $service->setup($tableId);
         try {
-            $entity = $service->get($id);
+            $entity = $service->get($id, ['contain' => ['CustomTables']]);
             if ($service->moveDown($id)) {
                 $this->BcMessage->setSuccess(__d('baser_core', 'エントリー「{0}」を下に移動しました。', $entity->title));
             }

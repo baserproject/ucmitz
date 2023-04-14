@@ -34,6 +34,9 @@ $(function () {
         var previewMode = $("#ContentPreviewMode").val();
         var previewurl = previewurlBase;
 
+        if(previewMode === undefined) {
+            previewMode = 'publish';
+        }
         if ($("#ContentAliasId").val()) {
             previewMode = 'alias';
         }
@@ -75,7 +78,8 @@ $(function () {
         var targetUrl = $("#sites-target-url" + siteId).val();
         var data = {
             content: {
-                title: current.name,
+                name: current.name,
+                title: current.title,
                 plugin: current.plugin,
                 type: current.type,
                 site_id: siteId,
