@@ -97,6 +97,11 @@ class MailFieldsService implements MailFieldsServiceInterface
         }
 
         if ($options['status'] === 'publish') {
+            if (empty($queryParams['contain'])) {
+                $query->contain(['MailContents' => ['Contents']]);
+            } elseif (!isset($queryParams['contain']['MailContents']['Contents'])) {
+                $query->contain(array_merge_recursive($query->getContain(), ['MailContents' => ['Contents']]));
+            }
             $conditions['use_field'] = true;
             $conditions = array_merge($conditions, $this->MailFields->MailContents->Contents->getConditionAllowPublish());
         }
